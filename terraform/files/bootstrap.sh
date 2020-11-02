@@ -4,7 +4,7 @@
 ## license: Apache-2.0
 
 # versions
-VERSION_K9S=v0.23.3
+VERSION_K9S="0.23.3"
 VERSION_CLUSTERCTL="0.3.10"
 
 ## install tools and utils at local account
@@ -12,15 +12,14 @@ VERSION_CLUSTERCTL="0.3.10"
 mkdir -p $HOME/bin
 
 # install k9s
-curl -L https://github.com/derailed/k9s/releases/download/v$VERSION_K9S/k9s_Linux_x86_64.tar.gz -o $HOME/bin/k9s && \
+echo "# install k9s ${VERSION_CLUSTERCTL}"
+curl -L https://github.com/derailed/k9s/releases/download/v${VERSION_K9S}/k9s_Linux_x86_64.tar.gz -o $HOME/bin/k9s && \
   chmod +x $HOME/bin/k9s
 
 # install clusterapi-cli
 echo "# install clusterctl ${VERSION_CLUSTERCTL}"
 curl -sfL https://github.com/kubernetes-sigs/cluster-api/releases/download/v${VERSION_CLUSTERCTL}/clusterctl-linux-amd64 -o ~/bin/clusterctl && \
   chmod +x ~/bin/clusterctl
-
-clusterctl version --output yaml
 
 # setup aliases and environment
 echo "# setup environment"
