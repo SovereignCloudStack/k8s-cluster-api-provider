@@ -1,0 +1,10 @@
+.deploy.*
+.terraform
+clouds.y*
+credentials.yaml
+errored.tfstate
+minio.env
+minio.tf
+secure.y*
+terraform.tfstate.d
+terraform.tfstate*
