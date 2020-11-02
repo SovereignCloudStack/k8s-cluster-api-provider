@@ -112,6 +112,7 @@ openstack: init
 
 k9s: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
-	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "k9s --all-namespaces --command pods --headless"
+	ssh -t -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS \
+	  "k9s --kubeconfig=/etc/rancher/k3s/k3s.yaml --all-namespaces"
 
 PHONY: clean console attach detach ssh dry-run list deploy watch openstack create log console login k9s 

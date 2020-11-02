@@ -9,25 +9,21 @@ VERSION_CLUSTERCTL="0.3.10"
 
 ## install tools and utils at local account
 #
-mkdir -p $HOME/bin
 
 # install k9s
 echo "# install k9s ${VERSION_CLUSTERCTL}"
-curl -L https://github.com/derailed/k9s/releases/download/v${VERSION_K9S}/k9s_Linux_x86_64.tar.gz -o $HOME/bin/k9s && \
-  chmod +x $HOME/bin/k9s
+curl -L https://github.com/derailed/k9s/releases/download/v${VERSION_K9S}/k9s_Linux_x86_64.tar.gz | tar zf - -x k9s
+sudo mv ./k9s /usr/local/bin/k9s
 
 # install clusterapi-cli
 echo "# install clusterctl ${VERSION_CLUSTERCTL}"
-curl -sfL https://github.com/kubernetes-sigs/cluster-api/releases/download/v${VERSION_CLUSTERCTL}/clusterctl-linux-amd64 -o ~/bin/clusterctl && \
-  chmod +x ~/bin/clusterctl
+sudo curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/v${VERSION_CLUSTERCTL}/clusterctl-linux-amd64 -o /usr/local/bin/clusterctl
+sudo chmod +x /usr/local/bin/clusterctl
 
 # setup aliases and environment
 echo "# setup environment"
 cat <<EOF > $HOME/.bash_aliases
-# path
-export PATH=\$PATH:\$HOME/bin
-
-# kubernetes
+# kubernetes-cli
 alias k=kubectl
 source <( kubectl completion bash | sed 's# kubectl\$# k kubectl\$#' )
 
