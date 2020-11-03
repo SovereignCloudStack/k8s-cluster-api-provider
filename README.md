@@ -5,7 +5,7 @@ A virtual testbed environment for [Kubernetes Cluster API Project](https://clust
 Cluster API requires an existing Kubernetes cluster this is built with [K3s](https://k3s.io)
 on OpenStack instance previously provided by Terraform.
 
-A short summary with the individual steps can be found in the [documentation](https://cluster-api.sigs.k8s.io/user/quick-start.html)
+A short summary with the individual steps can be found in the [Quickstart](https://cluster-api.sigs.k8s.io/user/quick-start.html)
 
 ## Preparations
 
