@@ -59,13 +59,23 @@ EOF
     destination = "/home/${var.ssh_username}/bootstrap.sh"
   }
 
+  provisioner "file" {
+    source      = "files/deploy.sh"
+    destination = "/home/${var.ssh_username}/deploy.sh"
+  }
+
+  provisioner "file" {
+    source      = "files/${var.cloud_provider}/clusterctl.yaml"
+    destination = "/home/${var.ssh_username}/clusterctl.yaml"
+  }
+
   provisioner "local-exec" {
     command = "sleep 120"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "chmod 0600 /home/${var.ssh_username}/.ssh/id_rsa",
+      "chmod 0600 /home/${var.ssh_username}/.ssh/id_rsa /home/${var.ssh_username}/clusterctl.yaml",
       "bash /home/${var.ssh_username}/bootstrap.sh"
     ]
   }
