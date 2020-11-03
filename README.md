@@ -1,4 +1,4 @@
-# testbed-clusterapi-openstack
+# testbed-cluster-api-openstack
 
 A virtual testbed environment for [Kubernetes Cluster API Project](https://cluster-api.sigs.k8s.io/).
 
