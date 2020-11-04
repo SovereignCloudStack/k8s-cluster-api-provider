@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
-    bucket                      = "$var.cloud_provider"
+    bucket                      = "cluster-api-openstack"
     key                         = "terraform.tfstate"
-    region                      = "minio-enabled"
+    region                      = "main"
     force_path_style            = true
     skip_credentials_validation = true
     skip_metadata_api_check     = true
