@@ -1,7 +1,7 @@
 # Makefile
 
 OPENSTACK = openstack
-ENVIRONMENT = gx-betacloud
+ENVIRONMENT = gx-citycloud
 USERNAME = ubuntu
 CONSOLE = capi-mgmtcluster
 
