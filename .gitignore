@@ -1,10 +1,10 @@
 .deploy.*
 .terraform
-clouds.y*
+clouds.yaml
 clusterctl.yaml
 errored.tfstate
 minio.env
 minio.tf
-secure.y*
+secure.yaml
 terraform.tfstate.d
 terraform.tfstate*
