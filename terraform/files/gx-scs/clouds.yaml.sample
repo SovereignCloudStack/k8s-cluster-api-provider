@@ -1,0 +1,12 @@
+---
+clouds:
+  gx-scs:
+    interface: public
+    identity_api_version: 3
+    auth:
+      auth_url: https://gx-scs.okeanos.dev:5000
+      project_name: need-to-be-set
+      user_domain_name: need-to-be-set
+      project_domain_name: need-to-be-set
+      password: need-to-be-set
+      username: need-to-be-set

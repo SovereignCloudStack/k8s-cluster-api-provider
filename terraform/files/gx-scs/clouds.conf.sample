@@ -1,0 +1,10 @@
+[Global]
+auth-url="https://gx-scs.okeanos.dev:5000"
+tenant-name="need-to-be-set"
+domain-name="need-to-be-set"
+password="need-to-be-set"
+username="need-to-be-set"
+
+[LoadBalancer]
+manage-security-groups=true
+use-octavia=true
