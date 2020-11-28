@@ -3,19 +3,18 @@
 ##    desc: bootstrap a cluster-api environment for openstack
 ## license: Apache-2.0
 
-# versions
+# version
 VERSION_K9S="0.23.3"
-VERSION_CLUSTERCTL="0.3.10"
+VERSION_CLUSTERCTL="0.3.11"
 
 ## install tools and utils at local account
-#
 
 # install k9s
 echo "# install k9s ${VERSION_CLUSTERCTL}"
 curl -L https://github.com/derailed/k9s/releases/download/v${VERSION_K9S}/k9s_Linux_x86_64.tar.gz | tar zf - -x k9s
 sudo mv ./k9s /usr/local/bin/k9s
 
-# install clusterapi-cli
+# install clustercli
 echo "# install clusterctl ${VERSION_CLUSTERCTL}"
 sudo curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/v${VERSION_CLUSTERCTL}/clusterctl-linux-amd64 -o /usr/local/bin/clusterctl
 sudo chmod +x /usr/local/bin/clusterctl
@@ -37,16 +36,8 @@ EOF
 
 # set inputrc set tab once
 cat <<EOF > .inputrc
-# set tab one
+# set tab once
 set show-all-if-ambiguous on
 EOF
-
-source $HOME/.bash_aliases
-
-## check system
-#
-
-# get k8s nodes
-kubectl get nodes --output wide
 
 # eof

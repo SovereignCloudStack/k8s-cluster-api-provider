@@ -33,7 +33,7 @@ variable "ssh_username" {
   type        = string
 }
 
-resource "random_string" "k3s_token" {
+resource "random_password" "k3s_token" {
   length           = 32
   special          = true
   override_special = "=_%@"

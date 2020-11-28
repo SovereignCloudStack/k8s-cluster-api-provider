@@ -1,3 +1,19 @@
+# generic security group allow ssh connection 
+# used for cluster-api-nodes
+resource "openstack_compute_secgroup_v2" "security_group_ssh" {
+  name        = "allow-ssh"
+  description = "security group for ssh 22/tcp (managed by terraform)"
+
+  rule {
+    cidr        = "0.0.0.0/0"
+    ip_protocol = "tcp"
+    from_port   = 22
+    to_port     = 22
+  }
+}
+
+# security group allow ssh/icmp connection to mgmt cluster/host
+#
 resource "openstack_compute_secgroup_v2" "security_group_mgmt" {
   name        = "${var.prefix}-mgmt"
   description = "security group for mgmtcluster (managed by terraform)"
@@ -18,9 +34,9 @@ resource "openstack_compute_secgroup_v2" "security_group_mgmt" {
 }
 
 resource "openstack_networking_network_v2" "network_mgmt" {
-  name                    = "${var.prefix}-net"
-  availability_zone_hints = [var.availability_zone]
-  admin_state_up          = "true"
+  name = "${var.prefix}-net"
+  #  availability_zone_hints = [var.availability_zone]
+  #  admin_state_up          = "true"
 }
 
 resource "openstack_networking_subnet_v2" "subnet_mgmt" {

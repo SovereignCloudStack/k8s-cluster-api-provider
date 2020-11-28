@@ -1,7 +1,11 @@
 # Makefile
 
+# set the env we used 
+#ENVIRONMENT = gx-betacloud
+#ENVIRONMENT = gx-citycloud
+#ENVIRONMENT = gx-scs
+ENVIRONMENT = example
 OPENSTACK = openstack
-ENVIRONMENT = gx-citycloud
 USERNAME = ubuntu
 CONSOLE = capi-mgmtcluster
 
@@ -41,9 +45,9 @@ show: init
 
 clean: init
 	@terraform destroy -auto-approve -var-file="environment-$(ENVIRONMENT).tfvars" $(PARAMS)
-	@rm -f .deploy.$(ENVIRONMENT) .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	@terraform workspace select default
 	@terraform workspace delete $(ENVIRONMENT)
+	@rm -f .deploy.$(ENVIRONMENT) .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 
 list: init
 	@terraform state list
@@ -113,6 +117,6 @@ openstack: init
 k9s: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
 	ssh -t -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS \
-	  "k9s --kubeconfig=/etc/rancher/k3s/k3s.yaml --all-namespaces"
+	"KUBECONFIG=/etc/rancher/k3s/k3s.yaml:/home/ubuntu/workload-cluster.yaml k9s --all-namespaces"
 
 PHONY: clean console attach detach ssh dry-run list deploy watch openstack create log console login k9s 

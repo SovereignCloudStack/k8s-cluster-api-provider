@@ -8,15 +8,17 @@ resource "openstack_networking_floatingip_v2" "mgmtcluster_floatingip" {
   pool       = var.external
   depends_on = [openstack_networking_router_interface_v2.router_interface]
 }
+
 resource "openstack_networking_port_v2" "mgmtcluster_port" {
   network_id = openstack_networking_network_v2.network_mgmt.id
   security_group_ids = [
     openstack_compute_secgroup_v2.security_group_mgmt.id,
   ]
   fixed_ip {
-    subnet_id  = openstack_networking_subnet_v2.subnet_mgmt.id
+    subnet_id = openstack_networking_subnet_v2.subnet_mgmt.id
   }
 }
+
 resource "openstack_networking_floatingip_associate_v2" "mgmtcluster_floatingip_association" {
   floating_ip = openstack_networking_floatingip_v2.mgmtcluster_floatingip.address
   port_id     = openstack_networking_port_v2.mgmtcluster_port.id
@@ -33,14 +35,14 @@ resource "openstack_compute_instance_v2" "mgmtcluster_server" {
 
   user_data = <<-EOF
 #cloud-config
+final_message: "The system is finally up, after $UPTIME seconds"
 package_update: true
 package_upgrade: true
 power_state:
   mode: reboot
   condition: True
 runcmd:
-  - curl -sfL https://get.k3s.io | K3S_TOKEN=${random_string.k3s_token.result} INSTALL_K3S_EXEC="server --write-kubeconfig-mode 644 --disable servicelb,traefik,local-storage" sh -
-final_message: "The system is finally up, after $UPTIME seconds"
+  - curl -sfL https://get.k3s.io | K3S_TOKEN=${random_password.k3s_token.result} INSTALL_K3S_EXEC="server --write-kubeconfig-mode 644 --disable servicelb,traefik,local-storage" sh -
 EOF
 
   connection {
@@ -67,6 +69,11 @@ EOF
   provisioner "file" {
     source      = "files/${var.cloud_provider}/clusterctl.yaml"
     destination = "/home/${var.ssh_username}/clusterctl.yaml"
+  }
+
+  provisioner "file" {
+    source      = "files/template/cluster-template.yaml"
+    destination = "/home/${var.ssh_username}/cluster-template.yaml"
   }
 
   provisioner "local-exec" {
