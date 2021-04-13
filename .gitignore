@@ -1,6 +1,7 @@
 .deploy.*
 .terraform
 clouds.yaml
+clouds.conf
 clusterctl.yaml
 errored.tfstate
 minio.env
