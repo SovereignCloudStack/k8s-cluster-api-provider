@@ -38,9 +38,6 @@ resource "openstack_compute_instance_v2" "mgmtcluster_server" {
 final_message: "The system is finally up, after $UPTIME seconds"
 package_update: true
 package_upgrade: true
-power_state:
-  mode: reboot
-  condition: True
 runcmd:
   - curl -sfL https://get.k3s.io | K3S_TOKEN=${random_password.k3s_token.result} INSTALL_K3S_EXEC="server --write-kubeconfig-mode 644 --disable servicelb,traefik,local-storage" sh -
 EOF
@@ -50,6 +47,12 @@ EOF
     private_key = openstack_compute_keypair_v2.keypair.private_key
     user        = var.ssh_username
   }
+  
+  provisioner "file" {
+    source      = "files/wait.sh"
+    destination = "/home/${var.ssh_username}/wait.sh"
+  }
+
 
   provisioner "file" {
     content     = openstack_compute_keypair_v2.keypair.private_key
@@ -75,9 +78,10 @@ EOF
     source      = "files/template/cluster-template.yaml"
     destination = "/home/${var.ssh_username}/cluster-template.yaml"
   }
-
-  provisioner "local-exec" {
-    command = "sleep 120"
+  provisioner "remote-exec" {
+    inline = [
+      "bash /home/ubuntu/wait.sh"
+    ]
   }
 
   provisioner "remote-exec" {

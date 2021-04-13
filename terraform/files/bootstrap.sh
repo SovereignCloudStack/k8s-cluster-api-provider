@@ -41,3 +41,5 @@ set show-all-if-ambiguous on
 EOF
 
 # eof
+bash deploy.sh
+sudo shutdown -r
