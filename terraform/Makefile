@@ -4,7 +4,7 @@
 #ENVIRONMENT = gx-betacloud
 #ENVIRONMENT = gx-citycloud
 #ENVIRONMENT = gx-scs
-ENVIRONMENT = example
+ENVIRONMENT = gx-scs-staging
 OPENSTACK = openstack
 USERNAME = ubuntu
 CONSOLE = capi-mgmtcluster
@@ -48,6 +48,21 @@ clean: init
 	@terraform workspace select default
 	@terraform workspace delete $(ENVIRONMENT)
 	@rm -f .deploy.$(ENVIRONMENT) .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
+
+purge:
+	@echo "Warning, going to delete ALL resources in $(ENVIRONMENT), even those that have not been created by the testbed. The SSH-Key capi-keypair will be removed for all projects."
+	@read -p "Continue? (y/n) " -r; \
+        if [[ ! $$REPLY =~ ^[Yy] ]]; \
+        then \
+			exit 1; \
+        fi
+	@ospurge --purge-own-project --os-cloud $(ENVIRONMENT) --verbose
+	@rm -f .deploy.$(ENVIRONMENT) .MGMT_ADDRESS.$(ENVIRONMENT)
+	@rm -f .id_rsa.$(ENVIRONMENT)
+	@terraform workspace select default 
+	@terraform workspace delete -force $(ENVIRONMENT) || true
+	@openstack keypair delete capi-keypair || true
+	@ospurge --purge-own-project --os-cloud $(ENVIRONMENT) --verbose
 
 list: init
 	@terraform state list
