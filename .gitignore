@@ -8,3 +8,4 @@ minio.tf
 secure.yaml
 terraform.tfstate.d
 terraform.tfstate*
+.terraform.lock.hcl
