@@ -5,7 +5,7 @@
 
 # version
 VERSION_K9S="0.23.3"
-VERSION_CLUSTERCTL="0.3.11"
+VERSION_CLUSTERCTL="0.3.15"
 
 ## install tools and utils at local account
 

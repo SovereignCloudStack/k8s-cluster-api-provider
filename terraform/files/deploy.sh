@@ -4,7 +4,7 @@
 ## license: Apache-2.0
 
 # variables
-CLUSTERAPI_VERSION=0.3.2
+CLUSTERAPI_VERSION=0.3.4
 CLUSTERAPI_TEMPLATE=cluster-template.yaml
 CLUSTER_NAME=testcluster
 KUBECONFIG_WORKLOADCLUSTER=workload-cluster.yaml
