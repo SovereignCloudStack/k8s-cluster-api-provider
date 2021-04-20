@@ -12,11 +12,11 @@ A short summary with the individual steps can be found in the [Quickstart](https
 * Terraform must be installed (https://learn.hashicorp.com/tutorials/terraform/install-cli)
 * ``terraform/clouds.yaml`` and ``terraform/secure.yaml`` files must be created
   (https://docs.openstack.org/python-openstackclient/latest/configuration/index.html#clouds-yaml)
+* place your clouds.yaml and your secure.yaml in the terraform folder. Examples are provided in clouds.yaml.sample and secure.yaml.sample
 
 ## Usage
-
-**Before use, make sure that no other testbed is already in the project.**
-
 * ``make create``
-* ``make deploy`` (or: ``make login`` followed by ``bash deploy.sh``)
-* ``make clean``
+After that you can connect to the management machine via ``make ssh``.  The kubeconfig for the created cluster is named workload-cluster.yaml
+
+## Teardown
+You can purge the whole project via ``make purge``. Be careful with that command it will purge all resources in the project even those that have not been created through this terraform script.

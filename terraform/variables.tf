@@ -33,8 +33,8 @@ variable "ssh_username" {
   type        = string
 }
 
-resource "random_password" "k3s_token" {
-  length           = 32
-  special          = true
-  override_special = "=_%@"
+variable "kubernetes_version" {
+  description = "desired kubernetes version for the workload cluster"
+  type        = string
+  default     = "v1.18.12"
 }

@@ -12,6 +12,19 @@ resource "openstack_compute_secgroup_v2" "security_group_ssh" {
   }
 }
 
+# generic security group allow icmp connection
+# used for cluster-api-nodes
+resource "openstack_compute_secgroup_v2" "security_group_icmp" {
+  name        = "allow-icmp"
+  description = "security group for ICMP"
+
+  rule {
+    cidr        = "0.0.0.0/0"
+    ip_protocol = "icmp"
+    from_port   = -1
+    to_port     = -1
+  }
+}
 # security group allow ssh/icmp connection to mgmt cluster/host
 #
 resource "openstack_compute_secgroup_v2" "security_group_mgmt" {

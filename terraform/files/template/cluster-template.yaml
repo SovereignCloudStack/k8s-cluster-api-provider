@@ -122,6 +122,7 @@ spec:
         namespace: ${NAMESPACE}
       securityGroups:
       - name: allow-ssh   # a predefined openstack securityGroups
+      - name: allow-icmp
 ---
 apiVersion: cluster.x-k8s.io/v1alpha3
 kind: MachineDeployment
@@ -163,6 +164,7 @@ spec:
       sshKeyName: ${OPENSTACK_KEYPAIR_NAME}
       securityGroups:
       - name: allow-ssh
+      - name: allow-icmp
 ---
 apiVersion: bootstrap.cluster.x-k8s.io/v1alpha3
 kind: KubeadmConfigTemplate

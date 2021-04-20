@@ -25,7 +25,7 @@ init:
 	@terraform workspace select ${ENVIRONMENT} || terraform workspace new ${ENVIRONMENT}
 
 attach: init
-	@terraform import -var-file="environment-$(ENVIRONMENT).tfvars" $(RESOURCE) $(PARAMS)
+	@terraform import -var-file="environments/environment-$(ENVIRONMENT).tfvars" $(RESOURCE) $(PARAMS)
 
 detach: init
 	@terraform state rm $(RESOURCE) $(PARAMS)
@@ -34,17 +34,17 @@ state-push: init
 	@terraform state push $(STATE)
 
 dry-run: init
-	@terraform plan -var-file="environment-$(ENVIRONMENT).tfvars" $(PARAMS)
+	@terraform plan -var-file="environments/environment-$(ENVIRONMENT).tfvars" $(PARAMS)
 
 create: init
 	@touch .deploy.$(ENVIRONMENT)
-	@terraform apply -auto-approve -var-file="environment-$(ENVIRONMENT).tfvars"
+	@terraform apply -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars"
 
 show: init
 	@terraform show
 
 clean: init
-	@terraform destroy -auto-approve -var-file="environment-$(ENVIRONMENT).tfvars" $(PARAMS)
+	@terraform destroy -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" $(PARAMS)
 	@terraform workspace select default
 	@terraform workspace delete $(ENVIRONMENT)
 	@rm -f .deploy.$(ENVIRONMENT) .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)

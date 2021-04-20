@@ -38,8 +38,18 @@ resource "openstack_compute_instance_v2" "mgmtcluster_server" {
 final_message: "The system is finally up, after $UPTIME seconds"
 package_update: true
 package_upgrade: true
+write_files:
+  - encoding: b64
+    content: ewogICJtdHUiOiAxNDAwCn0K # set mtu 1400
+    owner: root:root
+    path: /tmp/daemon.json
+    permissions: '0644'
 runcmd:
-  - curl -sfL https://get.k3s.io | K3S_TOKEN=${random_password.k3s_token.result} INSTALL_K3S_EXEC="server --write-kubeconfig-mode 644 --disable servicelb,traefik,local-storage" sh -
+  - mkdir /etc/docker
+  - mv /tmp/daemon.json /etc/docker/daemon.json
+  - groupadd docker
+  - usermod -aG docker ${var.ssh_username}
+  - apt -y install docker.io
 EOF
 
   connection {
@@ -47,12 +57,21 @@ EOF
     private_key = openstack_compute_keypair_v2.keypair.private_key
     user        = var.ssh_username
   }
-  
+
+locals {
+  clouds = lookup(lookup(yamldecode(file("clouds.yaml")), "clouds"), var.cloud_provider)
+  secure = lookup(lookup(yamldecode(file("secure.yaml")), "clouds"), var.cloud_provider)
+}
+
   provisioner "file" {
     source      = "files/wait.sh"
     destination = "/home/${var.ssh_username}/wait.sh"
   }
 
+  provisioner "file" {
+    source      = "files/install_kind.sh"
+    destination = "/home/${var.ssh_username}/install_kind.sh"
+  }
 
   provisioner "file" {
     content     = openstack_compute_keypair_v2.keypair.private_key
@@ -68,16 +87,27 @@ EOF
     source      = "files/deploy.sh"
     destination = "/home/${var.ssh_username}/deploy.sh"
   }
+  
+  provisioner "file" {
+    content     = templatefile("files/template/clusterctl.yaml.tmpl", { kubernetes_version = var.kubernetes_version, availability_zone = var.availability_zone, external = var.external, image = var.image, flavor = var.flavor, cloud_provider = var.cloud_provider })
+    destination = "/home/${var.ssh_username}/clusterctl.yaml"
+  }
 
   provisioner "file" {
-    source      = "files/${var.cloud_provider}/clusterctl.yaml"
-    destination = "/home/${var.ssh_username}/clusterctl.yaml"
+    content     = templatefile("files/template/clouds.yaml.tmpl", { kubernetes_version = var.kubernetes_version, availability_zone = var.availability_zone, external = var.external, image = var.image, flavor = var.flavor, cloud_provider = var.cloud_provider })
+    destination = "/home/${var.ssh_username}/clouds.yaml"
+  }
+  
+provisioner "file" {
+    content     = templatefile("files/template/clouds.conf.tmpl", { kubernetes_version = var.kubernetes_version, availability_zone = var.availability_zone, external = var.external, image = var.image, flavor = var.flavor, cloud_provider = var.cloud_provider, clouds = var.clouds, secure = var.secure})
+    destination = "/home/${var.ssh_username}/clouds.conf"
   }
 
   provisioner "file" {
     source      = "files/template/cluster-template.yaml"
     destination = "/home/${var.ssh_username}/cluster-template.yaml"
   }
+
   provisioner "remote-exec" {
     inline = [
       "bash /home/ubuntu/wait.sh"

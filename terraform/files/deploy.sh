@@ -9,9 +9,6 @@ CLUSTERAPI_TEMPLATE=cluster-template.yaml
 CLUSTER_NAME=testcluster
 KUBECONFIG_WORKLOADCLUSTER=workload-cluster.yaml
 
-# set KUBECONFIG
-export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-
 # get the clusterctl version
 echo "show the clusterctl version:"
 clusterctl version --output yaml
@@ -50,7 +47,11 @@ kubectl apply -f rendered-${CLUSTERAPI_TEMPLATE}
 
 # get kubeconfig from cluster
 echo "Get kubeconfig for kubernetes workload-cluster ${CLUSTER_NAME} at ${KUBECONFIG_WORKLOADCLUSTER}"
-kubectl wait --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME}
+echo "Waiting for "
+wget https://gx-scs.okeanos.dev --quiet -O /dev/null
+kubectl wait --timeout=10m --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME}
+kubectl wait --timeout=5m --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME}
+
 kubectl get secrets ${CLUSTER_NAME}-kubeconfig --output go-template='{{ .data.value | base64decode }}' > ${KUBECONFIG_WORKLOADCLUSTER}
 
 # eof

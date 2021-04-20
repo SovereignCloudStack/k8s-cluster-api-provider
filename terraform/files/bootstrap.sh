@@ -9,6 +9,9 @@ VERSION_CLUSTERCTL="0.3.15"
 
 ## install tools and utils at local account
 
+# install kubectl
+sudo snap install kubectl --classic
+
 # install k9s
 echo "# install k9s ${VERSION_CLUSTERCTL}"
 curl -L https://github.com/derailed/k9s/releases/download/v${VERSION_K9S}/k9s_Linux_x86_64.tar.gz | tar zf - -x k9s
@@ -26,8 +29,6 @@ cat <<EOF > $HOME/.bash_aliases
 alias k=kubectl
 source <( kubectl completion bash | sed 's# kubectl\$# k kubectl\$#' )
 
-export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-
 # clusterctl 
 source <( clusterctl completion bash )
 
@@ -41,5 +42,5 @@ set show-all-if-ambiguous on
 EOF
 
 # eof
+bash install_kind.sh
 bash deploy.sh
-sudo shutdown -r
