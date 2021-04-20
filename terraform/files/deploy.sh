@@ -37,6 +37,9 @@ kubectl wait --for condition=established --timeout=60s crds/openstackclusters.in
 echo "# show used variables for clustertemplate ${CLUSTERAPI_TEMPLATE}"
 clusterctl config cluster ${CLUSTER_NAME} --list-variables --from ${CLUSTERAPI_TEMPLATE}
 
+# set some Variables to the clusterctl.yaml
+bash clusterctl_template.sh
+
 # the need variables are set to $HOME/.cluster-api/clusterctl.yaml
 echo "# rendering clusterconfig from template"
 clusterctl config cluster ${CLUSTER_NAME} --from ${CLUSTERAPI_TEMPLATE} > rendered-${CLUSTERAPI_TEMPLATE}

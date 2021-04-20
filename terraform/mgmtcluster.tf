@@ -24,6 +24,11 @@ resource "openstack_networking_floatingip_associate_v2" "mgmtcluster_floatingip_
   port_id     = openstack_networking_port_v2.mgmtcluster_port.id
 }
 
+locals {
+  clouds = lookup(lookup(yamldecode(file("clouds.yaml")), "clouds"), var.cloud_provider)
+  secure = lookup(lookup(yamldecode(file("secure.yaml")), "clouds"), var.cloud_provider)
+}
+
 resource "openstack_compute_instance_v2" "mgmtcluster_server" {
   name              = "${var.prefix}-mgmtcluster"
   image_name        = var.image
@@ -34,6 +39,7 @@ resource "openstack_compute_instance_v2" "mgmtcluster_server" {
   network { port = openstack_networking_port_v2.mgmtcluster_port.id }
 
   user_data = <<-EOF
+
 #cloud-config
 final_message: "The system is finally up, after $UPTIME seconds"
 package_update: true
@@ -57,11 +63,6 @@ EOF
     private_key = openstack_compute_keypair_v2.keypair.private_key
     user        = var.ssh_username
   }
-
-locals {
-  clouds = lookup(lookup(yamldecode(file("clouds.yaml")), "clouds"), var.cloud_provider)
-  secure = lookup(lookup(yamldecode(file("secure.yaml")), "clouds"), var.cloud_provider)
-}
 
   provisioner "file" {
     source      = "files/wait.sh"
@@ -87,25 +88,30 @@ locals {
     source      = "files/deploy.sh"
     destination = "/home/${var.ssh_username}/deploy.sh"
   }
-  
+
   provisioner "file" {
     content     = templatefile("files/template/clusterctl.yaml.tmpl", { kubernetes_version = var.kubernetes_version, availability_zone = var.availability_zone, external = var.external, image = var.image, flavor = var.flavor, cloud_provider = var.cloud_provider })
     destination = "/home/${var.ssh_username}/clusterctl.yaml"
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/clouds.yaml.tmpl", { kubernetes_version = var.kubernetes_version, availability_zone = var.availability_zone, external = var.external, image = var.image, flavor = var.flavor, cloud_provider = var.cloud_provider })
+    content     = templatefile("files/template/clouds.yaml.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, secure = local.secure })
     destination = "/home/${var.ssh_username}/clouds.yaml"
   }
-  
-provisioner "file" {
-    content     = templatefile("files/template/clouds.conf.tmpl", { kubernetes_version = var.kubernetes_version, availability_zone = var.availability_zone, external = var.external, image = var.image, flavor = var.flavor, cloud_provider = var.cloud_provider, clouds = var.clouds, secure = var.secure})
+
+  provisioner "file" {
+    content     = templatefile("files/template/clouds.conf.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, secure = local.secure })
     destination = "/home/${var.ssh_username}/clouds.conf"
   }
 
   provisioner "file" {
     source      = "files/template/cluster-template.yaml"
     destination = "/home/${var.ssh_username}/cluster-template.yaml"
+  }
+
+  provisioner "file" {
+    content     = templatefile("files/template/clusterctl_template.sh", { cloud_provider = var.cloud_provider })
+    destination = "/home/${var.ssh_username}/clusterctl_template.sh"
   }
 
   provisioner "remote-exec" {
