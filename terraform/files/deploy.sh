@@ -13,6 +13,9 @@ KUBECONFIG_WORKLOADCLUSTER=workload-cluster.yaml
 echo "show the clusterctl version:"
 clusterctl version --output yaml
 
+# set some Variables to the clusterctl.yaml
+bash clusterctl_template.sh
+
 # cp clusterctl.yaml to the right place
 cp $HOME/clusterctl.yaml $HOME/.cluster-api/clusterctl.yaml
 
@@ -36,9 +39,6 @@ kubectl wait --for condition=established --timeout=60s crds/openstackclusters.in
 # get the needed clusterapi-variables
 echo "# show used variables for clustertemplate ${CLUSTERAPI_TEMPLATE}"
 clusterctl config cluster ${CLUSTER_NAME} --list-variables --from ${CLUSTERAPI_TEMPLATE}
-
-# set some Variables to the clusterctl.yaml
-bash clusterctl_template.sh
 
 # the need variables are set to $HOME/.cluster-api/clusterctl.yaml
 echo "# rendering clusterconfig from template"

@@ -7,3 +7,4 @@ external          = "external"
 flavor            = "2C-2GB-20GB"
 image             = "Ubuntu 20.04"
 ssh_username      = "ubuntu"
+
