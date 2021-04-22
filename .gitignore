@@ -1,6 +1,7 @@
 .deploy.*
 .terraform
 clouds.yaml
+clouds.conf
 clusterctl.yaml
 errored.tfstate
 minio.env
@@ -8,3 +9,4 @@ minio.tf
 secure.yaml
 terraform.tfstate.d
 terraform.tfstate*
+.terraform.lock.hcl

@@ -26,6 +26,12 @@ jobs:
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: ${{ matrix.terraform-version }}
+      - name: create config
+        run: cp clouds.yaml.sample clouds.yaml
+        working-directory: ./terraform
+      - name: create credentials
+        run: cp secure.yaml.sample secure.yaml
+        working-directory: ./terraform
       - name: Terraform init
         run: terraform init
         working-directory: ./terraform

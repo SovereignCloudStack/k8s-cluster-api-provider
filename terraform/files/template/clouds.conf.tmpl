@@ -1,0 +1,10 @@
+[Global]
+auth-url=${clouds.auth.auth_url}
+tenant-name=${clouds.auth.project_name}
+domain-name=${clouds.auth.project_domain_name}
+password=${secure.auth.password}
+username=${clouds.auth.username}
+
+[LoadBalancer]
+manage-security-groups=true
+use-octavia=true

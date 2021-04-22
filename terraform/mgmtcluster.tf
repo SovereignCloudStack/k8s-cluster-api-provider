@@ -24,6 +24,11 @@ resource "openstack_networking_floatingip_associate_v2" "mgmtcluster_floatingip_
   port_id     = openstack_networking_port_v2.mgmtcluster_port.id
 }
 
+locals {
+  clouds = lookup(lookup(yamldecode(file("clouds.yaml")), "clouds"), var.cloud_provider)
+  secure = lookup(lookup(yamldecode(file("secure.yaml")), "clouds"), var.cloud_provider)
+}
+
 resource "openstack_compute_instance_v2" "mgmtcluster_server" {
   name              = "${var.prefix}-mgmtcluster"
   image_name        = var.image
@@ -34,21 +39,39 @@ resource "openstack_compute_instance_v2" "mgmtcluster_server" {
   network { port = openstack_networking_port_v2.mgmtcluster_port.id }
 
   user_data = <<-EOF
+
 #cloud-config
 final_message: "The system is finally up, after $UPTIME seconds"
 package_update: true
 package_upgrade: true
-power_state:
-  mode: reboot
-  condition: True
+write_files:
+  - encoding: b64
+    content: ewogICJtdHUiOiAxNDAwCn0K # set mtu 1400
+    owner: root:root
+    path: /tmp/daemon.json
+    permissions: '0644'
 runcmd:
-  - curl -sfL https://get.k3s.io | K3S_TOKEN=${random_password.k3s_token.result} INSTALL_K3S_EXEC="server --write-kubeconfig-mode 644 --disable servicelb,traefik,local-storage" sh -
+  - mkdir /etc/docker
+  - mv /tmp/daemon.json /etc/docker/daemon.json
+  - groupadd docker
+  - usermod -aG docker ${var.ssh_username}
+  - apt -y install docker.io
 EOF
 
   connection {
     host        = openstack_networking_floatingip_v2.mgmtcluster_floatingip.address
     private_key = openstack_compute_keypair_v2.keypair.private_key
     user        = var.ssh_username
+  }
+
+  provisioner "file" {
+    source      = "files/wait.sh"
+    destination = "/home/${var.ssh_username}/wait.sh"
+  }
+
+  provisioner "file" {
+    source      = "files/install_kind.sh"
+    destination = "/home/${var.ssh_username}/install_kind.sh"
   }
 
   provisioner "file" {
@@ -67,8 +90,18 @@ EOF
   }
 
   provisioner "file" {
-    source      = "files/${var.cloud_provider}/clusterctl.yaml"
+    content     = templatefile("files/template/clusterctl.yaml.tmpl", { kubernetes_version = var.kubernetes_version, availability_zone = var.availability_zone, external = var.external, image = var.image, flavor = var.flavor, cloud_provider = var.cloud_provider })
     destination = "/home/${var.ssh_username}/clusterctl.yaml"
+  }
+
+  provisioner "file" {
+    content     = templatefile("files/template/clouds.yaml.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, secure = local.secure })
+    destination = "/home/${var.ssh_username}/clouds.yaml"
+  }
+
+  provisioner "file" {
+    content     = templatefile("files/template/clouds.conf.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, secure = local.secure })
+    destination = "/home/${var.ssh_username}/clouds.conf"
   }
 
   provisioner "file" {
@@ -76,8 +109,15 @@ EOF
     destination = "/home/${var.ssh_username}/cluster-template.yaml"
   }
 
-  provisioner "local-exec" {
-    command = "sleep 120"
+  provisioner "file" {
+    content     = templatefile("files/template/clusterctl_template.sh", { cloud_provider = var.cloud_provider })
+    destination = "/home/${var.ssh_username}/clusterctl_template.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "bash /home/ubuntu/wait.sh"
+    ]
   }
 
   provisioner "remote-exec" {
