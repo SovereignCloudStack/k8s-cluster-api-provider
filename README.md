@@ -11,8 +11,8 @@ on OpenStack instance previously provided by Terraform.
 * ``terraform/clouds.yaml`` and ``terraform/secure.yaml`` files must be created
   (https://docs.openstack.org/python-openstackclient/latest/configuration/index.html#clouds-yaml)
 * place your clouds.yaml and your secure.yaml in the terraform folder. Examples are provided in clouds.yaml.sample and secure.yaml.sample
-* Copy the environments sample file from environments/environment-default.tfvars to environments/environment-<yourcloud>.tfvars and provide the necessary information like machine flavor or machine image.
-* Set the Variable ```ENVIRONMENT``` in Makefile:4 to <yourcloud>
+* Copy the environments sample file from environments/environment-default.tfvars to ```environments/environment-<yourcloud>.tfvars``` and provide the necessary information like machine flavor or machine image.
+* Set the Variable ```ENVIRONMENT``` in Makefile:4 to ```<yourcloud>```
 
 ## Usage
 * ``make create``
