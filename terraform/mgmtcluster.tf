@@ -105,9 +105,19 @@ EOF
   }
 
   provisioner "file" {
+    content     = templatefile("files/template/clouds.conf.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, secure = local.secure })
+    destination = "/home/${var.ssh_username}/cloud.conf"
+  }
+  provisioner "file" {
     source      = "files/template/cluster-template.yaml"
     destination = "/home/${var.ssh_username}/cluster-template.yaml"
   }
+  
+  provisioner "file" {
+    source      = "files/kubernetes-manifests.d/"
+    destination = "/home/${var.ssh_username}"
+  }
+
 
   provisioner "file" {
     content     = templatefile("files/template/clusterctl_template.sh", { cloud_provider = var.cloud_provider })

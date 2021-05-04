@@ -4,7 +4,7 @@
 #ENVIRONMENT = gx-betacloud
 #ENVIRONMENT = gx-citycloud
 #ENVIRONMENT = gx-scs
-ENVIRONMENT = gx-scs-staging
+ENVIRONMENT = gx-betacloud
 OPENSTACK = openstack
 USERNAME = ubuntu
 CONSOLE = capi-mgmtcluster
