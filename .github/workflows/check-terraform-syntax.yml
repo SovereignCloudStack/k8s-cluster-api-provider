@@ -27,10 +27,10 @@ jobs:
         with:
           terraform_version: ${{ matrix.terraform-version }}
       - name: Terraform validate
-        run: make validate
+        run: terraform validate
         working-directory: ./terraform
         env:
-          ENVIRONMENT: default
+          ENVIRONMENT: gx-betacloud
       - name: Terraform format
         run: terraform fmt -check
         working-directory: ./terraform
