@@ -112,7 +112,7 @@ EOF
     source      = "files/template/cluster-template.yaml"
     destination = "/home/${var.ssh_username}/cluster-template.yaml"
   }
-  
+
   provisioner "file" {
     source      = "files/kubernetes-manifests.d/"
     destination = "/home/${var.ssh_username}"
