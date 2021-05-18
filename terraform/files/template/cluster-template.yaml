@@ -1,3 +1,4 @@
+---
 apiVersion: cluster.x-k8s.io/v1alpha3
 kind: Cluster
 metadata:
@@ -7,7 +8,7 @@ spec:
   clusterNetwork:
     pods:
       cidrBlocks:
-      - 192.168.0.0/16
+        - 192.168.0.0/16
     serviceDomain: cluster.local
   controlPlaneRef:
     apiVersion: controlplane.cluster.x-k8s.io/v1alpha3
@@ -30,7 +31,7 @@ spec:
     namespace: default
   disablePortSecurity: false
   dnsNameservers:
-  - 8.8.8.8
+    - 8.8.8.8
   managedAPIServerLoadBalancer: true
   managedSecurityGroups: true
   nodeCidr: 10.6.0.0/24
@@ -52,34 +53,34 @@ spec:
         extraArgs:
           cloud-provider: external
         extraVolumes:
-        - hostPath: /etc/kubernetes/cloud.conf
-          mountPath: /etc/kubernetes/cloud.conf
-          name: cloud
-          readOnly: true
+          - hostPath: /etc/kubernetes/cloud.conf
+            mountPath: /etc/kubernetes/cloud.conf
+            name: cloud
+            readOnly: true
       controllerManager:
         extraArgs:
           cloud-provider: external
         extraVolumes:
-        - hostPath: /etc/kubernetes/cloud.conf
-          mountPath: /etc/kubernetes/cloud.conf
-          name: cloud
-          readOnly: true
-        - hostPath: /etc/certs/cacert
-          mountPath: /etc/certs/cacert
-          name: cacerts
-          readOnly: true
+          - hostPath: /etc/kubernetes/cloud.conf
+            mountPath: /etc/kubernetes/cloud.conf
+            name: cloud
+            readOnly: true
+          - hostPath: /etc/certs/cacert
+            mountPath: /etc/certs/cacert
+            name: cacerts
+            readOnly: true
       imageRepository: k8s.gcr.io
     files:
-    - content: ${OPENSTACK_CLOUD_PROVIDER_CONF_B64}
-      encoding: base64
-      owner: root
-      path: /etc/kubernetes/cloud.conf
-      permissions: "0600"
-    - content: ${OPENSTACK_CLOUD_CACERT_B64}
-      encoding: base64
-      owner: root
-      path: /etc/certs/cacert
-      permissions: "0600"
+      - content: ${OPENSTACK_CLOUD_PROVIDER_CONF_B64}
+        encoding: base64
+        owner: root
+        path: /etc/kubernetes/cloud.conf
+        permissions: "0600"
+      - content: ${OPENSTACK_CLOUD_CACERT_B64}
+        encoding: base64
+        owner: root
+        path: /etc/certs/cacert
+        permissions: "0600"
     initConfiguration:
       nodeRegistration:
         kubeletExtraArgs:
@@ -91,21 +92,21 @@ spec:
           cloud-provider: external
         name: '{{ local_hostname }}'
     postKubeadmCommands:
-    - kubectl apply --kubeconfig /etc/kubernetes/admin.conf -f https://docs.projectcalico.org/manifests/calico.yaml
+      - kubectl apply --kubeconfig /etc/kubernetes/admin.conf -f https://docs.projectcalico.org/manifests/calico.yaml
     preKubeadmCommands:
-    - DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https curl
-    - curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-    - echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
-    - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-    - apt-key fingerprint 0EBFCD88
-    - add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-    - apt-get update -y
-    - TRIMMED_KUBERNETES_VERSION=$(echo ${KUBERNETES_VERSION} | sed 's/\./\./g' | sed 's/^v//')
-    - RESOLVED_KUBERNETES_VERSION=$(apt-cache policy kubelet | awk -v VERSION=$${TRIMMED_KUBERNETES_VERSION} '$1~ VERSION { print $1 }' | head -n1)
-    - apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips docker-ce docker-ce-cli containerd.io kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
-    - echo -n "ewogICJtdHUiOiAxNDAwCn0K" | base64 -d > /etc/docker/daemon.json
-    - systemctl daemon-reload
-    - systemctl enable --now docker
+      - DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https curl
+      - curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+      - echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
+      - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+      - apt-key fingerprint 0EBFCD88
+      - add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+      - apt-get update -y
+      - TRIMMED_KUBERNETES_VERSION=$(echo ${KUBERNETES_VERSION} | sed 's/\./\./g' | sed 's/^v//')
+      - RESOLVED_KUBERNETES_VERSION=$(apt-cache policy kubelet | awk -v VERSION=$${TRIMMED_KUBERNETES_VERSION} '$1~ VERSION { print $1 }' | head -n1)
+      - apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips docker-ce docker-ce-cli containerd.io kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
+      - echo -n "ewogICJtdHUiOiAxNDAwCn0K" | base64 -d > /etc/docker/daemon.json
+      - systemctl daemon-reload
+      - systemctl enable --now docker
   replicas: 3
   version: "${KUBERNETES_VERSION}"
 ---
@@ -181,35 +182,35 @@ spec:
   template:
     spec:
       files:
-      - content: ${OPENSTACK_CLOUD_PROVIDER_CONF_B64}
-        encoding: base64
-        owner: root
-        path: /etc/kubernetes/cloud.conf
-        permissions: "0600"
-      - content: ${OPENSTACK_CLOUD_CACERT_B64}
-        encoding: base64
-        owner: root
-        path: /etc/certs/cacert
-        permissions: "0600"
+        - content: ${OPENSTACK_CLOUD_PROVIDER_CONF_B64}
+          encoding: base64
+          owner: root
+          path: /etc/kubernetes/cloud.conf
+          permissions: "0600"
+        - content: ${OPENSTACK_CLOUD_CACERT_B64}
+          encoding: base64
+          owner: root
+          path: /etc/certs/cacert
+          permissions: "0600"
       joinConfiguration:
         nodeRegistration:
           kubeletExtraArgs:
             cloud-provider: external
           name: '{{ local_hostname }}'
       preKubeadmCommands:
-      - DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https curl
-      - curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-      - echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
-      - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-      - apt-key fingerprint 0EBFCD88
-      - add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-      - apt-get update -y
-      - TRIMMED_KUBERNETES_VERSION=$(echo ${KUBERNETES_VERSION} | sed 's/\./\./g' | sed 's/^v//')
-      - RESOLVED_KUBERNETES_VERSION=$(apt-cache policy kubelet | awk -v VERSION=$${TRIMMED_KUBERNETES_VERSION} '$1~ VERSION { print $1 }' | head -n1)
-      - apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips docker-ce docker-ce-cli containerd.io kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
-      - echo -n "ewogICJtdHUiOiAxNDAwCn0K" | base64 -d > /etc/docker/daemon.json
-      - systemctl daemon-reload
-      - systemctl enable --now docker
+        - DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https curl
+        - curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+        - echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
+        - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+        - apt-key fingerprint 0EBFCD88
+        - add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+        - apt-get update -y
+        - TRIMMED_KUBERNETES_VERSION=$(echo ${KUBERNETES_VERSION} | sed 's/\./\./g' | sed 's/^v//')
+        - RESOLVED_KUBERNETES_VERSION=$(apt-cache policy kubelet | awk -v VERSION=$${TRIMMED_KUBERNETES_VERSION} '$1~ VERSION { print $1 }' | head -n1)
+        - apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips docker-ce docker-ce-cli containerd.io kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
+        - echo -n "ewogICJtdHUiOiAxNDAwCn0K" | base64 -d > /etc/docker/daemon.json
+        - systemctl daemon-reload
+        - systemctl enable --now docker
 ---
 apiVersion: v1
 data:
@@ -221,4 +222,3 @@ metadata:
     clusterctl.cluster.x-k8s.io/move: "true"
   name: ${CLUSTER_NAME}-cloud-config
   namespace: default
-
