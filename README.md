@@ -13,10 +13,14 @@ on OpenStack instance previously provided by Terraform.
   (https://docs.openstack.org/python-openstackclient/latest/configuration/index.html#clouds-yaml)
 * place your ``clouds.yaml`` and your ``secure.yaml`` in the ``terraform`` folder. Examples are
   provided in ``clouds.yaml.sample`` and ``secure.yaml.sample``
+  Note that you need ``project_domain_name`` and ``username`` in ``clouds.yaml``.
+  (``username`` is normally only in ``secure.yaml`` and the ``project_domain_name`` is not
+  normally needed. Copy your ``user_domain_name`` setting in case you wonder what's needed here.)
 * Copy the environments sample file from environments/environment-default.tfvars to
   ``environments/environment-<yourcloud>.tfvars`` and provide the necessary information like
   machine flavor or machine image.
-* Set the Variable ``ENVIRONMENT`` in Makefile:4 to ``<yourcloud>``
+* Set the Variable ``ENVIRONMENT`` in Makefile:4 to ``<yourcloud>`` (or override by passing
+  ``ENVIRONMENT=`` in the ``make`` call).
 
 ## Usage
 
@@ -29,3 +33,5 @@ created cluster is named ``workload-cluster.yaml``.
 
 You can purge the whole project via ``make purge``. Be careful with that command it will purge
 all resources in the project even those that have not been created through this Terraform script.
+It requires the [``ospurge``](https://opendev.org/x/ospurge) script.
+``make clean`` is insufficient to clean up unfortunately.
