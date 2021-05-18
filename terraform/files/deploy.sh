@@ -58,8 +58,9 @@ kubectl wait --timeout=5m --for=condition=Ready machine -l cluster.x-k8s.io/cont
 
 kubectl get secrets ${CLUSTER_NAME}-kubeconfig --output go-template='{{ .data.value | base64decode }}' > ${KUBECONFIG_WORKLOADCLUSTER}
 export KUBECONFIG=.kube/config:${KUBECONFIG_WORKLOADCLUSTER}
-kubectl config view --flatten > merged.yaml
-mv merged.yaml .kube/config
+MERGED=$(mktemp merged.yaml.XXXXXX)
+kubectl config view --flatten > $MERGED
+mv $MERGED .kube/config
 kubectl config use-context ${CLUSTER_NAME}-admin@${CLUSTER_NAME}
 
 SLEEP=0
