@@ -22,6 +22,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: create config
+        run: cp clouds.yaml.sample clouds.yaml
+        working-directory: ./terraform
+      - name: create credentials
+        run: cp secure.yaml.sample secure.yaml
+        working-directory: ./terraform
       - name: Setup terraform
         uses: hashicorp/setup-terraform@v1
         with:
