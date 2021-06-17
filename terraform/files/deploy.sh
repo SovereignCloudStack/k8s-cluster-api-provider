@@ -52,6 +52,7 @@ kubectl apply -f rendered-${CLUSTERAPI_TEMPLATE}
 #Waiting for Clusterstate Ready
 echo "Waiting for Cluster=Ready"
 wget https://gx-scs.okeanos.dev --quiet -O /dev/null
+sleep 30
 kubectl wait --timeout=10m --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME}
 kubectl wait --timeout=5m --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME}
 kubectl wait --timeout=5m --for=condition=Ready machine -l cluster.x-k8s.io/control-plane
