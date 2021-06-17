@@ -4,7 +4,8 @@
 #ENVIRONMENT = gx-betacloud
 #ENVIRONMENT = gx-citycloud
 #ENVIRONMENT = gx-scs
-ENVIRONMENT = gx-betacloud
+SHELL=/bin/bash
+ENVIRONMENT = gx-bc
 OPENSTACK = openstack
 USERNAME = ubuntu
 CONSOLE = capi-mgmtcluster
