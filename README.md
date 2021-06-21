@@ -21,6 +21,9 @@ on OpenStack instance previously provided by Terraform.
   machine flavor or machine image.
 * Set the Variable ``ENVIRONMENT`` in Makefile:4 to ``<yourcloud>`` (or override by passing
   ``ENVIRONMENT=`` in the ``make`` call).
+*  ospurge is required for project-cleanup (be careful): python3 -m pip install git+https://git.openstack.org/openstack/ospurge
+
+
 
 ## Usage
 
