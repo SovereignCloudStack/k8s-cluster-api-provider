@@ -2,6 +2,5 @@
 clouds:
   default:
     auth:
-      # username needs to be in clouds.yaml (duplication is OK)
       username:
       password:

@@ -10,6 +10,4 @@ clouds:
       user_domain_name:
       # openstack does not necessarily need this, but the templates want it
       project_domain_name:
-      # this one is not normally in clouds.yaml, but the templates expect it
-      username:
     region_name:
