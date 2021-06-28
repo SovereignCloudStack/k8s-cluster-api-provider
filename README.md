@@ -4,7 +4,8 @@ This guide shows you how to get a working Kubernetes cluster on a SCS cloud
 via [cluster-api](https://cluster-api.sigs.k8s.io/).
 
 Cluster API requires an existing Kubernetes cluster this is built with [kind](https://kind.sigs.k8s.io/)
-on OpenStack instance previously provided by Terraform.
+on an OpenStack instance previously provided by Terraform. This instance can be used lateron for the management
+of the newly created cluster too.
 
 ## Preparations
 
