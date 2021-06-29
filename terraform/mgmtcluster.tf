@@ -129,13 +129,13 @@ EOF
       "bash /home/ubuntu/wait.sh"
     ]
   }
-  
+
   provisioner "remote-exec" {
     inline = [
       "mkdir extension"
     ]
   }
-  
+
   provisioner "file" {
     source      = "extension"
     destination = "/home/${var.ssh_username}/extension"
