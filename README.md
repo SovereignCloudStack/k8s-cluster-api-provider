@@ -39,3 +39,10 @@ You can purge the whole project via ``make purge``. Be careful with that command
 all resources in the project even those that have not been created through this Terraform script.
 It requires the [``ospurge``](https://opendev.org/x/ospurge) script.
 ``make clean`` is insufficient to clean up unfortunately.
+
+## Extension
+
+You can use this repository as a starting point for some automation e.g. adding kubernetes manifests
+to the cluster or to run custom shell scripts in the end. To do so place your files in the extension folder.
+They will be uploaded to the management cluster. Files ending in ```*.sh``` will be executed in alphabetical
+order.

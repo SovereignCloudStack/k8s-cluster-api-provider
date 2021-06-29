@@ -44,3 +44,8 @@ EOF
 # eof
 bash install_kind.sh
 bash deploy.sh
+for script in $(find ./extension -name '*.sh')
+do
+    echo executing $script
+    bash $script
+done
