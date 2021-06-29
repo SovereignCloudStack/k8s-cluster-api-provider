@@ -44,7 +44,7 @@ EOF
 # eof
 bash install_kind.sh
 bash deploy.sh
-for script in $(find ./extension -name '*.sh')
+for script in $(find ./extension -name '*.sh' | sort)
 do
     echo executing $script
     bash $script
