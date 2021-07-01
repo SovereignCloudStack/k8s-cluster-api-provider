@@ -130,15 +130,9 @@ EOF
     ]
   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "mkdir extension"
-    ]
-  }
-
   provisioner "file" {
     source      = "extension"
-    destination = "/home/${var.ssh_username}/extension"
+    destination = "/home/${var.ssh_username}/"
   }
 
   provisioner "remote-exec" {
