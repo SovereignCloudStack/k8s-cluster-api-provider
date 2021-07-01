@@ -57,6 +57,7 @@ purge:
         then \
 			exit 1; \
         fi
+	@openstack keypair delete capi-keypair || true
 	@ospurge --purge-own-project --os-cloud $(ENVIRONMENT) --verbose
 	@rm -f .deploy.$(ENVIRONMENT) .MGMT_ADDRESS.$(ENVIRONMENT)
 	@rm -f .id_rsa.$(ENVIRONMENT)
