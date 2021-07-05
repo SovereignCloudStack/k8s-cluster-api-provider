@@ -11,6 +11,7 @@ VERSION_CLUSTERCTL="0.3.19"
 
 # install kubectl
 sudo snap install kubectl --classic
+sudo apt install -y binutils
 
 # install k9s
 echo "# install k9s ${VERSION_K9S}"
@@ -44,7 +45,8 @@ EOF
 # eof
 bash install_kind.sh
 bash deploy.sh
-for script in $(find ./extension -name '*.sh' | sort)
+cd extension
+for script in $(find ./ -name '*.sh' | sort)
 do
     echo executing $script
     bash $script
