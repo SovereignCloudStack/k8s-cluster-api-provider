@@ -43,6 +43,7 @@ It requires the [``ospurge``](https://opendev.org/x/ospurge) script.
 ## Extension
 
 You can use this repository as a starting point for some automation e.g. adding kubernetes manifests
-to the cluster or to run custom shell scripts in the end. To do so place your files in the extension folder.
+to the cluster or to run custom shell scripts in the end. To do so place your files in the `terraform/extension` folder.
 They will be uploaded to the management cluster. Files ending in ```*.sh``` will be executed in alphabetical
-order.
+order. All other files will just be uploaded. If you want to deploy resources in the new cluster-api-maintained cluster
+you can use `kubectl apply -f <your-manifest.yaml> --kubeconfig ../workload_cluster.yaml` to do so.
