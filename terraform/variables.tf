@@ -36,5 +36,5 @@ variable "ssh_username" {
 variable "kubernetes_version" {
   description = "desired kubernetes version for the workload cluster"
   type        = string
-  default     = "v1.21.3"
+  default     = "v1.20.9"
 }
