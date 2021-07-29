@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+KUBERNETES_VERSION="${kubernetes_version}"
+VERSION_CAPI_IMAGE=$(echo $KUBERNETES_VERSION | sed 's/.\{3\}$//')
+PROVIDER="${provider}"
+
+
+#install Openstack CLI
+sudo apt install -y python3-openstackclient
+
+#download/upload image to openstack
+
+wget https://kubernetes-capi-images.fra1.digitaloceanspaces.com/ubuntu-2004-kube-$VERSION_CAPI_IMAGE/ubuntu-2004-kube-$VERSION_CAPI_IMAGE
+openstack --os-cloud $PROVIDER image create --disk-format qcow2 --file ubuntu-2004-kube-$VERSION_CAPI_IMAGE ubuntu-capi-image
