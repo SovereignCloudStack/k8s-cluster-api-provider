@@ -43,6 +43,7 @@ set show-all-if-ambiguous on
 EOF
 
 # eof
+bash upload_capi_image.sh
 bash install_kind.sh
 bash deploy.sh
 cd extension

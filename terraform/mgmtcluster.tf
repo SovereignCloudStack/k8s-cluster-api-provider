@@ -95,6 +95,11 @@ EOF
   }
 
   provisioner "file" {
+    content     = templatefile("files/template/upload_capi_image.sh.tmpl", { kubernetes_version = var.kubernetes_version, provider = var.cloud_provider })
+    destination = "/home/${var.ssh_username}/upload_capi_image.sh"
+  }
+
+  provisioner "file" {
     content     = templatefile("files/template/clouds.yaml.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, secure = local.secure })
     destination = "/home/${var.ssh_username}/clouds.yaml"
   }
@@ -117,7 +122,6 @@ EOF
     source      = "files/kubernetes-manifests.d/"
     destination = "/home/${var.ssh_username}"
   }
-
 
   provisioner "file" {
     content     = templatefile("files/template/clusterctl_template.sh", { cloud_provider = var.cloud_provider })
