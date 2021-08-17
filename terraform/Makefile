@@ -2,8 +2,8 @@
 
 # set the env we used 
 #ENVIRONMENT = gx-betacloud
-ENVIRONMENT = gx-citycloud
-#ENVIRONMENT = gx-scs
+#ENVIRONMENT = gx-citycloud
+ENVIRONMENT = gx-scs
 SHELL=/bin/bash
 #ENVIRONMENT = gx-bc
 OPENSTACK = openstack
