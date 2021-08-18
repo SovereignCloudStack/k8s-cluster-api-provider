@@ -55,6 +55,7 @@ runcmd:
   - mv /tmp/daemon.json /etc/docker/daemon.json
   - groupadd docker
   - usermod -aG docker ${var.ssh_username}
+  - echo nf_conntrack > /etc/modules-load.d/90-nf_conntrack.conf
   - modprobe nf_conntrack
   - echo net.netfilter.nf_conntrack_max=131072 > /etc/sysctl.d/90-conntrack_max.conf
   - sysctl -w -p /etc/sysctl.d/90-conntrack_max.conf
