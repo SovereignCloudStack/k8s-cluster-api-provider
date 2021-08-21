@@ -38,7 +38,8 @@ created cluster is named ``workload-cluster.yaml``.
 You can purge the whole project via ``make purge``. Be careful with that command it will purge
 all resources in the project even those that have not been created through this Terraform script.
 It requires the [``ospurge``](https://opendev.org/x/ospurge) script.
-``make clean`` is insufficient to clean up unfortunately.
+``make clean`` is insufficient to clean up unfortunately. ``make fullclean`` uses a custom script
+to clean up trying to not hit any resources not created by the capi.
 
 ## Extension
 
