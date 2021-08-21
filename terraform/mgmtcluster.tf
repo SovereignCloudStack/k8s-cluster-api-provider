@@ -60,6 +60,8 @@ runcmd:
   - echo net.netfilter.nf_conntrack_max=131072 > /etc/sysctl.d/90-conntrack_max.conf
   - sysctl -w -p /etc/sysctl.d/90-conntrack_max.conf
   - apt -y install docker.io
+  - sed -i 's/dockerd /dockerd --mtu=1400 /' /lib/systemd/system/docker.service
+  - ip link set dev docker0 mtu 1400
 EOF
 
   connection {
