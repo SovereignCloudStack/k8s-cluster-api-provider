@@ -11,6 +11,7 @@ resource "openstack_networking_floatingip_v2" "mgmtcluster_floatingip" {
 
 resource "openstack_networking_port_v2" "mgmtcluster_port" {
   network_id = openstack_networking_network_v2.network_mgmt.id
+  name = "${var.prefix}-port"
   security_group_ids = [
     openstack_compute_secgroup_v2.security_group_mgmt.id,
   ]
@@ -50,18 +51,28 @@ write_files:
     owner: root:root
     path: /tmp/daemon.json
     permissions: '0644'
+  - encoding: b64
+    content: |
+      W1VuaXRdCkRlc2NyaXB0aW9uPURvY2tlciBTZXQgTVRVIHRvIDE0MDAKQWZ0
+      ZXI9ZG9ja2VyLnNlcnZpY2UKUmVxdWlyZXM9ZG9ja2VyLnNvY2tldAoKW1Nl
+      cnZpY2VdClR5cGU9b25lc2hvdApFeGVjU3RhcnQ9L2Jpbi9pcCBsaW5rIHNl
+      dCBkZXYgZG9ja2VyMCBtdHUgMTQwMAoKW0luc3RhbGxdCldhbnRlZEJ5PW11
+      bHRpLXVzZXIudGFyZ2V0Cg==
+    owner: root:root
+    path: /etc/systemd/system/docker-mtu.service
+    permissions: '0644'
 runcmd:
-  - mkdir /etc/docker
-  - mv /tmp/daemon.json /etc/docker/daemon.json
-  - groupadd docker
-  - usermod -aG docker ${var.ssh_username}
   - echo nf_conntrack > /etc/modules-load.d/90-nf_conntrack.conf
   - modprobe nf_conntrack
   - echo net.netfilter.nf_conntrack_max=131072 > /etc/sysctl.d/90-conntrack_max.conf
   - sysctl -w -p /etc/sysctl.d/90-conntrack_max.conf
+  - mkdir /etc/docker
+  - mv /tmp/daemon.json /etc/docker/daemon.json
+  - groupadd docker
+  - usermod -aG docker ${var.ssh_username}
   - apt -y install docker.io
-  - sed -i 's/dockerd /dockerd --mtu=1400 /' /lib/systemd/system/docker.service
-  - ip link set dev docker0 mtu 1400
+  - systemctl enable docker-mtu
+  - systemctl start docker-mtu
 EOF
 
   connection {
