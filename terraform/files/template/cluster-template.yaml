@@ -166,7 +166,7 @@ spec:
       cloudsSecret:
         name: ${CLUSTER_NAME}-cloud-config
         namespace: default
-      flavor: ${OPENSTACK_CONTROL_PLANE_MACHINE_FLAVOR}
+      flavor: ${OPENSTACK_NODE_MACHINE_FLAVOR}
       image: ${OPENSTACK_IMAGE_NAME}
       sshKeyName: ${OPENSTACK_KEYPAIR_NAME}
       securityGroups:
