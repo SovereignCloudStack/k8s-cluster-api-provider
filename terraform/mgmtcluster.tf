@@ -46,18 +46,13 @@ final_message: "The system is finally up, after $UPTIME seconds"
 package_update: true
 package_upgrade: true
 write_files:
-  - encoding: b64
-    content: ewogICJtdHUiOiAxNDAwCn0K # set mtu 1400
+  - content: |
+      ${indent(6, file("files/daemon.json"))}
     owner: root:root
     path: /tmp/daemon.json
     permissions: '0644'
-  - encoding: b64
-    content: |
-      W1VuaXRdCkRlc2NyaXB0aW9uPURvY2tlciBTZXQgTVRVIHRvIDE0MDAKQWZ0
-      ZXI9ZG9ja2VyLnNlcnZpY2UKUmVxdWlyZXM9ZG9ja2VyLnNvY2tldAoKW1Nl
-      cnZpY2VdClR5cGU9b25lc2hvdApFeGVjU3RhcnQ9L2Jpbi9pcCBsaW5rIHNl
-      dCBkZXYgZG9ja2VyMCBtdHUgMTQwMAoKW0luc3RhbGxdCldhbnRlZEJ5PW11
-      bHRpLXVzZXIudGFyZ2V0Cg==
+  - content: |
+      ${indent(6, file("files/docker-mtu.service"))}
     owner: root:root
     path: /etc/systemd/system/docker-mtu.service
     permissions: '0644'
