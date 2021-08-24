@@ -49,6 +49,7 @@ clean: init
 	@terraform workspace select default
 	@terraform workspace delete $(ENVIRONMENT)
 	@rm -f .deploy.$(ENVIRONMENT) .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
+	@rm -f .kube.config.$(ENVIRONMENT) .cluster-api.clusterctl.yaml.$(ENVIRONMENT) rendered-cluster-template.yaml.$(ENVIRONMENT)
 
 fullclean:
 	@./cleanup/cleanup.sh --verbose --full
@@ -78,6 +79,14 @@ ssh:    .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS
 
 login: ssh
+
+kubeconfig: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
+	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
+	scp -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS:.kube/config .kubeconfig.$(ENVIRONMENT); \
+	scp -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS:.cluster-api/clusterctl.yaml .cluster-api.clusterctl.yaml.$(ENVIRONMENT); \
+	scp -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS:rendered-cluster-template.yaml rendered-cluster-template.yaml.$(ENVIRONMENT); \
+	sed -i "s/127\.0\.0\.1/$$MGMTCLUSTER_ADDRESS/" .cluster-api.clusterctl.yaml.$(ENVIRONMENT); \
+	sed -i "s/127\.0\.0\.1/$$MGMTCLUSTER_ADDRESS/" .kubeconfig.$(ENVIRONMENT)
 
 deploy: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
