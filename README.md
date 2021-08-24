@@ -3,9 +3,9 @@
 This guide shows you how to get a working Kubernetes cluster on a SCS cloud
 via [cluster-api](https://cluster-api.sigs.k8s.io/).
 
-Cluster API requires an existing Kubernetes cluster this is built with [kind](https://kind.sigs.k8s.io/)
-on an OpenStack instance previously provided by Terraform. This instance can be used lateron for the management
-of the newly created cluster too.
+Cluster API requires an existing Kubernetes cluster. It is built with [kind](https://kind.sigs.k8s.io/)
+on an OpenStack instance previously provided by Terraform. This instance can be used later on for the management
+of the newly created cluster, too.
 
 ## Preparations
 
@@ -21,8 +21,9 @@ of the newly created cluster too.
   ``environments/environment-<yourcloud>.tfvars`` and provide the necessary information like
   machine flavor or machine image.
 * Set the Variable ``ENVIRONMENT`` in Makefile:4 to ``<yourcloud>`` (or override by passing
-  ``ENVIRONMENT=`` in the ``make`` call).
-*  ospurge is required for project-cleanup (be careful): python3 -m pip install git+https://git.openstack.org/openstack/ospurge
+  ``ENVIRONMENT=`` in the ``make`` call or add ENVIRONMENT= to you shell's envrionment).
+* Optionally install ospurge for failsafe project-cleanup (be careful, see Teardown below):
+  ``python3 -m pip install git+https://git.openstack.org/openstack/ospurge``
 
 
 
@@ -35,10 +36,13 @@ created cluster is named ``workload-cluster.yaml``.
 
 ## Teardown
 
-You can purge the whole project via ``make purge``. Be careful with that command it will purge
-all resources in the project even those that have not been created through this Terraform script.
+You can purge the whole project via ``make purge``. Be careful with that command as it will purge
+*all resources in the OpenStack project* even those that have not been created through this Terraform script.
 It requires the [``ospurge``](https://opendev.org/x/ospurge) script.
-``make clean`` is insufficient to clean up unfortunately.
+``make clean`` is insufficient to clean up unfortunately, as terraform does not know about the
+resources created via the k8s cluster API. ``make fullclean`` uses a custom script (using the
+openstack CLI) to clean up trying to not hit any resources not created by the capi or terraform.
+It is the recommended way for doing cleanups.
 
 ## Extension
 
