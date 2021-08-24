@@ -11,6 +11,7 @@ resource "openstack_networking_floatingip_v2" "mgmtcluster_floatingip" {
 
 resource "openstack_networking_port_v2" "mgmtcluster_port" {
   network_id = openstack_networking_network_v2.network_mgmt.id
+  name       = "${var.prefix}-port"
   security_group_ids = [
     openstack_compute_secgroup_v2.security_group_mgmt.id,
   ]
@@ -45,21 +46,40 @@ final_message: "The system is finally up, after $UPTIME seconds"
 package_update: true
 package_upgrade: true
 write_files:
-  - encoding: b64
-    content: ewogICJtdHUiOiAxNDAwCn0K # set mtu 1400
+  - content: |
+      {
+        "mtu": ${var.kind_mtu}
+      }
     owner: root:root
     path: /tmp/daemon.json
     permissions: '0644'
+  - content: |
+      [Unit]
+      Description=Docker Set MTU to ${var.kind_mtu}
+      After=docker.service
+      Requires=docker.socket
+      
+      [Service]
+      Type=oneshot
+      ExecStart=/bin/ip link set dev docker0 mtu ${var.kind_mtu}
+      
+      [Install]
+      WantedBy=multi-user.target
+    owner: root:root
+    path: /etc/systemd/system/docker-mtu.service
+    permissions: '0644'
 runcmd:
-  - mkdir /etc/docker
-  - mv /tmp/daemon.json /etc/docker/daemon.json
-  - groupadd docker
-  - usermod -aG docker ${var.ssh_username}
   - echo nf_conntrack > /etc/modules-load.d/90-nf_conntrack.conf
   - modprobe nf_conntrack
   - echo net.netfilter.nf_conntrack_max=131072 > /etc/sysctl.d/90-conntrack_max.conf
   - sysctl -w -p /etc/sysctl.d/90-conntrack_max.conf
+  - mkdir /etc/docker
+  - mv /tmp/daemon.json /etc/docker/daemon.json
+  - groupadd docker
+  - usermod -aG docker ${var.ssh_username}
   - apt -y install docker.io
+  - systemctl enable docker-mtu
+  - systemctl start docker-mtu
 EOF
 
   connection {

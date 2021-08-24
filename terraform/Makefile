@@ -2,12 +2,12 @@
 
 # set the env we used 
 #ENVIRONMENT = gx-betacloud
-#ENVIRONMENT = gx-citycloud
-ENVIRONMENT = gx-scs
+ENVIRONMENT ?= gx-citycloud
+#ENVIRONMENT = gx-scs
 SHELL=/bin/bash
 #ENVIRONMENT = gx-bc
-OPENSTACK = openstack
-USERNAME = ubuntu
+OPENSTACK ?= openstack
+USERNAME ?= ubuntu
 CONSOLE = capi-mgmtcluster
 
 # check for openstack credentials
@@ -49,6 +49,9 @@ clean: init
 	@terraform workspace select default
 	@terraform workspace delete $(ENVIRONMENT)
 	@rm -f .deploy.$(ENVIRONMENT) .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
+
+fullclean: clean
+	@./cleanup/cleanup.sh --verbose #--full
 
 purge:
 	@echo "Warning, going to delete ALL resources in $(ENVIRONMENT), even those that have not been created by the testbed. The SSH-Key capi-keypair will be removed for all projects."
