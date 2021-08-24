@@ -11,7 +11,7 @@ resource "openstack_networking_floatingip_v2" "mgmtcluster_floatingip" {
 
 resource "openstack_networking_port_v2" "mgmtcluster_port" {
   network_id = openstack_networking_network_v2.network_mgmt.id
-  name = "${var.prefix}-port"
+  name       = "${var.prefix}-port"
   security_group_ids = [
     openstack_compute_secgroup_v2.security_group_mgmt.id,
   ]
