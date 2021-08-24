@@ -21,7 +21,7 @@ cp $HOME/clusterctl.yaml $HOME/.cluster-api/clusterctl.yaml
 
 # deploy cluster-api on mgmt cluster
 echo "deploy cluster-api with openstack provider ${CLUSTERAPI_OPENSTACK_PROVIDER_VERSION}"
-clusterctl init --infrastructure openstack:v${CLUSTERAPI_OPENSTACK_PROVIDER_VERSION} --core cluster-api:v0.3.19 -b kubeadm:v0.3.19 -c kubeadm:v0.3.19
+clusterctl init --infrastructure openstack:v${CLUSTERAPI_OPENSTACK_PROVIDER_VERSION} --core cluster-api:v0.3.23 -b kubeadm:v0.3.23 -c kubeadm:v0.3.23
 
 # wait for CAPI pods
 echo "# wait for all components are ready for cluster-api"

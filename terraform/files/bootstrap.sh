@@ -4,8 +4,8 @@
 ## license: Apache-2.0
 
 # version
-VERSION_K9S="0.23.3"
-VERSION_CLUSTERCTL="0.3.19"
+VERSION_K9S="0.24.15"
+VERSION_CLUSTERCTL="0.3.23"
 
 ## install tools and utils at local account
 
