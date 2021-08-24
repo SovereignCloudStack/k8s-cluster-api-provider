@@ -33,7 +33,7 @@ locals {
 resource "openstack_compute_instance_v2" "mgmtcluster_server" {
   name              = "${var.prefix}-mgmtcluster"
   image_name        = var.image
-  flavor_name       = var.flavor
+  flavor_name       = var.kind_flavor
   availability_zone = var.availability_zone
   key_pair          = openstack_compute_keypair_v2.keypair.name
 
@@ -114,7 +114,7 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/clusterctl.yaml.tmpl", { kubernetes_version = var.kubernetes_version, availability_zone = var.availability_zone, external = var.external, image = var.image, flavor = var.flavor, cloud_provider = var.cloud_provider })
+    content     = templatefile("files/template/clusterctl.yaml.tmpl", { kubernetes_version = var.kubernetes_version, availability_zone = var.availability_zone, external = var.external, image = var.image, management_flavor = var.management_flavor, worker_flavor = var.worker_flavor, cloud_provider = var.cloud_provider })
     destination = "/home/${var.ssh_username}/clusterctl.yaml"
   }
 
