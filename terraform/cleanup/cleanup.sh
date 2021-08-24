@@ -11,6 +11,8 @@
 
 if test -z "$OPENSTACK"; then OPENSTACK="openstack"; fi
 
+declare -i DELETED=0
+
 # collect list of resources, filtering for names
 # $1 => type (can be several strings separated by spaces, e.g. "loadbalancer listener")
 # $2 => filter (optional)
@@ -31,11 +33,12 @@ resourcelist()
 			VALS="-c ID -c Name" ;;
 	esac
 	EXTRA=""; if test -n "$4"; then EXTRA="-c $4"; fi
-	echo $OPENSTACK $1 list $3 -f value $VALS $EXTRA 1>&2
+	if test "$VERBOSE" == "1"; then echo $OPENSTACK $1 list $3 -f value $VALS $EXTRA 1>&2; fi
 	ANS="$($OPENSTACK $1 list $3 -f value $VALS $EXTRA)"
 	if test $? != 0; then echo "ERROR executing $OPENSTACK $1 list $3 -f value $VALS $EXTRA" 1>&2; return 1; fi
 	if test -z "$ANS"; then return 0; fi
 	if test -n "$2"; then ANS=$(echo "$ANS" | grep $2); fi
+	if test "$VERBOSE" == "1"; then echo "$ANS" | sed 's/^/  /' 1>&2; fi
 	if test "$1" == "keypair"; then echo "$ANS";
 	elif test -n "$4"; then echo "$ANS" | sed 's/^\([0-9a-f-]*\) .* \(.*\)$/\1 \2/g';
 	else echo "$ANS" | sed 's/^\([0-9a-f-]*\) .*$/\1/g'; fi
@@ -62,13 +65,14 @@ cleanup_list()
 	esac
 	if test -n "$SINGLE"; then
 		for INST in $LST; do
-			echo $OPENSTACK $ARG delete $WAIT $SINGLE $INST
+			echo $OPENSTACK $ARG delete $WAIT $SINGLE $INST 1>&2
 			$OPENSTACK $ARG delete $WAIT $SINGLE $INST
 		done
 	else
-		echo $OPENSTACK $ARG delete $WAIT $LST
+		echo $OPENSTACK $ARG delete $WAIT $LST 1>&2
 		$OPENSTACK $ARG delete $WAIT $LST
 	fi
+	let DELETED+=$(echo $LST | wc -w)
 }
 
 # collect list of resources, filtering for names
@@ -89,6 +93,7 @@ cleanup()
 }
 
 # main
+if test "$1" == "--verbose"; then VERBOSE=1; shift; fi
 if test "$1" == "--full"; then FULL=1; shift; fi
 if test -z "$1"; then CLUSTER="testcluster"; else CLUSTER="$1"; fi
 # cleanup loadbalancers
@@ -103,10 +108,13 @@ LBS=$(resourcelist loadbalancer clusterapi "" vip_address)
 #cleanup_list "floating ip" 2 "" "$LBS"
 while read LB FIP; do
 	if test -z "$FIP"; then continue; fi
-	echo $OPENSTACK floating ip list --fixed-ip-address $FIP -f value -c ID
+	if test "$VERBOSE" == "1"; then echo $OPENSTACK floating ip list --fixed-ip-address $FIP -f value -c ID 1>&2; fi
 	FID=$($OPENSTACK floating ip list --fixed-ip-address $FIP -f value -c ID)
-	echo $OPENSTACK floating ip delete $FID
-	$OPENSTACK floating ip delete $FID
+	if test "$VERBOSE" == "1"; then echo "$FID" | sed 's/^/  /' 1>&2; fi
+	if test -n "$FID"; then
+		echo $OPENSTACK floating ip delete $FID 1>&2
+		$OPENSTACK floating ip delete $FID
+	fi
 done < <(echo "$LBS")
 cleanup_list loadbalancer 1 "" "$LBS"
 cleanup server $CLUSTER
@@ -114,7 +122,7 @@ cleanup port $CLUSTER
 RTR=$(resourcelist router $CLUSTER)
 SUBNETS=$(resourcelist subnet $CLUSTER)
 if test -n "$RTR" -a -n "$SUBNETS"; then
-	echo $OPENSTACK router remove subnet $RTR $SUBNETS
+	echo $OPENSTACK router remove subnet $RTR $SUBNETS 1>&2
 	$OPENSTACK router remove subnet $RTR $SUBNETS
 fi
 cleanup_list subnet "" "" "$SUBNETS"
@@ -132,7 +140,7 @@ if test "$FULL" == "1"; then
 	RTR=$(resourcelist router capi-)
 	SUBNETS=$(resourcelist subnet capi-)
 	if test -n "$RTR" -a -n "$SUBNETS"; then
-		echo $OPENSTACK router remove subnet $RTR $SUBNETS
+		echo $OPENSTACK router remove subnet $RTR $SUBNETS 1>&2
 		$OPENSTACK router remove subnet $RTR $SUBNETS
 	fi
 	if test -n "$SUBNETS"; then
@@ -147,4 +155,4 @@ if test "$FULL" == "1"; then
 	cleanup "security group" allow-
 	cleanup keypair capi-
 fi
-
+echo "Deleted $DELETED OpenStack resources"

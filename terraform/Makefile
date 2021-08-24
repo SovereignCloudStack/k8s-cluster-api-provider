@@ -50,8 +50,8 @@ clean: init
 	@terraform workspace delete $(ENVIRONMENT)
 	@rm -f .deploy.$(ENVIRONMENT) .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 
-fullclean:
-	@./cleanup/cleanup.sh --full
+fullclean: clean
+	@./cleanup/cleanup.sh --verbose #--full
 
 purge:
 	@echo "Warning, going to delete ALL resources in $(ENVIRONMENT), even those that have not been created by the testbed. The SSH-Key capi-keypair will be removed for all projects."
