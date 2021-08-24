@@ -96,6 +96,14 @@ cleanup()
 if test "$1" == "--verbose"; then VERBOSE=1; shift; fi
 if test "$1" == "--full"; then FULL=1; shift; fi
 if test -z "$1"; then CLUSTER="testcluster"; else CLUSTER="$1"; fi
+
+# For full cleanup, delete CAPI mgmt server first
+if test "$FULL" == "1"; then
+	CAPI=$(resourcelist server capi-mgmtcluster "" Networks)
+	cleanup_list "floating ip" 2 "" "$CAPI"
+	cleanup_list server 1 "" "$CAPI"
+fi
+
 # cleanup loadbalancers
 POOLS=$(resourcelist "loadbalancer pool" clusterapi)
 for POOL in $POOLS; do
@@ -133,10 +141,9 @@ cleanup_list router "" "" "$RTR"
 cleanup "security group" $CLUSTER
 cleanup "image" ubuntu-capi-image
 cleanup volume $CLUSTER
+
+# Continue with capi control plane
 if test "$FULL" == "1"; then
-	CAPI=$(resourcelist server capi-mgmtcluster "" Networks)
-	cleanup_list "floating ip" 2 "" "$CAPI"
-	cleanup_list server 1 "" "$CAPI"
 	RTR=$(resourcelist router capi-)
 	SUBNETS=$(resourcelist subnet capi-)
 	if test -n "$RTR" -a -n "$SUBNETS"; then
@@ -155,4 +162,5 @@ if test "$FULL" == "1"; then
 	cleanup "security group" allow-
 	cleanup keypair capi-
 fi
+
 echo "Deleted $DELETED OpenStack resources"
