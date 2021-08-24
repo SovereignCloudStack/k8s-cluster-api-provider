@@ -38,3 +38,10 @@ variable "kubernetes_version" {
   type        = string
   default     = "v1.20.9"
 }
+
+variable "kind_mtu" {
+  description = "inner MTU used in the kind cluster on the capi-mgmtnode"
+  type        = number
+  default     = 1400
+}
+

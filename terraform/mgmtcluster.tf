@@ -47,12 +47,24 @@ package_update: true
 package_upgrade: true
 write_files:
   - content: |
-      ${indent(6, file("files/daemon.json"))}
+      {
+        "mtu": ${var.kind_mtu}
+      }
     owner: root:root
     path: /tmp/daemon.json
     permissions: '0644'
   - content: |
-      ${indent(6, file("files/docker-mtu.service"))}
+      [Unit]
+      Description=Docker Set MTU to ${var.kind_mtu}
+      After=docker.service
+      Requires=docker.socket
+      
+      [Service]
+      Type=oneshot
+      ExecStart=/bin/ip link set dev docker0 mtu ${var.kind_mtu}
+      
+      [Install]
+      WantedBy=multi-user.target
     owner: root:root
     path: /etc/systemd/system/docker-mtu.service
     permissions: '0644'
