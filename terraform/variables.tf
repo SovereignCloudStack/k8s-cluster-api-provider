@@ -13,8 +13,18 @@ variable "image" {
   type        = string
 }
 
-variable "flavor" {
-  description = "openstack nova flavor for nova instances"
+variable "kind_flavor" {
+  description = "openstack nova flavor for instance running kind (capi mgmt node)"
+  type        = string
+}
+
+variable "controller_flavor" {
+  description = "openstack nova flavor for instances running the k8s management nodes"
+  type        = string
+}
+
+variable "worker_flavor" {
+  description = "openstack nova flavor for instances running the k8s worker nodes"
   type        = string
 }
 
@@ -45,3 +55,14 @@ variable "kind_mtu" {
   default     = 1400
 }
 
+variable "worker_count" {
+  description = "number of worker nodes in testcluster"
+  type        = number
+  default     = 3
+}
+
+variable "controller_count" {
+  description = "number of control plane management nodes in testcluster"
+  type        = number
+  default     = 1
+}

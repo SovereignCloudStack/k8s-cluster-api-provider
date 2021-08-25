@@ -83,7 +83,7 @@ kubectl apply -f ~/openstack.yaml
 kubectl apply -f ~/cinder.yaml
 
 kubectl config use-context kind-kind
-kubectl wait --timeout=30m cluster ${CLUSTER_NAME} --for=condition=Ready
+kubectl wait --timeout=36m cluster ${CLUSTER_NAME} --for=condition=Ready
 kubectl config use-context ${CLUSTER_NAME}-admin@${CLUSTER_NAME}
 
 
