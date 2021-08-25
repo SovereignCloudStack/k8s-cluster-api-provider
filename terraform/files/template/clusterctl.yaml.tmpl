@@ -6,6 +6,9 @@
 # Kubernetes version
 KUBERNETES_VERSION: ${kubernetes_version}
 
+# Namespace
+NAMESPACE: default
+
 # Openstack Availablity Zone
 OPENSTACK_FAILURE_DOMAIN: ${availability_zone}
 
@@ -14,8 +17,9 @@ OPENSTACK_FAILURE_DOMAIN: ${availability_zone}
 #
 OPENSTACK_EXTERNAL_NETWORK_ID: ${external}
 
-OPENSTACK_KEYPAIR_NAME: capi-keypair
+OPENSTACK_SSH_KEY_NAME: capi-keypair
 OPENSTACK_IMAGE_NAME: ubuntu-capi-image
+OPENSTACK_DNS_NAMESERVERS: 9.9.9.9
 
 OPENSTACK_CONTROL_PLANE_IP: 127.0.0.1
 OPENSTACK_CONTROL_PLANE_MACHINE_FLAVOR: ${controller_flavor}
