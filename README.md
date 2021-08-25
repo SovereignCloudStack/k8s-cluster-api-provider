@@ -44,6 +44,9 @@ resources created via the k8s cluster API. ``make fullclean`` uses a custom scri
 openstack CLI) to clean up trying to not hit any resources not created by the capi or terraform.
 It is the recommended way for doing cleanups.
 
+Note that ``fullclean`` does leave the ubuntu-capi-image registered, so it can be reused.
+You need to manually unregister it, if you want your next deployment to register a new image.
+
 ## Extension
 
 You can use this repository as a starting point for some automation e.g. adding kubernetes manifests
