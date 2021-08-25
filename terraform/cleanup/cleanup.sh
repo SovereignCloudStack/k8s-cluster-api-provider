@@ -139,7 +139,7 @@ cleanup network $CLUSTER
 #cleanup router $CLUSTER
 cleanup_list router "" "" "$RTR"
 cleanup "security group" $CLUSTER
-cleanup "image" ubuntu-capi-image
+#cleanup "image" ubuntu-capi-image
 cleanup volume $CLUSTER
 
 # Continue with capi control plane
