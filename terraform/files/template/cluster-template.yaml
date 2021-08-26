@@ -107,7 +107,7 @@ spec:
       - TRIMMED_KUBERNETES_VERSION=$(echo ${KUBERNETES_VERSION} | sed 's/\./\./g' | sed 's/^v//')
       - RESOLVED_KUBERNETES_VERSION=$(apt-cache policy kubelet | awk -v VERSION=$${TRIMMED_KUBERNETES_VERSION} '$1~ VERSION { print $1 }' | head -n1)
       - apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips docker-ce docker-ce-cli containerd.io kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
-      - echo -n "ewogICJtdHUiOiAxNDAwCn0K" | base64 -d > /etc/docker/daemon.json
+      - echo -n "${SET_MTU_B64}" | base64 -d > /etc/docker/daemon.json
       - systemctl daemon-reload
       - systemctl enable --now docker
   version: "${KUBERNETES_VERSION}"
@@ -211,7 +211,7 @@ spec:
         - TRIMMED_KUBERNETES_VERSION=$(echo ${KUBERNETES_VERSION} | sed 's/\./\./g' | sed 's/^v//')
         - RESOLVED_KUBERNETES_VERSION=$(apt-cache policy kubelet | awk -v VERSION=$${TRIMMED_KUBERNETES_VERSION} '$1~ VERSION { print $1 }' | head -n1)
         - apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips docker-ce docker-ce-cli containerd.io kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
-        - echo -n "ewogICJtdHUiOiAxNDAwCn0K" | base64 -d > /etc/docker/daemon.json
+        - echo -n "${SET_MTU_B64}" | base64 -d > /etc/docker/daemon.json
         - systemctl daemon-reload
         - systemctl enable --now docker
 ---
