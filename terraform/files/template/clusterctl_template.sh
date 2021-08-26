@@ -8,8 +8,8 @@ sudo snap install yq
 CLOUD_YAML_ENC=$(base64 -w 0 clouds.yaml)
 echo $CLOUD_YAML_ENC
 
-# Encode clouds.conf
-CLOUD_CONF_ENC=$(base64 -w 0 clouds.conf)
+# Encode cloud.conf
+CLOUD_CONF_ENC=$(base64 -w 0 cloud.conf)
 echo $CLOUD_CONF_ENC
 
 #Get CA and Encode CA

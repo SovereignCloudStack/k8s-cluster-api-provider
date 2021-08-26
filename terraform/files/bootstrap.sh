@@ -45,7 +45,9 @@ EOF
 # eof
 bash upload_capi_image.sh
 bash install_kind.sh
-bash deploy.sh
+bash deploy_cluster_api.sh
+bash deploy_cluster.sh testcluster
+# Extensions
 cd extension
 for script in $(find ./ -name '*.sh' | sort)
 do

@@ -91,26 +91,49 @@ EOF
   provisioner "file" {
     source      = "files/wait.sh"
     destination = "/home/${var.ssh_username}/wait.sh"
+    permissions = "0755"
   }
 
   provisioner "file" {
     source      = "files/install_kind.sh"
     destination = "/home/${var.ssh_username}/install_kind.sh"
+    permissions = "0755"
   }
 
   provisioner "file" {
     content     = openstack_compute_keypair_v2.keypair.private_key
     destination = "/home/${var.ssh_username}/.ssh/id_rsa"
+    permissions = "0755"
   }
 
   provisioner "file" {
     source      = "files/bootstrap.sh"
     destination = "/home/${var.ssh_username}/bootstrap.sh"
+    permissions = "0755"
   }
 
   provisioner "file" {
-    source      = "files/deploy.sh"
-    destination = "/home/${var.ssh_username}/deploy.sh"
+    source      = "files/deploy_clusterapi.sh"
+    destination = "/home/${var.ssh_username}/deploy_clusterapi.sh"
+    permissions = "0755"
+  }
+
+  provisioner "file" {
+    source      = "files/deploy_cluster.sh"
+    destination = "/home/${var.ssh_username}/deploy_cluster.sh"
+    permissions = "0755"
+  }
+
+  provisioner "file" {
+    source      = "files/delete_cluster.sh"
+    destination = "/home/${var.ssh_username}/delete_cluster.sh"
+    permissions = "0755"
+  }
+
+  provisioner "file" {
+    source      = "files/cleanup.sh"
+    destination = "/home/${var.ssh_username}/cleanup.sh"
+    permissions = "0755"
   }
 
   provisioner "file" {
@@ -121,6 +144,7 @@ EOF
   provisioner "file" {
     content     = templatefile("files/template/upload_capi_image.sh.tmpl", { kubernetes_version = var.kubernetes_version, provider = var.cloud_provider })
     destination = "/home/${var.ssh_username}/upload_capi_image.sh"
+    permissions = "0755"
   }
 
   provisioner "file" {
@@ -129,12 +153,7 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/clouds.conf.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, secure = local.secure })
-    destination = "/home/${var.ssh_username}/clouds.conf"
-  }
-
-  provisioner "file" {
-    content     = templatefile("files/template/clouds.conf.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, secure = local.secure })
+    content     = templatefile("files/template/cloud.conf.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, secure = local.secure })
     destination = "/home/${var.ssh_username}/cloud.conf"
   }
   provisioner "file" {
@@ -150,6 +169,7 @@ EOF
   provisioner "file" {
     content     = templatefile("files/template/clusterctl_template.sh", { cloud_provider = var.cloud_provider })
     destination = "/home/${var.ssh_username}/clusterctl_template.sh"
+    permissions = "0755"
   }
 
   provisioner "remote-exec" {
