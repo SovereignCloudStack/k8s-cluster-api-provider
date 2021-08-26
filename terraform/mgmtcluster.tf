@@ -109,8 +109,8 @@ EOF
   }
 
   provisioner "file" {
-    source      = "files/deploy_clusterapi.sh"
-    destination = "/home/${var.ssh_username}/deploy_clusterapi.sh"
+    source      = "files/deploy_cluster_api.sh"
+    destination = "/home/${var.ssh_username}/deploy_cluster_api.sh"
   }
 
   provisioner "file" {
