@@ -43,7 +43,8 @@ clusterctl generate cluster ${CLUSTER_NAME} --list-variables --from ${CLUSTERAPI
 
 # the need variables are set to $HOME/.cluster-api/clusterctl.yaml
 echo "# rendering clusterconfig from template"
-clusterctl config cluster ${CLUSTER_NAME} --from ${CLUSTERAPI_TEMPLATE} > rendered-${CLUSTERAPI_TEMPLATE}
+#clusterctl config cluster ${CLUSTER_NAME} --from ${CLUSTERAPI_TEMPLATE} > rendered-${CLUSTERAPI_TEMPLATE}
+clusterctl generate cluster ${CLUSTER_NAME} --from ${CLUSTERAPI_TEMPLATE} > rendered-${CLUSTERAPI_TEMPLATE}
 
 # apply to the kubernetes mgmt cluster
 echo "# apply configuration and deploy cluster ${CLUSTER_NAME}"
