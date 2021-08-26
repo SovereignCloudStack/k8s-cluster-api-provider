@@ -74,6 +74,11 @@ do
     SLEEP=$(( SLEEP + 10 ))
 done
 
+# Tweak calico MTU
+# MTU=`yq eval '.MTU_VALUE' clusterctl.yaml`
+# kubectl patch configmap/calico-config -n kube-system --type merge -p '{"data":{"veth_mtu": "'${MTU}'"}}'
+# kubectl rollout restart daemonset calico-node -n kube-system
+
 # create cloud.conf secret
 echo "Install external cloud provider"
 kubectl create secret generic cloud-config --from-file="$HOME"/cloud.conf -n kube-system
