@@ -22,8 +22,6 @@ of the newly created cluster, too.
   machine flavor or machine image.
 * Set the Variable ``ENVIRONMENT`` in Makefile:4 to ``<yourcloud>`` (or override by passing
   ``ENVIRONMENT=`` in the ``make`` call or add ENVIRONMENT= to you shell's envrionment).
-* Optionally install ospurge for failsafe project-cleanup (be careful, see Teardown below):
-  ``python3 -m pip install git+https://git.openstack.org/openstack/ospurge``
 
 
 
@@ -36,15 +34,19 @@ created cluster is named ``workload-cluster.yaml``.
 
 ## Teardown
 
-You can purge the whole project via ``make purge``. Be careful with that command as it will purge
-*all resources in the OpenStack project* even those that have not been created through this Terraform script.
-It requires the [``ospurge``](https://opendev.org/x/ospurge) script.
-``make clean`` is insufficient to clean up unfortunately, as terraform does not know about the
-resources created via the k8s cluster API. ``make fullclean`` uses a custom script (using the
+``make clean`` does ssh to the C-API management server to clean up the created clusters prior
+to terraform cleaning up the resources it has created. This is sometimes insufficient to clean up
+unfortunately, some error in the deployment may result in resources left around.
+``make fullclean`` uses a custom script (using the
 openstack CLI) to clean up trying to not hit any resources not created by the capi or terraform.
 It is the recommended way for doing cleanups.
 
-Note that ``fullclean`` does leave the ubuntu-capi-image registered, so it can be reused.
+You can purge the whole project via ``make purge``. Be careful with that command as it will purge
+*all resources in the OpenStack project* even those that have not been created through this Terraform script.
+It requires the [``ospurge``](https://opendev.org/x/ospurge) script.
+Install it with ``python3 -m pip install git+https://git.openstack.org/openstack/ospurge``.
+
+Note that ``clean`` and ``fullclean`` leave the ubuntu-capi-image registered, so it can be reused.
 You need to manually unregister it, if you want your next deployment to register a new image.
 
 ## Extensions
