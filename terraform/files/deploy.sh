@@ -4,7 +4,8 @@
 ## license: Apache-2.0
 
 # variables
-CLUSTERAPI_OPENSTACK_PROVIDER_VERSION=0.3.4
+CLUSTERAPI_OPENSTACK_PROVIDER_VERSION=0.4.0
+CLUSTERAPI_VERSION=0.4.2
 CLUSTERAPI_TEMPLATE=cluster-template.yaml
 CLUSTER_NAME=testcluster
 KUBECONFIG_WORKLOADCLUSTER=workload-cluster.yaml
@@ -21,7 +22,7 @@ cp $HOME/clusterctl.yaml $HOME/.cluster-api/clusterctl.yaml
 
 # deploy cluster-api on mgmt cluster
 echo "deploy cluster-api with openstack provider ${CLUSTERAPI_OPENSTACK_PROVIDER_VERSION}"
-clusterctl init --infrastructure openstack:v${CLUSTERAPI_OPENSTACK_PROVIDER_VERSION} --core cluster-api:v0.3.23 -b kubeadm:v0.3.23 -c kubeadm:v0.3.23
+clusterctl init --infrastructure openstack:v${CLUSTERAPI_OPENSTACK_PROVIDER_VERSION} --core cluster-api:v${CLUSTERAPI_VERSION} -b kubeadm:v${CLUSTERAPI_VERSION} -c kubeadm:v${CLUSTERAPI_VERSION}
 
 # wait for CAPI pods
 echo "# wait for all components are ready for cluster-api"
@@ -38,11 +39,13 @@ kubectl wait --for condition=established --timeout=60s crds/openstackclusters.in
 
 # get the needed clusterapi-variables
 echo "# show used variables for clustertemplate ${CLUSTERAPI_TEMPLATE}"
-clusterctl config cluster ${CLUSTER_NAME} --list-variables --from ${CLUSTERAPI_TEMPLATE}
+#clusterctl config cluster ${CLUSTER_NAME} --list-variables --from ${CLUSTERAPI_TEMPLATE}
+clusterctl generate cluster ${CLUSTER_NAME} --list-variables --from ${CLUSTERAPI_TEMPLATE}
 
 # the need variables are set to $HOME/.cluster-api/clusterctl.yaml
 echo "# rendering clusterconfig from template"
-clusterctl config cluster ${CLUSTER_NAME} --from ${CLUSTERAPI_TEMPLATE} > rendered-${CLUSTERAPI_TEMPLATE}
+#clusterctl config cluster ${CLUSTER_NAME} --from ${CLUSTERAPI_TEMPLATE} > rendered-${CLUSTERAPI_TEMPLATE}
+clusterctl generate cluster ${CLUSTER_NAME} --from ${CLUSTERAPI_TEMPLATE} > rendered-${CLUSTERAPI_TEMPLATE}
 
 # apply to the kubernetes mgmt cluster
 echo "# apply configuration and deploy cluster ${CLUSTER_NAME}"
@@ -71,6 +74,11 @@ do
     sleep 10
     SLEEP=$(( SLEEP + 10 ))
 done
+
+# Tweak calico MTU
+# MTU=`yq eval '.MTU_VALUE' clusterctl.yaml`
+# kubectl patch configmap/calico-config -n kube-system --type merge -p '{"data":{"veth_mtu": "'${MTU}'"}}'
+# kubectl rollout restart daemonset calico-node -n kube-system
 
 # create cloud.conf secret
 echo "Install external cloud provider"

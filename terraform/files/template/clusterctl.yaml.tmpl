@@ -1,10 +1,13 @@
 # cluster-api template for provider openstack
 #
 # use-case: single Kubernetes controlplane and 1 worker node
-# 
+#
 
 # Kubernetes version
 KUBERNETES_VERSION: ${kubernetes_version}
+
+# Namespace
+NAMESPACE: ${namespace}
 
 # Openstack Availablity Zone
 OPENSTACK_FAILURE_DOMAIN: ${availability_zone}
@@ -14,8 +17,9 @@ OPENSTACK_FAILURE_DOMAIN: ${availability_zone}
 #
 OPENSTACK_EXTERNAL_NETWORK_ID: ${external}
 
-OPENSTACK_KEYPAIR_NAME: capi-keypair
+OPENSTACK_SSH_KEY_NAME: capi-keypair
 OPENSTACK_IMAGE_NAME: ubuntu-capi-image
+OPENSTACK_DNS_NAMESERVERS: 9.9.9.9
 
 OPENSTACK_CONTROL_PLANE_IP: 127.0.0.1
 OPENSTACK_CONTROL_PLANE_MACHINE_FLAVOR: ${controller_flavor}
@@ -30,15 +34,19 @@ OPENSTACK_CLOUD: ${cloud_provider}
 # the clouds.yaml
 # hint: $(base64 -w0 < clouds.yaml )
 #
-OPENSTACK_CLOUD_YAML_B64: 
+OPENSTACK_CLOUD_YAML_B64:
 
 # the cloud provider config
 # hint: base64 -w0 < cloud.conf
 #
 OPENSTACK_CLOUD_PROVIDER_CONF_B64:
- 
-# the Certificate Authority (CA) used for Openstack API endpoints
-# the "let's encrypt" is used https://letsencrypt.org/certs/letsencryptauthorityx3.pem.txt
+
+# The Certificate Authority (CA) used for Openstack API endpoints. We use
+# "let's encrypt" https://letsencrypt.org/certs/letsencryptauthorityx3.pem.txt
 # hint: base64 -w0 < cacert.pam
 #
 OPENSTACK_CLOUD_CACERT_B64:
+
+# Set MTU in VM hosts
+MTU_VALUE: ${kind_mtu}
+SET_MTU_B64:
