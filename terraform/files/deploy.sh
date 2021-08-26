@@ -5,6 +5,7 @@
 
 # variables
 CLUSTERAPI_OPENSTACK_PROVIDER_VERSION=0.4.0
+CLUSTERAPI_VERSION=0.4.2
 CLUSTERAPI_TEMPLATE=cluster-template.yaml
 CLUSTER_NAME=testcluster
 KUBECONFIG_WORKLOADCLUSTER=workload-cluster.yaml
@@ -21,7 +22,7 @@ cp $HOME/clusterctl.yaml $HOME/.cluster-api/clusterctl.yaml
 
 # deploy cluster-api on mgmt cluster
 echo "deploy cluster-api with openstack provider ${CLUSTERAPI_OPENSTACK_PROVIDER_VERSION}"
-clusterctl init --infrastructure openstack:v${CLUSTERAPI_OPENSTACK_PROVIDER_VERSION} --core cluster-api:v0.4.2 -b kubeadm:v0.4.2 -c kubeadm:v0.4.2
+clusterctl init --infrastructure openstack:v${CLUSTERAPI_OPENSTACK_PROVIDER_VERSION} --core cluster-api:v${CLUSTERAPI_VERSION} -b kubeadm:v${CLUSTERAPI_VERSION} -c kubeadm:v${CLUSTERAPI_VERSION}
 
 # wait for CAPI pods
 echo "# wait for all components are ready for cluster-api"
