@@ -66,3 +66,9 @@ variable "controller_count" {
   type        = number
   default     = 1
 }
+
+variable "kubernetes_namespace" {
+  description = "namespace for the testcluster"
+  type        = string
+  default     = "default"
+}
