@@ -77,7 +77,7 @@ runcmd:
   - mv /tmp/daemon.json /etc/docker/daemon.json
   - groupadd docker
   - usermod -aG docker ${var.ssh_username}
-  - apt -y install docker.io
+  - apt -y install docker.io yamllint
   - systemctl enable docker-mtu
   - systemctl start docker-mtu
 EOF
