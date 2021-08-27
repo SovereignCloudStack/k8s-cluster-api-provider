@@ -25,7 +25,7 @@ clusterctl init --infrastructure openstack:v${CLUSTERAPI_OPENSTACK_PROVIDER_VERS
 # TODO: Check signature
 curl -o calicoctl -O -L  "https://github.com/projectcalico/calicoctl/releases/download/v3.20.0/calicoctl" 
 chmod +x calicoctl
-mv calicoctl /usr/local/bin
+sudo mv calicoctl /usr/local/bin
 
 # wait for CAPI pods
 echo "# wait for all components are ready for cluster-api"
