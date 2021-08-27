@@ -50,10 +50,12 @@ export KUBECONFIG=".kube/config:${KUBECONFIG_WORKLOADCLUSTER}"
 MERGED=$(mktemp merged.yaml.XXXXXX)
 kubectl config view --flatten > $MERGED
 mv $MERGED .kube/config
-kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
+export KUBECONFIG=.kube/config
+#kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
+KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
 
 SLEEP=0
-until kubectl api-resources
+until kubectl $KCONTEXT api-resources
 do
     echo "[$SLEEP] waiting for api-server"
     sleep 10
@@ -67,16 +69,16 @@ done
 
 # create cloud.conf secret
 echo "Install external OpenStack cloud provider"
-kubectl create secret generic cloud-config --from-file="$HOME"/cloud.conf -n kube-system
+kubectl $KCONTEXT create secret generic cloud-config --from-file="$HOME"/cloud.conf -n kube-system
 # install external cloud-provider openstack
-kubectl apply -f ~/openstack.yaml
+kubectl $KCONTEXT apply -f ~/openstack.yaml
 
 # apply cinder-csi
-kubectl apply -f ~/cinder.yaml
+kubectl $KCONTEXT apply -f ~/cinder.yaml
 
 echo "Wait for control plane of ${CLUSTER_NAME}"
 kubectl config use-context kind-kind
 kubectl wait --timeout=20m cluster "${CLUSTER_NAME}" --for=condition=Ready
-kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
-
+#kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
+echo "Use $KCONTEXT parameter to kubectl to control the workload cluster"
 # eof
