@@ -77,7 +77,7 @@ runcmd:
   - mv /tmp/daemon.json /etc/docker/daemon.json
   - groupadd docker
   - usermod -aG docker ${var.ssh_username}
-  - apt -y install docker.io
+  - apt -y install docker.io yamllint
   - systemctl enable docker-mtu
   - systemctl start docker-mtu
 EOF
@@ -109,8 +109,23 @@ EOF
   }
 
   provisioner "file" {
-    source      = "files/deploy.sh"
-    destination = "/home/${var.ssh_username}/deploy.sh"
+    source      = "files/deploy_cluster_api.sh"
+    destination = "/home/${var.ssh_username}/deploy_cluster_api.sh"
+  }
+
+  provisioner "file" {
+    source      = "files/deploy_cluster.sh"
+    destination = "/home/${var.ssh_username}/deploy_cluster.sh"
+  }
+
+  provisioner "file" {
+    source      = "files/delete_cluster.sh"
+    destination = "/home/${var.ssh_username}/delete_cluster.sh"
+  }
+
+  provisioner "file" {
+    source      = "files/cleanup.sh"
+    destination = "/home/${var.ssh_username}/cleanup.sh"
   }
 
   provisioner "file" {
@@ -129,12 +144,7 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/clouds.conf.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, secure = local.secure })
-    destination = "/home/${var.ssh_username}/clouds.conf"
-  }
-
-  provisioner "file" {
-    content     = templatefile("files/template/clouds.conf.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, secure = local.secure })
+    content     = templatefile("files/template/cloud.conf.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, secure = local.secure })
     destination = "/home/${var.ssh_username}/cloud.conf"
   }
   provisioner "file" {
@@ -150,6 +160,12 @@ EOF
   provisioner "file" {
     content     = templatefile("files/template/clusterctl_template.sh", { cloud_provider = var.cloud_provider })
     destination = "/home/${var.ssh_username}/clusterctl_template.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x *.sh"
+    ]
   }
 
   provisioner "remote-exec" {

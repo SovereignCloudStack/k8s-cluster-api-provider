@@ -15,11 +15,13 @@ sudo apt install -y binutils
 
 # install k9s
 echo "# install k9s ${VERSION_K9S}"
+# TODO: Check signature
 curl -L https://github.com/derailed/k9s/releases/download/v${VERSION_K9S}/k9s_Linux_x86_64.tar.gz | tar zf - -x k9s
 sudo mv ./k9s /usr/local/bin/k9s
 
 # install clustercli
 echo "# install clusterctl ${VERSION_CLUSTERCTL}"
+# TODO: Check signature
 sudo curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/v${VERSION_CLUSTERCTL}/clusterctl-linux-amd64 -o /usr/local/bin/clusterctl
 sudo chmod +x /usr/local/bin/clusterctl
 
@@ -29,6 +31,7 @@ cat <<EOF > $HOME/.bash_aliases
 # kubernetes-cli
 alias k=kubectl
 source <( kubectl completion bash | sed 's# kubectl\$# k kubectl\$#' )
+source <( kubectl completion bash )
 
 # clusterctl 
 source <( clusterctl completion bash )
@@ -45,7 +48,12 @@ EOF
 # eof
 bash upload_capi_image.sh
 bash install_kind.sh
-bash deploy.sh
+bash deploy_cluster_api.sh
+CONTROLLERS=`yq eval '.CONTROL_PLANE_MACHINE_COUNT' clusterctl.yaml`
+if test "$CONTROLLERS" != "0"; then
+    bash deploy_cluster.sh testcluster
+fi
+# Extensions
 cd extension
 for script in $(find ./ -name '*.sh' | sort)
 do
