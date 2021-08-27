@@ -55,7 +55,7 @@ You can use this repository as a starting point for some automation e.g. adding 
 to the cluster or to run custom shell scripts in the end. To do so place your files in the `terraform/extension` folder.
 They will be uploaded to the management cluster. Files ending in ```*.sh``` will be executed in alphabetical
 order. All other files will just be uploaded. If you want to deploy resources in the new cluster-api-maintained cluster
-you can use `kubectl apply -f <your-manifest.yaml> --kubeconfig ../workload-cluster.yaml` to do so.
+you can use `kubectl apply -f <your-manifest.yaml> --kubeconfig ~/testcluster.yaml` to do so.
 
 ## Cluster Management on the C-API management node
 
@@ -81,6 +81,5 @@ of them. There are management scripts on the management node:
   the cluster $CLUSTERNAME. The script will return once the removal is done.
 * ``cleanup.sh``: Remove all running clusters.
 
-``k9s`` is installed on the node as well. You can also download and install
-``calicoctl`` is you want to do advanced CNI management.
+``k9s`` is installed on the node as well as ``calicoctl``.
 
