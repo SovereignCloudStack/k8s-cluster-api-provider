@@ -77,9 +77,8 @@ runcmd:
   - mv /tmp/daemon.json /etc/docker/daemon.json
   - groupadd docker
   - usermod -aG docker ${var.ssh_username}
-  - apt -y install docker.io yamllint
-  - systemctl enable docker-mtu
-  - systemctl start docker-mtu
+  - apt -y install docker.io yamllint qemu-utils
+  - systemctl enable --now docker-mtu
 EOF
 
   connection {
@@ -134,7 +133,7 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/upload_capi_image.sh.tmpl", { kubernetes_version = var.kubernetes_version, provider = var.cloud_provider })
+    content     = templatefile("files/template/upload_capi_image.sh.tmpl", { kubernetes_version = var.kubernetes_version, provider = var.cloud_provider, kube_image_raw = var.kube_image_raw })
     destination = "/home/${var.ssh_username}/upload_capi_image.sh"
   }
 

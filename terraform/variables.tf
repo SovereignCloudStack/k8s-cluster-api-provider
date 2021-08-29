@@ -6,6 +6,7 @@ variable "cloud_provider" {
 variable "prefix" {
   description = "a prefix name for resources"
   type        = string
+  default     = "capi"
 }
 
 variable "image" {
@@ -47,6 +48,12 @@ variable "kubernetes_version" {
   description = "desired kubernetes version for the workload cluster"
   type        = string
   default     = "v1.21.4"
+}
+
+variable "kube_image_raw" {
+  description = "convert kubernetes image to raw format for ceph backed root disks"
+  type        = bool
+  default     = false
 }
 
 variable "kind_mtu" {

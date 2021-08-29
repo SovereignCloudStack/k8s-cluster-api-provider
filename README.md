@@ -46,8 +46,10 @@ You can purge the whole project via ``make purge``. Be careful with that command
 It requires the [``ospurge``](https://opendev.org/x/ospurge) script.
 Install it with ``python3 -m pip install git+https://git.openstack.org/openstack/ospurge``.
 
-Note that ``clean`` and ``fullclean`` leave the ubuntu-capi-image registered, so it can be reused.
-You need to manually unregister it, if you want your next deployment to register a new image.
+Note that ``clean`` and ``fullclean`` leave the ``ubuntu-capi-image-$KUBERNETES_VERSION`` image registered,
+so it can be reused.
+You need to manually unregister it, if you want your next deployment to register a new image with
+the same kubernetes version number.
 
 ## Extensions
 
@@ -61,7 +63,7 @@ you can use `kubectl apply -f <your-manifest.yaml> --kubeconfig ~/testcluster.ya
 
 You can use ``make ssh`` to log in to the Ca-API management node. There you can issue
 ``clusterctl`` and ``kubectl`` (aliased to ``k``) commands. The context ``kind-kind``
-is for the C-API management while the context ``testcluster-admin@testcluster`` can
+is used for the C-API management while the context ``testcluster-admin@testcluster`` can
 be used to control the workload cluster ``testcluster``. You can of course create many
 of them. There are management scripts on the management node:
 
@@ -70,11 +72,16 @@ of them. There are management scripts on the management node:
   to render a config file ``$CLUSTERNAME-config.yaml`` which will then be submitted
   to the capi server (``kind-kind`` context) for creating the control plane nodes 
   and worker nodes with openstack integration, cinder CSI and calico CNI.
-  The script returns once the control plane is fully initialized (the worked
-  nodes might still be under construction. The kubectl file to talk to this
-  cluster (as admin) can be found in $CLUSTERNAME.yaml. Expect the cluster
-  creation to take ~10mins. (CLUSTERNAME defaults to testcluster)
+  The script returns once the control plane is fully initialized (the worker
+  nodes might still be under construction). The kubectl file to talk to this
+  cluster (as admin) can be found in ``$CLUSTERNAME.yaml``. Expect the cluster
+  creation to take ~8mins. (CLUSTERNAME defaults to testcluster.)
 * The script can be called with an existing cluster to apply changes to it.
+  Note that you can easily change the number of nodes, while the node specifications
+  itself (flavor, image, ...) can not be changed. You need to add a second machine
+  description template to the ``cluster-template.yaml`` to do such changes.
+  You will also need to enhance it for multi-AZ or multi-region clusters.
+  You can of course also delete the cluster and create a new one ...
 * Use ``kubectl get clusters`` in the ``kind-kind`` context to see what clusters
   exist.
 * ``delete_cluster.sh [CLUSTERNAME]``: Tell the capi mgmt server to remove
