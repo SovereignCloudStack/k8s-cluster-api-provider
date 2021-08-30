@@ -26,8 +26,8 @@ resource "openstack_networking_floatingip_associate_v2" "mgmtcluster_floatingip_
 }
 
 locals {
-  clouds = lookup(lookup(yamldecode(file("clouds.yaml")), "clouds"), var.cloud_provider)
-  secure = lookup(lookup(yamldecode(file("secure.yaml")), "clouds"), var.cloud_provider)
+  clouds = lookup(lookup(yamldecode(file("${var.clouds_yaml_path}/clouds.yaml")), "clouds"), var.cloud_provider)
+  secure = lookup(lookup(yamldecode(file("${var.clouds_yaml_path}/secure.yaml")), "clouds"), var.cloud_provider)
 }
 
 resource "openstack_compute_instance_v2" "mgmtcluster_server" {
@@ -128,7 +128,7 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/clusterctl.yaml.tmpl", { kubernetes_version = var.kubernetes_version, availability_zone = var.availability_zone, external = var.external, image = var.image, controller_flavor = var.controller_flavor, worker_flavor = var.worker_flavor, cloud_provider = var.cloud_provider, worker_count = var.worker_count, controller_count = var.controller_count, kind_mtu = var.kind_mtu, namespace = var.kubernetes_namespace })
+    content     = templatefile("files/template/clusterctl.yaml.tmpl", { kubernetes_version = var.kubernetes_version, availability_zone = var.availability_zone, external = var.external, image = var.image, controller_flavor = var.controller_flavor, worker_flavor = var.worker_flavor, cloud_provider = var.cloud_provider, worker_count = var.worker_count, controller_count = var.controller_count, kind_mtu = var.kind_mtu, namespace = var.kubernetes_namespace, prefix = var.prefix })
     destination = "/home/${var.ssh_username}/clusterctl.yaml"
   }
 

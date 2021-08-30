@@ -17,7 +17,7 @@ OPENSTACK_FAILURE_DOMAIN: ${availability_zone}
 #
 OPENSTACK_EXTERNAL_NETWORK_ID: ${external}
 
-OPENSTACK_SSH_KEY_NAME: capi-keypair
+OPENSTACK_SSH_KEY_NAME: ${prefix}-keypair
 OPENSTACK_IMAGE_NAME: ubuntu-capi-image-${kubernetes_version}
 OPENSTACK_DNS_NAMESERVERS: 9.9.9.9
 
