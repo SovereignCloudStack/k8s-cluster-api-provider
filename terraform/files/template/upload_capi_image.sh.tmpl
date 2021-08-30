@@ -16,7 +16,7 @@ if test -z "$CAPIIMG"; then
   FMT=qcow2
   if test "${kube_image_raw}" = "true"; then
     FMT=raw
-    qemu-img convert ubuntu-2004-kube-$VERSION_CAPI_IMAGE.qcow2 -O raw -S 4k ubuntu-2004-kube-$VERSION_CAPI_IMAGE.raw && rm ubuntu-2004-kube-$VERSION_CAPI_IMAGE.qcow2
+    qemu-img convert ubuntu-2004-kube-$KUBERNETES_VERSION.qcow2 -O raw -S 4k ubuntu-2004-kube-$KUBERNETES_VERSION.raw && rm ubuntu-2004-kube-$KUBERNETES_VERSION.qcow2
   fi
-  openstack --os-cloud $PROVIDER image create --disk-format $FMT --file ubuntu-2004-kube-$VERSION_CAPI_IMAGE.$FMT ubuntu-capi-image-$KUBERNETES_VERSION # && rm  ubuntu-2004-kube-$VERSION_CAPI_IMAGE.$FMT
+  openstack --os-cloud $PROVIDER image create --disk-format $FMT --file ubuntu-2004-kube-$KUBERNETES_VERSION.$FMT ubuntu-capi-image-$KUBERNETES_VERSION # && rm  ubuntu-2004-kube-$VERSION_CAPI_IMAGE.$FMT
 fi
