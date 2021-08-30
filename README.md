@@ -12,7 +12,9 @@ of the newly created cluster, or for creating additional clusters.
 * Terraform must be installed (https://learn.hashicorp.com/tutorials/terraform/install-cli)
 * ``terraform/clouds.yaml`` and ``terraform/secure.yaml`` files must be created
   (https://docs.openstack.org/python-openstackclient/latest/configuration/index.html#clouds-yaml)
-* place your ``clouds.yaml`` and your ``secure.yaml`` in the ``terraform`` folder. Examples are
+* place your ``clouds.yaml`` and your ``secure.yaml`` in the ``terraform`` folder (or set the
+  ``clouds_yaml_path`` to the standard "~/.config/openstack/" path where you typically store
+  the clouds access parameters and credentials. Examples are
   provided in ``clouds.yaml.sample`` and ``secure.yaml.sample``
   Note that you need ``project_domain_name`` and ``username`` in ``clouds.yaml``.
   (``username`` is normally only in ``secure.yaml`` and the ``project_domain_name`` is not

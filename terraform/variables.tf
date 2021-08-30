@@ -79,3 +79,9 @@ variable "kubernetes_namespace" {
   type        = string
   default     = "default"
 }
+
+variable "clouds_yaml_path" {
+  description = "where to find clouds and secure.yaml"
+  type        = string
+  default     = "."
+}
