@@ -83,5 +83,5 @@ variable "kubernetes_namespace" {
 variable "clouds_yaml_path" {
   description = "where to find clouds and secure.yaml"
   type        = string
-  default     = "."	# use "~/.config/openstack" for the global one
+  default     = "."
 }
