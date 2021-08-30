@@ -76,6 +76,9 @@ kubectl $KCONTEXT apply -f ~/openstack.yaml
 # apply cinder-csi
 kubectl $KCONTEXT apply -f ~/cinder.yaml
 
+# Metrics server
+# kubectl $KCONTEXT create -f https://raw.githubusercontent.com/pythianarora/total-practice/master/sample-kubernetes-code/metrics-server.yaml
+
 echo "Wait for control plane of ${CLUSTER_NAME}"
 kubectl config use-context kind-kind
 kubectl wait --timeout=20m cluster "${CLUSTER_NAME}" --for=condition=Ready
