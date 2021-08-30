@@ -16,7 +16,8 @@ of the newly created cluster, or for creating additional clusters.
   provided in ``clouds.yaml.sample`` and ``secure.yaml.sample``
   Note that you need ``project_domain_name`` and ``username`` in ``clouds.yaml``.
   (``username`` is normally only in ``secure.yaml`` and the ``project_domain_name`` is not
-  normally needed. Copy your ``user_domain_name`` setting in case you wonder what's needed here.)
+  normally needed. Copy your ``user_domain_name`` setting in case you wonder what's needed here.
+  You also need ``project_id``, as *some* clouds require it.)
 * Copy the environments sample file from environments/environment-default.tfvars to
   ``environments/environment-<yourcloud>.tfvars`` and provide the necessary information like
   machine flavor or machine image.
