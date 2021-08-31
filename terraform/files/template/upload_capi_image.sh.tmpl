@@ -18,5 +18,22 @@ if test -z "$CAPIIMG"; then
     FMT=raw
     qemu-img convert ubuntu-2004-kube-$KUBERNETES_VERSION.qcow2 -O raw -S 4k ubuntu-2004-kube-$KUBERNETES_VERSION.raw && rm ubuntu-2004-kube-$KUBERNETES_VERSION.qcow2
   fi
-  openstack --os-cloud $PROVIDER image create --disk-format $FMT --file ubuntu-2004-kube-$KUBERNETES_VERSION.$FMT ubuntu-capi-image-$KUBERNETES_VERSION # && rm  ubuntu-2004-kube-$VERSION_CAPI_IMAGE.$FMT
+  #TODO min-disk, min-ram, other std. image metadata
+  openstack --os-cloud $PROVIDER image create --disk-format $FMT --file ubuntu-2004-kube-$KUBERNETES_VERSION.$FMT ubuntu-capi-image-$KUBERNETES_VERSION &
+  sleep 5
+  echo "Waiting for image ubuntu-capi-image-$KUBERNETES_VERSION: "
+  let -i ctr=0
+  while test $ctr -lt 60; do
+    CAPIIMG=$(openstack --os-cloud $PROVIDER image list --name ubuntu-capi-image-$KUBERNETES_VERSION -f value -c ID -c Status)
+    STATUS="$${CAPIIMG##* }"
+    if test "$STATUS" = "saving" -o "$STATUS" = "active"; then break; fi
+    echo -n "."
+    let ctr+=1
+    sleep 10
+  done
+  echo " $CAPIIMG"
+  if test $ctr -ge 60; then
+    echo "ERROR: Image ubuntu-capi-image-$KUBERNETES_VERSION not found" 1>&2
+    exit 2
+  fi
 fi

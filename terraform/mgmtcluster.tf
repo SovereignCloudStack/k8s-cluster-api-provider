@@ -138,6 +138,11 @@ EOF
   }
 
   provisioner "file" {
+    content     = templatefile("files/template/wait_capi_image.sh.tmpl", { kubernetes_version = var.kubernetes_version, provider = var.cloud_provider })
+    destination = "/home/${var.ssh_username}/wait_capi_image.sh"
+  }
+
+  provisioner "file" {
     content     = templatefile("files/template/clouds.yaml.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, secure = local.secure })
     destination = "/home/${var.ssh_username}/clouds.yaml"
   }
