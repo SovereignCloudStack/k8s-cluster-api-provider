@@ -149,12 +149,12 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/clouds.yaml.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, appcredid = appcred.id, appcredsecret = appcred.secret })
+    content     = templatefile("files/template/clouds.yaml.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, appcredid = openstack_identity_application_credential_v3.appcred.id, appcredsecret = openstack_identity_application_credential_v3.appcred.secret })
     destination = "/home/${var.ssh_username}/clouds.yaml"
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/cloud.conf.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, appcredid = appcred.id, appcredsecret = appcred.secret })
+    content     = templatefile("files/template/cloud.conf.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, appcredid = openstack_identity_application_credential_v3.appcred.id, appcredsecret = openstack_identity_application_credential_v3.appcred.secret })
     destination = "/home/${var.ssh_username}/cloud.conf"
   }
   provisioner "file" {

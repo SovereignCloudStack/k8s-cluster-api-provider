@@ -163,6 +163,7 @@ if test "$FULL" == "1"; then
 	cleanup "security group" ${CAPIPRE}-
 	cleanup "security group" allow-
 	cleanup keypair ${CAPIPRE}-
+	cleanup "application credential" ${CAPIPRE}-appcred
 fi
 
 echo "Deleted $DELETED OpenStack resources"
