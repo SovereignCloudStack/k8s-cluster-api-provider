@@ -56,6 +56,12 @@ variable "kube_image_raw" {
   default     = false
 }
 
+variable "image_registration_extra_flags" {
+  description = "pass extra parameters to image registration"
+  type        = string
+  default     = ""
+}
+
 variable "kind_mtu" {
   description = "inner MTU used in the kind cluster on the capi-mgmtnode"
   type        = number

@@ -133,7 +133,7 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/upload_capi_image.sh.tmpl", { kubernetes_version = var.kubernetes_version, provider = var.cloud_provider, kube_image_raw = var.kube_image_raw })
+    content     = templatefile("files/template/upload_capi_image.sh.tmpl", { kubernetes_version = var.kubernetes_version, provider = var.cloud_provider, kube_image_raw = var.kube_image_raw, image_registration_extra_flags = var.image_registration_extra_flags })
     destination = "/home/${var.ssh_username}/upload_capi_image.sh"
   }
 

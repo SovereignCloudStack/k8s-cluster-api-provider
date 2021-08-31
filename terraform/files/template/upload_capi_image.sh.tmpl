@@ -3,6 +3,7 @@
 KUBERNETES_VERSION="${kubernetes_version}"
 VERSION_CAPI_IMAGE=$(echo $KUBERNETES_VERSION | sed 's/\.[[:digit:]]*$//g')
 PROVIDER="${provider}"
+IMGREG_EXTRA="${image_registration_extra_flags}"
 
 
 #install Openstack CLI
@@ -14,12 +15,16 @@ if test -z "$CAPIIMG"; then
   # TODO: Check signature
   wget https://images.osism.tech/openstack-k8s-capi-images/ubuntu-2004-kube-$VERSION_CAPI_IMAGE/ubuntu-2004-kube-$KUBERNETES_VERSION.qcow2
   FMT=qcow2
+  IMGINFO=$(qemu-img info "$1")
+  DIKKSZ=$(echo "$IMGINFO" | grep '^virtual size' | sed 's/^[^(]*(\([0-9]*\) bytes).*$/\1/')
+  DISKSZ=$(((DISKSZ+1073741823)/1073741824))
+  IMGDATE=$((date -r ubuntu-2004-kube-$KUBERNETES_VERSION.qcow2 +%F))
   if test "${kube_image_raw}" = "true"; then
     FMT=raw
     qemu-img convert ubuntu-2004-kube-$KUBERNETES_VERSION.qcow2 -O raw -S 4k ubuntu-2004-kube-$KUBERNETES_VERSION.raw && rm ubuntu-2004-kube-$KUBERNETES_VERSION.qcow2
   fi
   #TODO min-disk, min-ram, other std. image metadata
-  openstack --os-cloud $PROVIDER image create --disk-format $FMT --file ubuntu-2004-kube-$KUBERNETES_VERSION.$FMT ubuntu-capi-image-$KUBERNETES_VERSION &
+  openstack --os-cloud $PROVIDER image create --disk-format $FMT --min-ram 1024 --min-disk $DISKSZ --property image_guild_date="$IMGDATE" --property image_original_user=ubuntu --property architecture=x86_64 --property hypervisor_type=kvm --property os_distro=Ubuntu --property os_version="20.04" --property hw_disk_bus=scsi --property hw_scsi_model=virtio-scsi --property hw_rng_model=virtio --property image_source=https://images.osism.tech/openstack-k8s-capi-images/ubuntu-2004-kube-$VERSION_CAPI_IMAGE/ubuntu-2004-kube-$KUBERNETES_VERSION.qcow2 --tag managed_by_OSISM ${IMGREG_EXTRA} --file ubuntu-2004-kube-$KUBERNETES_VERSION.$FMT ubuntu-capi-image-$KUBERNETES_VERSION &
   sleep 5
   echo "Waiting for image ubuntu-capi-image-$KUBERNETES_VERSION: "
   let -i ctr=0
