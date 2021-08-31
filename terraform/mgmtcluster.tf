@@ -3,6 +3,12 @@ resource "openstack_compute_keypair_v2" "keypair" {
   name = "${var.prefix}-keypair"
 }
 
+# - application credential -
+resource "openstack_identity_application_credential_v3" "appcred" {
+  name = "${var.prefix}-appcred"
+  description = "Credential for the ${var.prefix} management"
+}
+
 # - management cluster -
 resource "openstack_networking_floatingip_v2" "mgmtcluster_floatingip" {
   pool       = var.external
@@ -143,12 +149,12 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/clouds.yaml.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, secure = local.secure })
+    content     = templatefile("files/template/clouds.yaml.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, appcredid = appcred.id, appcredsecret = appcred.secret })
     destination = "/home/${var.ssh_username}/clouds.yaml"
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/cloud.conf.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, secure = local.secure })
+    content     = templatefile("files/template/cloud.conf.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, appcredid = appcred.id, appcredsecret = appcred.secret })
     destination = "/home/${var.ssh_username}/cloud.conf"
   }
   provisioner "file" {
