@@ -10,6 +10,9 @@ UBU_IMG_NM=ubuntu-capi-image-$KUBERNETES_VERSION
 #install Openstack CLI
 sudo apt install -y python3-openstackclient
 
+# convenience
+echo "export OS_CLOUD=\"$PROVIDER\"" >> $HOME/.bash_aliases
+
 #download/upload image to openstack
 CAPIIMG=$(openstack --os-cloud $PROVIDER image list --name $UBU_IMG_NM)
 if test -z "$CAPIIMG"; then
