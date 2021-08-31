@@ -30,7 +30,7 @@ sudo mv calicoctl /usr/local/bin
 # wait for CAPI pods
 echo "# wait for all components are ready for cluster-api"
 kubectl wait --for=condition=Ready --timeout=5m -n capi-system pod --all
-kubectl wait --for=condition=Ready --timeout=5m -n capi-webhook-system pod --all
+#kubectl wait --for=condition=Ready --timeout=5m -n capi-webhook-system pod --all
 kubectl wait --for=condition=Ready --timeout=5m -n capi-kubeadm-bootstrap-system pod --all
 kubectl wait --for=condition=Ready --timeout=5m -n capi-kubeadm-control-plane-system pod --all
 kubectl wait --for=condition=Ready --timeout=5m -n capo-system pod --all
