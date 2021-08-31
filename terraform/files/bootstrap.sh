@@ -7,6 +7,9 @@
 VERSION_K9S="0.24.15"
 VERSION_CLUSTERCTL="0.4.2"
 
+# Start image registration early
+bash upload_capi_image.sh
+
 ## install tools and utils at local account
 
 # install kubectl
@@ -45,10 +48,10 @@ cat <<EOF > .inputrc
 set show-all-if-ambiguous on
 EOF
 
-# eof
-bash upload_capi_image.sh
 bash install_kind.sh
 bash deploy_cluster_api.sh
+bash wait_capi_image.sh
+
 CONTROLLERS=`yq eval '.CONTROL_PLANE_MACHINE_COUNT' clusterctl.yaml`
 if test "$CONTROLLERS" != "0"; then
     bash deploy_cluster.sh testcluster
@@ -60,3 +63,4 @@ do
     echo executing $script
     bash $script
 done
+# eof
