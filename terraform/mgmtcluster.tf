@@ -5,7 +5,7 @@ resource "openstack_compute_keypair_v2" "keypair" {
 
 # - application credential -
 resource "openstack_identity_application_credential_v3" "appcred" {
-  name = "${var.prefix}-appcred"
+  name        = "${var.prefix}-appcred"
   description = "Credential for the ${var.prefix} management"
 }
 
@@ -33,7 +33,6 @@ resource "openstack_networking_floatingip_associate_v2" "mgmtcluster_floatingip_
 
 locals {
   clouds = lookup(lookup(yamldecode(file("${var.clouds_yaml_path}/clouds.yaml")), "clouds"), var.cloud_provider)
-  secure = lookup(lookup(yamldecode(file("${var.clouds_yaml_path}/secure.yaml")), "clouds"), var.cloud_provider)
 }
 
 resource "openstack_compute_instance_v2" "mgmtcluster_server" {
