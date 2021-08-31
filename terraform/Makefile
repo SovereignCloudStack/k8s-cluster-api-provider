@@ -54,7 +54,8 @@ clean: init
 	@rm -f .kube.config.$(ENVIRONMENT) .cluster-api.clusterctl.yaml.$(ENVIRONMENT) rendered-cluster-template.yaml.$(ENVIRONMENT)
 
 fullclean:
-	@./cleanup/cleanup.sh --verbose --full
+	prefix=$$(grep '^prefix *=' environments/environment-${ENVIRONMENT}.tfvars | sed -e 's/^[^=]*= *//' -e 's/"//g'); \
+	./cleanup/cleanup.sh --verbose --full testcluster $${prefix}
 	@rm -f ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT)
 	$(MAKE) clean
 

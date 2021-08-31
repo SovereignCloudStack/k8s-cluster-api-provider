@@ -95,11 +95,13 @@ cleanup()
 # main
 if test "$1" == "--verbose"; then VERBOSE=1; shift; fi
 if test "$1" == "--full"; then FULL=1; shift; fi
-if test -z "$1"; then CLUSTER="k8s-clusterapi"; else CLUSTER="$1"; fi
+if test -z "$1"; then CLUSTER="k8s-clusterapi"; else CLUSTER="$1"; shift; fi
+if test -z "$1"; then CAPIPRE="capi"; else CAPIPRE="$1"; shift; fi
 
 # For full cleanup, delete CAPI mgmt server first
 if test "$FULL" == "1"; then
-	CAPI=$(resourcelist server capi-mgmtcluster "" Networks)
+	echo "Deleting main cluster with prefix $CAPIPRE"
+	CAPI=$(resourcelist server ${CAPIPRE}-mgmtcluster "" Networks)
 	cleanup_list server 1 "" "$CAPI"
 	cleanup_list "floating ip" 2 "" "$CAPI"
 fi
@@ -144,8 +146,8 @@ cleanup volume $CLUSTER
 
 # Continue with capi control plane
 if test "$FULL" == "1"; then
-	RTR=$(resourcelist router capi-)
-	SUBNETS=$(resourcelist subnet capi-)
+	RTR=$(resourcelist router ${CAPIPRE}-)
+	SUBNETS=$(resourcelist subnet ${CAPIPRE}-)
 	if test -n "$RTR" -a -n "$SUBNETS"; then
 		echo $OPENSTACK router remove subnet $RTR $SUBNETS 1>&2
 		$OPENSTACK router remove subnet $RTR $SUBNETS
@@ -153,14 +155,14 @@ if test "$FULL" == "1"; then
 	if test -n "$SUBNETS"; then
 		cleanup port "" "--fixed-ip subnet=$SUBNETS"
 	fi
-	#cleanup subnet capi-
+	#cleanup subnet ${CAPIPRE}-
 	cleanup_list subnet "" "" "$SUBNETS"
-	cleanup network capi-
-	#cleanup router capi-
+	cleanup network ${CAPIPRE}-
+	#cleanup router ${CAPIPRE}-
 	cleanup_list router "" "" "$RTR"
-	cleanup "security group" capi-
+	cleanup "security group" ${CAPIPRE}-
 	cleanup "security group" allow-
-	cleanup keypair capi-
+	cleanup keypair ${CAPIPRE}-
 fi
 
 echo "Deleted $DELETED OpenStack resources"
