@@ -5,7 +5,12 @@
 sudo snap install yq
 
 # Encode clouds.yaml
-CLOUD_YAML_ENC=$(base64 -w 0 clouds.yaml)
+# Using application credentials, we don't need project_id, and openstackclient is
+# even confused (asking for scoped tokens which fails). However, the cluster-api-provider-openstack
+# does not consider the AuthInfo to be valid of there is no projectID. It knows how to derive it
+# from the name, but not how to derive it from an application credential. (Not sure gophercloud
+# even has the needed helpers.)
+CLOUD_YAML_ENC=$(sed 's/#project_id/project_id/' < clouds.yaml | base64 -w 0)
 echo $CLOUD_YAML_ENC
 
 # Encode cloud.conf
