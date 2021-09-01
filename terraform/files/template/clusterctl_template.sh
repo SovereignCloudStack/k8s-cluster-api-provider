@@ -11,7 +11,7 @@ sudo snap install yq
 # from the name, but not how to derive it from an application credential. (Not sure gophercloud
 # even has the needed helpers.)
 PROJECTID=$(grep 'tenant.id=' cloud.conf | sed 's/^[^=]*=//')
-CLOUD_YAML_ENC=$( (cat clouds.yaml; echo "      project-id: $PROJECTID") | base64 -w 0)
+CLOUD_YAML_ENC=$( (cat clouds.yaml; echo "      project_id: $PROJECTID") | base64 -w 0)
 echo $CLOUD_YAML_ENC
 
 # Encode cloud.conf
