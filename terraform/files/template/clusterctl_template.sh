@@ -10,7 +10,8 @@ sudo snap install yq
 # does not consider the AuthInfo to be valid of there is no projectID. It knows how to derive it
 # from the name, but not how to derive it from an application credential. (Not sure gophercloud
 # even has the needed helpers.)
-CLOUD_YAML_ENC=$(sed 's/#project_id/project_id/' < clouds.yaml | base64 -w 0)
+PROJECTID=$(grep 'tenant.id=' cloud.conf | sed 's/^[^=]*=//')
+CLOUD_YAML_ENC=$( (cat clouds.yaml; echo "      project-id: $PROJECTID") | base64 -w 0)
 echo $CLOUD_YAML_ENC
 
 # Encode cloud.conf
