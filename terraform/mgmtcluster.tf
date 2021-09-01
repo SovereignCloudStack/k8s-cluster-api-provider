@@ -171,6 +171,11 @@ EOF
     destination = "/home/${var.ssh_username}/clusterctl_template.sh"
   }
 
+  provisioner "file" {
+    source      = "files/fix-keystoneauth-plugins-unversioned.diff"
+    destination = "/home/${var.ssh_username}/fix-keystoneauth-plugins-unversioned.diff"
+  }
+
   provisioner "remote-exec" {
     inline = [
       "chmod +x *.sh"

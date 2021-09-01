@@ -22,6 +22,8 @@ of the newly created cluster, or for creating additional clusters.
   unversioned ``auth_url`` endpoints.
   (See OpenStack [bug 1876317](https://bugs.launchpad.net/keystoneauth/+bug/1876317).)
   So please ensure that you have a trailing ``/v3`` in your ``auth_url``.
+  (We do try to patch the bug away in keystoneauth1 on install, but this may not be
+   as robust as we'd like it to be.)
 * Copy the environments sample file from environments/environment-default.tfvars to
   ``environments/environment-<yourcloud>.tfvars`` and provide the necessary information like
   machine flavor or machine image.
