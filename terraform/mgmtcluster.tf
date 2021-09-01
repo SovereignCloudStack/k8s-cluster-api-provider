@@ -3,6 +3,12 @@ resource "openstack_compute_keypair_v2" "keypair" {
   name = "${var.prefix}-keypair"
 }
 
+# - application credential -
+resource "openstack_identity_application_credential_v3" "appcred" {
+  name        = "${var.prefix}-appcred"
+  description = "Credential for the ${var.prefix} management"
+}
+
 # - management cluster -
 resource "openstack_networking_floatingip_v2" "mgmtcluster_floatingip" {
   pool       = var.external
@@ -27,7 +33,6 @@ resource "openstack_networking_floatingip_associate_v2" "mgmtcluster_floatingip_
 
 locals {
   clouds = lookup(lookup(yamldecode(file("${var.clouds_yaml_path}/clouds.yaml")), "clouds"), var.cloud_provider)
-  secure = lookup(lookup(yamldecode(file("${var.clouds_yaml_path}/secure.yaml")), "clouds"), var.cloud_provider)
 }
 
 resource "openstack_compute_instance_v2" "mgmtcluster_server" {
@@ -143,12 +148,12 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/clouds.yaml.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, secure = local.secure })
+    content     = templatefile("files/template/clouds.yaml.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, appcredid = openstack_identity_application_credential_v3.appcred.id, appcredsecret = openstack_identity_application_credential_v3.appcred.secret })
     destination = "/home/${var.ssh_username}/clouds.yaml"
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/cloud.conf.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, secure = local.secure })
+    content     = templatefile("files/template/cloud.conf.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, appcredid = openstack_identity_application_credential_v3.appcred.id, appcredsecret = openstack_identity_application_credential_v3.appcred.secret })
     destination = "/home/${var.ssh_username}/cloud.conf"
   }
   provisioner "file" {
@@ -164,6 +169,11 @@ EOF
   provisioner "file" {
     content     = templatefile("files/template/clusterctl_template.sh", { cloud_provider = var.cloud_provider })
     destination = "/home/${var.ssh_username}/clusterctl_template.sh"
+  }
+
+  provisioner "file" {
+    source      = "files/fix-keystoneauth-plugins-unversioned.diff"
+    destination = "/home/${var.ssh_username}/fix-keystoneauth-plugins-unversioned.diff"
   }
 
   provisioner "remote-exec" {

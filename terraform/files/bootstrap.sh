@@ -30,7 +30,7 @@ sudo chmod +x /usr/local/bin/clusterctl
 
 # setup aliases and environment
 echo "# setup environment"
-cat <<EOF > $HOME/.bash_aliases
+cat <<EOF >> $HOME/.bash_aliases
 # kubernetes-cli
 alias k=kubectl
 source <( kubectl completion bash | sed 's# kubectl\$# k kubectl\$#' )
@@ -39,6 +39,8 @@ source <( kubectl completion bash )
 # clusterctl 
 source <( clusterctl completion bash )
 
+# Error code in prompt
+PS1="\${PS1%\\\\\$ } [\\\$?]\\\$ "
 # eof
 EOF
 
@@ -46,6 +48,9 @@ EOF
 cat <<EOF > .inputrc
 # set tab once
 set show-all-if-ambiguous on
+# alternate mappings for "page up" and "page down" to search the history
+"\e[5~": history-search-backward
+"\e[6~": history-search-forward
 EOF
 
 bash install_kind.sh

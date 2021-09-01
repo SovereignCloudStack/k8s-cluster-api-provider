@@ -10,22 +10,26 @@ of the newly created cluster, or for creating additional clusters.
 ## Preparations
 
 * Terraform must be installed (https://learn.hashicorp.com/tutorials/terraform/install-cli)
-* ``terraform/clouds.yaml`` and ``terraform/secure.yaml`` files must be created
+* You must have credentials to access the cloud -- either (recommended) keep them in the 
+  standard place (``~/.config/openstack/clouds.yaml`` and ``secure.yaml``) and set
+  ``clouds_yaml_path`` to ``~/.config/openstack`` OR create copies in the terraform directory.
   (https://docs.openstack.org/python-openstackclient/latest/configuration/index.html#clouds-yaml)
-* place your ``clouds.yaml`` and your ``secure.yaml`` in the ``terraform`` folder (or set the
-  ``clouds_yaml_path`` to the standard "~/.config/openstack/" path where you typically store
-  the clouds access parameters and credentials. Examples are
-  provided in ``clouds.yaml.sample`` and ``secure.yaml.sample``
-  Note that you need ``project_domain_name`` and ``username`` in ``clouds.yaml``.
-  (``username`` is normally only in ``secure.yaml`` and the ``project_domain_name`` is not
-  normally needed. Copy your ``user_domain_name`` setting in case you wonder what's needed here.
-  You also need ``project_id``, as *some* clouds require it.)
+* The terraform files create an application credential (restricted, but with all roles
+  of the configured user and without time expiration) that is passed on to the capi
+  management node.
+* As the ``v3applicationcredential`` ``auth_type`` plugin is being used, we hit a "bug"
+  in Ubuntu 20.04 which ships python3-keystoneauth < 4.2.0, which does fail with
+  unversioned ``auth_url`` endpoints.
+  (See OpenStack [bug 1876317](https://bugs.launchpad.net/keystoneauth/+bug/1876317).)
+  So please ensure that you have a trailing ``/v3`` in your ``auth_url``.
+  (We do try to patch the bug away in keystoneauth1 on install, but this may not be
+   as robust as we'd like it to be.)
 * Copy the environments sample file from environments/environment-default.tfvars to
   ``environments/environment-<yourcloud>.tfvars`` and provide the necessary information like
   machine flavor or machine image.
-* Set the Variable ``ENVIRONMENT`` in Makefile:4 to ``<yourcloud>`` (or override by passing
-  ``ENVIRONMENT=`` in the ``make`` call or add ENVIRONMENT= to you shell's envrionment).
-
+* Pass ENVIRONMENT= to the ``make`` command or export ``ENVIRONMENT`` from your shell's
+  environment. (You can also edit the default in the Makefile, though we don't recommend
+  this.)
 
 
 ## Usage

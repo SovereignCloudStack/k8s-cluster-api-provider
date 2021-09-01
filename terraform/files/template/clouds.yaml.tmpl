@@ -1,14 +1,12 @@
 ---
 clouds:
- ${cloud_provider}:
-  auth:
-   auth_url: ${clouds.auth.auth_url}
-   username: ${secure.auth.username}
-   project_name: ${clouds.auth.project_name}
-   project_id: ${clouds.auth.project_id}
-   user_domain_name: ${clouds.auth.user_domain_name}
-   project_domain_name: ${clouds.auth.user_domain_name}
-   password: ${secure.auth.password}
-  region_name: ${clouds.region_name}
-  interface: ${clouds.interface}
-  identity_api_version: ${clouds.identity_api_version}
+  ${cloud_provider}:
+    interface: ${clouds.interface}
+    identity_api_version: ${clouds.identity_api_version}
+    region_name: ${clouds.region_name}
+    auth_type: "v3applicationcredential"
+    auth:
+      auth_url: ${clouds.auth.auth_url}
+      application_credential_id: ${appcredid}
+      application_credential_secret: "${appcredsecret}"
+      #project_id: ${clouds.auth.project_id}
