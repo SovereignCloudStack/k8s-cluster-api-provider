@@ -100,12 +100,13 @@ if test -z "$1"; then CAPIPRE="capi"; else CAPIPRE="$1"; shift; fi
 
 # For full cleanup, delete CAPI mgmt server first
 if test "$FULL" == "1"; then
-	echo "Deleting main cluster with prefix $CAPIPRE"
+	echo "Deleting management node with prefix $CAPIPRE"
 	CAPI=$(resourcelist server ${CAPIPRE}-mgmtcluster "" Networks)
 	cleanup_list server 1 "" "$CAPI"
 	cleanup_list "floating ip" 2 "" "$CAPI"
 fi
 
+echo "Deleting cluster $CLUSTER"
 # cleanup loadbalancers
 POOLS=$(resourcelist "loadbalancer pool" clusterapi)
 for POOL in $POOLS; do
