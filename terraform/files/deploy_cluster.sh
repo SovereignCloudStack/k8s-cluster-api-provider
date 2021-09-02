@@ -40,9 +40,9 @@ echo "Waiting for Cluster=Ready"
 #wget https://gx-scs.okeanos.dev --quiet -O /dev/null
 ping -c1 -w2 9.9.9.9 >/dev/null 2>&1
 sleep 20
-kubectl wait --timeout=10m --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME}
-kubectl wait --timeout=5m --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME}
-kubectl wait --timeout=5m --for=condition=Ready machine -l cluster.x-k8s.io/control-plane
+kubectl wait --timeout=10m --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME} || exit 1
+kubectl wait --timeout=5m --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME} || exit 1
+kubectl wait --timeout=5m --for=condition=Ready machine -l cluster.x-k8s.io/control-plane || exit 1
 
 kubectl get secrets "${CLUSTER_NAME}-kubeconfig" --output go-template='{{ .data.value | base64decode }}' > "${KUBECONFIG_WORKLOADCLUSTER}"
 echo "kubeconfig for ${CLUSTER_NAME} in ${KUBECONFIG_WORKLOADCLUSTER}"
@@ -87,8 +87,9 @@ fi
 
 echo "Wait for control plane of ${CLUSTER_NAME}"
 kubectl config use-context kind-kind
-kubectl wait --timeout=20m cluster "${CLUSTER_NAME}" --for=condition=Ready
+kubectl wait --timeout=20m cluster "${CLUSTER_NAME}" --for=condition=Ready || exit 2
 #kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
+kubectl $KCONTEXT get pods --all-namespaces
 kubectl get openstackclusters
 # Hints
 if test "$DEPLOY_METRICS" != "true"; then
