@@ -1,3 +1,25 @@
+This is a minimal version of
+
+commit ad46262148e7b099e6c7239887e20ade5b8e6ac8
+Author: Lance Bragstad <lbragstad@gmail.com>
+Date:   Fri May 1 01:02:12 2020 +0000
+
+    Inject /v3 in token path for v3 plugins
+    
+    Without this, it's possible to get HTTP 404 errors from keystone if
+    OS_AUTH_URL isn't versioned (e.g., https://keystone.example.com/ instead
+    of https://keystone.example.com/v3), even if OS_IDENTITY_API is set to
+    3.
+    
+    This commit works around this issue by checking the AUTH_URL before
+    building the token_url and appending '/v3' to the URL before sending the
+    request.
+    
+    Closes-Bug: 1876317
+    
+    Change-Id: Ic75f0c9b36022b884105b87bfe05f4f8292d53b2
+
+
 diff --git a/keystoneauth1/identity/v3/base.py b/keystoneauth1/identity/v3/base.py
 index 20a86db..bcd6441 100644
 --- a/keystoneauth1/identity/v3/base.py

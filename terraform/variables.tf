@@ -12,21 +12,25 @@ variable "prefix" {
 variable "image" {
   description = "openstack glance image for nova instances"
   type        = string
+  default     = "Ubuntu 20.04"
 }
 
 variable "kind_flavor" {
   description = "openstack nova flavor for instance running kind (capi mgmt node)"
   type        = string
+  default     = "SCS-1V:4:10"
 }
 
 variable "controller_flavor" {
   description = "openstack nova flavor for instances running the k8s management nodes"
   type        = string
+  default     = "SCS-2V:4:20"
 }
 
 variable "worker_flavor" {
   description = "openstack nova flavor for instances running the k8s worker nodes"
   type        = string
+  default     = "SCS-2V:4:20"
 }
 
 variable "availability_zone" {
@@ -42,6 +46,7 @@ variable "external" {
 variable "ssh_username" {
   description = "ssh username for instances"
   type        = string
+  default     = "ubuntu"
 }
 
 variable "kubernetes_version" {
@@ -86,8 +91,3 @@ variable "kubernetes_namespace" {
   default     = "default"
 }
 
-variable "clouds_yaml_path" {
-  description = "where to find clouds and secure.yaml"
-  type        = string
-  default     = "."
-}
