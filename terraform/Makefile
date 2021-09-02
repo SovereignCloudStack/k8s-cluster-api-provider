@@ -38,7 +38,7 @@ dry-run: init
 	@terraform plan -var-file="environments/environment-$(ENVIRONMENT).tfvars" $(PARAMS)
 
 mycloud:
-	@yq --yaml-output '.clouds."$(ENVIRONMENT)"' < <(cat ./clouds.yaml ~/.config/openstack/clouds.yaml /etc/openstack/clouds.yaml 2>/dev/null) > mycloud.yaml
+	@yq --yaml-output '.clouds."$(ENVIRONMENT)"' < <(cat ./clouds.yaml ~/.config/openstack/clouds.yaml /etc/openstack/clouds.yaml 2>/dev/null) > mycloud.$(ENVIRONMENT).yaml
 
 create: init
 	@touch .deploy.$(ENVIRONMENT)
@@ -53,7 +53,7 @@ clean: init
 	@terraform destroy -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" $(PARAMS)
 	@terraform workspace select default
 	@terraform workspace delete $(ENVIRONMENT)
-	@rm -f .deploy.$(ENVIRONMENT) .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
+	@rm -f .deploy.$(ENVIRONMENT) .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT) mycloud.$(ENVIRONMENT).yaml
 	@rm -f .kube.config.$(ENVIRONMENT) .cluster-api.clusterctl.yaml.$(ENVIRONMENT) rendered-cluster-template.yaml.$(ENVIRONMENT)
 
 fullclean:
