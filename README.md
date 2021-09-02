@@ -10,20 +10,18 @@ of the newly created cluster, or for creating additional clusters.
 ## Preparations
 
 * Terraform must be installed (https://learn.hashicorp.com/tutorials/terraform/install-cli)
-* You must have credentials to access the cloud -- either (recommended) keep them in the 
-  standard place (``~/.config/openstack/clouds.yaml`` and ``secure.yaml``) and set
-  ``clouds_yaml_path`` to ``~/.config/openstack`` OR create copies in the terraform directory.
+* You must have credentials to access the cloud. terraform will look for ``clouds.yaml``
+  and ``secure.yaml`` in the current working directory, in ``~/.config/openstack/``
+  and ``/etc/openstack`` (in this order), just like the openstack client.
   (https://docs.openstack.org/python-openstackclient/latest/configuration/index.html#clouds-yaml)
-* The terraform files create an application credential (restricted, but with all roles
-  of the configured user and without time expiration) that is passed on to the capi
-  management node.
-* As the ``v3applicationcredential`` ``auth_type`` plugin is being used, we hit a "bug"
+* You need to have ``yq`` (python3-yq or yq snap) installed.
+* As the ``v3applicationcredential`` ``auth_type`` plugin is being used, we hit a bug
   in Ubuntu 20.04 which ships python3-keystoneauth < 4.2.0, which does fail with
   unversioned ``auth_url`` endpoints.
   (See OpenStack [bug 1876317](https://bugs.launchpad.net/keystoneauth/+bug/1876317).)
-  So please ensure that you have a trailing ``/v3`` in your ``auth_url``.
-  (We do try to patch the bug away in keystoneauth1 on install, but this may not be
-   as robust as we'd like it to be.)
+  While we try to patch the bug away in the deployed instance, the patching mechanism
+  is not very robust, so we still recommend you have a versioned ``auth_url``
+  endpoint (with a trailing ``/v3``).
 * Copy the environments sample file from environments/environment-default.tfvars to
   ``environments/environment-<yourcloud>.tfvars`` and provide the necessary information like
   machine flavor or machine image.

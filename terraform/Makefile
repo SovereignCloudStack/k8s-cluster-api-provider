@@ -21,7 +21,7 @@ ifneq (,$(wildcard ./minio.env))
   include minio.env
 endif
 
-init:
+init:	mycloud
 	@if [ ! -d .terraform/plugins ]; then terraform init; fi
 	@terraform workspace select ${ENVIRONMENT} || terraform workspace new ${ENVIRONMENT}
 
@@ -36,6 +36,9 @@ state-push: init
 
 dry-run: init
 	@terraform plan -var-file="environments/environment-$(ENVIRONMENT).tfvars" $(PARAMS)
+
+mycloud:
+	@yq --yaml-output '.clouds."$(ENVIRONMENT)"' < <(cat ./clouds.yaml ~/.config/openstack/clouds.yaml /etc/openstack/clouds.yaml 2>/dev/null) > mycloud.yaml
 
 create: init
 	@touch .deploy.$(ENVIRONMENT)
@@ -154,4 +157,4 @@ k9s: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	ssh -t -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS \
 	"KUBECONFIG=/etc/rancher/k3s/k3s.yaml:/home/ubuntu/workload-cluster.yaml k9s --all-namespaces"
 
-PHONY: clean console attach detach ssh dry-run list deploy watch openstack create log console login k9s 
+PHONY: clean console attach detach ssh dry-run list deploy watch openstack create log console login k9s mycloud

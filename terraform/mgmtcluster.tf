@@ -32,7 +32,7 @@ resource "openstack_networking_floatingip_associate_v2" "mgmtcluster_floatingip_
 }
 
 locals {
-  clouds = lookup(lookup(yamldecode(file("${var.clouds_yaml_path}/clouds.yaml")), "clouds"), var.cloud_provider)
+  clouds = yamldecode(file("mycloud.yaml"))
 }
 
 resource "openstack_compute_instance_v2" "mgmtcluster_server" {
