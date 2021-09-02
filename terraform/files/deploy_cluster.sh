@@ -77,7 +77,9 @@ kubectl $KCONTEXT apply -f ~/openstack.yaml
 kubectl $KCONTEXT apply -f ~/cinder.yaml
 
 # Metrics server
+# kubectl $KCONTEXT create -f https://raw.githubusercontent.com/pythianarora/total-practice/master/sample-kubernetes-code/metrics-server.yaml
 # kubectl $KCONTEXT apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+# curl -L https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml | sed '/        - --kubelet-use-node-status-port/a\        - --kubelet-insecure-tls' | kubectl $KCONTEXT apply -f -
 
 echo "Wait for control plane of ${CLUSTER_NAME}"
 kubectl config use-context kind-kind
@@ -85,7 +87,7 @@ kubectl wait --timeout=20m cluster "${CLUSTER_NAME}" --for=condition=Ready
 #kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
 kubectl get openstackclusters
 # Hints
-echo "Use kubectl $KCONTEXT apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml to deploy the metrics service"
+echo "Use curl -L https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml | sed '/        - --kubelet-use-node-status-port/a\\        - --kubelet-insecure-tls' | kubectl $KCONTEXT apply -f -  to deploy the metrics service"
 echo "Use kubectl $KCONTEXT wait --for=condition=Ready --timeout=10m -n kube-system pods --all to wait for all cluster components to be ready"
 echo "Use $KCONTEXT parameter to kubectl to control the workload cluster"
 # eof
