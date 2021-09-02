@@ -3,6 +3,7 @@
 ##    desc: a helper for deploy a workload cluster on mgmt cluster
 ## license: Apache-2.0
 
+STARTTIME=$(date +%s)
 # variables
 CLUSTERAPI_TEMPLATE=cluster-template.yaml
 CLUSTER_NAME=testcluster
@@ -92,6 +93,7 @@ kubectl wait --timeout=20m cluster "${CLUSTER_NAME}" --for=condition=Ready || ex
 kubectl $KCONTEXT get pods --all-namespaces
 kubectl get openstackclusters
 # Hints
+echo "Cluster ${CLUSTER_NAME} deployed in $(($(date +%s)-$STARTTIME))s"
 if test "$DEPLOY_METRICS" != "true"; then
     echo "Use curl -L https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml | sed '/        - --kubelet-use-node-status-port/a\\        - --kubelet-insecure-tls' | kubectl $KCONTEXT apply -f -  to deploy the metrics service"
 fi
