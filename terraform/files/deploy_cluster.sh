@@ -3,6 +3,7 @@
 ##    desc: a helper for deploy a workload cluster on mgmt cluster
 ## license: Apache-2.0
 
+STARTTIME=$(date +%s)
 # variables
 CLUSTERAPI_TEMPLATE=cluster-template.yaml
 CLUSTER_NAME=testcluster
@@ -40,9 +41,9 @@ echo "Waiting for Cluster=Ready"
 #wget https://gx-scs.okeanos.dev --quiet -O /dev/null
 ping -c1 -w2 9.9.9.9 >/dev/null 2>&1
 sleep 20
-kubectl wait --timeout=10m --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME}
-kubectl wait --timeout=5m --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME}
-kubectl wait --timeout=5m --for=condition=Ready machine -l cluster.x-k8s.io/control-plane
+kubectl wait --timeout=10m --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME} || exit 1
+kubectl wait --timeout=5m --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME} || exit 1
+kubectl wait --timeout=5m --for=condition=Ready machine -l cluster.x-k8s.io/control-plane || exit 1
 
 kubectl get secrets "${CLUSTER_NAME}-kubeconfig" --output go-template='{{ .data.value | base64decode }}' > "${KUBECONFIG_WORKLOADCLUSTER}"
 echo "kubeconfig for ${CLUSTER_NAME} in ${KUBECONFIG_WORKLOADCLUSTER}"
@@ -79,15 +80,23 @@ kubectl $KCONTEXT apply -f ~/cinder.yaml
 # Metrics server
 # kubectl $KCONTEXT create -f https://raw.githubusercontent.com/pythianarora/total-practice/master/sample-kubernetes-code/metrics-server.yaml
 # kubectl $KCONTEXT apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-# curl -L https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml | sed '/        - --kubelet-use-node-status-port/a\        - --kubelet-insecure-tls' | kubectl $KCONTEXT apply -f -
+DEPLOY_METRICS=$(yq eval '.DEPLOY_METRICS' clusterctl.yaml)
+if test "$DEPLOY_METRICS" = "true"; then
+    echo "Install metrics service"
+    curl -L https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml | sed '/        - --kubelet-use-node-status-port/a\        - --kubelet-insecure-tls' | kubectl $KCONTEXT apply -f -
+fi
 
 echo "Wait for control plane of ${CLUSTER_NAME}"
 kubectl config use-context kind-kind
-kubectl wait --timeout=20m cluster "${CLUSTER_NAME}" --for=condition=Ready
+kubectl wait --timeout=20m cluster "${CLUSTER_NAME}" --for=condition=Ready || exit 2
 #kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
+kubectl $KCONTEXT get pods --all-namespaces
 kubectl get openstackclusters
 # Hints
-echo "Use curl -L https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml | sed '/        - --kubelet-use-node-status-port/a\\        - --kubelet-insecure-tls' | kubectl $KCONTEXT apply -f -  to deploy the metrics service"
+echo "Cluster ${CLUSTER_NAME} deployed in $(($(date +%s)-$STARTTIME))s"
+if test "$DEPLOY_METRICS" != "true"; then
+    echo "Use curl -L https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml | sed '/        - --kubelet-use-node-status-port/a\\        - --kubelet-insecure-tls' | kubectl $KCONTEXT apply -f -  to deploy the metrics service"
+fi
 echo "Use kubectl $KCONTEXT wait --for=condition=Ready --timeout=10m -n kube-system pods --all to wait for all cluster components to be ready"
 echo "Use $KCONTEXT parameter to kubectl to control the workload cluster"
 # eof

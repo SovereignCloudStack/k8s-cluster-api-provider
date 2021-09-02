@@ -91,3 +91,8 @@ variable "kubernetes_namespace" {
   default     = "default"
 }
 
+variable "deploy_metrics_service" {
+  description = "deploy metrics service into k8s-capi created clusters"
+  type        = bool
+  default     = true
+}
