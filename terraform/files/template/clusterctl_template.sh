@@ -29,6 +29,4 @@ yq eval '.OPENSTACK_CLOUD_YAML_B64 = "'"$CLOUD_YAML_ENC"'"' -i clusterctl.yaml
 yq eval '.OPENSTACK_CLOUD_PROVIDER_CONF_B64 = "'"$CLOUD_CONF_ENC"'"' -i clusterctl.yaml
 yq eval '.OPENSTACK_CLOUD_CACERT_B64 = "'"$CLOUD_CA_ENC"'"' -i clusterctl.yaml
 # Generate SET_MTU_B64
-MTU=`yq eval '.MTU_VALUE' clusterctl.yaml`
-MTU_ENC=$(echo -e "{\n  \"mtu\": $MTU\n}" | base64 -w 0)
-yq eval '.SET_MTU_B64 = "'"$MTU_ENC"'"' -i clusterctl.yaml
+#MTU=`yq eval '.MTU_VALUE' clusterctl.yaml`
