@@ -68,7 +68,6 @@ runcmd:
   - groupadd docker
   - usermod -aG docker ${var.ssh_username}
   - apt -y install docker.io yamllint qemu-utils
-  - systemctl enable --now docker-mtu
 EOF
 
   connection {
