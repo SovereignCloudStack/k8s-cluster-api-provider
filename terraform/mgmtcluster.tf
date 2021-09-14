@@ -107,6 +107,11 @@ EOF
   }
 
   provisioner "file" {
+    source      = "files/sonobuoy.sh"
+    destination = "/home/${var.ssh_username}/sonobuoy.sh"
+  }
+
+  provisioner "file" {
     source      = "files/delete_cluster.sh"
     destination = "/home/${var.ssh_username}/delete_cluster.sh"
   }

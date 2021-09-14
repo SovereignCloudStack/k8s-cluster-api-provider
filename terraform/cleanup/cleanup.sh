@@ -165,6 +165,10 @@ if test "$FULL" == "1"; then
 	cleanup "security group" allow-
 	cleanup keypair ${CAPIPRE}-
 	cleanup "application credential" ${CAPIPRE}-appcred
+	#cleanup volume pvc-
+	echo "Volumes from Cinder CSI left:"
+	echo $OPENSTACK volume list 1>&2
+	$OPENSTACK volume list | grep 'pvc-'
 fi
 
 echo "Deleted $DELETED OpenStack resources"
