@@ -15,9 +15,10 @@ if ! test -x ./sonobuoy; then
 fi
 echo "Running sonobuoy conformance tests ..."
 export KUBECONFIG=testcluster.yaml
-./sonobuoy run || exit 3
+./sonobuoy run $1 || exit 3
+if test "$1" == "--light"; then SLP=10; else SLP=60; fi
 while true; do
-	sleep 60
+	sleep $SLP
 	COMPLETE=$(./sonobuoy status)
 	echo "$COMPLETE"
 	if echo "$COMPLETE" | grep "has completed" >/dev/null 2>&1; then break; fi
@@ -30,5 +31,5 @@ declare -i fail=0
 while read number; do
 	let fail+=$number
 done < <(echo "$REPORT" | grep Failed | sed 's/Failed: //')
-if test $fail != 0; then exit 4+$fail; fi
+if test $fail != 0; then exit i$((4+$fail)); fi
 echo "Sonobuoy conformance tests passed"
