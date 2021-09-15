@@ -121,7 +121,12 @@ console:   .deploy.$(ENVIRONMENT)
 
 check: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
-	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "bash sonobuoy.sh"
+	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "bash sonobuoy.sh $(SONOMODE)"
+
+# Pass SONOMODE="--mode light" for a quick check
+quickcheck:
+	$(MAKE) check SONOMODE="--mode quick"
+
 
 watch: .deploy.id_rsa.$(ENVIRONMENT) .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT)
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
