@@ -35,6 +35,6 @@ echo "$REPORT"
 declare -i fail=0
 while read number; do
 	let fail+=$number
-done < <(echo "$REPORT" | grep Failed | sed 's/Failed: //')
+done < <(echo "$REPORT" | grep 'Failed: ' | sed 's/Failed: //')
 if test $fail != 0; then exit $((4+$fail)); fi
 echo "=== Sonobuoy conformance tests passed ==="
