@@ -124,9 +124,17 @@ check: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "bash sonobuoy.sh $(SONOMODE)"
 
 # Pass SONOMODE="--mode light" for a quick check
-quickcheck:
+check-quick:
 	$(MAKE) check SONOMODE="--mode quick"
 
+check-conformance:
+	$(MAKE) check SONOMODE="--mode certified-conformance"
+
+check-storage:
+	$(MAKE) check SONOMODE="--e2e-focus='Storage' --e2e-skip='Disruptive'"
+
+check-csi:
+	$(MAKE) check SONOMODE="--e2e-focus='CSI' --e2e-skip='Disruptive'"
 
 watch: .deploy.id_rsa.$(ENVIRONMENT) .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT)
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
