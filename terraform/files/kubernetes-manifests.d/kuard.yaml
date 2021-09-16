@@ -1,6 +1,7 @@
 # This is a stripped down and recomposed example from the Book
 # "Kubernetes Up and Running", 2nd ed, by B Burns, J Beda, and K Hightower (O'Reilly), 2019
 # with a Persistent Volume Claim and a Persistent Volume added in for testing
+---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
@@ -56,4 +57,3 @@ spec:
         timeoutSeconds: 1
         periodSeconds: 10
         failureThreshold: 3
-
