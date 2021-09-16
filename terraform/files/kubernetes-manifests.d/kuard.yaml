@@ -1,0 +1,59 @@
+# This is a stripped down and recomposed example from the Book
+# "Kubernetes Up and Running", 2nd ed, by B Burns, J Beda, and K Hightower (O'Reilly), 2019
+# with a Persistent Volume Claim and a Persistent Volume added in for testing
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: my-vol-claim
+  annotations:
+    volume.kubernetes.io/storage-class: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kuard
+spec:
+  volumes:
+    - name: my-vol
+      persistentVolumeClaim:
+        claimName: my-vol-claim
+  containers:
+    - image: gcr.io/kuar-demo/kuard-amd64:blue
+      name: kuard
+      ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+      volumeMounts:
+        - name: my-vol
+          mountPath: /data
+      resources:
+        requests:
+          cpu: "50m"
+          memory: "128Mi"
+        limits:
+          cpu: "1000m"
+          memory: "256Mi"
+      livenessProbe:
+        httpGet:
+          path: /healthy
+          port: 8080
+        initialDelaySeconds: 5
+        timeoutSeconds: 1
+        periodSeconds: 10
+        failureThreshold: 3
+      readinessProbe:
+        httpGet:
+          path: /ready
+          port: 8080
+        initialDelaySeconds: 30
+        timeoutSeconds: 1
+        periodSeconds: 10
+        failureThreshold: 3
+
