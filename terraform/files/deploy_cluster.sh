@@ -92,6 +92,15 @@ fi
 # apply cinder-csi
 DEPLOY_K8S_CINDERCSI_GIT=$(yq eval '.DEPLOY_K8S_CINDERCSI_GIT' clusterctl.yaml)
 if test "$DEPLOY_K8S_CINDERCSI_GIT" = "true"; then
+  # deploy snapshot CRDs
+  for name in snapshot.storage.k8s.io_volumesnapshotcontents.yaml snapshot.storage.k8s.io_volumesnapshotclasses.yaml snapshot.storage.k8s.io_volumesnapshots.yaml; do
+    if ! test -r $name; then
+	curl -LO https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/master/client/config/crd/$name
+	echo -e "\n---" >> $name
+    fi
+  done
+  cat snapshot.storage.k8s.io_volumesnapshot* | kubectl $KCONTEXT apply -f - || exit 8
+  # Now get cinder
   for name in cinder-csi-controllerplugin-rbac.yaml cinder-csi-controllerplugin.yaml cinder-csi-nodeplugin-rbac.yaml cinder-csi-nodeplugin.yaml csi-cinder-driver.yaml csi-secret-cinderplugin.yaml; do
     if ! test -r $name; then
         curl -LO https://github.com/kubernetes/cloud-provider-openstack/raw/master/manifests/cinder-csi-plugin/$name
@@ -102,6 +111,7 @@ if test "$DEPLOY_K8S_CINDERCSI_GIT" = "true"; then
   cat cinder-csi-*-rbac.yaml cinder-csi-*plugin.yaml csi-cinder-driver.yaml cinder-provider.yaml > cindercsi-git.yaml
   kubectl $KCONTEXT apply -f cindercsi-git.yaml || exit 8
 else
+  kubectl $KCONTEXT apply -f ~/external-snapshot-crds.yaml || exit 8
   kubectl $KCONTEXT apply -f ~/cinder.yaml || exit 8
 fi
 
@@ -127,5 +137,5 @@ if test "$DEPLOY_METRICS" != "true"; then
     echo "Use curl -L https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml | sed '/        - --kubelet-use-node-status-port/a\\        - --kubelet-insecure-tls' | kubectl $KCONTEXT apply -f -  to deploy the metrics service"
 fi
 echo "Use kubectl $KCONTEXT wait --for=condition=Ready --timeout=10m -n kube-system pods --all to wait for all cluster components to be ready"
-echo "Use $KCONTEXT parameter to kubectl to control the workload cluster"
+echo "Pass $KCONTEXT parameter to kubectl (or KUBECONFIG=$KUBECONFIG_WORKLOADCLUSTER in environment) to control the workload cluster"
 # eof
