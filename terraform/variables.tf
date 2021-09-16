@@ -96,3 +96,15 @@ variable "deploy_metrics_service" {
   type        = bool
   default     = true
 }
+
+variable "deploy_k8s_openstack_git" {
+  description = "deploy k8s openstack provider from github instead of local copy"
+  type        = bool
+  default     = false
+}
+
+variable "deploy_k8s_cindercsi_git" {
+  description = "deploy k8s cinder CSI provider from github instead of local copy"
+  type        = bool
+  default     = false
+}
