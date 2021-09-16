@@ -4,3 +4,11 @@ extends: default
 rules:
   comments: enable
   line-length: disable
+  # accept both     key:
+  #                   - item
+  # and             key:
+  #                 - item
+  # (the latter is very common in k8s land)
+  indentation:
+    indent-sequences: whatever
+
