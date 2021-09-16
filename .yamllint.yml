@@ -11,4 +11,3 @@ rules:
   # (the latter is very common in k8s land)
   indentation:
     indent-sequences: whatever
-

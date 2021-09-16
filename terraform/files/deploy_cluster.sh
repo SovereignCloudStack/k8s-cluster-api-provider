@@ -137,5 +137,5 @@ if test "$DEPLOY_METRICS" != "true"; then
     echo "Use curl -L https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml | sed '/        - --kubelet-use-node-status-port/a\\        - --kubelet-insecure-tls' | kubectl $KCONTEXT apply -f -  to deploy the metrics service"
 fi
 echo "Use kubectl $KCONTEXT wait --for=condition=Ready --timeout=10m -n kube-system pods --all to wait for all cluster components to be ready"
-echo "Use $KCONTEXT parameter to kubectl to control the workload cluster"
+echo "Pass $KCONTEXT parameter to kubectl (or KUBECONFIG=$KUBECONFIG_WORKLOADCLUSTER in environment) to control the workload cluster"
 # eof
