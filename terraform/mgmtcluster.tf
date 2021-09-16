@@ -87,6 +87,11 @@ EOF
   }
 
   provisioner "file" {
+    source      = "files/install_helm.sh"
+    destination = "/home/${var.ssh_username}/install_kind.sh"
+  }
+
+  provisioner "file" {
     content     = openstack_compute_keypair_v2.keypair.private_key
     destination = "/home/${var.ssh_username}/.ssh/id_rsa"
   }
