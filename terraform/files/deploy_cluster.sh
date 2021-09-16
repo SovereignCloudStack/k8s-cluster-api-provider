@@ -79,7 +79,7 @@ if test "$DEPLOY_K8S_OPENSTACK_GIT" = "true"; then
   for name in cloud-controller-manager-role-bindings.yaml cloud-controller-manager-roles.yaml openstack-cloud-controller-manager-ds.yaml openstack-cloud-controller-manager-pod.yaml; do
     if ! test -r $name; then
         curl -LO https://github.com/kubernetes/cloud-provider-openstack/raw/master/manifests/controller-manager/$name
-	echo >> $name
+	echo -e "\n---" >> $name
     fi
   done
   # Note: Do not deploy openstack-cloud-controller-manager-pod.yaml
@@ -95,16 +95,12 @@ if test "$DEPLOY_K8S_CINDERCSI_GIT" = "true"; then
   for name in cinder-csi-controllerplugin-rbac.yaml cinder-csi-controllerplugin.yaml cinder-csi-nodeplugin-rbac.yaml cinder-csi-nodeplugin.yaml csi-cinder-driver.yaml csi-secret-cinderplugin.yaml; do
     if ! test -r $name; then
         curl -LO https://github.com/kubernetes/cloud-provider-openstack/raw/master/manifests/cinder-csi-plugin/$name
-	echo >> $name
+	echo -e "\n---" >> $name
     fi
   done
   # Note: We leave out the secret which we should already have
-  cat cinder-csi-*-rbac.yaml > cindercsi-git-roles.yaml
-  cat cinder-csi-*plugin.yaml > cindercsi-git-plugins.yaml
-  cat csi-cinder-driver.yaml cinder-provider.yaml > cindercsi-git-driver.yaml
-  kubectl $KCONTEXT apply -f cindercsi-git-roles.yaml || exit 8
-  kubectl $KCONTEXT apply -f cindercsi-git-plugins.yaml || exit 8
-  kubectl $KCONTEXT apply -f cindercsi-git-driver.yaml || exit 8
+  cat cinder-csi-*-rbac.yaml cinder-csi-*plugin.yaml csi-cinder-driver.yaml cinder-provider.yaml > cindercsi-git.yaml
+  kubectl $KCONTEXT apply -f cindercsi-git.yaml || exit 8
 else
   kubectl $KCONTEXT apply -f ~/cinder.yaml || exit 8
 fi
