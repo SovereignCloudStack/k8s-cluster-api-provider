@@ -3,6 +3,7 @@
 # (c) Kurt Garloff <garloff@osb-alliance.com>, 8/2021
 # SPDX-License-Identifier: Apache-2.0
 
+export KUBECONFIG=~/.kube/config
 if test -n "$1"; then CLUSTER_NAME="$1"; else CLUSTER_NAME=testcluster; fi
 kubectl config use-context kind-kind
 echo "Deleting cluster $CLUSTER_NAME"
