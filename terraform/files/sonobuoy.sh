@@ -16,10 +16,13 @@ if ! test -x /usr/local/bin/sonobuoy; then
 	sudo mv sonobuoy /usr/local/bin/
 	rm ${SONOTARBALL}
 fi
-echo "=== Running sonobuoy conformance tests ... $@ ==="
 export KUBECONFIG=testcluster.yaml
 if ! test -r "$KUBECONFIG"; then echo "No $KUBECONFIG" 1>&2; exit 3; fi
-sonobuoy run "$@" || exit 4
+#./sonobuoy status 2>/dev/null
+#./sonobuoy delete --wait
+START=$(date +%s)
+echo "=== Running sonobuoy conformance tests ... $@ ==="
+sonobuoy run --plugin-env=e2e.E2E_PROVIDER=openstack "$@" || exit 4
 if test "$1" == "--mode" -a "$2" == "quick"; then SLP=10; ALL=""; else SLP=60; ALL="--all"; fi
 while true; do
 	sleep $SLP
@@ -28,15 +31,22 @@ while true; do
 	echo "$COMPLETE"
 	#sonobuoy logs -f
 	if echo "$COMPLETE" | grep "has completed" >/dev/null 2>&1; then break; fi
+	#./sonobuoy logs
 done
 echo "=== Collecting results ==="
 resfile=$(sonobuoy retrieve)
+sonobuoy delete $ALL
 REPORT=$(sonobuoy results $resfile)
 echo "$REPORT"
-sonobuoy delete $ALL
+END=$(date +%s)
 declare -i fail=0
 while read number; do
 	let fail+=$number
 done < <(echo "$REPORT" | grep 'Failed: ' | sed 's/Failed: //')
-if test $fail != 0; then exit $((4+$fail)); fi
-echo "=== Sonobuoy conformance tests passed ==="
+sonobuoy delete $ALL --wait
+if test $fail != 0; then
+	echo "FAIL: Investigate $resfile for further inspection" 1>&2
+	exit $((4+$fail))
+fi
+rm $resfile
+echo "=== Sonobuoy conformance tests passed in $((END-START))s ==="
