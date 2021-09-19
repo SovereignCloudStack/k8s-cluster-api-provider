@@ -67,6 +67,7 @@ spec:
           cloud-provider: external
     postKubeadmCommands:
       - curl https://docs.projectcalico.org/manifests/calico.yaml | sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" | kubectl apply --kubeconfig /etc/kubernetes/admin.conf -f -
+      - grep 'hearbeat\-interval' /etc/kubernetes/manifests/etcd.yaml >/dev/null || sed -i '/\-\-trusted\-ca\-file/a\    - --heartbeat-interval=250\n    - --election-timeout=2500' /etc/kubernetes/manifests/etcd.yaml
     preKubeadmCommands:
       - DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https curl
       - curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
