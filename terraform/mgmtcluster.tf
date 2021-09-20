@@ -88,7 +88,7 @@ EOF
 
   provisioner "file" {
     source      = "files/install_helm.sh"
-    destination = "/home/${var.ssh_username}/install_kind.sh"
+    destination = "/home/${var.ssh_username}/install_helm.sh"
   }
 
   provisioner "file" {
