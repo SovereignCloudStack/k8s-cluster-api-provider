@@ -54,6 +54,7 @@ set show-all-if-ambiguous on
 EOF
 
 bash install_kind.sh
+bash install_helm.sh
 bash deploy_cluster_api.sh
 bash wait_capi_image.sh
 
