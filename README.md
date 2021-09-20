@@ -72,12 +72,12 @@ is used for the C-API management while the context ``testcluster-admin@testclust
 be used to control the workload cluster ``testcluster``. You can of course create many
 of them. There are management scripts on the management node:
 
-* ``deploy_cluster.sh [CLUSTERNAME]``: Use this command to use the template
+* ``create_cluster.sh [CLUSTERNAME]``: Use this command to use the template
   ``cluster-template.yaml`` with the variables from ``clusterctl[-$CLUSTERNAME].yaml``
   to render a config file ``$CLUSTERNAME-config.yaml`` which will then be submitted
   to the capi server (``kind-kind`` context) for creating the control plane nodes 
   and worker nodes with openstack integration, cinder CSI and calico CNI.
-  The script returns once the control plane is fully initialized (the worker
+  The script returns once the control plane is fully working (the worker
   nodes might still be under construction). The kubectl file to talk to this
   cluster (as admin) can be found in ``$CLUSTERNAME.yaml``. Expect the cluster
   creation to take ~8mins. (CLUSTERNAME defaults to testcluster.)
