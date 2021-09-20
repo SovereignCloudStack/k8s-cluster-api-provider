@@ -59,7 +59,7 @@ bash wait_capi_image.sh
 
 CONTROLLERS=`yq eval '.CONTROL_PLANE_MACHINE_COUNT' clusterctl.yaml`
 if test "$CONTROLLERS" != "0"; then
-    bash deploy_cluster.sh testcluster
+    bash create_cluster.sh testcluster
 fi
 # Extensions
 cd extension

@@ -102,8 +102,8 @@ EOF
   }
 
   provisioner "file" {
-    source      = "files/deploy_cluster.sh"
-    destination = "/home/${var.ssh_username}/deploy_cluster.sh"
+    source      = "files/create_cluster.sh"
+    destination = "/home/${var.ssh_username}/create_cluster.sh"
   }
 
   provisioner "file" {
