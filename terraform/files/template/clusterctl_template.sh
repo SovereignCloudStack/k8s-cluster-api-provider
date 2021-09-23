@@ -19,7 +19,9 @@ CLOUD_CONF_ENC=$(base64 -w 0 cloud.conf)
 echo $CLOUD_CONF_ENC
 
 #Get CA and Encode CA
-AUTH_URL=$(yq eval .clouds.${cloud_provider}.auth.auth_url ~/.config/openstack/clouds.yaml)
+# Snaps are broken - can not access ~/.config/openstack/clouds.yaml
+AUTH_URL=$(cat ~/.config/openstack/clouds.yaml | yq eval .clouds.${cloud_provider}.auth.auth_url -)
+#AUTH_URL=$(grep -A12 "${cloud_provider}" ~/.config/openstack/clouds.yaml | grep auth_url | head -n1 | sed -e 's/^ *auth_url: //' -e 's/"//g')
 AUTH_URL_SHORT=$(echo "$AUTH_URL" | sed s'/https:\/\///' | sed s'/\/.*$//')
 CERT_CERT=$(openssl s_client -connect "$AUTH_URL_SHORT" </dev/null 2>&1 | head -n 1 | sed s'/.*CN\ =\ //' | sed s'/\ /_/g' | sed s'/$/.pem/')
 CLOUD_CA_ENC=$(base64 -w 0 /etc/ssl/certs/"$CERT_CERT")

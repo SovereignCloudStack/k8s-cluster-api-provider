@@ -55,6 +55,7 @@ clean: init
 	@terraform destroy -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" $(PARAMS)
 	@terraform workspace select default
 	@terraform workspace delete $(ENVIRONMENT)
+	@if test -e ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); then source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); ssh-keygen -R $$MGMTCLUSTER_ADDRESS -f ~/.ssh/known_hosts; fi
 	@rm -f .deploy.$(ENVIRONMENT) .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT) mycloud.$(ENVIRONMENT).yaml
 	@rm -f .kube.config.$(ENVIRONMENT) .cluster-api.clusterctl.yaml.$(ENVIRONMENT) rendered-cluster-template.yaml.$(ENVIRONMENT)
 
