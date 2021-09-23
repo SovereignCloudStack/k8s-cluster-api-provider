@@ -18,6 +18,7 @@ for pvc in $PVCS; do
 	echo -en " Delete pvc $pvc\n "
 	kubectl $KCONTEXT delete persistentvolumeclaim $pvc
 done
+# TODO: Loadbalancers
 sleep 1
 kubectl delete cluster "$CLUSTER_NAME"
 kubectl config delete-context "$CLUSTER_NAME-admin@$CLUSTER_NAME"
