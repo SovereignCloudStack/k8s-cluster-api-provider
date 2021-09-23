@@ -148,7 +148,7 @@ EOF
 
   provisioner "file" {
     content     = templatefile("files/template/clouds.yaml.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, appcredid = openstack_identity_application_credential_v3.appcred.id, appcredsecret = openstack_identity_application_credential_v3.appcred.secret })
-    destination = "/home/${var.ssh_username}/clouds.yaml"
+    destination = "/home/${var.ssh_username}/.config/openstack/clouds.yaml"
   }
 
   provisioner "file" {
@@ -177,7 +177,8 @@ EOF
 
   provisioner "remote-exec" {
     inline = [
-      "chmod +x *.sh"
+      "chmod +x *.sh",
+      "chmod 0600 /home/${var.ssh_username}/.ssh/id_rsa /home/${var.ssh_username}/clusterctl.yaml /home/${var.ssh_username}/cloud.conf /home/${var.ssh_username}/.config/openstack/clouds.yaml"
     ]
   }
 
@@ -194,7 +195,6 @@ EOF
 
   provisioner "remote-exec" {
     inline = [
-      "chmod 0600 /home/${var.ssh_username}/.ssh/id_rsa /home/${var.ssh_username}/clusterctl.yaml /home/${var.ssh_username}/cloud.conf /home/${var.ssh_username}/clouds.yaml",
       "bash /home/${var.ssh_username}/bootstrap.sh"
     ]
   }

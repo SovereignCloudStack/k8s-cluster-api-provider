@@ -23,7 +23,7 @@ ifneq (,$(wildcard ./minio.env))
   include minio.env
 endif
 
-init:	mycloud
+init:
 	@if [ ! -d .terraform/plugins ]; then terraform init; fi
 	@terraform workspace select ${ENVIRONMENT} || terraform workspace new ${ENVIRONMENT}
 
