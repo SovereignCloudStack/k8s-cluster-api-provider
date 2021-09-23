@@ -112,6 +112,11 @@ EOF
   }
 
   provisioner "file" {
+    source      = "files/get_capi_helm.sh"
+    destination = "/home/${var.ssh_username}/get_capi_helm.sh"
+  }
+
+  provisioner "file" {
     source      = "files/sonobuoy.sh"
     destination = "/home/${var.ssh_username}/sonobuoy.sh"
   }

@@ -56,6 +56,7 @@ EOF
 bash install_kind.sh
 bash install_helm.sh
 bash deploy_cluster_api.sh
+bash get_capi_helm.sh
 bash wait_capi_image.sh
 
 CONTROLLERS=`yq eval '.CONTROL_PLANE_MACHINE_COUNT' clusterctl.yaml`
