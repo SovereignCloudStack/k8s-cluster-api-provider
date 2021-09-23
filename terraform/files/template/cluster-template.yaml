@@ -30,7 +30,7 @@ spec:
     kind: Secret
   managedAPIServerLoadBalancer: true
   managedSecurityGroups: true
-  nodeCidr: 10.6.0.0/24
+  nodeCidr: ${NODE_CIDR}
   dnsNameservers:
     - ${OPENSTACK_DNS_NAMESERVERS}
 ---
