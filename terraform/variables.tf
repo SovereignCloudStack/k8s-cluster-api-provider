@@ -91,6 +91,12 @@ variable "kubernetes_namespace" {
   default     = "default"
 }
 
+variable "node_cidr" {
+  description = "network addresses (CIDR) for the k8s nodes"
+  type        = string
+  default     = "10.8.0.0/20"
+}
+
 variable "deploy_metrics_service" {
   description = "deploy metrics service into k8s-capi created clusters"
   type        = bool

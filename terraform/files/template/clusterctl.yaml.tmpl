@@ -9,6 +9,12 @@ KUBERNETES_VERSION: ${kubernetes_version}
 # Namespace
 NAMESPACE: ${namespace}
 
+# Nodes CIDR
+NODE_CIDR: ${node_cidr}
+
+# Set MTU for k8s CNI network
+MTU_VALUE: ${kind_mtu}
+
 # Openstack Availablity Zone
 OPENSTACK_FAILURE_DOMAIN: ${availability_zone}
 
@@ -46,9 +52,6 @@ OPENSTACK_CLOUD_PROVIDER_CONF_B64:
 # hint: base64 -w0 < cacert.pam
 #
 OPENSTACK_CLOUD_CACERT_B64:
-
-# Set MTU in VM hosts
-MTU_VALUE: ${kind_mtu}
 
 # deploy metrics service
 DEPLOY_METRICS: ${deploy_metrics_service}
