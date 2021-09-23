@@ -146,6 +146,12 @@ EOF
     destination = "/home/${var.ssh_username}/wait_capi_image.sh"
   }
 
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir -p /home/${var.ssh_username}/.config/openstack"
+    ]
+  }
+
   provisioner "file" {
     content     = templatefile("files/template/clouds.yaml.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, appcredid = openstack_identity_application_credential_v3.appcred.id, appcredsecret = openstack_identity_application_credential_v3.appcred.secret })
     destination = "/home/${var.ssh_username}/.config/openstack/clouds.yaml"
@@ -184,7 +190,7 @@ EOF
 
   provisioner "remote-exec" {
     inline = [
-      "bash /home/ubuntu/wait.sh"
+      "bash /home/${var.ssh_username}/wait.sh"
     ]
   }
 
