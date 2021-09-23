@@ -2,7 +2,7 @@
 
 # set the env we used 
 #ENVIRONMENT = gx-betacloud
-ENVIRONMENT ?= gx-citycloud
+#ENVIRONMENT ?= gx-citycloud
 #ENVIRONMENT = gx-scs
 SHELL=/bin/bash
 #ENVIRONMENT = gx-bc
@@ -14,6 +14,8 @@ CONSOLE = capi-mgmtcluster
 NEED_OSCLOUD := $(shell test -z "$$OS_PASSWORD" -a -z "$$OS_CLOUD" && echo 1 || echo 0)
 ifeq ($(NEED_OSCLOUD),1)
   export OS_CLOUD=$(ENVIRONMENT)
+else
+  ENVIRONMENT ?= $(OS_CLOUD)
 endif
 
 # if enabled, use s3 for remote terraform state
