@@ -16,6 +16,7 @@ kubernetes_namespace = "<namespace_testcluster>"  # defaults to "default"
 kube_image_raw       = "<boolean>"      # defaults to "false"
 kind_mtu             = <number>         # defaults to 1400
 node_cidr            = "CIDR"           # defaults to "10.8.0.0/20"
+deploy_nginx_ingress = "<boolean>"      # defaults to "true"
 deploy_metrics_service   = "<boolean>"  # defaults to "true"
 deploy_k8s_openstack_git = "<boolean>"  # defaults to "false"
 deploy_k8s_cindercsi_git = "<boolean>"  # defaults to "false"

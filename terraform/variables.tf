@@ -103,6 +103,12 @@ variable "deploy_metrics_service" {
   default     = true
 }
 
+variable "deploy_nginx_ingress" {
+  description = "deploy NGINX ingress controller into k8s-capi created clusters"
+  type        = bool
+  default     = true
+}
+
 variable "deploy_k8s_openstack_git" {
   description = "deploy k8s openstack provider from github instead of local copy"
   type        = bool

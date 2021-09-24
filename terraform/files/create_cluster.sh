@@ -16,10 +16,12 @@ kubectl config use-context kind-kind || exit 1
 # get the needed clusterapi-variables
 echo "# show used variables for clustertemplate ${CLUSTERAPI_TEMPLATE}"
 if test -e "$HOME/clusterctl-${CLUSTER_NAME}.yaml"; then
-	cp -p "$HOME/clusterctl-${CLUSTER_NAME}.yaml" $HOME/.cluster-api/clusterctl.yaml
+	CCCFG="$HOME/clusterctl-${CLUSTER_NAME}.yaml"
 else
-	cp -p $HOME/clusterctl.yaml $HOME/.cluster-api/clusterctl.yaml
+	CCCFG=$HOME/clusterctl.yaml
 fi
+cp -p "$CCCFG" $HOME/.cluster-api/clusterctl.yaml
+
 #clusterctl config cluster ${CLUSTER_NAME} --list-variables --from ${CLUSTERAPI_TEMPLATE}
 clusterctl generate cluster "${CLUSTER_NAME}" --list-variables --from ${CLUSTERAPI_TEMPLATE} || exit 2
 
@@ -28,7 +30,8 @@ echo "# rendering clusterconfig from template"
 if test -e "${CLUSTER_NAME}-config.yaml"; then
 	echo "Warning: Overwriting config for ${CLUSTER_NAME}"
 	echo "Hit ^C to interrupt"
-	sleep 3
+	sleep 5
+	nowait=1
 fi
 #clusterctl config cluster ${CLUSTER_NAME} --from ${CLUSTERAPI_TEMPLATE} > rendered-${CLUSTERAPI_TEMPLATE}
 clusterctl generate cluster "${CLUSTER_NAME}" --from ${CLUSTERAPI_TEMPLATE} > "${CLUSTER_NAME}-config.yaml"
@@ -41,7 +44,7 @@ kubectl apply -f "${CLUSTER_NAME}-config.yaml" || exit 3
 echo "Waiting for Cluster=Ready"
 #wget https://gx-scs.okeanos.dev --quiet -O /dev/null
 ping -c1 -w2 9.9.9.9 >/dev/null 2>&1
-sleep 20
+if test "$nowait" != "1"; then sleep 20; fi
 kubectl wait --timeout=10m --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME} || exit 1
 kubectl wait --timeout=5m --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME} || exit 1
 kubectl wait --timeout=5m --for=condition=Ready machine -l cluster.x-k8s.io/control-plane || exit 4
@@ -54,7 +57,8 @@ kubectl config view --flatten > $MERGED
 mv $MERGED .kube/config
 export KUBECONFIG=.kube/config
 #kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
-KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
+NAMESPACE=$(yq eval .NAMESPACE $CCCFG)
+KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME} --namespace=$NAMESPACE"
 
 SLEEP=0
 until kubectl $KCONTEXT api-resources
@@ -64,65 +68,18 @@ do
     let SLEEP+=10
 done
 
-# Tweak calico MTU
-# MTU=`yq eval '.MTU_VALUE' clusterctl.yaml`
-# kubectl patch configmap/calico-config -n kube-system --type merge -p '{"data":{"veth_mtu": "'${MTU}'"}}'
-# kubectl rollout restart daemonset calico-node -n kube-system
+# OpenStack, Cinder
+bash ./deploy_openstack_integration.sh "$CLUSTER_NAME" || exit $?
+bash ./deploy_cindercsi.sh "$CLUSTER_NAME" || exit $?
 
-# create cloud.conf secret
-echo "Install external OpenStack cloud provider"
-kubectl $KCONTEXT create secret generic cloud-config --from-file="$HOME"/cloud.conf -n kube-system #|| exit 6
-
-# install external cloud-provider openstack
-DEPLOY_K8S_OPENSTACK_GIT=$(yq eval '.DEPLOY_K8S_OPENSTACK_GIT' clusterctl.yaml)
-if test "$DEPLOY_K8S_OPENSTACK_GIT" = "true"; then
-  for name in cloud-controller-manager-role-bindings.yaml cloud-controller-manager-roles.yaml openstack-cloud-controller-manager-ds.yaml openstack-cloud-controller-manager-pod.yaml; do
-    if ! test -r $name; then
-        curl -LO https://github.com/kubernetes/cloud-provider-openstack/raw/master/manifests/controller-manager/$name
-	echo -e "\n---" >> $name
-    fi
-  done
-  # Note: Do not deploy openstack-cloud-controller-manager-pod.yaml
-  cat cloud-controller-manager*.yaml openstack-cloud-controller-manager-ds.yaml > openstack-git.yaml
-  kubectl $KCONTEXT apply -f openstack-git.yaml || exit 7
-else
-  kubectl $KCONTEXT apply -f ~/openstack.yaml || exit 7
+# NGINX ingress, Metrics
+DEPLOY_NGINX_INGRESS=$(yq eval '.DEPLOY_NGINX_INGRESS' $CCCFG)
+if test "$DEPLOY_NGINX_INGRESS" = "true"; then
+  bash ./deploy_nginx_ingress.sh "$CLUSTER_NAME" || exit $?
 fi
-
-# apply cinder-csi
-DEPLOY_K8S_CINDERCSI_GIT=$(yq eval '.DEPLOY_K8S_CINDERCSI_GIT' clusterctl.yaml)
-if test "$DEPLOY_K8S_CINDERCSI_GIT" = "true"; then
-  # deploy snapshot CRDs
-  for name in snapshot.storage.k8s.io_volumesnapshotcontents.yaml snapshot.storage.k8s.io_volumesnapshotclasses.yaml snapshot.storage.k8s.io_volumesnapshots.yaml; do
-    if ! test -r $name; then
-	curl -LO https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/master/client/config/crd/$name
-	echo -e "\n---" >> $name
-    fi
-  done
-  cat snapshot.storage.k8s.io_volumesnapshot* | kubectl $KCONTEXT apply -f - || exit 8
-  # Now get cinder
-  for name in cinder-csi-controllerplugin-rbac.yaml cinder-csi-controllerplugin.yaml cinder-csi-nodeplugin-rbac.yaml cinder-csi-nodeplugin.yaml csi-cinder-driver.yaml csi-secret-cinderplugin.yaml; do
-    if ! test -r $name; then
-        curl -LO https://github.com/kubernetes/cloud-provider-openstack/raw/master/manifests/cinder-csi-plugin/$name
-	echo -e "\n---" >> $name
-    fi
-  done
-  # Note: We leave out the secret which we should already have
-  cat cinder-csi-*-rbac.yaml cinder-csi-*plugin.yaml csi-cinder-driver.yaml cinder-provider.yaml > cindercsi-git.yaml
-  kubectl $KCONTEXT apply -f cindercsi-git.yaml || exit 8
-else
-  kubectl $KCONTEXT apply -f ~/external-snapshot-crds.yaml || exit 8
-  kubectl $KCONTEXT apply -f ~/cinder.yaml || exit 8
-fi
-
-# Metrics server
-# kubectl $KCONTEXT create -f https://raw.githubusercontent.com/pythianarora/total-practice/master/sample-kubernetes-code/metrics-server.yaml
-# kubectl $KCONTEXT apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-DEPLOY_METRICS=$(yq eval '.DEPLOY_METRICS' clusterctl.yaml)
+DEPLOY_METRICS=$(yq eval '.DEPLOY_METRICS' $CCCFG)
 if test "$DEPLOY_METRICS" = "true"; then
-    echo "Install metrics service"
-    curl -L https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml | sed '/        - --kubelet-use-node-status-port/a\        - --kubelet-insecure-tls' > metrics-server.yaml
-    kubectl $KCONTEXT apply -f metrics-server.yaml || exit 9
+  bash ./deploy_metrics.sh "$CLUSTER_NAME" || exit $?
 fi
 
 echo "Wait for control plane of ${CLUSTER_NAME}"
@@ -131,6 +88,7 @@ kubectl wait --timeout=20m cluster "${CLUSTER_NAME}" --for=condition=Ready || ex
 #kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
 kubectl $KCONTEXT get pods --all-namespaces
 kubectl get openstackclusters
+clusterctl describe cluster ${CLUSTER_NAME}
 # Hints
 echo "Cluster ${CLUSTER_NAME} deployed in $(($(date +%s)-$STARTTIME))s"
 if test "$DEPLOY_METRICS" != "true"; then
