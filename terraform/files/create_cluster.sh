@@ -69,17 +69,17 @@ do
 done
 
 # OpenStack, Cinder
-bash ./deploy_openstack_integration.sh "$CLUSTER_NAME" || exit $?
-bash ./deploy_cindercsi.sh "$CLUSTER_NAME" || exit $?
+bash ./apply_openstack_integration.sh "$CLUSTER_NAME" || exit $?
+bash ./apply_cindercsi.sh "$CLUSTER_NAME" || exit $?
 
 # NGINX ingress, Metrics
 DEPLOY_NGINX_INGRESS=$(yq eval '.DEPLOY_NGINX_INGRESS' $CCCFG)
 if test "$DEPLOY_NGINX_INGRESS" = "true"; then
-  bash ./deploy_nginx_ingress.sh "$CLUSTER_NAME" || exit $?
+  bash ./apply_nginx_ingress.sh "$CLUSTER_NAME" || exit $?
 fi
 DEPLOY_METRICS=$(yq eval '.DEPLOY_METRICS' $CCCFG)
 if test "$DEPLOY_METRICS" = "true"; then
-  bash ./deploy_metrics.sh "$CLUSTER_NAME" || exit $?
+  bash ./apply_metrics.sh "$CLUSTER_NAME" || exit $?
 fi
 
 echo "Wait for control plane of ${CLUSTER_NAME}"
