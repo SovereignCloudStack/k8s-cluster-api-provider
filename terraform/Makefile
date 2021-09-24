@@ -51,7 +51,7 @@ show: init
 
 clean: init
 	@if test -e ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); then source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
-	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS ./cleanup.sh || true; fi
+	timeout 200 ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS ./cleanup.sh || true; fi
 	@terraform destroy -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" $(PARAMS)
 	@terraform workspace select default
 	@terraform workspace delete $(ENVIRONMENT)
@@ -62,7 +62,7 @@ clean: init
 fullclean:
 	prefix=$$(grep '^prefix *=' environments/environment-${ENVIRONMENT}.tfvars | sed -e 's/^[^=]*= *//' -e 's/"//g'); \
 	./cleanup/cleanup.sh --verbose --full testcluster $${prefix}
-	@rm -f ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT)
+	@if test -e ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); then source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); ssh-keygen -R $$MGMTCLUSTER_ADDRESS -f ~/.ssh/known_hosts; rm -f .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); fi
 	$(MAKE) clean
 
 purge:
