@@ -2,10 +2,10 @@
 export KUBECONFIG=~/.kube/config
 if test -n "$1"; then CLUSTER_NAME="$1"; else CLUSTER_NAME=testcluster; fi
 if test -e clusterctl-${CLUSTER_NAME}.yaml; then CCCFG=clusterctl-${CLUSTER_NAME}.yaml; else CCCFG=clusterctl.yaml; fi
-NAMESPACE=$(yq eval .NAMESPACE $CCCFG)
-KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME} --namespace=$NAMESPACE"
+#NAMESPACE=$(yq eval .NAMESPACE $CCCFG)
+KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}" # "--namespace=$NAMESPACE"
 
-echo "Install external OpenStack cloud provider to $CLUSTER_NAME ($NAMESPACE)"
+echo "Install external OpenStack cloud provider to $CLUSTER_NAME"
 kubectl $KCONTEXT create secret generic cloud-config --from-file="$HOME"/cloud.conf -n kube-system #|| exit 6
 
 # install external cloud-provider openstack

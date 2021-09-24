@@ -3,10 +3,10 @@
 export KUBECONFIG=~/.kube/config
 if test -n "$1"; then CLUSTER_NAME="$1"; else CLUSTER_NAME=testcluster; fi
 if test -e clusterctl-${CLUSTER_NAME}.yaml; then CCCFG=clusterctl-${CLUSTER_NAME}.yaml; else CCCFG=clusterctl.yaml; fi
-NAMESPACE=$(yq eval .NAMESPACE $CCCFG)
-KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME} --namespace=$NAMESPACE"
+#NAMESPACE=$(yq eval .NAMESPACE $CCCFG)
+KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}" # "--namespace=$NAMESPACE"
 
-echo "Install Cinder CSI persistent storage support to $CLUSTER_NAME ($NAMESPACE)"
+echo "Install Cinder CSI persistent storage support to $CLUSTER_NAME"
 # apply cinder-csi
 DEPLOY_K8S_CINDERCSI_GIT=$(yq eval '.DEPLOY_K8S_CINDERCSI_GIT' $CCCFG)
 if test "$DEPLOY_K8S_CINDERCSI_GIT" = "true"; then

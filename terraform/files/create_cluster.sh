@@ -25,7 +25,7 @@ cp -p "$CCCFG" $HOME/.cluster-api/clusterctl.yaml
 #clusterctl config cluster ${CLUSTER_NAME} --list-variables --from ${CLUSTERAPI_TEMPLATE}
 clusterctl generate cluster "${CLUSTER_NAME}" --list-variables --from ${CLUSTERAPI_TEMPLATE} || exit 2
 
-# the need variables are set to $HOME/.cluster-api/clusterctl.yaml
+# the needed variables are read from $HOME/.cluster-api/clusterctl.yaml
 echo "# rendering clusterconfig from template"
 if test -e "${CLUSTER_NAME}-config.yaml"; then
 	echo "Warning: Overwriting config for ${CLUSTER_NAME}"
@@ -57,8 +57,8 @@ kubectl config view --flatten > $MERGED
 mv $MERGED .kube/config
 export KUBECONFIG=.kube/config
 #kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
-NAMESPACE=$(yq eval .NAMESPACE $CCCFG)
-KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME} --namespace=$NAMESPACE"
+#NAMESPACE=$(yq eval .NAMESPACE $CCCFG)
+KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}" # "--namespace=$NAMESPACE"
 
 SLEEP=0
 until kubectl $KCONTEXT api-resources
@@ -95,5 +95,5 @@ if test "$DEPLOY_METRICS" != "true"; then
     echo "Use curl -L https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml | sed '/        - --kubelet-use-node-status-port/a\\        - --kubelet-insecure-tls' | kubectl $KCONTEXT apply -f -  to deploy the metrics service"
 fi
 echo "Use kubectl $KCONTEXT wait --for=condition=Ready --timeout=10m -n kube-system pods --all to wait for all cluster components to be ready"
-echo "Pass $KCONTEXT parameter to kubectl (or KUBECONFIG=$KUBECONFIG_WORKLOADCLUSTER in environment) to control the workload cluster"
+echo "Pass $KCONTEXT parameter to kubectl or use KUBECONFIG=$KUBECONFIG_WORKLOADCLUSTER to control the workload cluster"
 # eof
