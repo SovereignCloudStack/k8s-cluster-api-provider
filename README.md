@@ -9,7 +9,7 @@ of the newly created cluster, or for creating additional clusters.
 
 ## Preparations
 
-* Terraform must be installed (https://learn.hashicorp.com/tutorials/terraform/install-cli)
+* Terraform must be installed (https://learn.hashicorp.com/tutorials/terraform/install-cli).
 * You must have credentials to access the cloud. terraform will look for ``clouds.yaml``
   and ``secure.yaml`` in the current working directory, in ``~/.config/openstack/``
   and ``/etc/openstack`` (in this order), just like the openstack client.
@@ -25,7 +25,9 @@ of the newly created cluster, or for creating additional clusters.
 * Copy the environments sample file from environments/environment-default.tfvars to
   ``environments/environment-<yourcloud>.tfvars`` and provide the necessary information like
   machine flavor or machine image.
-* Pass ENVIRONMENT= to the ``make`` command or export ``ENVIRONMENT`` from your shell's
+* Pass ``ENVIRONMENT=<yourcloud`` to the ``make`` command or export ``ENVIRONMENT`` from
+  your shell's environment. If the name of the environment equals the name of the cloud
+  as specified in your ``clouds.yaml``, you can also just set ``OS_CLOUD`` in your shell's
   environment. (You can also edit the default in the Makefile, though we don't recommend
   this.)
 
@@ -34,8 +36,15 @@ of the newly created cluster, or for creating additional clusters.
 
 * ``make create``
 
-After that you can connect to the management machine via ``make ssh``.  The kubeconfig for the
-created cluster is named ``testcluster.yaml``.
+This will create an appication credential, networks, security groups and a virtual machine
+which gets bootstrapped with an installation of a local kubernetes cluster (with kind),
+where the cluster API provider will be installed and which will provide the API server
+for the k8s CAPI. Depending on the numer of control nodes in your config 
+(``environment-<yourcloud>.tfvars``), a testcluster will be created using k8s CAPI.
+The VM will also get some tools deployed, so it is most convenient to log in to this
+management machine via ssh. You can do via ``make ssh``.  The kubeconfig with admin
+power for the created cluster is named ``testcluster.yaml`` and can be handed out to
+users that should get administrative control over the cluster.
 
 ## Teardown
 
@@ -44,7 +53,7 @@ to terraform cleaning up the resources it has created. This is sometimes insuffi
 unfortunately, some error in the deployment may result in resources left around.
 ``make fullclean`` uses a custom script (using the
 openstack CLI) to clean up trying to not hit any resources not created by the capi or terraform.
-It is the recommended way for doing cleanups.
+It is the recommended way for doing cleanups if ``make clean`` fails.
 
 You can purge the whole project via ``make purge``. Be careful with that command as it will purge
 *all resources in the OpenStack project* even those that have not been created through this Terraform script.
@@ -64,9 +73,29 @@ They will be uploaded to the management cluster. Files ending in ```*.sh``` will
 order. All other files will just be uploaded. If you want to deploy resources in the new cluster-api-maintained cluster
 you can use `kubectl apply -f <your-manifest.yaml> --kubeconfig ~/testcluster.yaml` to do so.
 
+## Application Credential
+
+The terraform creates an application credential that it passes into the created VM.
+This one is then used to authenticate the cluster API provider against the OpenStack
+API to allow it to create resources needed for the k8s cluster.
+
+The AppCredential has a few advantages:
+* We take out variance in how the authentication works -- we don't have to
+  deal with a mixture of project_id, project_name, project_domain_name, 
+  user_domain_name, only a subset of which is needed depending on the cloud.
+* We do not leak the user credentials into the cluster, making any security
+  breach more easy to contain.
+* AppCreds are connected to one project and can be revoked.
+
+Currently, we are using restricted AppCreds which can not create further AppCreds.
+This means that all clusters created from the management node will belong to the
+same OpenStack project and use the same Credentials. Obviously, nothing prevents
+you from copying a secondary AppCred into the VM and creating appropriate
+secrets to talk to other projects or other clouds simultaneously.
+
 ## Cluster Management on the C-API management node
 
-You can use ``make ssh`` to log in to the Ca-API management node. There you can issue
+You can use ``make ssh`` to log in to the C-API management node. There you can issue
 ``clusterctl`` and ``kubectl`` (aliased to ``k``) commands. The context ``kind-kind``
 is used for the C-API management while the context ``testcluster-admin@testcluster`` can
 be used to control the workload cluster ``testcluster``. You can of course create many
@@ -76,22 +105,101 @@ of them. There are management scripts on the management node:
   ``cluster-template.yaml`` with the variables from ``clusterctl[-$CLUSTERNAME].yaml``
   to render a config file ``$CLUSTERNAME-config.yaml`` which will then be submitted
   to the capi server (``kind-kind`` context) for creating the control plane nodes 
-  and worker nodes with openstack integration, cinder CSI and calico CNI.
+  and worker nodes with openstack integration, cinder CSI, calico CNI,
+  metrics server, and the nginx ingress controller. (The later two can be
+  controlled by ``tfvars`` which are passed down into the ``clusterctl.yaml``.
   The script returns once the control plane is fully working (the worker
   nodes might still be under construction). The kubectl file to talk to this
   cluster (as admin) can be found in ``$CLUSTERNAME.yaml``. Expect the cluster
-  creation to take ~8mins. (CLUSTERNAME defaults to testcluster.)
-* The script can be called with an existing cluster to apply changes to it.
+  creation to take ~8mins. (CLUSTERNAME defaults to testcluster.) You can pass
+  ``--context=${CLUSTERNAME}-admin@$CLUSTERNAME`` to ``kubectl`` (with the
+  default ``~/.kubernetes/config`` config file) or ``export KUBECONFIG=$CLUSTERNAME.yaml``\
+  to talk to the workload cluster.
+* The installaton of the openstack integration, cinder CSI, metrics server and
+  nginx ingree controller is done via the ``apply_*.sh`` scripts that are called
+  from ``create_cluster.sh``. You can manually call them as well -- they take
+  the cluster name as argument. The applied yaml files are left in the user's
+  home directory -- you can ``kubectl delete -f`` them to remove the functionality
+  again.
+* The ``create_cluster.sh`` script can be called with an existing cluster to apply
+  changes to it.
   Note that you can easily change the number of nodes, while the node specifications
   itself (flavor, image, ...) can not be changed. You need to add a second machine
   description template to the ``cluster-template.yaml`` to do such changes.
   You will also need to enhance it for multi-AZ or multi-region clusters.
-  You can of course also delete the cluster and create a new one ...
+  You can of course also delete the cluster and create a new one if that
+  level of disruption is fine for you. (See below in Advanced cluster templating
+  with helm to get an idea how we want to make this more convenient in the future.)
 * Use ``kubectl get clusters`` in the ``kind-kind`` context to see what clusters
   exist.
 * ``delete_cluster.sh [CLUSTERNAME]``: Tell the capi mgmt server to remove
-  the cluster $CLUSTERNAME. The script will return once the removal is done.
+  the cluster $CLUSTERNAME. It will also remove persistent volume claims belonging
+  to the cluster. The script will return once the removal is done.
 * ``cleanup.sh``: Remove all running clusters.
 
-``k9s`` is installed on the node as well as ``calicoctl``.
+For your convenience, ``k9s`` is installed on the management node as well
+as ``calicoctl``, ``helm`` and ``sonobuoy``.
 
+## Managing many clusters
+
+While we the scripts all take use a default ``testcluster``, they have
+been developed and tested to manage many clusters from a single management
+node. Copy the ``clusterctl.yaml`` file to ``clusterctl-MYCLUSTER.yaml``
+and edit the copy to describe the properties of the cluster to be created.
+Use ``./create_cluster.sh MYCLUSTER`` then to create a workload cluster
+wit the name ``MYCLUSTER``. You will find the kubeconfig file in
+``MYCLUSTER.yaml``, granting its owner admin access to that cluster.
+Likewise, ``delete_cluster.sh`` and the ``aaply_*.sh`` scripts take a
+cluster name as parameter.
+This way, dozens of clusters can be controlled from one management node.
+
+## Testing
+
+To test the created k8s cluster, there are several tools available.
+Apply all commands to the testcluster context (by passing the appropriate
+``--context`` setting to ``kubectl`` or by using the right ``KUBECONFIG``
+file).
+
+* Looking at all pods (``kubectl get pods -A``) to see that they all come
+  up (and don't suffer excessive restarts) is a good first check.
+
+* You can create a very simple deployment with the provided ``kuard.yaml``, which is
+  an example taken from the O'Reilly book from B. Burns, J. Beda, K. Hightower:
+  "Kubernetes Up & Running" enhanced to also use a persistent volume.
+
+* ``sonobuoy`` runs a subset of the k8s tests, providing a simple way to
+  filter the >5000 existing test cases to only run the CNCF conformance
+  tests or to restrict to non-disruptive tests. The ``sonobuoy.sh`` wrapper
+  helps with calling it. There are also ``Makefile`` targets ``check-*`` that
+  call various [sonobuoy](https://sonobuoy.io) test sets. This is how we call sonobuoy for our
+  CI tests.
+
+## Multi-AZ and multi-cloud environments
+
+The provided ``cluster-template.yaml`` assumes that all control nodes
+on one hand and all worker nodes on the other are equal. They are in the
+same cloud within the same availablity zone, using the same flavor.
+cluster API allows k8s clusters to have varying flavors, span availability
+zones and even clouds. For this, you'll have to create an advanced
+cluster-template with more different machine descriptions and potentially
+several secrets. Depending on your changes, the logic in ``create_cluster.sh``
+might also need enhancements to handle this. Extending this is not hard
+and we're happy to hear from your use cases and take patches.
+
+However, we are currently investigating use helm templating for anything
+beyond the simple use cases instead, see next chapter.
+
+## Advanced cluster templating with helm (Technical Preview)
+
+On the management node, we have not only helm installed, but also the
+repository [https://github.com/stackhpc/capi-helm-charts](https://github.com/stackhpc/capi-helm-charts)
+checked out. Amongst other things, it automates the creation of new machine
+templates when needed and doing rolling updates on your k8s cluster
+with clusterctl. This allows for an easy adaptation of your cluster to
+different requirements, new k8s versions etc.
+
+Please note that this is currently evolving quickly and we have not
+completely assessed and tested the capabilities. We intend to do
+this after R1 and eventually recommend this as the standard way
+of managing clusters in production. At this point, it's included as a
+technical preview.
