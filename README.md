@@ -4,8 +4,27 @@ This guide shows you how to get working Kubernetes clusters on a SCS cloud
 via [cluster-api](https://cluster-api.sigs.k8s.io/).
 
 Cluster API requires an existing Kubernetes cluster. It is built with [kind](https://kind.sigs.k8s.io/)
-on an OpenStack instance previously provided by Terraform. This instance can be used later on for the management
+on an OpenStack instance created via Terraform. This instance can be used later on for the management
 of the newly created cluster, or for creating additional clusters. 
+
+## Intended audience
+
+Creating and scaling k8s clusters on demand is providing a lot of flexibility to
+DevOps teams that develop, test, deploy and operate services and applications.
+
+We expect the functionality to be mainly consumed in two scenarios:
+
+* Self-service: The DevOps team leverages the code provided from this repository
+  to create their own CAPI management server and use it then to manage a number
+  of k8s clusters for their own needs.
+
+* Managed k8s: The Operator's service team creates the CAPI management server and
+  uses it to provide managed k8s clusters for their clients.
+
+Note that we have an intermediate model in mind -- a model where a one-click / one-API
+call interface would allow the management server to be created on behalf of a user 
+and then serve as an API endpoint to that user's k8s capi needs. Ideally with some
+dashboard or GUI that would shield less experienced users from all the YAML.
 
 ## Preparations
 
@@ -73,7 +92,7 @@ They will be uploaded to the management cluster. Files ending in ```*.sh``` will
 order. All other files will just be uploaded. If you want to deploy resources in the new cluster-api-maintained cluster
 you can use `kubectl apply -f <your-manifest.yaml> --kubeconfig ~/testcluster.yaml` to do so.
 
-## Application Credential
+## Application Credentials
 
 The terraform creates an application credential that it passes into the created VM.
 This one is then used to authenticate the cluster API provider against the OpenStack
@@ -89,7 +108,7 @@ The AppCredential has a few advantages:
 
 Currently, we are using restricted AppCreds which can not create further AppCreds.
 This means that all clusters created from the management node will belong to the
-same OpenStack project and use the same Credentials. Obviously, nothing prevents
+same OpenStack project and use the same credentials. Obviously, nothing prevents
 you from copying a secondary AppCred into the VM and creating appropriate
 secrets to talk to other projects or other clouds simultaneously.
 
@@ -142,15 +161,16 @@ as ``calicoctl``, ``helm`` and ``sonobuoy``.
 
 ## Managing many clusters
 
-While we the scripts all take use a default ``testcluster``, they have
+While the scripts all use a default ``testcluster``, they have
 been developed and tested to manage many clusters from a single management
 node. Copy the ``clusterctl.yaml`` file to ``clusterctl-MYCLUSTER.yaml``
 and edit the copy to describe the properties of the cluster to be created.
 Use ``./create_cluster.sh MYCLUSTER`` then to create a workload cluster
-wit the name ``MYCLUSTER``. You will find the kubeconfig file in
+with the name ``MYCLUSTER``. You will find the kubeconfig file in
 ``MYCLUSTER.yaml``, granting its owner admin access to that cluster.
 Likewise, ``delete_cluster.sh`` and the ``aaply_*.sh`` scripts take a
 cluster name as parameter.
+
 This way, dozens of clusters can be controlled from one management node.
 
 ## Testing
@@ -167,12 +187,32 @@ file).
   an example taken from the O'Reilly book from B. Burns, J. Beda, K. Hightower:
   "Kubernetes Up & Running" enhanced to also use a persistent volume.
 
+* You can deploy [Google's demo microservice application](https://github.com/GoogleCloudPlatform/microservices-demo).
+
 * ``sonobuoy`` runs a subset of the k8s tests, providing a simple way to
   filter the >5000 existing test cases to only run the CNCF conformance
   tests or to restrict to non-disruptive tests. The ``sonobuoy.sh`` wrapper
   helps with calling it. There are also ``Makefile`` targets ``check-*`` that
-  call various [sonobuoy](https://sonobuoy.io) test sets. This is how we call sonobuoy for our
-  CI tests.
+  call various [sonobuoy](https://sonobuoy.io) test sets.
+  This is how we call sonobuoy for our CI tests.
+
+## etcd leader changes
+
+While testing clusters with >= 3 control nodes, we have observed
+occasional transient error messages that reported an etcd leader
+change preventing a command from succeeding. This could result
+in a dozen of random failed tests in a sonobuoy conformance run.
+(Retrying the commands would let them succeed.)
+
+Too frequent etcd leader changes are detrimental to your control
+plane performance and can lead to transient failures. They are a sign
+that the infrastructure below your cluster is introducing too high
+latencies (>100ms in the default configuration which we don't change).
+
+We recommend to deploy the control nodes (which run etcd) on instances
+with SSD storage (which we reflect in the default flavor name) and
+recommend ensuring that the CPU oversubscription is not high and that
+your network does not introduce latencies by significant packet drop.
 
 ## Multi-AZ and multi-cloud environments
 
@@ -186,7 +226,7 @@ several secrets. Depending on your changes, the logic in ``create_cluster.sh``
 might also need enhancements to handle this. Extending this is not hard
 and we're happy to hear from your use cases and take patches.
 
-However, we are currently investigating use helm templating for anything
+However, we are currently investigating to use helm templating for anything
 beyond the simple use cases instead, see next chapter.
 
 ## Advanced cluster templating with helm (Technical Preview)
