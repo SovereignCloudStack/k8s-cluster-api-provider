@@ -18,6 +18,20 @@ Likewise the [Cluster API provider OpenStack](https://github.com/kubernetes-sigs
 has been updated to the matching 0.4 version. Release Notes are available
 [here](https://github.com/kubernetes-sigs/cluster-api-provider-openstack/releases).
 
+## k8s version 1.21.4
+
+We are actually flexible to create clusters with various k8s versions -- we have
+validated 1.19.14, 1.20.10 and 1.21.4 and are defaulting to the
+[v1.21.4](https://github.com/kubernetes/kubernetes/releases/tag/v1.21.4) version.
+
+## kind update
+
+We have upgraded [kind](https://github.com/kubernetes-sigs/kind) to
+[v0.11.1](https://github.com/kubernetes-sigs/kind/releases/tag/v0.11.1),
+which uses k8s-v1.21.1. This way we have very similar k8s versions for our
+workload clusters as on the management node. This also required to inject
+a sysctl to increase the max conntrack connections.
+
 ## Multi-cluster management scripts
 
 The scripts have been made more modular and have gained the ability to cleanly
@@ -67,6 +81,11 @@ file now and will be applied on both the management node as well as the
 created clusters. We default to 1400, which works fine on all environments
 that we use for testing.
 
+## node_cidr configurable
+
+The VMs for the k8s cluster now have a configurable CIDR.
+We default to 10.8.0.0/20 now, supporting 4k nodes.
+
 ## Application Credential
 
 Rather than copying a clouds.yaml and cloud.conf on the management node
@@ -74,6 +93,13 @@ that contains a copy of the user's original auth data which can vary a lot,
 we now create a v3 application credential, which allows us to work with
 the same credential setup always and also allows for revocation in case
 of leakages. See [README.md](README.md) for more information.
+
+## No ./clouds.yaml copy needed
+
+You no longer need to create a (stripped down) copy of clouds.yaml and
+secure.yaml in the terraform directory. If you have these files at their
+standard place ``~/.config/openstack/``, the terraform logic will now
+find what it needs to extract from there.
 
 ## Speed up
 
@@ -87,7 +113,13 @@ set up the local k8s cluster (kind) and only wait for the image to become
 ready before the preparatory scripts completes.
 
 The image stays registered, so we can reuse it from within the same
-project.
+project. The image carries the major version number from k8s (e.g. 1.21),
+so several "major" versions can coexist. Remove it to get a freshly
+downloaded one registered on the next deployment of a management node
+(or call ``upload_capi_image.sh`` manually).
+
+The registered CAPI image also sets the standard image metadata
+according to SCS specs.
 
 ## Cleaning up
 
@@ -100,11 +132,41 @@ ressources associated with the management node. The ``fullclean``
 target does it on OpenStack in case ``clean`` fails due to k8s capi
 not being in a good state any more.
 
+## Configurable namespace
+
+A different namespace can be chosen from "default". Note that this
+does not have a lot of consequences, as the scripts don't deploy
+anything to the default namespace by default ...
+
+## Tools
+
+calicoctl, a newer k9s, helm and sonobuoy are installed into
+``/usr/local/bin`` for the user's convenience.
+
+## clouds.yaml moved
+
+The clouds.yaml is no longer deployed to ``~`` on the mangement
+node, but to ``~/.config/openstack/``, where openstack CLI will
+always find it (irrespective of the current directory). The cloud.conf
+file that is fed as secret to the capi cluster still lives in ``~``.
+The clouds.yaml that ends up as secret as well is constructed on
+the fly (with a unneeded ``project_id`` added in), encoded and
+fed to the capi cluster -- this file is not stored on the file system.
+
 ## SCS flavor name defaults
 
 We are using defaults for the flavor names and image names that follow
 the SCS standards, so you don't need to touch them on a fully SCS
-compliant cloud.
+compliant cloud. The flavors now can be chosen separately for the
+management node, the controller nodes and the worker nodes.
+
+## Testing
+
+Tests have been added, the simple ``kuard.yaml`` as well as the
+included ``sonobuoy`` tool that allows for a full CNCF conformance
+test. The sonobuoy tests can be invoked from the Makefile with the
+``check-*`` targets. The tooling has seen a significant amount of
+real-world testing during the Gaia-X Hackathon #1.
 
 ## Helm charts for cluster management
 
