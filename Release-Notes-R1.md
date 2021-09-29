@@ -18,11 +18,11 @@ Likewise the [Cluster API provider OpenStack](https://github.com/kubernetes-sigs
 has been updated to the matching 0.4 version. Release Notes are available
 [here](https://github.com/kubernetes-sigs/cluster-api-provider-openstack/releases).
 
-## k8s version 1.21.4
+## k8s version 1.21.5
 
 We are actually flexible to create clusters with various k8s versions -- we have
-validated 1.19.14, 1.20.10 and 1.21.4 and are defaulting to the
-[v1.21.4](https://github.com/kubernetes/kubernetes/releases/tag/v1.21.4) version.
+validated 1.19.15, 1.20.11 and 1.21.5 and are defaulting to the
+[v1.21.5](https://github.com/kubernetes/kubernetes/releases/tag/v1.21.5) version.
 
 ## kind update
 
