@@ -1,7 +1,7 @@
 # Release Notes for k8s-capi-provider for R1
 
 k8s-cluster-api-provider was provided as technical preview in R0
-and has seen major work to make it ready for productive use in T1.
+and has seen major work to make it ready for productive use in R1.
 
 Following are the highlights of changes done for R1.
 
