@@ -37,7 +37,7 @@ resourcelist()
 	ANS="$($OPENSTACK $1 list $3 -f value $VALS $EXTRA)"
 	if test $? != 0; then echo "ERROR executing $OPENSTACK $1 list $3 -f value $VALS $EXTRA" 1>&2; return 1; fi
 	if test -z "$ANS"; then return 0; fi
-	if test -n "$2"; then ANS=$(echo "$ANS" | grep $2); fi
+	if test -n "$2"; then ANS=$(echo "$ANS" | grep "$2"); fi
 	if test "$VERBOSE" == "1"; then echo "$ANS" | sed 's/^/  /' 1>&2; fi
 	if test "$1" == "keypair"; then echo "$ANS";
 	elif test -n "$4"; then echo "$ANS" | sed 's/^\([0-9a-f-]*\) .* \(.*\)$/\1 \2/g';
@@ -108,14 +108,16 @@ fi
 
 echo "Deleting cluster $CLUSTER"
 # cleanup loadbalancers
-POOLS=$(resourcelist "loadbalancer pool" clusterapi)
+if test -n "$NOCASCADE"; then
+POOLS=$(resourcelist "loadbalancer pool" "\(clusterapi\|kube_service_kubernetes_ingress-nginx_ingress-nginx-controller\)")
 for POOL in $POOLS; do
 	#MEMBERS=$(resourcelist "loadbalancer member" clusterapi $POOL)
-	cleanup "loadbalancer member" clusterapi $POOL
+	cleanup "loadbalancer member" "\(clusterapi\|kube_service_kubernetes_ingress-nginx_ingress-nginx-controller\)" $POOL
 done
 cleanup_list "loadbalancer pool" "" "" "$POOLS"
-cleanup "loadbalancer listener" clusterapi
-LBS=$(resourcelist loadbalancer clusterapi "" vip_address)
+cleanup "loadbalancer listener" "\(clusterapi\|kube_service_kubernetes_ingress-nginx_ingress-nginx-controller\)"
+fi
+LBS=$(resourcelist loadbalancer "\(clusterapi\|kube_service_kubernetes_ingress-nginx_ingress-nginx-controller\)" "" vip_address)
 #cleanup_list "floating ip" 2 "" "$LBS"
 while read LB FIP; do
 	if test -z "$FIP"; then continue; fi
@@ -127,7 +129,11 @@ while read LB FIP; do
 		$OPENSTACK floating ip delete $FID
 	fi
 done < <(echo "$LBS")
-cleanup_list loadbalancer 1 "" "$LBS"
+if test -n "$NOCASCADE"; then
+	cleanup_list loadbalancer 1 "" "$LBS"
+else
+	cleanup_list loadbalancer 1 "--cascade" "$LBS"
+fi
 cleanup server $CLUSTER
 cleanup port $CLUSTER
 RTR=$(resourcelist router $CLUSTER)
