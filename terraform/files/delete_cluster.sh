@@ -9,18 +9,26 @@ if test -e clusterctl-${CLUSTER_NAME}.yaml; then CCCFG=clusterctl-${CLUSTER_NAME
 NAMESPACE=$(yq eval .NAMESPACE $CCCFG)
 kubectl config use-context kind-kind
 echo "Deleting cluster $CLUSTER_NAME"
-KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME} --namespace=$NAMESPACE"
-PODS=$(kubectl $KCONTEXT get pods | grep -v '^NAME' | awk '{ print $1; }')
+KCONTEXTNS="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME} --namespace=$NAMESPACE"
+KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
+# Delete workload pods (default namespace)
+PODS=$(kubectl $KCONTEXTNS get pods | grep -v '^NAME' | awk '{ print $1; }')
 for pod in $PODS; do
 	echo -en " Delete pod $pod\n "
-	kubectl $KCONTEXT delete pod $pod
+	kubectl $KCONTEXTNS delete pod $pod
 done
-PVCS=$(kubectl $KCONTEXT get persistentvolumeclaims | grep -v '^NAME' | awk '{ print $1; }')
+# Delete nginx ingress
+INPODS=$(kubectl $KCONTEXT --namespace ingress-nginx get pods) 
+if echo "$INPODS" | grep nginx >/dev/null 2>&1; then
+	echo -en " Delete ingress \n "
+	kubectl $KCONTEXT delete -f nginx-ingress-controller.yaml
+fi
+# Delete persisten volumes
+PVCS=$(kubectl $KCONTEXTNS get persistentvolumeclaims | grep -v '^NAME' | awk '{ print $1; }')
 for pvc in $PVCS; do
 	echo -en " Delete pvc $pvc\n "
-	kubectl $KCONTEXT delete persistentvolumeclaim $pvc
+	kubectl $KCONTEXTNS delete persistentvolumeclaim $pvc
 done
-# TODO: Loadbalancers
 sleep 1
 kubectl delete cluster "$CLUSTER_NAME"
 kubectl config delete-context "$CLUSTER_NAME-admin@$CLUSTER_NAME"
