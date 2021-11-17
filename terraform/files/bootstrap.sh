@@ -5,7 +5,7 @@
 
 # version
 VERSION_K9S="0.24.15"
-VERSION_CLUSTERCTL="0.4.3"
+VERSION_CLUSTERCTL="1.0.1"
 
 # Start image registration early
 bash upload_capi_image.sh

@@ -4,8 +4,8 @@
 ## license: Apache-2.0
 
 # variables
-CLUSTERAPI_OPENSTACK_PROVIDER_VERSION=0.4.0
-CLUSTERAPI_VERSION=0.4.3
+CLUSTERAPI_OPENSTACK_PROVIDER_VERSION=0.5.0
+CLUSTERAPI_VERSION=1.0.0
 
 # get the clusterctl version
 echo "show the clusterctl version:"
