@@ -52,7 +52,7 @@ variable "ssh_username" {
 variable "kubernetes_version" {
   description = "desired kubernetes version for the workload cluster"
   type        = string
-  default     = "v1.21.5"
+  default     = "v1.21.6"
 }
 
 variable "kube_image_raw" {
