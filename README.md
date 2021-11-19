@@ -5,7 +5,7 @@ via [cluster-api](https://cluster-api.sigs.k8s.io/).
 
 Cluster API requires an existing Kubernetes cluster. It is built with [kind](https://kind.sigs.k8s.io/)
 on an OpenStack instance created via Terraform. This instance can be used later on for the management
-of the newly created cluster, or for creating additional clusters. 
+of the newly created cluster, or for creating additional clusters.
 
 ## Intended audience
 
@@ -22,18 +22,18 @@ We expect the functionality to be mainly consumed in two scenarios:
   uses it to provide managed k8s clusters for their clients.
 
 Note that we have an intermediate model in mind -- a model where a one-click / one-API
-call interface would allow the management server to be created on behalf of a user 
+call interface would allow the management server to be created on behalf of a user
 and then serve as an API endpoint to that user's k8s capi needs. Ideally with some
 dashboard or GUI that would shield less experienced users from all the YAML.
 
 ## Preparations
 
-* Terraform must be installed (https://learn.hashicorp.com/tutorials/terraform/install-cli).
+* Terraform must be installed (<https://learn.hashicorp.com/tutorials/terraform/install-cli>).
 * You must have credentials to access the cloud. terraform will look for ``clouds.yaml``
   and ``secure.yaml`` in the current working directory, in ``~/.config/openstack/``
   and ``/etc/openstack`` (in this order), just like the openstack client.
-  (https://docs.openstack.org/python-openstackclient/latest/configuration/index.html#clouds-yaml)
-* You need to have ``yq`` (python3-yq or yq snap) installed.
+  (<https://docs.openstack.org/python-openstackclient/latest/configuration/index.html#clouds-yaml>)
+* You need to have ``yq`` (python3-yq) installed.
 * As the ``v3applicationcredential`` ``auth_type`` plugin is being used, we hit a bug
   in Ubuntu 20.04 which ships python3-keystoneauth < 4.2.0, which does fail with
   unversioned ``auth_url`` endpoints.
@@ -50,7 +50,6 @@ dashboard or GUI that would shield less experienced users from all the YAML.
   environment. (You can also edit the default in the Makefile, though we don't recommend
   this.)
 
-
 ## Usage
 
 * ``make create``
@@ -58,7 +57,7 @@ dashboard or GUI that would shield less experienced users from all the YAML.
 This will create an appication credential, networks, security groups and a virtual machine
 which gets bootstrapped with an installation of a local kubernetes cluster (with kind),
 where the cluster API provider will be installed and which will provide the API server
-for the k8s CAPI. Depending on the numer of control nodes in your config 
+for the k8s CAPI. Depending on the numer of control nodes in your config
 (``environment-<yourcloud>.tfvars``), a testcluster will be created using k8s CAPI.
 The VM will also get some tools deployed, so it is most convenient to log in to this
 management machine via ssh. You can do via ``make ssh``.  The kubeconfig with admin
@@ -99,8 +98,9 @@ This one is then used to authenticate the cluster API provider against the OpenS
 API to allow it to create resources needed for the k8s cluster.
 
 The AppCredential has a few advantages:
+
 * We take out variance in how the authentication works -- we don't have to
-  deal with a mixture of project_id, project_name, project_domain_name, 
+  deal with a mixture of project_id, project_name, project_domain_name,
   user_domain_name, only a subset of which is needed depending on the cloud.
 * We do not leak the user credentials into the cluster, making any security
   breach more easy to contain.
@@ -123,7 +123,7 @@ of them. There are management scripts on the management node:
 * ``create_cluster.sh [CLUSTERNAME]``: Use this command to use the template
   ``cluster-template.yaml`` with the variables from ``clusterctl[-$CLUSTERNAME].yaml``
   to render a config file ``$CLUSTERNAME-config.yaml`` which will then be submitted
-  to the capi server (``kind-kind`` context) for creating the control plane nodes 
+  to the capi server (``kind-kind`` context) for creating the control plane nodes
   and worker nodes with openstack integration, cinder CSI, calico CNI,
   metrics server, and the nginx ingress controller. (The later two can be
   controlled by ``tfvars`` which are passed down into the ``clusterctl.yaml``.
