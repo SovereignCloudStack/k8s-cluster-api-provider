@@ -53,11 +53,11 @@ resource "openstack_networking_network_v2" "network_mgmt" {
 }
 
 resource "openstack_networking_subnet_v2" "subnet_mgmt" {
-  name       = "${var.prefix}-subnet"
-  network_id = openstack_networking_network_v2.network_mgmt.id
-  ip_version = 4
-  cidr       = "10.0.0.0/24"
-  dns_nameservers = [ var.dns_nameserver ]
+  name            = "${var.prefix}-subnet"
+  network_id      = openstack_networking_network_v2.network_mgmt.id
+  ip_version      = 4
+  cidr            = "10.0.0.0/24"
+  dns_nameservers = [var.dns_nameserver]
 
   allocation_pool {
     start = "10.0.0.11"
