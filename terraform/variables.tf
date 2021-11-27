@@ -120,3 +120,9 @@ variable "deploy_k8s_cindercsi_git" {
   type        = bool
   default     = false
 }
+
+variable "dns_nameserver" {
+  description = "nameserver to be set for subnets"
+  type        = string
+  default     = "9.9.9.9"
+}
