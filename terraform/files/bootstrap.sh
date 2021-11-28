@@ -4,7 +4,7 @@
 ## license: Apache-2.0
 
 # version
-VERSION_K9S="0.24.15"
+VERSION_K9S="0.25.7"
 VERSION_CLUSTERCTL="1.0.1"
 
 # Start image registration early
