@@ -6,7 +6,8 @@ export KUBECONFIG=~/.kube/config
 if test -n "$1"; then CLUSTER_NAME="$1"; else CLUSTER_NAME=testcluster; fi
 #NAMESPACE=$(yq eval .NAMESPACE $CCCFG)
 KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}" # "--namespace=$NAMESPACE"
-# 
+#
+cd ~
 mkdir -p registry && cd "$_"
 mkdir certs
 openssl req -x509 -newkey rsa:4096 -days 365 -nodes -sha256 -keyout certs/tls.key -out certs/tls.crt -subj "/CN=docker-registry" -addext "subjectAltName = DNS:docker-registry"
@@ -17,9 +18,9 @@ docker run --rm --entrypoint htpasswd registry:2.7.1 -Bbn myuser mypasswd > auth
 kubectl $KCONTEXT create secret tls certs-secret --cert=~/registry/certs/tls.crt --key=~/registry/certs/tls.key
 kubectl $KCONTEXT create secret generic auth-secret --from-file=~/registry/auth/htpasswd
 #
-kubectl $KCONTEXT create -f repository-volume.yaml
+kubectl $KCONTEXT create -f ~/repository-volume.yaml
 # 
-kubectl $KCONTEXT create -f docker-registry-pod.yaml
+kubectl $KCONTEXT create -f ~/docker-registry-pod.yaml
 #
 KOUTPUT=$(kubectl $KCONTEXT get all)
 export REGISTRY_NAME="docker-registry"
