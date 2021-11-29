@@ -9,17 +9,17 @@ KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}" # "--namespace=$NAMES
 #
 cd ~
 mkdir -p registry && cd "$_"
-mkdir certs
-openssl req -x509 -newkey rsa:4096 -days 365 -nodes -sha256 -keyout certs/tls.key -out certs/tls.crt -subj "/CN=docker-registry" -addext "subjectAltName = DNS:docker-registry"
+#mkdir -p certs
+#openssl req -x509 -newkey rsa:4096 -days 365 -nodes -sha256 -keyout certs/tls.key -out certs/tls.crt -subj "/CN=docker-registry" -addext "subjectAltName = DNS:docker-registry"
 #
-PWD=$(dd if=/dev/urandom bs=1 count=8 | base64 -)
-mkdir auth
-docker run --rm --entrypoint htpasswd registry:2 -Bbn myscsuser $PWD > auth/htpasswd
+#PWD=$(dd if=/dev/urandom bs=1 count=8 2>/dev/null | base64 -)
+#mkdir -p auth
+#docker run --rm --entrypoint /usr/bin/htpasswd registry:2 -Bbn myscsuser "$PWD" > auth/htpasswd 
 # 
-kubectl $KCONTEXT create secret tls certs-secret --cert=~/registry/certs/tls.crt --key=~/registry/certs/tls.key
-kubectl $KCONTEXT create secret generic auth-secret --from-file=~/registry/auth/htpasswd
+#kubectl $KCONTEXT create secret tls certs-secret --cert=$HOME/registry/certs/tls.crt --key=$HOME/registry/certs/tls.key || exit
+#kubectl $KCONTEXT create secret generic auth-secret --from-file=$HOME/registry/auth/htpasswd
 #
-kubectl $KCONTEXT create -f ~/repository-volume.yaml
+kubectl $KCONTEXT create -f ~/repository-volume.yaml || exit
 # 
 kubectl $KCONTEXT create -f ~/docker-registry-pod.yaml
 #
@@ -30,6 +30,7 @@ echo "Registry at $REGISTRY_IP:5000"
 #
 NODES=$(kubectl $KCONTEXT get nodes -o jsonpath='{ $.items[*].status.addresses[?(@.type=="InternalIP")].address }')
 if false; then
+
 for node in $NODES; do ssh root@$node "echo '$REGISTRY_IP $REGISTRY_NAME' >> /etc/hosts"; done
 for node in $NODES; do ssh root@$node "rm -rf /etc/docker/certs.d/$REGISTRY_NAME:5000;mkdir -p /etc/docker/certs.d/$REGISTRY_NAME:5000"; done
 for node in $NODES; do scp -p /registry/certs/tls.crt root@$node:/etc/docker/certs.d/$REGISTRY_NAME:5000/ca.crt; done
