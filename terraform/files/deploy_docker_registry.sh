@@ -23,7 +23,7 @@ kubectl $KCONTEXT create -f ~/repository-volume.yaml
 # 
 kubectl $KCONTEXT create -f ~/docker-registry-pod.yaml
 #
-KOUTPUT=$(kubectl $KCONTEXT get all)
+KOUTPUT=$(kubectl $KCONTEXT get services)
 export REGISTRY_NAME="docker-registry"
 export REGISTRY_IP=$(echo "$KOUTPUT" | grep "docker\-registry" | sed 's@^[a-zA-Z/\-]* *ClusterIP *\([^ ]*\) .*$@\1@')
 echo "Registry at $REGISTRY_IP:5000"
