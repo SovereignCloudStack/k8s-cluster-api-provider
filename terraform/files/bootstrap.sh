@@ -16,6 +16,13 @@ bash upload_capi_image.sh
 sudo snap install kubectl --classic
 sudo apt install -y binutils
 
+# kustomize
+# sudo snapp install kustomize
+
+# flux
+# TODO: Check signature
+#curl -s https://fluxcd.io/install.sh | sudo bash
+
 # install k9s
 echo "# install k9s ${VERSION_K9S}"
 # TODO: Check signature
