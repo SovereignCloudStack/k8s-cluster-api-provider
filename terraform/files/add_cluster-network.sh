@@ -1,4 +1,6 @@
 #!/bin/bash
+# Attach a port from the workload cluster network to the mgmtcluster node
+# so we can talk to the nodes (ssh login, ...)
 export KUBECONFIG=~/.kube/config
 if test -n "$1"; then CLUSTER_NAME="$1"; else CLUSTER_NAME=testcluster; fi
 #NAMESPACE=$(yq eval .NAMESPACE $CCCFG)
