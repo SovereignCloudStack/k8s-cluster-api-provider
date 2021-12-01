@@ -9,6 +9,6 @@ echo "Deploy NGINX ingress controller to $CLUSTER_NAME"
 if test ! -r nginx-ingress-controller.yaml; then
 	curl -L https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.0.1/deploy/static/provider/cloud/deploy.yaml > nginx-ingress-controller.yaml
 fi
-sed "s/ingress-nginx-controller/ingress-nginx-controller-${CLUSTER_NAME}/" nginx-ingress-controller.yaml > nginx-ingress-controller-${CLUSTER_NAME}.yaml
-kubectl $KCONTEXT apply -f nginx-ingress-controller-${CLUSTERNAME}.yaml
+sed "s/\(ingress-nginx-controller\)/\1-${CLUSTER_NAME}/" nginx-ingress-controller.yaml > nginx-ingress-controller-${CLUSTER_NAME}.yaml
+kubectl $KCONTEXT apply -f nginx-ingress-controller-${CLUSTER_NAME}.yaml
 
