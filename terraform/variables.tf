@@ -70,7 +70,7 @@ variable "image_registration_extra_flags" {
 variable "kind_mtu" {
   description = "inner MTU used in the kind cluster on the capi-mgmtnode"
   type        = number
-  default     = 1400
+  default     = 1392
 }
 
 variable "worker_count" {
