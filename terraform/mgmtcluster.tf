@@ -97,11 +97,6 @@ EOF
   }
 
   provisioner "file" {
-    source      = "files/bootstrap.sh"
-    destination = "/home/${var.ssh_username}/bootstrap.sh"
-  }
-
-  provisioner "file" {
     source      = "files/deploy_cluster_api.sh"
     destination = "/home/${var.ssh_username}/deploy_cluster_api.sh"
   }
@@ -157,11 +152,6 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/upload_capi_image.sh.tmpl", { kubernetes_version = var.kubernetes_version, provider = var.cloud_provider, kube_image_raw = var.kube_image_raw, image_registration_extra_flags = var.image_registration_extra_flags, prefix = var.prefix })
-    destination = "/home/${var.ssh_username}/upload_capi_image.sh"
-  }
-
-  provisioner "file" {
     content     = templatefile("files/template/wait_capi_image.sh.tmpl", { kubernetes_version = var.kubernetes_version, provider = var.cloud_provider })
     destination = "/home/${var.ssh_username}/wait_capi_image.sh"
   }
@@ -181,9 +171,15 @@ EOF
     content     = templatefile("files/template/cloud.conf.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, appcredid = openstack_identity_application_credential_v3.appcred.id, appcredsecret = openstack_identity_application_credential_v3.appcred.secret })
     destination = "/home/${var.ssh_username}/cloud.conf"
   }
+
   provisioner "file" {
     source      = "files/template/cluster-template.yaml"
     destination = "/home/${var.ssh_username}/cluster-template.yaml"
+  }
+
+  provisioner "file" {
+    content     = templatefile("files/template/upload_capi_image.sh.tmpl", { kubernetes_version = var.kubernetes_version, provider = var.cloud_provider, kube_image_raw = var.kube_image_raw, image_registration_extra_flags = var.image_registration_extra_flags, prefix = var.prefix })
+    destination = "/home/${var.ssh_username}/upload_capi_image.sh"
   }
 
   provisioner "file" {
@@ -199,6 +195,11 @@ EOF
   provisioner "file" {
     source      = "files/fix-keystoneauth-plugins-unversioned.diff"
     destination = "/home/${var.ssh_username}/fix-keystoneauth-plugins-unversioned.diff"
+  }
+
+  provisioner "file" {
+    source      = "files/bootstrap.sh"
+    destination = "/home/${var.ssh_username}/bootstrap.sh"
   }
 
   provisioner "remote-exec" {
