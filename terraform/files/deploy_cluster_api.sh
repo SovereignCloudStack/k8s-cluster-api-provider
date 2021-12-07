@@ -23,7 +23,7 @@ clusterctl init --infrastructure openstack:v${CLUSTERAPI_OPENSTACK_PROVIDER_VERS
 
 # Install calicoctl
 # TODO: Check signature
-curl -o calicoctl -O -L  "https://github.com/projectcalico/calicoctl/releases/download/v3.20.0/calicoctl" 
+curl -o calicoctl -O -L  "https://github.com/projectcalico/calicoctl/releases/download/v3.21.2/calicoctl" 
 chmod +x calicoctl
 sudo mv calicoctl /usr/local/bin
 
