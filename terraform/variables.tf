@@ -110,13 +110,13 @@ variable "deploy_nginx_ingress" {
 }
 
 variable "deploy_k8s_openstack_git" {
-  description = "deploy k8s openstack provider from github instead of local copy"
+  description = "deploy k8s openstack provider from github instead of local copy, set to true for k8s >= 1.22, dont set it for < 1.20"
   type        = bool
   default     = false
 }
 
 variable "deploy_k8s_cindercsi_git" {
-  description = "deploy k8s cinder CSI provider from github instead of local copy"
+  description = "deploy k8s cinder CSI provider from github instead of local copy, dito"
   type        = bool
   default     = false
 }
