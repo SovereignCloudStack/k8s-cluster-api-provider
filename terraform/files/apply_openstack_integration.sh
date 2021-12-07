@@ -19,8 +19,11 @@ if test "$DEPLOY_K8S_OPENSTACK_GIT" = "true"; then
   done
   # Note: Do not deploy openstack-cloud-controller-manager-pod.yaml
   cat cloud-controller-manager*.yaml openstack-cloud-controller-manager-ds.yaml > openstack-git.yaml
-  kubectl $KCONTEXT apply -f openstack-git.yaml || exit 7
+  OCCM=openstack-git.yaml
 else
-  kubectl $KCONTEXT apply -f ~/openstack.yaml || exit 7
+  OCCM=openstack.yaml
 fi
+sed -e "/^            \- \/bin\/openstack\-cloud\-controller\-manager/a\            - --cluster-name=${CLUSTER_NAME}" \
+    -e "/^        \- \/bin\/openstack\-cloud\-controller\-manager/a\        - --cluster-name=${CLUSTER_NAME}" $OCCM > "openstack-${CLUSTER_NAME}.yaml"
+kubectl $KCONTEXT apply -f "openstack-${CLUSTER_NAME}.yaml" || exit 7
 
