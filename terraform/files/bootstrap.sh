@@ -4,8 +4,8 @@
 ## license: Apache-2.0
 
 # version
-VERSION_K9S="0.25.7"
-VERSION_CLUSTERCTL="1.0.1"
+VERSION_K9S="0.25.8"
+VERSION_CLUSTERCTL="1.0.2"
 
 # Start image registration early
 bash upload_capi_image.sh
