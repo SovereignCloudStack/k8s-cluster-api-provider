@@ -97,7 +97,7 @@ EOF
   }
 
   provisioner "file" {
-    source      = "files/deploy_cluster_api.sh"
+    content     = templatefile("files/template/deploy_cluster_api.sh.tmpl", { clusterapi_version = var.clusterapi_version, capi_openstack_version = var.capi_openstack_version })
     destination = "/home/${var.ssh_username}/deploy_cluster_api.sh"
   }
 
@@ -198,7 +198,7 @@ EOF
   }
 
   provisioner "file" {
-    source      = "files/bootstrap.sh"
+    content     = templatefile("files/template/bootstrap.sh.tmpl", { clusterapi_version = var.clusterapi_version, k9s_version = var.k9s_version })
     destination = "/home/${var.ssh_username}/bootstrap.sh"
   }
 
