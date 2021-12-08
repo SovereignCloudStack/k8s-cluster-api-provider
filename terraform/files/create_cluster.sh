@@ -58,8 +58,7 @@ kubectl config view --flatten > $MERGED
 mv $MERGED .kube/config
 export KUBECONFIG=.kube/config
 #kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
-#NAMESPACE=$(yq eval .NAMESPACE $CCCFG)
-KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}" # "--namespace=$NAMESPACE"
+KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
 
 SLEEP=0
 until kubectl $KCONTEXT api-resources

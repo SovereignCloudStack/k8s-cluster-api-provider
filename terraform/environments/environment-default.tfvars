@@ -12,7 +12,6 @@ worker_count         = <number>	        # defaults to 3
 image                = "<glance_image>"		  # defaults to "Ubuntu 20.04"
 ssh_username         = "<username_for_ssh>"	  # defaults to "ubuntu"
 kubernetes_version   = "<v1.XX.XX>"		  # defaults to "v1.21.5"
-kubernetes_namespace = "<namespace_testcluster>"  # defaults to "default"
 kube_image_raw       = "<boolean>"      # defaults to "false"
 kind_mtu             = <number>         # defaults to 1400
 node_cidr            = "CIDR"           # defaults to "10.8.0.0/20"

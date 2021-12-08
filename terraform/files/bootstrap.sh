@@ -30,7 +30,7 @@ sudo chmod +x /usr/local/bin/clusterctl
 
 # setup aliases and environment
 echo "# setup environment"
-cat <<EOF >> $HOME/.bash_aliases
+cat <<EOF >> ~/.bash_aliases
 # kubernetes-cli
 alias k=kubectl
 source <( kubectl completion bash | sed 's# kubectl\$# k kubectl\$#' )
@@ -43,6 +43,10 @@ source <( clusterctl completion bash )
 PS1="\${PS1%\\\\\$ } [\\\$?]\\\$ "
 # eof
 EOF
+
+# openstack completion
+openstack completion > ~/.bash_openstack 2>/dev/null
+echo -e "#openstack completion\nsource ~/.bash_openstack" >> ~/.bash_aliases
 
 # set inputrc set tab once
 cat <<EOF > .inputrc

@@ -85,12 +85,6 @@ variable "controller_count" {
   default     = 1
 }
 
-variable "kubernetes_namespace" {
-  description = "namespace for the testcluster"
-  type        = string
-  default     = "default"
-}
-
 variable "node_cidr" {
   description = "network addresses (CIDR) for the k8s nodes"
   type        = string
