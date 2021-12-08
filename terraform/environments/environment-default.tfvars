@@ -11,10 +11,14 @@ controller_count     = <number>         # defaults to 1 (0 skips testcluster cre
 worker_count         = <number>	        # defaults to 3
 image                = "<glance_image>"		  # defaults to "Ubuntu 20.04"
 ssh_username         = "<username_for_ssh>"	  # defaults to "ubuntu"
-kubernetes_version   = "<v1.XX.XX>"		  # defaults to "v1.21.5"
+k9s_version          = "<0.xx.y>"		  # defaults to "0.25.8"
+calico_version       = "<v3.xx.y>"		  # defaults to "v3.21.2"
+clusterapi_version   = "<1.x.y>"		  # defaults to "1.0.2"
+capi_openstack_version = "<0.x.y>"		  # defaults to "0.5.0"
+kubernetes_version   = "<v1.XX.XX>"		  # defaults to "v1.21.6"
 kube_image_raw       = "<boolean>"      # defaults to "false"
-kind_mtu             = <number>         # defaults to 1400
-node_cidr            = "CIDR"           # defaults to "10.8.0.0/20"
+kind_mtu             = <number>         # defaults to 1392
+node_cidr            = "<CIDR>"         # defaults to "10.8.0.0/20"
 deploy_nginx_ingress = "<boolean>"      # defaults to "true"
 deploy_metrics_service   = "<boolean>"  # defaults to "true"
 deploy_k8s_openstack_git = "<boolean>"  # defaults to "false", enable for k8s >= 1.22, dont for < 1.20

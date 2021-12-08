@@ -49,6 +49,30 @@ variable "ssh_username" {
   default     = "ubuntu"
 }
 
+variable "k9s_version" {
+  description = "desired version of the k9s tool"
+  type        = string
+  default     = "0.25.8"
+}
+
+variable "calico_version" {
+  description = "desired version of calico"
+  type        = string
+  default     = "v3.21.2"
+}
+
+variable "clusterapi_version" {
+  description = "desired version of cluster-api"
+  type        = string
+  default     = "1.0.2"
+}
+
+variable "capi_openstack_version" {
+  description = "desired version of the OpenStack cluster-api provider"
+  type        = string
+  default     = "0.5.0"
+}
+
 variable "kubernetes_version" {
   description = "desired kubernetes version for the workload cluster"
   type        = string
