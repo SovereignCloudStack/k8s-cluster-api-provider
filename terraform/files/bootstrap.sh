@@ -45,7 +45,7 @@ PS1="\${PS1%\\\\\$ } [\\\$?]\\\$ "
 EOF
 
 # openstack completion
-openstack completion > ~/.bash_openstack 2>/dev/null
+openstack complete > ~/.bash_openstack 2>/dev/null
 echo -e "#openstack completion\nsource ~/.bash_openstack" >> ~/.bash_aliases
 
 # set inputrc set tab once
