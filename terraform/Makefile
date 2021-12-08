@@ -24,6 +24,16 @@ ifneq (,$(wildcard ./minio.env))
   include minio.env
 endif
 
+YQVERSION=$(shell yq --version | sed -e 's/^yq //' -e 's/^.*version //')
+YQMAJOR=$(shell YQV="$(YQVERSION)"; echo "$${YQV%%.*}")
+ifeq ($(YQMAJOR),2)
+  YQ=yq --yaml-output
+  YQIN=
+else
+  YQ=yq eval
+  YQIN=-
+endif
+
 init:	mycloud
 	@if [ ! -d .terraform/plugins ]; then terraform init; fi
 	@terraform workspace select ${ENVIRONMENT} || terraform workspace new ${ENVIRONMENT}
@@ -41,7 +51,7 @@ dry-run: init
 	@terraform plan -var-file="environments/environment-$(ENVIRONMENT).tfvars" $(PARAMS)
 
 mycloud:
-	@yq --yaml-output '.clouds."$(ENVIRONMENT)"' < <(cat ./clouds.yaml ~/.config/openstack/clouds.yaml /etc/openstack/clouds.yaml 2>/dev/null) > mycloud.$(ENVIRONMENT).yaml
+	@$(YQ) '.clouds."$(ENVIRONMENT)"' $(YQIN) < <(cat ./clouds.yaml ~/.config/openstack/clouds.yaml /etc/openstack/clouds.yaml 2>/dev/null) > mycloud.$(ENVIRONMENT).yaml
 
 create: init
 	@touch .deploy.$(ENVIRONMENT)
