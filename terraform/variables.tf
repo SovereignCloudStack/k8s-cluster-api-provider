@@ -55,6 +55,12 @@ variable "k9s_version" {
   default     = "0.25.8"
 }
 
+variable "calico_version" {
+  description = "desired version of calico"
+  type        = string
+  default     = "v3.21.2"
+}
+
 variable "clusterapi_version" {
   description = "desired version of cluster-api"
   type        = string

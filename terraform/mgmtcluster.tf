@@ -97,7 +97,7 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/deploy_cluster_api.sh.tmpl", { clusterapi_version = var.clusterapi_version, capi_openstack_version = var.capi_openstack_version })
+    content     = templatefile("files/template/deploy_cluster_api.sh.tmpl", { clusterapi_version = var.clusterapi_version, capi_openstack_version = var.capi_openstack_version, calico_version = var.calico_version })
     destination = "/home/${var.ssh_username}/deploy_cluster_api.sh"
   }
 
