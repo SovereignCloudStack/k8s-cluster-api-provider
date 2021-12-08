@@ -5,7 +5,7 @@
 
 # variables
 CLUSTERAPI_OPENSTACK_PROVIDER_VERSION=0.5.0
-CLUSTERAPI_VERSION=1.0.0
+CLUSTERAPI_VERSION=1.0.2
 
 # get the clusterctl version
 echo "show the clusterctl version:"
