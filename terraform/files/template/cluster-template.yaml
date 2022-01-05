@@ -45,7 +45,7 @@ spec:
     infrastructureRef:
       kind: OpenStackMachineTemplate
       apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
-      name: "k8s-clusterapi-${CLUSTER_NAME}-control-plane"
+      name: "k8s-clusterapi-${CLUSTER_NAME}-control-plane-genc1"
   kubeadmConfigSpec:
     initConfiguration:
       nodeRegistration:
@@ -82,7 +82,7 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
 kind: OpenStackMachineTemplate
 metadata:
-  name: k8s-clusterapi-${CLUSTER_NAME}-control-plane
+  name: k8s-clusterapi-${CLUSTER_NAME}-control-plane-genc1
   namespace: ${NAMESPACE}
 spec:
   template:
@@ -101,7 +101,7 @@ spec:
 apiVersion: cluster.x-k8s.io/v1alpha4
 kind: MachineDeployment
 metadata:
-  name: "${CLUSTER_NAME}-md-0"
+  name: "${CLUSTER_NAME}-md-0-genw1"
   namespace: ${NAMESPACE}
 spec:
   clusterName: "${CLUSTER_NAME}"
@@ -115,18 +115,18 @@ spec:
       failureDomain: ${OPENSTACK_FAILURE_DOMAIN}
       bootstrap:
         configRef:
-          name: "${CLUSTER_NAME}-md-0"
+          name: "${CLUSTER_NAME}-md-0-genw1"
           apiVersion: bootstrap.cluster.x-k8s.io/v1alpha4
           kind: KubeadmConfigTemplate
       infrastructureRef:
-        name: "k8s-clusterapi-${CLUSTER_NAME}-md-0"
+        name: "k8s-clusterapi-${CLUSTER_NAME}-md-0-genw1"
         apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
         kind: OpenStackMachineTemplate
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
 kind: OpenStackMachineTemplate
 metadata:
-  name: k8s-clusterapi-${CLUSTER_NAME}-md-0
+  name: k8s-clusterapi-${CLUSTER_NAME}-md-0-genw1
   namespace: ${NAMESPACE}
 spec:
   template:
@@ -145,7 +145,7 @@ spec:
 apiVersion: bootstrap.cluster.x-k8s.io/v1alpha4
 kind: KubeadmConfigTemplate
 metadata:
-  name: ${CLUSTER_NAME}-md-0
+  name: ${CLUSTER_NAME}-md-0-genw1
   namespace: ${NAMESPACE}
 spec:
   template:
