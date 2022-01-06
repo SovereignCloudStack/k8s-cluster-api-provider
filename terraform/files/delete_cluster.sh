@@ -29,6 +29,16 @@ for pvc in $PVCS; do
 	echo -en " Delete pvc $pvc\n "
 	kubectl $KCONTEXTNS delete persistentvolumeclaim $pvc
 done
+# Delete server groups (if any)
+if grep '^ *OPENSTACK_ANTIAFFINITY: true' $CCCFG >/dev/null 2>&1; then
+	SRVGRP=$(openstack server group list -f value)
+	SRVGRP_CONTROLLER=$(echo "$SRVGRP" | grep "k8s-capi-${CLUSTER_NAME}-controller" | sed 's/^\([0-9a-f\-]*\) .*$/\1/')
+	SRVGRP_WORKER=$(echo "$SRVGRP" | grep "k8s-capi-${CLUSTER_NAME}-worker" | sed 's/^\([0-9a-f\-]*\) .*$/\1/')
+	if test -n "$SRVGRP_WORKER" -o -n "$SRVGRP_CONTROLLER"; then
+		openstack server group delete $SRVGRP_WORKER $SRVGRP_CONTROLLER
+	fi
+fi
+# Tell capi to clean up
 sleep 1
 kubectl delete cluster "$CLUSTER_NAME"
 kubectl config delete-context "$CLUSTER_NAME-admin@$CLUSTER_NAME"
