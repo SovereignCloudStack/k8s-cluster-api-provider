@@ -33,7 +33,7 @@ dashboard or GUI that would shield less experienced users from all the YAML.
   and ``secure.yaml`` in the current working directory, in ``~/.config/openstack/``
   and ``/etc/openstack`` (in this order), just like the openstack client.
   (<https://docs.openstack.org/python-openstackclient/latest/configuration/index.html#clouds-yaml>)
-* You need to have ``yq`` (python3-yq) installed.
+* You need to have ``yq`` (python3-yq or yq snap) installed.
 * As the ``v3applicationcredential`` ``auth_type`` plugin is being used, we hit a bug
   in Ubuntu 20.04 which ships python3-keystoneauth < 4.2.0, which does fail with
   unversioned ``auth_url`` endpoints.

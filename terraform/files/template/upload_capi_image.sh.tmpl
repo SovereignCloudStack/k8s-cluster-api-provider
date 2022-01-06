@@ -17,6 +17,7 @@ echo "export OS_CLOUD=\"$PROVIDER\"" >> $HOME/.bash_aliases
 
 # Determine project ID and inject into cloud.conf
 PROJECTID=$(openstack --os-cloud="$PROVIDER" application credential show ${prefix}-appcred -f value -c project_id)
+echo "Set tenant-id to $PROJECTID for $PROVIDER"
 if ! grep '^tenant.id' cloud.conf >/dev/null; then
   sed -i "/^application.credential.secret/atenant-id=$PROJECTID"  cloud.conf
 fi

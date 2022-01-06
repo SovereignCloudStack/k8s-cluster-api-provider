@@ -3,8 +3,7 @@
 export KUBECONFIG=~/.kube/config
 if test -n "$1"; then CLUSTER_NAME="$1"; else CLUSTER_NAME=testcluster; fi
 if test -e clusterctl-${CLUSTER_NAME}.yaml; then CCCFG=clusterctl-${CLUSTER_NAME}.yaml; else CCCFG=clusterctl.yaml; fi
-#NAMESPACE=$(yq eval .NAMESPACE $CCCFG)
-KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}" # "--namespace=$NAMESPACE"
+KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
 
 echo "Install Cinder CSI persistent storage support to $CLUSTER_NAME"
 # apply cinder-csi
@@ -27,9 +26,17 @@ if test "$DEPLOY_K8S_CINDERCSI_GIT" = "true"; then
   done
   # Note: We leave out the secret which we should already have
   cat cinder-csi-*-rbac.yaml cinder-csi-*plugin.yaml csi-cinder-driver.yaml cinder-provider.yaml > cindercsi-git.yaml
-  kubectl $KCONTEXT apply -f cindercsi-git.yaml || exit 8
+  CCSI=cindercsi-git.yaml
 else
   kubectl $KCONTEXT apply -f ~/external-snapshot-crds.yaml || exit 8
-  kubectl $KCONTEXT apply -f ~/cinder.yaml || exit 8
+  CCSI=cinder.yaml
 fi
+cat >cindercsi-${CLUSTER_NAME}.sed <<EOT
+/ *\- name: CLUSTER_NAME/{
+n
+s/value: .*\$/value: ${CLUSTER_NAME}/
+}
+EOT
+sed -f cindercsi-${CLUSTER_NAME}.sed $CCSI > cindercsi-${CLUSTER_NAME}.yaml
+kubectl $KCONTEXT apply -f cindercsi-${CLUSTER_NAME}.yaml || exit 8
 

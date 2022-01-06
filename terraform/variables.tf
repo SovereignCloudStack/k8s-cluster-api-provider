@@ -49,6 +49,30 @@ variable "ssh_username" {
   default     = "ubuntu"
 }
 
+variable "k9s_version" {
+  description = "desired version of the k9s tool"
+  type        = string
+  default     = "0.25.8"
+}
+
+variable "calico_version" {
+  description = "desired version of calico"
+  type        = string
+  default     = "v3.21.2"
+}
+
+variable "clusterapi_version" {
+  description = "desired version of cluster-api"
+  type        = string
+  default     = "1.0.2"
+}
+
+variable "capi_openstack_version" {
+  description = "desired version of the OpenStack cluster-api provider"
+  type        = string
+  default     = "0.5.0"
+}
+
 variable "kubernetes_version" {
   description = "desired kubernetes version for the workload cluster"
   type        = string
@@ -70,7 +94,7 @@ variable "image_registration_extra_flags" {
 variable "kind_mtu" {
   description = "inner MTU used in the kind cluster on the capi-mgmtnode"
   type        = number
-  default     = 1400
+  default     = 1392
 }
 
 variable "worker_count" {
@@ -83,12 +107,6 @@ variable "controller_count" {
   description = "number of control plane management nodes in testcluster"
   type        = number
   default     = 1
-}
-
-variable "kubernetes_namespace" {
-  description = "namespace for the testcluster"
-  type        = string
-  default     = "default"
 }
 
 variable "node_cidr" {
@@ -110,13 +128,13 @@ variable "deploy_nginx_ingress" {
 }
 
 variable "deploy_k8s_openstack_git" {
-  description = "deploy k8s openstack provider from github instead of local copy"
+  description = "deploy k8s openstack provider from github instead of local copy, set to true for k8s >= 1.22, dont set it for < 1.20"
   type        = bool
   default     = false
 }
 
 variable "deploy_k8s_cindercsi_git" {
-  description = "deploy k8s cinder CSI provider from github instead of local copy"
+  description = "deploy k8s cinder CSI provider from github instead of local copy, dito"
   type        = bool
   default     = false
 }

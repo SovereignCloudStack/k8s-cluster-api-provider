@@ -69,7 +69,7 @@ kubectl wait --timeout=5m --for=condition=certificatesavailable kubeadmcontrolpl
 kubectl wait --timeout=5m --for=condition=Ready machine -l cluster.x-k8s.io/control-plane || exit 4
 
 kubectl get secrets "${CLUSTER_NAME}-kubeconfig" --output go-template='{{ .data.value | base64decode }}' > "${KUBECONFIG_WORKLOADCLUSTER}" || exit 5
-chmod og-rw "${KUBECONFIG_WORKLOADCLUSTER}"
+chmod 0600 "${KUBECONFIG_WORKLOADCLUSTER}"
 echo "kubeconfig for ${CLUSTER_NAME} in ${KUBECONFIG_WORKLOADCLUSTER}"
 export KUBECONFIG=".kube/config:${KUBECONFIG_WORKLOADCLUSTER}"
 MERGED=$(mktemp merged.yaml.XXXXXX)
@@ -77,8 +77,7 @@ kubectl config view --flatten > $MERGED
 mv $MERGED .kube/config
 export KUBECONFIG=.kube/config
 #kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
-#NAMESPACE=$(yq eval .NAMESPACE $CCCFG)
-KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}" # "--namespace=$NAMESPACE"
+KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
 
 SLEEP=0
 until kubectl $KCONTEXT api-resources
