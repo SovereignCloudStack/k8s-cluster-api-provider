@@ -37,8 +37,8 @@ OPENSTACK_FAILURE_DOMAIN: ${availability_zone}
 # Nodes CIDR
 NODE_CIDR: ${node_cidr}
 
-# Set MTU for k8s CNI network (and kind)
-MTU_VALUE: ${kind_mtu}
+# Set MTU for k8s CNI network (50 smaller than cloud)
+MTU_VALUE: 0
 
 # Openstack external Network ID
 # hint: openstack network list --external -f value -c ID

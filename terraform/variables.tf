@@ -92,9 +92,9 @@ variable "image_registration_extra_flags" {
 }
 
 variable "kind_mtu" {
-  description = "inner MTU used in the kind cluster on the capi-mgmtnode"
+  description = "MTU used in the kind cluster (0=autodetect), k8s cluster is 50 smaller"
   type        = number
-  default     = 1392
+  default     = 0
 }
 
 variable "worker_count" {
