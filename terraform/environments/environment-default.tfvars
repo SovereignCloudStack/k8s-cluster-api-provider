@@ -20,4 +20,4 @@ deploy_nginx_ingress = "<boolean>"      # defaults to "true"
 deploy_metrics_service   = "<boolean>"  # defaults to "true"
 deploy_k8s_openstack_git = "<boolean>"  # defaults to "false"
 deploy_k8s_cindercsi_git = "<boolean>"  # defaults to "false"
-anti_affinity       = "<boolean>"       # defaults to "false", don't change yet
+anti_affinity       = "<boolean>"       # defaults to "false"
