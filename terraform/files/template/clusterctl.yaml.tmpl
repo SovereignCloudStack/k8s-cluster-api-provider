@@ -50,6 +50,20 @@ OPENSTACK_SSH_KEY_NAME: ${prefix}-keypair
 
 OPENSTACK_CONTROL_PLANE_IP: 127.0.0.1
 
+# deploy nginx ingress controller
+DEPLOY_NGINX_INGRESS: ${deploy_nginx_ingress}
+# deploy metrics service
+DEPLOY_METRICS: ${deploy_metrics_service}
+
+# deploy openstack and cindercsi from github instead of local copies
+DEPLOY_K8S_OPENSTACK_GIT: ${deploy_k8s_openstack_git}
+DEPLOY_K8S_CINDERCSI_GIT: ${deploy_k8s_cindercsi_git}
+
+# Use anti-affinity server groups (not working yet)
+OPENSTACK_ANTIAFFINITY: ${anti_affinity}
+OPENSTACK_SRVGRP_CONTROLLER: nonono
+OPENSTACK_SRVGRP_WORKER: nonono
+
 # the section used at clouds.yaml
 OPENSTACK_CLOUD: ${cloud_provider}
 
