@@ -20,8 +20,25 @@ if test -e "$HOME/clusterctl-${CLUSTER_NAME}.yaml"; then
 else
 	CCCFG=$HOME/clusterctl.yaml
 fi
-cp -p "$CCCFG" $HOME/.cluster-api/clusterctl.yaml
 
+# Implement anti-affinity with server groups
+if grep '^ *OPENSTACK_ANTIAFFINITY: true' $CCCFG >/dev/null 2>&1; then
+	SRVGRP=$(openstack server group list -f value)
+	SRVGRP_CONTROLLER=$(echo "$SRVGRP" | grep "k8s-capi-${CLUSTER_NAME}-controller" | sed 's/^\([0-9a-f\-]*\) .*$/\1/')
+	SRVGRP_WORKER=$(echo "$SRVGRP" | grep "k8s-capi-${CLUSTER_NAME}-worker" | sed 's/^\([0-9a-f\-]*\) .*$/\1/')
+	if test -z "$SRVGRP_CONTROLLER"; then
+		SRVGRP_CONTROLLER=$(openstack --os-compute-api-version 2.15 server group create --policy anti-affinity -f value -c id k8s-capi-${CLUSTER_NAME}-controller)
+		SRVGRP_WORKER=$(openstack --os-compute-api-version 2.15 server group create --policy soft-anti-affinity -f value -c id k8s-capi-${CLUSTER_NAME}-worker)
+	fi
+	if test -n "$SRVGRP_CONTROLLER"; then
+		sed -i "s/^\(OPENSTACK_SRVGRP_CONTROLLER:\).*\$/\1 $SRVGRP_CONTROLLER/" "$CCCFG"
+	fi
+	if test -n "$SRVGRP_WORKER"; then
+		sed -i "s/^\(OPENSTACK_SRVGRP_WORKER:\).*\$/\1 $SRVGRP_WORKER/" "$CCCFG"
+	fi
+fi
+
+cp -p "$CCCFG" $HOME/.cluster-api/clusterctl.yaml
 #clusterctl config cluster ${CLUSTER_NAME} --list-variables --from ${CLUSTERAPI_TEMPLATE}
 clusterctl generate cluster "${CLUSTER_NAME}" --list-variables --from ${CLUSTERAPI_TEMPLATE} || exit 2
 
@@ -35,23 +52,8 @@ if test -e "${CLUSTER_NAME}-config.yaml"; then
 fi
 #clusterctl config cluster ${CLUSTER_NAME} --from ${CLUSTERAPI_TEMPLATE} > rendered-${CLUSTERAPI_TEMPLATE}
 clusterctl generate cluster "${CLUSTER_NAME}" --from ${CLUSTERAPI_TEMPLATE} > "${CLUSTER_NAME}-config.yaml"
-
-# Implement anti-affinity with server groups
-if grep '^ *OPENSTACK_ANTIAFFINITY: true' $CCCFG >/dev/null 2>&1; then
-	SRVGRP=$(openstack server group list -f value)
-	SRVGRP_CONTROLLER=$(echo "$SRVGRP" | grep "k8s-capi-${CLUSTER_NAME}-controller" | sed 's/^\([0-9a-f\-]*\) .*$/\1/')
-	SRVGRP_WORKER=$(echo "$SRVGRP" | grep "k8s-capi-${CLUSTER_NAME}-worker" | sed 's/^\([0-9a-f\-]*\) .*$/\1/')
-	if test -z "$SRVGRP_CONTROLLER"; then
-		SRVGRP_CONTROLLER=$(openstack --os-compute-api-version 2.15 server group create --policy anti-affinity -f value -c id k8s-capi-${CLUSTER_NAME}-controller)
-		SRVGRP_WORKER=$(openstack --os-compute-api-version 2.15 server group create --policy soft-anti-affinity -f value -c id k8s-capi-${CLUSTER_NAME}-worker)
-	fi
-	if test -n "$SRVGRP_CONTROLLER"; then
-		sed -i "s/^\( *#serverGroupID: \)\${OPENSTACK_SRVGRP_CONTROLLER}/\1$SRVGRP_CONTROLLER/" "${CLUSTER_NAME}-config.yaml"
-	fi
-	if test -n "$SRVGRP_WORKER"; then
-		sed -i "s/^\( *#serverGroupID: \)\${OPENSTACK_SRVGRP_WORKER}/\1$SRVGRP_WORKER/" "${CLUSTER_NAME}-config.yaml"
-	fi
-fi
+# Remove empty serverGroupID
+sed -i '/^ *serverGroupID: nonono$/d' "${CLUSTER_NAME}-config.yaml"
 
 # apply to the kubernetes mgmt cluster
 echo "# apply configuration and deploy cluster ${CLUSTER_NAME}"

@@ -88,10 +88,10 @@ spec:
   template:
     spec:
       flavor: ${OPENSTACK_CONTROL_PLANE_MACHINE_FLAVOR}
+      serverGroupID: ${OPENSTACK_SRVGRP_CONTROLLER}
       image: ${OPENSTACK_IMAGE_NAME}
       sshKeyName: ${OPENSTACK_SSH_KEY_NAME}
       cloudName: ${OPENSTACK_CLOUD}
-      #serverGroupID: ${OPENSTACK_SRVGRP_CONTROLLER}
       identityRef:
         name: ${CLUSTER_NAME}-cloud-config
         kind: Secret
@@ -137,8 +137,8 @@ spec:
         name: ${CLUSTER_NAME}-cloud-config
         kind: Secret
       flavor: ${OPENSTACK_NODE_MACHINE_FLAVOR}
+      serverGroupID: ${OPENSTACK_SRVGRP_WORKER}
       image: ${OPENSTACK_IMAGE_NAME}
-      #serverGroupID: ${OPENSTACK_SRVGRP_WORKER}
       sshKeyName: ${OPENSTACK_SSH_KEY_NAME}
       securityGroups:
         - name: allow-ssh
