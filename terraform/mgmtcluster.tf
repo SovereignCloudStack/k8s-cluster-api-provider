@@ -211,7 +211,7 @@ EOF
   provisioner "remote-exec" {
     inline = [
       "chmod +x *.sh",
-      "chmod 0600 /home/${var.ssh_username}/.ssh/id_rsa /home/${var.ssh_username}/clusterctl.yaml /home/${var.ssh_username}/cloud.conf /home/${var.ssh_username}/.config/openstack/clouds.yaml",
+      "chmod 0600 /home/${var.ssh_username}/.ssh/id_rsa /home/${var.ssh_username}/clusterctl.yaml /home/${var.ssh_username}/cloud.conf /home/${var.ssh_username}/.config/openstack/clouds.yaml"
     ]
   }
 
