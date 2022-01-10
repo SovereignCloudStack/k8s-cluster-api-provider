@@ -1,6 +1,8 @@
 #!/bin/bash
 # Attach a port from the workload cluster network to the mgmtcluster node
-# so we can talk to the nodes (ssh login, ...)
+# so we can talk to the nodes (ssh login, ...) -- for debugging only
+# (c) Kurt Garloff <garloff@osb-alliance.com>, 1/2022
+# SPDX-License-Identifier: Apache-2.0
 export KUBECONFIG=~/.kube/config
 if test -n "$1"; then
 	CLUSTER_NAME="$1"
