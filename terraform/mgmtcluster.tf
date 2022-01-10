@@ -209,8 +209,8 @@ EOF
   }
 
   provisioner "file" {
-    source      = "files/delete_cluster-network.sh"
-    destination = "/home/${var.ssh_username}/delete_cluster-network.sh"
+    source      = "files/remove_cluster-network.sh"
+    destination = "/home/${var.ssh_username}/remove_cluster-network.sh"
   }
 
   provisioner "file" {
