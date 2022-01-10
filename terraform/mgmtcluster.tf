@@ -204,6 +204,16 @@ EOF
   }
 
   provisioner "file" {
+    source      = "files/add_cluster-network.sh"
+    destination = "/home/${var.ssh_username}/add_cluster-network.sh"
+  }
+
+  provisioner "file" {
+    source      = "files/remove_cluster-network.sh"
+    destination = "/home/${var.ssh_username}/remove_cluster-network.sh"
+  }
+
+  provisioner "file" {
     content     = templatefile("files/template/bootstrap.sh.tmpl", { clusterapi_version = var.clusterapi_version, k9s_version = var.k9s_version })
     destination = "/home/${var.ssh_username}/bootstrap.sh"
   }
