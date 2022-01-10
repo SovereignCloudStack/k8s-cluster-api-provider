@@ -18,7 +18,7 @@ findnewnic()
 {
 	NEWNIC=""
 	NEWNICLIST=($(ls /sys/class/net | sort))
-	for i in $(seq 0 ${NEWNICLIST[#]}); do
+	for i in $(seq 0 ${#NEWNICLIST[*]}); do
 		if test "${NEWNICLIST[$i]}" != "${OLDNICLIST[$i]}"; then
 			NEWNIC="${NEWNICLIST[$i]}"
 			return 0
