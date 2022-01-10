@@ -64,6 +64,7 @@ runcmd:
   - echo net.netfilter.nf_conntrack_max=131072 > /etc/sysctl.d/90-conntrack_max.conf
   - sysctl -w -p /etc/sysctl.d/90-conntrack_max.conf
   - mkdir /etc/docker
+  - /home/${var.ssh_username}/get_mtu.sh
   - mv /tmp/daemon.json /etc/docker/daemon.json
   - groupadd docker
   - usermod -aG docker ${var.ssh_username}
@@ -74,6 +75,11 @@ EOF
     host        = openstack_networking_floatingip_v2.mgmtcluster_floatingip.address
     private_key = openstack_compute_keypair_v2.keypair.private_key
     user        = var.ssh_username
+  }
+
+  provisioner "file" {
+    source      = "files/get_mtu.sh"
+    destination = "/home/${var.ssh_username}/get_mtu.sh"
   }
 
   provisioner "file" {
