@@ -102,6 +102,13 @@ DEPLOY_NGINX_INGRESS=$(yq eval '.DEPLOY_NGINX_INGRESS' $CCCFG)
 if test "$DEPLOY_NGINX_INGRESS" = "true"; then
   bash ./apply_nginx_ingress.sh "$CLUSTER_NAME" || exit $?
 fi
+
+# Cert-Manager
+DEPLOY_CERT_MANAGER=$(yq eval '.DEPLOY_CERT_MANAGER' $CCCFG)
+if test "$DEPLOY_CERT_MANAGER" = "true"; then
+  bash ./apply_cert-manager.sh "$CLUSTER_NAME" || exit $?
+fi
+
 echo "Wait for control plane of ${CLUSTER_NAME}"
 kubectl config use-context kind-kind
 kubectl wait --timeout=20m cluster "${CLUSTER_NAME}" --for=condition=Ready || exit 10
