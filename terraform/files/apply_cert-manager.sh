@@ -6,18 +6,28 @@ KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
 
 echo "Deploy cert-manager to $CLUSTER_NAME"
 # cert-manager
-# kubectl $KCONTEXT apply -f https://github.com/jetstack/cert-manager/releases/download/v1.1.1/cert-manager.yaml
-if test ! -r cert-manager.yaml; then
+#TODO: Make version configurable
+CERTMGR_VERSION=1.7.0
+# kubectl $KCONTEXT apply -f https://github.com/jetstack/cert-manager/releases/download/v${CERTMGR_VERSION}/cert-manager.yaml
+if test ! -s cert-manager.yaml; then
 	# FIXME: Check sig
-	curl -L https://github.com/jetstack/cert-manager/releases/download/v1.1.1/cert-manager.yaml > cert-manager.yaml
+	curl -L https://github.com/jetstack/cert-manager/releases/download/v${CERTMGR_VERSION}/cert-manager.yaml > cert-manager.yaml
 fi
 kubectl $KCONTEXT apply -f cert-manager.yaml || exit 9
 # TODO: Optionally test, using cert-manager-test.yaml
-# See https://cert-manager.io/v1.1-docs/installation/kubernetes/
+# See https://cert-manager.io/docs/installation/kubernetes/
 # kubectl plugin
-if ! test -x /usr/local/bin/kubectl-cert_manager; then
+#if ! test -x /usr/local/bin/kubectl-cert_manager; then
+#	# FIXME: Check sig
+#  	curl -L -o kubectl-cert-manager.tar.gz https://github.com/jetstack/cert-manager/releases/download/v${CERTMGR_VERSION}/kubectl-cert_manager-linux-amd64.tar.gz
+#	tar xzf kubectl-cert-manager.tar.gz && rm kubectl-cert-manager.tar.gz
+#	sudo mv kubectl-cert_manager /usr/local/bin
+#fi
+# cmctl
+if ! test -x /usr/local/bin/cmctl; then
+	OS=$(go env GOOS); ARCH=$(go env GOARCH)
 	# FIXME: Check sig
-  	curl -L -o kubectl-cert-manager.tar.gz https://github.com/jetstack/cert-manager/releases/download/v1.1.1/kubectl-cert_manager-linux-amd64.tar.gz
-	tar xzf kubectl-cert-manager.tar.gz && rm kubectl-cert-manager.tar.gz
-	sudo mv kubectl-cert_manager /usr/local/bin
+	curl -L -o cmctl.tar.gz https://github.com/jetstack/cert-manager/releases/v${CERTMGR_VERSION}/download/cmctl-$OS-$ARCH.tar.gz
+	tar xzf cmctl.tar.gz && rm cmctl.tar.gz
+	sudo mv cmctl /usr/local/bin
 fi
