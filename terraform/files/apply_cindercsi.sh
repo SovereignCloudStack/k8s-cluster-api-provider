@@ -11,7 +11,7 @@ DEPLOY_K8S_CINDERCSI_GIT=$(yq eval '.DEPLOY_K8S_CINDERCSI_GIT' $CCCFG)
 if test "$DEPLOY_K8S_CINDERCSI_GIT" = "true"; then
   # deploy snapshot CRDs
   for name in snapshot.storage.k8s.io_volumesnapshotcontents.yaml snapshot.storage.k8s.io_volumesnapshotclasses.yaml snapshot.storage.k8s.io_volumesnapshots.yaml; do
-    if ! test -r $name; then
+    if ! test -s $name; then
 	curl -LO https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/master/client/config/crd/$name
 	echo -e "\n---" >> $name
     fi
@@ -19,7 +19,7 @@ if test "$DEPLOY_K8S_CINDERCSI_GIT" = "true"; then
   cat snapshot.storage.k8s.io_volumesnapshot* | kubectl $KCONTEXT apply -f - || exit 8
   # Now get cinder
   for name in cinder-csi-controllerplugin-rbac.yaml cinder-csi-controllerplugin.yaml cinder-csi-nodeplugin-rbac.yaml cinder-csi-nodeplugin.yaml csi-cinder-driver.yaml csi-secret-cinderplugin.yaml; do
-    if ! test -r $name; then
+    if ! test -s $name; then
         curl -LO https://github.com/kubernetes/cloud-provider-openstack/raw/master/manifests/cinder-csi-plugin/$name
 	echo -e "\n---" >> $name
     fi
