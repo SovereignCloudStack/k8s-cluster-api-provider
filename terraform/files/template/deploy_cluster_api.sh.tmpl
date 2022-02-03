@@ -8,6 +8,7 @@ CLUSTERAPI_OPENSTACK_PROVIDER_VERSION=${capi_openstack_version}
 CLUSTERAPI_VERSION=${clusterapi_version}
 CALICO_VERSION=${calico_version}
 
+ARCH=$(uname -m | sed 's/x86_64/amd64/')
 # get the clusterctl version
 echo "show the clusterctl version:"
 clusterctl version --output yaml
@@ -24,7 +25,10 @@ clusterctl init --infrastructure openstack:v$CLUSTERAPI_OPENSTACK_PROVIDER_VERSI
 
 # Install calicoctl
 # TODO: Check signature
-curl -o calicoctl -O -L  "https://github.com/projectcalico/calicoctl/releases/download/$CALICO_VERSION/calicoctl"
+curl -o calicoctl -O -L "https://github.com/projectcalico/calico/releases/download/$CALICO_VERSION/calicoctl-linux-$ARCH"
+if test $? != 0 -o $(stat -c "%s" calicoctl) -lt 1000; then
+  curl -o calicoctl -O -L  "https://github.com/projectcalico/calicoctl/releases/download/$CALICO_VERSION/calicoctl"
+fi
 chmod +x calicoctl
 sudo mv calicoctl /usr/local/bin
 
