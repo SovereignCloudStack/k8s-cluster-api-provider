@@ -15,6 +15,7 @@ bash upload_capi_image.sh
 # install kubectl
 sudo snap install kubectl --classic
 sudo apt install -y binutils
+#sudo snap install kustomize
 
 # install k9s
 echo "# install k9s $VERSION_K9S"
@@ -60,6 +61,7 @@ EOF
 bash install_kind.sh
 bash install_helm.sh
 bash deploy_cluster_api.sh
+bash install_flux.sh
 bash get_capi_helm.sh
 bash wait_capi_image.sh
 
