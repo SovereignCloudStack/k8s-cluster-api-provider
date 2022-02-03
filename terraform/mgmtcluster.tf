@@ -229,7 +229,7 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/bootstrap.sh.tmpl", { clusterapi_version = var.clusterapi_version, k9s_version = var.k9s_version })
+    content     = templatefile("files/template/bootstrap.sh.tmpl", { k9s_version = var.k9s_version })
     destination = "/home/${var.ssh_username}/bootstrap.sh"
   }
 
