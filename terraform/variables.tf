@@ -133,6 +133,12 @@ variable "deploy_cert_manager" {
   default     = false
 }
 
+variable "deploy_flux" {
+  description = "install flux into k8s-capi created clusters"
+  type        = bool
+  default     = false
+}
+
 variable "deploy_k8s_openstack_git" {
   description = "deploy k8s openstack provider from github instead of local copy, set to true for k8s >= 1.22, dont set it for < 1.20"
   type        = bool

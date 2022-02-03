@@ -48,7 +48,6 @@ if test -e "${CLUSTER_NAME}-config.yaml"; then
 	echo "Warning: Overwriting config for ${CLUSTER_NAME}"
 	echo "Hit ^C to interrupt"
 	sleep 5
-	nowait=1
 fi
 #clusterctl config cluster ${CLUSTER_NAME} --from ${CLUSTERAPI_TEMPLATE} > rendered-${CLUSTERAPI_TEMPLATE}
 clusterctl generate cluster "${CLUSTER_NAME}" --from ${CLUSTERAPI_TEMPLATE} > "${CLUSTER_NAME}-config.yaml"
@@ -62,8 +61,9 @@ kubectl apply -f "${CLUSTER_NAME}-config.yaml" || exit 3
 #Waiting for Clusterstate Ready
 echo "Waiting for Cluster=Ready"
 #wget https://gx-scs.okeanos.dev --quiet -O /dev/null
-ping -c1 -w2 9.9.9.9 >/dev/null 2>&1
-if test "$nowait" != "1"; then sleep 20; fi
+#ping -c1 -w2 9.9.9.9 >/dev/null 2>&1
+sleep 1
+kubectl wait --timeout=3s --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME} || sleep 20
 kubectl wait --timeout=10m --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME} || exit 1
 kubectl wait --timeout=5m --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME} || exit 1
 kubectl wait --timeout=5m --for=condition=Ready machine -l cluster.x-k8s.io/control-plane || exit 4
@@ -107,6 +107,12 @@ fi
 DEPLOY_CERT_MANAGER=$(yq eval '.DEPLOY_CERT_MANAGER' $CCCFG)
 if test "$DEPLOY_CERT_MANAGER" = "true"; then
   bash ./apply_cert-manager.sh "$CLUSTER_NAME" || exit $?
+fi
+
+# Flux2
+DEPLOY_FLUX=$(yq eval '.DEPLOY_FLUX' $CCCFG)
+if test "$DEPLOY_FLUX" = "true"; then
+  KUBECONFIG=${CLUSTER_NAME}.yaml flux install || exit $?
 fi
 
 echo "Wait for control plane of ${CLUSTER_NAME}"
