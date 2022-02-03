@@ -58,7 +58,7 @@ variable "k9s_version" {
 variable "calico_version" {
   description = "desired version of calico"
   type        = string
-  default     = "v3.21.2"
+  default     = "v3.22.0"
 }
 
 variable "clusterapi_version" {
