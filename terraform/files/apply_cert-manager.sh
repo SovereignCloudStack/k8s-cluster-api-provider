@@ -25,9 +25,9 @@ kubectl $KCONTEXT apply -f cert-manager.yaml || exit 9
 #fi
 # cmctl
 if ! test -x /usr/local/bin/cmctl; then
-	OS=$(go env GOOS); ARCH=$(go env GOARCH)
+	OS=linux; ARCH=$(uname -m | sed 's/x86_64/amd64/')
 	# FIXME: Check sig
-	curl -L -o cmctl.tar.gz https://github.com/cert-manager/cert-manager/releases/v${CERTMGR_VERSION}/download/cmctl-$OS-$ARCH.tar.gz
+	curl -L -o cmctl.tar.gz https://github.com/cert-manager/cert-manager/releases/download/v${CERTMGR_VERSION}/cmctl-$OS-$ARCH.tar.gz
 	tar xzf cmctl.tar.gz && rm cmctl.tar.gz
 	sudo mv cmctl /usr/local/bin
 fi
