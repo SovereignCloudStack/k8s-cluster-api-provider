@@ -103,6 +103,11 @@ EOF
   }
 
   provisioner "file" {
+    content     = templatefile("files/template/install_k9s.sh.tmpl", { k9s_version = var.k9s_version })
+    destination = "/home/${var.ssh_username}/install_k9s.sh"
+  }
+
+  provisioner "file" {
     content     = openstack_compute_keypair_v2.keypair.private_key
     destination = "/home/${var.ssh_username}/.ssh/id_rsa"
   }
@@ -229,7 +234,7 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/bootstrap.sh.tmpl", { k9s_version = var.k9s_version })
+    source      = "files/bootstrap.sh"
     destination = "/home/${var.ssh_username}/bootstrap.sh"
   }
 
