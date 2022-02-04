@@ -25,7 +25,7 @@ source <( kubectl completion bash )
 source <( clusterctl completion bash )
 
 # Error code in prompt
-PS1="\$${PS1%\\\\\$ } [\\\$?]\\\$ "
+PS1="${PS1%\\$ } [\$?]\$ "
 # eof
 EOF
 
