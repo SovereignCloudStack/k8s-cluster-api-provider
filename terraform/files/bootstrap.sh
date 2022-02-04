@@ -3,9 +3,6 @@
 ##    desc: bootstrap a cluster-api environment for openstack
 ## license: Apache-2.0
 
-# version
-VERSION_K9S=${k9s_version}
-
 # Start image registration early
 bash upload_capi_image.sh
 
@@ -15,12 +12,6 @@ bash upload_capi_image.sh
 sudo snap install kubectl --classic
 sudo apt install -y binutils
 #sudo snap install kustomize
-
-# install k9s
-echo "# install k9s $VERSION_K9S"
-# TODO: Check signature
-curl -L https://github.com/derailed/k9s/releases/download/v$VERSION_K9S/k9s_Linux_x86_64.tar.gz | tar zf - -x k9s
-sudo mv ./k9s /usr/local/bin/k9s
 
 # setup aliases and environment
 echo "# setup environment"
@@ -34,7 +25,7 @@ source <( kubectl completion bash )
 source <( clusterctl completion bash )
 
 # Error code in prompt
-PS1="\$${PS1%\\\\\$ } [\\\$?]\\\$ "
+PS1="${PS1%\\$ } [\$?]\$ "
 # eof
 EOF
 
@@ -54,6 +45,7 @@ EOF
 bash install_kind.sh
 bash install_helm.sh
 bash deploy_cluster_api.sh
+bash install_k9s.sh
 bash install_flux.sh
 bash get_capi_helm.sh
 bash wait_capi_image.sh
