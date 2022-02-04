@@ -9,6 +9,12 @@ CLUSTERAPI_VERSION=${clusterapi_version}
 CALICO_VERSION=${calico_version}
 
 ARCH=$(uname -m | sed 's/x86_64/amd64/')
+# Install clusterctl
+echo "# install clusterctl $CLUSTERAPI_VERSION"
+# TODO: Check signature
+sudo curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/v$CLUSTERAPI_VERSION/clusterctl-linux-$ARCH -o /usr/local/bin/clusterctl
+sudo chmod +x /usr/local/bin/clusterctl
+
 # get the clusterctl version
 echo "show the clusterctl version:"
 clusterctl version --output yaml
