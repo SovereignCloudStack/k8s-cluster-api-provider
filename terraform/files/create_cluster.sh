@@ -24,6 +24,13 @@ else
 	CCCFG=$HOME/clusterctl.yaml
 fi
 
+# TODO: Optional: Create own project for the cluster
+# If so, we need to share the image with the new project
+
+# TODO: Create pre-cluster app-creds:
+# (1) For CAPO
+# (2) For OCCM, CSI
+
 # Implement anti-affinity with server groups
 if grep '^ *OPENSTACK_ANTIAFFINITY: true' $CCCFG >/dev/null 2>&1; then
 	SRVGRP=$(openstack server group list -f value)
