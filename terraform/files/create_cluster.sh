@@ -10,6 +10,9 @@ CLUSTER_NAME=testcluster
 if test -n "$1"; then CLUSTER_NAME="$1"; fi
 KUBECONFIG_WORKLOADCLUSTER="${CLUSTER_NAME}.yaml"
 
+# Ensure image is there
+$HOME/wait_capi_image.sh "$1"
+
 # Switch to capi mgmt cluster
 export KUBECONFIG=~/.kube/config
 kubectl config use-context kind-kind || exit 1

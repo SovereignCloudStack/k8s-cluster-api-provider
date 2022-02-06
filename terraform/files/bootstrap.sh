@@ -3,7 +3,12 @@
 ##    desc: bootstrap a cluster-api environment for openstack
 ## license: Apache-2.0
 
-# Start image registration early
+# Need yaml parsing capabilities
+sudo snap install yq
+
+# Prepare OpenStack
+bash prepare_openstack.sh
+# Start image registration early, so it can proceed in the background
 bash upload_capi_image.sh
 
 ## install tools and utils at local account
@@ -25,7 +30,7 @@ source <( kubectl completion bash )
 source <( clusterctl completion bash )
 
 # Error code in prompt
-PS1="${PS1%\\$ } [\$?]\$ "
+PS1="\${PS1%\\\\\$ } [\\\$?]\\\$ "
 # eof
 EOF
 

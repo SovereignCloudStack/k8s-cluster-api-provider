@@ -1,26 +1,23 @@
 #!/usr/bin/env bash
 
-KUBERNETES_VERSION="${kubernetes_version}"
-VERSION_CAPI_IMAGE=$(echo $KUBERNETES_VERSION | sed 's/\.[[:digit:]]*$//g')
-PROVIDER="${provider}"
-IMGREG_EXTRA="${image_registration_extra_flags}"
-UBU_IMG=ubuntu-2004-kube-$KUBERNETES_VERSION
-UBU_IMG_NM=ubuntu-capi-image-$KUBERNETES_VERSION
-
-#install Openstack CLI
-sudo apt install -y python3-openstackclient python3-octaviaclient
-# fix bug 1876317
-sudo patch -p2 -N -d /usr/lib/python3/dist-packages/keystoneauth1 < ~/fix-keystoneauth-plugins-unversioned.diff
-
-# convenience
-echo "export OS_CLOUD=\"$PROVIDER\"" >> $HOME/.bash_aliases
-
-# Determine project ID and inject into cloud.conf
-PROJECTID=$(openstack --os-cloud="$PROVIDER" application credential show ${prefix}-appcred -f value -c project_id)
-echo "Set tenant-id to $PROJECTID for $PROVIDER"
-if ! grep '^tenant.id' cloud.conf >/dev/null; then
-  sed -i "/^application.credential.secret/atenant-id=$PROJECTID"  cloud.conf
+CLUSTER_NAME=testcluster
+if test -n "$1"; then CLUSTER_NAME="$1"; fi
+KUBECONFIG_WORKLOADCLUSTER="${CLUSTER_NAME}.yaml"
+if test -e "$HOME/clusterctl-${CLUSTER_NAME}.yaml"; then
+	CCCFG="$HOME/clusterctl-${CLUSTER_NAME}.yaml"
+else
+	CCCFG=$HOME/clusterctl.yaml
 fi
+
+KUBERNETES_VERSION=$(yq eval '.KUBERNETES_VERSION' $CCCFG)
+PROVIDER=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)
+#UBU_IMG_NM=ubuntu-capi-image-$KUBERNETES_VERSION
+UBU_IMG_NM=$(yq eval '.OPENSTACK_IMAGE_NAME' $CCCFG)
+IMG_RAW=$(yq eval '.OPENSTACK_IMAGE_RAW' $CCCFG)
+
+VERSION_CAPI_IMAGE=$(echo $KUBERNETES_VERSION | sed 's/\.[[:digit:]]*$//g')
+IMGREG_EXTRA=""
+UBU_IMG=ubuntu-2004-kube-$KUBERNETES_VERSION
 
 #download/upload image to openstack
 CAPIIMG=$(openstack --os-cloud $PROVIDER image list --name $UBU_IMG_NM)
@@ -34,18 +31,19 @@ if test -z "$CAPIIMG"; then
   DIKKSZ=$(echo "$IMGINFO" | grep '^virtual size' | sed 's/^[^(]*(\([0-9]*\) bytes).*$/\1/')
   DISKSZ=$(((DISKSZ+1073741823)/1073741824))
   IMGDATE=$(date -r $UBU_IMG.qcow2 +%F)
-  if test "${kube_image_raw}" = "true"; then
+  if test "$IMG_RAW" = "true"; then
     FMT=raw
     qemu-img convert $UBU_IMG.qcow2 -O raw -S 4k $UBU_IMG.raw && rm $UBU_IMG.qcow2 || exit 1
   fi
   #TODO min-disk, min-ram, other std. image metadata
+  echo "Creating image $UBU_IMG_NM from $UBU_IMG.$FMT"
   openstack --os-cloud $PROVIDER image create --disk-format $FMT --min-ram 1024 --min-disk $DISKSZ --property image_build_date="$IMGDATE" --property image_original_user=ubuntu --property architecture=x86_64 --property hypervisor_type=kvm --property os_distro=ubuntu --property os_version="20.04" --property hw_disk_bus=scsi --property hw_scsi_model=virtio-scsi --property hw_rng_model=virtio --property image_source=$IMAGESRC --property kubernetes_version=$KUBERNETES_VERSION --tag managed_by_osism $IMGREG_EXTRA --file $UBU_IMG.$FMT $UBU_IMG_NM &
   sleep 5
   echo "Waiting for image $UBU_IMG_NM: "
   let -i ctr=0
-  while test $ctr -lt 60; do
+  while test $ctr -le 64; do
     CAPIIMG=$(openstack --os-cloud $PROVIDER image list --name $UBU_IMG_NM -f value -c ID -c Status)
-    STATUS="$${CAPIIMG##* }"
+    STATUS="${CAPIIMG##* }"
     if test "$STATUS" = "saving" -o "$STATUS" = "active"; then break; fi
     echo -n "."
     let ctr+=1
@@ -56,4 +54,5 @@ if test -z "$CAPIIMG"; then
     echo "ERROR: Image $UBU_IMG_NM not found" 1>&2
     exit 2
   fi
+  rm $UBU_IMG.$FMT
 fi
