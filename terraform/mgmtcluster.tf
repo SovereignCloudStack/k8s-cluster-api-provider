@@ -183,7 +183,7 @@ EOF
   }
 
   provisioner "file" {
-    source     = "files/wait_capi_image.sh"
+    source      = "files/wait_capi_image.sh"
     destination = "/home/${var.ssh_username}/wait_capi_image.sh"
   }
 
