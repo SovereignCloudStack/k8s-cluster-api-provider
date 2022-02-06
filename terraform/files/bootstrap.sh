@@ -53,7 +53,6 @@ bash deploy_cluster_api.sh
 bash install_k9s.sh
 bash install_flux.sh
 bash get_capi_helm.sh
-bash wait_capi_image.sh
 
 CONTROLLERS=`yq eval '.CONTROL_PLANE_MACHINE_COUNT' clusterctl.yaml`
 if test "$CONTROLLERS" != "0"; then
