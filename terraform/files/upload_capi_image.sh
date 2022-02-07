@@ -28,7 +28,7 @@ if test -z "$CAPIIMG"; then
   wget $IMAGESRC
   FMT=qcow2
   IMGINFO=$(qemu-img info $UBU_IMG.qcow2)
-  DIKKSZ=$(echo "$IMGINFO" | grep '^virtual size' | sed 's/^[^(]*(\([0-9]*\) bytes).*$/\1/')
+  DISKSZ=$(echo "$IMGINFO" | grep '^virtual size' | sed 's/^[^(]*(\([0-9]*\) bytes).*$/\1/')
   DISKSZ=$(((DISKSZ+1073741823)/1073741824))
   IMGDATE=$(date -r $UBU_IMG.qcow2 +%F)
   if test "$IMG_RAW" = "true"; then
