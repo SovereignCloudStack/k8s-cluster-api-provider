@@ -83,6 +83,11 @@ EOF
   }
 
   provisioner "file" {
+    source      = "files/prepare_openstack.sh"
+    destination = "/home/${var.ssh_username}/prepare_openstack.sh"
+  }
+
+  provisioner "file" {
     source      = "files/wait.sh"
     destination = "/home/${var.ssh_username}/wait.sh"
   }
@@ -173,12 +178,12 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/clusterctl.yaml.tmpl", { kubernetes_version = var.kubernetes_version, availability_zone = var.availability_zone, external = var.external, image = var.image, controller_flavor = var.controller_flavor, worker_flavor = var.worker_flavor, cloud_provider = var.cloud_provider, worker_count = var.worker_count, controller_count = var.controller_count, kind_mtu = var.kind_mtu, prefix = var.prefix, deploy_nginx_ingress = var.deploy_nginx_ingress, deploy_cert_manager = var.deploy_cert_manager, deploy_flux = var.deploy_flux, deploy_metrics_service = var.deploy_metrics_service, deploy_k8s_openstack_git = var.deploy_k8s_openstack_git, deploy_k8s_cindercsi_git = var.deploy_k8s_cindercsi_git, node_cidr = var.node_cidr, dns_nameserver = var.dns_nameserver, anti_affinity = var.anti_affinity })
+    content     = templatefile("files/template/clusterctl.yaml.tmpl", { kubernetes_version = var.kubernetes_version, availability_zone = var.availability_zone, external = var.external, image = var.image, controller_flavor = var.controller_flavor, worker_flavor = var.worker_flavor, cloud_provider = var.cloud_provider, worker_count = var.worker_count, controller_count = var.controller_count, kind_mtu = var.kind_mtu, prefix = var.prefix, deploy_nginx_ingress = var.deploy_nginx_ingress, deploy_cert_manager = var.deploy_cert_manager, deploy_flux = var.deploy_flux, deploy_metrics_service = var.deploy_metrics_service, deploy_k8s_openstack_git = var.deploy_k8s_openstack_git, deploy_k8s_cindercsi_git = var.deploy_k8s_cindercsi_git, node_cidr = var.node_cidr, dns_nameserver = var.dns_nameserver, anti_affinity = var.anti_affinity, kube_image_raw = var.kube_image_raw, image_registration_extra_flags = var.image_registration_extra_flags })
     destination = "/home/${var.ssh_username}/clusterctl.yaml"
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/wait_capi_image.sh.tmpl", { kubernetes_version = var.kubernetes_version, provider = var.cloud_provider })
+    source      = "files/wait_capi_image.sh"
     destination = "/home/${var.ssh_username}/wait_capi_image.sh"
   }
 
@@ -204,7 +209,7 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/upload_capi_image.sh.tmpl", { kubernetes_version = var.kubernetes_version, provider = var.cloud_provider, kube_image_raw = var.kube_image_raw, image_registration_extra_flags = var.image_registration_extra_flags, prefix = var.prefix })
+    source      = "files/upload_capi_image.sh"
     destination = "/home/${var.ssh_username}/upload_capi_image.sh"
   }
 

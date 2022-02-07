@@ -3,7 +3,12 @@
 ##    desc: bootstrap a cluster-api environment for openstack
 ## license: Apache-2.0
 
-# Start image registration early
+# Need yaml parsing capabilities
+sudo snap install yq
+
+# Prepare OpenStack
+bash prepare_openstack.sh
+# Start image registration early, so it can proceed in the background
 bash upload_capi_image.sh
 
 ## install tools and utils at local account
@@ -25,7 +30,7 @@ source <( kubectl completion bash )
 source <( clusterctl completion bash )
 
 # Error code in prompt
-PS1="${PS1%\\$ } [\$?]\$ "
+PS1="\${PS1%\\\\\$ } [\\\$?]\\\$ "
 # eof
 EOF
 
@@ -48,7 +53,6 @@ bash deploy_cluster_api.sh
 bash install_k9s.sh
 bash install_flux.sh
 bash get_capi_helm.sh
-bash wait_capi_image.sh
 
 CONTROLLERS=`yq eval '.CONTROL_PLANE_MACHINE_COUNT' clusterctl.yaml`
 if test "$CONTROLLERS" != "0"; then

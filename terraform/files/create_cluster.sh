@@ -10,6 +10,9 @@ CLUSTER_NAME=testcluster
 if test -n "$1"; then CLUSTER_NAME="$1"; fi
 KUBECONFIG_WORKLOADCLUSTER="${CLUSTER_NAME}.yaml"
 
+# Ensure image is there
+$HOME/wait_capi_image.sh "$1"
+
 # Switch to capi mgmt cluster
 export KUBECONFIG=~/.kube/config
 kubectl config use-context kind-kind || exit 1
@@ -20,6 +23,13 @@ if test -e "$HOME/clusterctl-${CLUSTER_NAME}.yaml"; then
 else
 	CCCFG=$HOME/clusterctl.yaml
 fi
+
+# TODO: Optional: Create own project for the cluster
+# If so, we need to share the image with the new project
+
+# TODO: Create pre-cluster app-creds:
+# (1) For CAPO
+# (2) For OCCM, CSI
 
 # Implement anti-affinity with server groups
 if grep '^ *OPENSTACK_ANTIAFFINITY: true' $CCCFG >/dev/null 2>&1; then
