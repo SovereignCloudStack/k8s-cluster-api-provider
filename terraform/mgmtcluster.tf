@@ -163,11 +163,6 @@ EOF
   }
 
   provisioner "file" {
-    source      = "files/cert-manager-test.yaml"
-    destination = "/home/${var.ssh_username}/cert-manager-test.yaml"
-  }
-
-  provisioner "file" {
     source      = "files/delete_cluster.sh"
     destination = "/home/${var.ssh_username}/delete_cluster.sh"
   }
