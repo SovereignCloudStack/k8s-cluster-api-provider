@@ -8,7 +8,7 @@ if test -z "$SGS"; then
     # See ports with k get svc -A
     # Should this really be required?
     SG=${SGS%% *}
-    for proto in udp/8472/VXLAN tcp/4240/HealthCheck; do
+    for proto in udp/8472/VXLAN tcp/4240/HealthCheck tcp/4244/Hubble; do
 	prot=${proto%%/*}
 	port=${proto#*/}
 	desc="${port#*/} (cilium)"
