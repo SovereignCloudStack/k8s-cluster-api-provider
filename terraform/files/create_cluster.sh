@@ -106,6 +106,7 @@ done
 
 # CNI
 if test "$USE_CILIUM" = "true"; then
+  # FIXME: Do we need to allow overriding MTU here as well?
   KUBECONFIG=${CLUSTER_NAME}.yaml cilium install
 else
   sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" calico.yaml | kubectl $KCONTEXT apply -f -
