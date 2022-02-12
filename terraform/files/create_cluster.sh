@@ -69,7 +69,7 @@ USE_CILIUM=$(yq eval '.USE_CILIUM' $CCCFG)
 if test "$USE_CILIUM" = "true"; then
 	~/enable-cilium-sg.sh
 else
-	sed -i '/^-cilium$/d' "${CLUSTER_NAME}-config.yaml
+	sed -i '/^-cilium$/d' "${CLUSTER_NAME}-config.yaml"
 fi
 
 # apply to the kubernetes mgmt cluster
@@ -106,7 +106,7 @@ done
 
 # CNI
 if test "$USE_CILIUM" = "true"; then
-  KUBECONFIG=${CLUSTER_NAME}.yaml cilium install --wait
+  KUBECONFIG=${CLUSTER_NAME}.yaml cilium install
 else
   sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" calico.yaml | kubectl $KCONTEXT apply -f -
 fi
@@ -143,6 +143,10 @@ echo "Wait for control plane of ${CLUSTER_NAME}"
 kubectl config use-context kind-kind
 kubectl wait --timeout=20m cluster "${CLUSTER_NAME}" --for=condition=Ready || exit 10
 #kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
+if test "$USE_CILIUM" = "true"; then
+  KUBECONFIG=${CLUSTER_NAME}.yaml cilium status --wait
+  echo "Use KUBECONFIG=${CLUSTER_NAME}.yaml cilium connectivity test for testing CNI"
+fi
 kubectl $KCONTEXT get pods --all-namespaces
 kubectl get openstackclusters
 clusterctl describe cluster ${CLUSTER_NAME}
