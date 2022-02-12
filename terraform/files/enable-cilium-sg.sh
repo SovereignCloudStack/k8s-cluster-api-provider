@@ -4,8 +4,11 @@ if test -n "$1"; then CLUSTER="$1"; fi
 SGS=$(openstack security group list -f value -c ID -c Name | grep "k8s-cluster-${CLUSTER}-cilium")
 if test -z "$SGS"; then
     SGS=$(openstack security group create k8s-cluster-${CLUSTER}-cilium -f value -c id -c name)
+    # Note: Silium connectivity test will requires tcp/3xxxx/EchoOther tcp/3xxxx/EchoSame
+    # See ports with k get svc -A
+    # Should this really be required?
     SG=${SGS%% *}
-    for proto in udp/8472/VXLAN tcp/4240/HealthCheck tcp/31813/EchoOther tcp/31374/EchoSame; do
+    for proto in udp/8472/VXLAN tcp/4240/HealthCheck; do
 	prot=${proto%%/*}
 	port=${proto#*/}
 	desc="${port#*/} (cilium)"
