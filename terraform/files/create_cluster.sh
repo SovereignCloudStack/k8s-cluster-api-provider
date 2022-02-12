@@ -64,6 +64,14 @@ clusterctl generate cluster "${CLUSTER_NAME}" --from ${CLUSTERAPI_TEMPLATE} > "$
 # Remove empty serverGroupID
 sed -i '/^ *serverGroupID: nonono$/d' "${CLUSTER_NAME}-config.yaml"
 
+# Test for CILIUM
+USE_CILIUM=$(yq eval '.USE_CILIUM')
+if test "$USE_CILIUM" = "true"; then
+	~/enable-cilium-sg.sh
+else
+	sed -i '/^-cilium$/d' "${CLUSTER_NAME}-config.yaml
+fi
+
 # apply to the kubernetes mgmt cluster
 echo "# apply configuration and deploy cluster ${CLUSTER_NAME}"
 kubectl apply -f "${CLUSTER_NAME}-config.yaml" || exit 3
@@ -95,6 +103,13 @@ do
     sleep 10
     let SLEEP+=10
 done
+
+# CNI
+if test "$USE_CILIUM" = "true"; then
+  KUBECONFIG=${CLUSTER_NAME}.yaml cilium install --wait
+else
+  sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" calico.yaml | kubectl $KCONTEXT apply -f -
+fi
 
 # Metrics
 DEPLOY_METRICS=$(yq eval '.DEPLOY_METRICS' $CCCFG)

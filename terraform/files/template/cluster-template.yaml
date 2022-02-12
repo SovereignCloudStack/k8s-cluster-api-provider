@@ -68,7 +68,7 @@ spec:
         kubeletExtraArgs:
           cloud-provider: external
     postKubeadmCommands:
-      - curl https://docs.projectcalico.org/manifests/calico.yaml | sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" | kubectl apply --kubeconfig /etc/kubernetes/admin.conf -f -
+      - echo "No hardcoded calico" #curl https://docs.projectcalico.org/manifests/calico.yaml | sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" | kubectl apply --kubeconfig /etc/kubernetes/admin.conf -f -
       - grep 'hearbeat\-interval' /etc/kubernetes/manifests/etcd.yaml >/dev/null || true  # || sed -i '/\-\-trusted\-ca\-file/a\    - --heartbeat-interval=250\n    - --election-timeout=2500' /etc/kubernetes/manifests/etcd.yaml  # Disabled as uncoordinated etcd restart causes quorum loss
     preKubeadmCommands:
       - DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https curl
@@ -100,6 +100,7 @@ spec:
       securityGroups:
         - name: allow-ssh
         - name: allow-icmp
+        - name: k8s-cluster-${CLUSTER_NAME}-cilium
 ---
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: MachineDeployment
@@ -145,6 +146,7 @@ spec:
       securityGroups:
         - name: allow-ssh
         - name: allow-icmp
+        - name: k8s-cluster-${CLUSTER_NAME}-cilium
 ---
 apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: KubeadmConfigTemplate

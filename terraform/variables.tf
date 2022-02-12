@@ -162,3 +162,10 @@ variable "dns_nameserver" {
   type        = string
   default     = "9.9.9.9"
 }
+
+variable "use_cilium" {
+  description = "use cilium rather than calico as CNI"
+  type        = bool
+  defaulte    = false
+}
+
