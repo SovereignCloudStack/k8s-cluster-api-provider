@@ -69,7 +69,7 @@ USE_CILIUM=$(yq eval '.USE_CILIUM' $CCCFG)
 if test "$USE_CILIUM" = "true"; then
 	~/enable-cilium-sg.sh
 else
-	sed -i '/^-cilium$/d' "${CLUSTER_NAME}-config.yaml"
+	sed -i '/\-cilium$/d' "${CLUSTER_NAME}-config.yaml"
 fi
 
 # apply to the kubernetes mgmt cluster
@@ -105,6 +105,7 @@ do
 done
 
 # CNI
+MTU_VALUE=$(yq eval '.MTU_VALUE' $CCCFG)
 if test "$USE_CILIUM" = "true"; then
   # FIXME: Do we need to allow overriding MTU here as well?
   KUBECONFIG=${CLUSTER_NAME}.yaml cilium install
