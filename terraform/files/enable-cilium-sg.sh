@@ -7,7 +7,8 @@ if test -z "$SGS"; then
     # Note: Silium connectivity test will requires tcp/3xxxx/EchoOther tcp/3xxxx/EchoSame
     # See ports with k get svc -A
     # Should this really be required?
-    SG=${SGS%% *}
+    #SG=${SGS%% *}
+    SG=$(echo "$SGS" | head -n1)
     for proto in udp/8472/VXLAN tcp/4240/HealthCheck tcp/4244/Hubble; do
 	prot=${proto%%/*}
 	port=${proto#*/}
