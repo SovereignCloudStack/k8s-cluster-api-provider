@@ -65,7 +65,7 @@ clusterctl generate cluster "${CLUSTER_NAME}" --from ${CLUSTERAPI_TEMPLATE} > "$
 sed -i '/^ *serverGroupID: nonono$/d' "${CLUSTER_NAME}-config.yaml"
 
 # Test for CILIUM
-USE_CILIUM=$(yq eval '.USE_CILIUM')
+USE_CILIUM=$(yq eval '.USE_CILIUM' $CCCFG)
 if test "$USE_CILIUM" = "true"; then
 	~/enable-cilium-sg.sh
 else
