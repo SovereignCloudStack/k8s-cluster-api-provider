@@ -166,6 +166,6 @@ variable "dns_nameserver" {
 variable "use_cilium" {
   description = "use cilium rather than calico as CNI"
   type        = bool
-  defaulte    = false
+  default     = false
 }
 
