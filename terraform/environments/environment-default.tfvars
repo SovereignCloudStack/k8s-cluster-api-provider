@@ -21,6 +21,7 @@ worker_count         = <number>	        # defaults to 3
 kind_mtu             = <number>         # defaults to 0 (autodetection)
 node_cidr            = "<CIDR>"         # defaults to "10.8.0.0/20"
 anti_affinity        = "<boolean>"      # defaults to "false"
+use_cilium           = "<boolean>"      # defaults to "false"
 deploy_nginx_ingress = "<boolean>"      # defaults to "true"
 deploy_cert_manager  = "<boolean>"      # defaults to "false"
 deploy_flux          = "<boolean>"      # defaults to "false"

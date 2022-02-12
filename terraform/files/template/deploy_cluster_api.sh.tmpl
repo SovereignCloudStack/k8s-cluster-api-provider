@@ -38,6 +38,18 @@ fi
 chmod +x calicoctl
 sudo mv calicoctl /usr/local/bin
 
+# Install cilium
+# TODO: Check signature
+curl -L --remote-name-all https://github.com/cilium/cilium-cli/releases/latest/download/cilium-linux-$ARCH.tar.gz{,.sha256sum}
+sha256sum --check cilium-linux-$ARCH.tar.gz.sha256sum || exit
+sudo tar xzvfC cilium-linux-$ARCH.tar.gz /usr/local/bin
+rm cilium-linux-$ARCH.tar.gz{,.sha256sum}
+HUBBLE_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/hubble/master/stable.txt)
+curl -L --remote-name-all https://github.com/cilium/hubble/releases/download/$HUBBLE_VERSION/hubble-linux-$ARCH.tar.gz{,.sha256sum}
+sha256sum --check hubble-linux-$ARCH.tar.gz.sha256sum || exit
+sudo tar xzvfC hubble-linux-$ARCH.tar.gz /usr/local/bin
+rm hubble-linux-$ARCH.tar.gz{,.sha256sum}
+
 # wait for CAPI pods
 echo "# wait for all components are ready for cluster-api"
 kubectl wait --for=condition=Ready --timeout=5m -n capi-system pod --all

@@ -64,6 +64,14 @@ clusterctl generate cluster "${CLUSTER_NAME}" --from ${CLUSTERAPI_TEMPLATE} > "$
 # Remove empty serverGroupID
 sed -i '/^ *serverGroupID: nonono$/d' "${CLUSTER_NAME}-config.yaml"
 
+# Test for CILIUM
+USE_CILIUM=$(yq eval '.USE_CILIUM' $CCCFG)
+if test "$USE_CILIUM" = "true"; then
+	~/enable-cilium-sg.sh "$CLUSTER_NAME"
+else
+	sed -i '/\-cilium$/d' "${CLUSTER_NAME}-config.yaml"
+fi
+
 # apply to the kubernetes mgmt cluster
 echo "# apply configuration and deploy cluster ${CLUSTER_NAME}"
 kubectl apply -f "${CLUSTER_NAME}-config.yaml" || exit 3
@@ -95,6 +103,15 @@ do
     sleep 10
     let SLEEP+=10
 done
+
+# CNI
+MTU_VALUE=$(yq eval '.MTU_VALUE' $CCCFG)
+if test "$USE_CILIUM" = "true"; then
+  # FIXME: Do we need to allow overriding MTU here as well?
+  KUBECONFIG=${CLUSTER_NAME}.yaml cilium install
+else
+  sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" calico.yaml | kubectl $KCONTEXT apply -f -
+fi
 
 # Metrics
 DEPLOY_METRICS=$(yq eval '.DEPLOY_METRICS' $CCCFG)
@@ -128,6 +145,10 @@ echo "Wait for control plane of ${CLUSTER_NAME}"
 kubectl config use-context kind-kind
 kubectl wait --timeout=20m cluster "${CLUSTER_NAME}" --for=condition=Ready || exit 10
 #kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
+if test "$USE_CILIUM" = "true"; then
+  KUBECONFIG=${CLUSTER_NAME}.yaml cilium status --wait
+  echo "Use KUBECONFIG=${CLUSTER_NAME}.yaml cilium connectivity test for testing CNI"
+fi
 kubectl $KCONTEXT get pods --all-namespaces
 kubectl get openstackclusters
 clusterctl describe cluster ${CLUSTER_NAME}
