@@ -49,12 +49,6 @@ variable "ssh_username" {
   default     = "ubuntu"
 }
 
-variable "k9s_version" {
-  description = "desired version of the k9s tool"
-  type        = string
-  default     = "0.25.8"
-}
-
 variable "calico_version" {
   description = "desired version of calico"
   type        = string

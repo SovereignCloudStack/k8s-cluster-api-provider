@@ -3,13 +3,16 @@
 ##    desc: bootstrap a cluster-api environment for openstack
 ## license: Apache-2.0
 
+# Find helper scripts
+export PATH=$PATH:~/bin
+
 # Need yaml parsing capabilities
 sudo snap install yq
 
 # Prepare OpenStack
-bash prepare_openstack.sh
+prepare_openstack.sh
 # Start image registration early, so it can proceed in the background
-bash upload_capi_image.sh
+upload_capi_image.sh
 
 ## install tools and utils at local account
 
@@ -21,6 +24,7 @@ sudo apt install -y binutils
 # setup aliases and environment
 echo "# setup environment"
 cat <<EOF >> ~/.bash_aliases
+export PATH=\$PATH:~/bin
 # kubernetes-cli
 alias k=kubectl
 source <( kubectl completion bash | sed 's# kubectl\$# k kubectl\$#' )
@@ -47,18 +51,18 @@ set show-all-if-ambiguous on
 "\e[6~": history-search-forward
 EOF
 
-bash install_kind.sh
-bash install_helm.sh
-bash deploy_cluster_api.sh
-bash install_k9s.sh
-bash install_flux.sh
-bash get_capi_helm.sh
+install_kind.sh
+install_helm.sh
+deploy_cluster_api.sh
+install_k9s.sh
+install_flux.sh
+get_capi_helm.sh
 
 #git clone https://github.com/Pharb/kubernetes-iperf3.git
 
 CONTROLLERS=`yq eval '.CONTROL_PLANE_MACHINE_COUNT' clusterctl.yaml`
 if test "$CONTROLLERS" != "0"; then
-    bash create_cluster.sh testcluster
+    create_cluster.sh testcluster
 fi
 # Extensions
 cd extension

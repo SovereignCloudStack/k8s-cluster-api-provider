@@ -9,11 +9,11 @@ echo "Deploy cert-manager to $CLUSTER_NAME"
 #TODO: Make version configurable
 CERTMGR_VERSION=1.7.0
 # kubectl $KCONTEXT apply -f https://github.com/cert-manager/cert-manager/releases/download/v${CERTMGR_VERSION}/cert-manager.yaml
-if test ! -s cert-manager.yaml; then
+if test ! -s ~/kubernetes-manifests.d/cert-manager.yaml; then
 	# FIXME: Check sig
-	curl -L https://github.com/cert-manager/cert-manager/releases/download/v${CERTMGR_VERSION}/cert-manager.yaml > cert-manager.yaml
+	curl -L https://github.com/cert-manager/cert-manager/releases/download/v${CERTMGR_VERSION}/cert-manager.yaml > ~/kubernetes-manifests.d/cert-manager.yaml
 fi
-kubectl $KCONTEXT apply -f cert-manager.yaml || exit 9
+kubectl $KCONTEXT apply -f ~/kubernetes-manifests.d/cert-manager.yaml || exit 9
 # TODO: Optionally test, using cert-manager-test.yaml
 # See https://cert-manager.io/docs/installation/kubernetes/
 # kubectl plugin

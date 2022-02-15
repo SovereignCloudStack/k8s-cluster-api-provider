@@ -64,7 +64,7 @@ runcmd:
   - echo net.netfilter.nf_conntrack_max=131072 > /etc/sysctl.d/90-conntrack_max.conf
   - sysctl -w -p /etc/sysctl.d/90-conntrack_max.conf
   - mkdir /etc/docker
-  - /home/${var.ssh_username}/get_mtu.sh
+  - /home/${var.ssh_username}/bin/get_mtu.sh
   - mv /tmp/daemon.json /etc/docker/daemon.json
   - groupadd docker
   - usermod -aG docker ${var.ssh_username}
@@ -77,39 +77,22 @@ EOF
     user        = var.ssh_username
   }
 
-  provisioner "file" {
-    source      = "files/get_mtu.sh"
-    destination = "/home/${var.ssh_username}/get_mtu.sh"
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir -p /home/${var.ssh_username}/.config/openstack",
+      "mkdir -p /home/${var.ssh_username}/kubernetes-manifests.d",
+      "mkdir -p /home/${var.ssh_username}/bin"
+    ]
   }
 
   provisioner "file" {
-    source      = "files/prepare_openstack.sh"
-    destination = "/home/${var.ssh_username}/prepare_openstack.sh"
+    source      = "files/kubernetes-manifests.d/"
+    destination = "/home/${var.ssh_username}/kubernetes-manifests.d/"
   }
 
   provisioner "file" {
-    source      = "files/wait.sh"
-    destination = "/home/${var.ssh_username}/wait.sh"
-  }
-
-  provisioner "file" {
-    source      = "files/install_kind.sh"
-    destination = "/home/${var.ssh_username}/install_kind.sh"
-  }
-
-  provisioner "file" {
-    source      = "files/install_helm.sh"
-    destination = "/home/${var.ssh_username}/install_helm.sh"
-  }
-
-  provisioner "file" {
-    source      = "files/install_flux.sh"
-    destination = "/home/${var.ssh_username}/install_flux.sh"
-  }
-
-  provisioner "file" {
-    content     = templatefile("files/template/install_k9s.sh.tmpl", { k9s_version = var.k9s_version })
-    destination = "/home/${var.ssh_username}/install_k9s.sh"
+    source      = "files/bin/"
+    destination = "/home/${var.ssh_username}/bin/"
   }
 
   provisioner "file" {
@@ -119,78 +102,12 @@ EOF
 
   provisioner "file" {
     content     = templatefile("files/template/deploy_cluster_api.sh.tmpl", { clusterapi_version = var.clusterapi_version, capi_openstack_version = var.capi_openstack_version, calico_version = var.calico_version })
-    destination = "/home/${var.ssh_username}/deploy_cluster_api.sh"
-  }
-
-  provisioner "file" {
-    source      = "files/create_cluster.sh"
-    destination = "/home/${var.ssh_username}/create_cluster.sh"
-  }
-
-  provisioner "file" {
-    source      = "files/enable-cilium-sg.sh"
-    destination = "/home/${var.ssh_username}/enable-cilium-sg.sh"
-  }
-
-  provisioner "file" {
-    source      = "files/get_capi_helm.sh"
-    destination = "/home/${var.ssh_username}/get_capi_helm.sh"
-  }
-
-  provisioner "file" {
-    source      = "files/sonobuoy.sh"
-    destination = "/home/${var.ssh_username}/sonobuoy.sh"
-  }
-
-  provisioner "file" {
-    source      = "files/apply_openstack_integration.sh"
-    destination = "/home/${var.ssh_username}/apply_openstack_integration.sh"
-  }
-
-  provisioner "file" {
-    source      = "files/apply_cindercsi.sh"
-    destination = "/home/${var.ssh_username}/apply_cindercsi.sh"
-  }
-
-  provisioner "file" {
-    source      = "files/apply_nginx_ingress.sh"
-    destination = "/home/${var.ssh_username}/apply_nginx_ingress.sh"
-  }
-
-  provisioner "file" {
-    source      = "files/apply_metrics.sh"
-    destination = "/home/${var.ssh_username}/apply_metrics.sh"
-  }
-
-  provisioner "file" {
-    source      = "files/apply_cert-manager.sh"
-    destination = "/home/${var.ssh_username}/apply_cert-manager.sh"
-  }
-
-  provisioner "file" {
-    source      = "files/delete_cluster.sh"
-    destination = "/home/${var.ssh_username}/delete_cluster.sh"
-  }
-
-  provisioner "file" {
-    source      = "files/cleanup.sh"
-    destination = "/home/${var.ssh_username}/cleanup.sh"
+    destination = "/home/${var.ssh_username}/bin/deploy_cluster_api.sh"
   }
 
   provisioner "file" {
     content     = templatefile("files/template/clusterctl.yaml.tmpl", { kubernetes_version = var.kubernetes_version, availability_zone = var.availability_zone, external = var.external, image = var.image, controller_flavor = var.controller_flavor, worker_flavor = var.worker_flavor, cloud_provider = var.cloud_provider, worker_count = var.worker_count, controller_count = var.controller_count, kind_mtu = var.kind_mtu, prefix = var.prefix, deploy_nginx_ingress = var.deploy_nginx_ingress, deploy_cert_manager = var.deploy_cert_manager, deploy_flux = var.deploy_flux, deploy_metrics_service = var.deploy_metrics_service, deploy_k8s_openstack_git = var.deploy_k8s_openstack_git, deploy_k8s_cindercsi_git = var.deploy_k8s_cindercsi_git, use_cilium = var.use_cilium, node_cidr = var.node_cidr, dns_nameserver = var.dns_nameserver, anti_affinity = var.anti_affinity, kube_image_raw = var.kube_image_raw, image_registration_extra_flags = var.image_registration_extra_flags })
     destination = "/home/${var.ssh_username}/clusterctl.yaml"
-  }
-
-  provisioner "file" {
-    source      = "files/wait_capi_image.sh"
-    destination = "/home/${var.ssh_username}/wait_capi_image.sh"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "mkdir -p /home/${var.ssh_username}/.config/openstack"
-    ]
   }
 
   provisioner "file" {
@@ -209,16 +126,6 @@ EOF
   }
 
   provisioner "file" {
-    source      = "files/upload_capi_image.sh"
-    destination = "/home/${var.ssh_username}/upload_capi_image.sh"
-  }
-
-  provisioner "file" {
-    source      = "files/kubernetes-manifests.d/"
-    destination = "/home/${var.ssh_username}"
-  }
-
-  provisioner "file" {
     content     = templatefile("files/template/clusterctl_template.sh", { cloud_provider = var.cloud_provider })
     destination = "/home/${var.ssh_username}/clusterctl_template.sh"
   }
@@ -228,31 +135,16 @@ EOF
     destination = "/home/${var.ssh_username}/fix-keystoneauth-plugins-unversioned.diff"
   }
 
-  provisioner "file" {
-    source      = "files/add_cluster-network.sh"
-    destination = "/home/${var.ssh_username}/add_cluster-network.sh"
-  }
-
-  provisioner "file" {
-    source      = "files/remove_cluster-network.sh"
-    destination = "/home/${var.ssh_username}/remove_cluster-network.sh"
-  }
-
-  provisioner "file" {
-    source      = "files/bootstrap.sh"
-    destination = "/home/${var.ssh_username}/bootstrap.sh"
-  }
-
   provisioner "remote-exec" {
     inline = [
-      "chmod +x *.sh",
-      "chmod 0600 /home/${var.ssh_username}/.ssh/id_rsa /home/${var.ssh_username}/clusterctl.yaml /home/${var.ssh_username}/cloud.conf /home/${var.ssh_username}/.config/openstack/clouds.yaml"
+      "chmod 0600 /home/${var.ssh_username}/.ssh/id_rsa /home/${var.ssh_username}/clusterctl.yaml /home/${var.ssh_username}/cloud.conf /home/${var.ssh_username}/.config/openstack/clouds.yaml",
+      "chmod +x bin/*.sh"
     ]
   }
 
   provisioner "remote-exec" {
     inline = [
-      "bash /home/${var.ssh_username}/wait.sh"
+      "bash /home/${var.ssh_username}/bin/wait.sh"
     ]
   }
 
@@ -263,7 +155,7 @@ EOF
 
   provisioner "remote-exec" {
     inline = [
-      "bash /home/${var.ssh_username}/bootstrap.sh"
+      "bash /home/${var.ssh_username}/bin/bootstrap.sh"
     ]
   }
 }
