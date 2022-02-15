@@ -1,4 +1,4 @@
-!/usr/bin/env bash
+#!/usr/bin/env bash
 
 ##    desc: a helper for deploy a workload cluster on mgmt cluster
 ## license: Apache-2.0
