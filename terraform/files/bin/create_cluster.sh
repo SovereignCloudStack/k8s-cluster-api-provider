@@ -67,7 +67,7 @@ sed -i '/^ *serverGroupID: nonono$/d' "${CLUSTER_NAME}-config.yaml"
 # Test for CILIUM
 USE_CILIUM=$(yq eval '.USE_CILIUM' $CCCFG)
 if test "$USE_CILIUM" = "true"; then
-	~/enable-cilium-sg.sh "$CLUSTER_NAME"
+	enable-cilium-sg.sh "$CLUSTER_NAME"
 else
 	sed -i '/\-cilium$/d' "${CLUSTER_NAME}-config.yaml"
 fi
