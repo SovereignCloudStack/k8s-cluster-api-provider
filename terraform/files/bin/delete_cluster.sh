@@ -19,7 +19,7 @@ done
 INPODS=$(kubectl $KCONTEXT --namespace ingress-nginx get pods) 
 if echo "$INPODS" | grep nginx >/dev/null 2>&1; then
 	echo -en " Delete ingress \n "
-	kubectl $KCONTEXT delete -f nginx-ingress-controller.yaml
+	kubectl $KCONTEXT delete -f ~/kubernetes-manifests.d/nginx-ingress-controller.yaml
 fi
 # Delete persisten volumes
 PVCS=$(kubectl $KCONTEXT get persistentvolumeclaims | grep -v '^NAME' | awk '{ print $1; }')
