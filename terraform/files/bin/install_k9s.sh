@@ -7,6 +7,8 @@
 echo "# install latest k9s"
 ARCH=$(uname -m)
 # TODO: Check signature
-curl -L https://github.com/derailed/k9s/releases/latest/k9s_Linux_$ARCH.tar.gz | tar zf - -x k9s
+REDIR=$(curl https://github.com/derailed/k9s/releases/latest)
+VERSION=$(echo $REDIR | sed 's@^.*/\(v[0-9\.]*\).*$@\1@')
+curl -L https://github.com/derailed/k9s/releases/download/$VERSION/k9s_Linux_$ARCH.tar.gz | tar zf - -x k9s
 sudo mv ./k9s /usr/local/bin/k9s
 
