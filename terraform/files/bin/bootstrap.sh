@@ -24,7 +24,7 @@ sudo apt install -y binutils
 # setup aliases and environment
 echo "# setup environment"
 cat <<EOF >> ~/.bash_aliases
-export PATH=$PATH:~/bin
+export PATH=\$PATH:~/bin
 # kubernetes-cli
 alias k=kubectl
 source <( kubectl completion bash | sed 's# kubectl\$# k kubectl\$#' )
