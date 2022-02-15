@@ -3,12 +3,10 @@
 # (c) Kurt Garloff / Malte Münch / Thosten Schifferdecker 1/2021 -- 2/2022
 # SPDX-License-Identifier: CC-BY-SA-4.0
 
-# k9s version
-VERSION_K9S=${k9s_version}
-
 # install k9s
-echo "# install k9s $VERSION_K9S"
+echo "# install latest k9s"
+ARCH=$(uname -m)
 # TODO: Check signature
-curl -L https://github.com/derailed/k9s/releases/download/v$VERSION_K9S/k9s_Linux_x86_64.tar.gz | tar zf - -x k9s
+curl -L https://github.com/derailed/k9s/releases/latest/k9s_Linux_$ARCH.tar.gz | tar zf - -x k9s
 sudo mv ./k9s /usr/local/bin/k9s
 

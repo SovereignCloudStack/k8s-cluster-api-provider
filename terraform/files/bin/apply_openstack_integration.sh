@@ -7,6 +7,7 @@ KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
 echo "Install external OpenStack cloud provider to $CLUSTER_NAME"
 kubectl $KCONTEXT create secret generic cloud-config --from-file="$HOME"/cloud.conf -n kube-system #|| exit 6
 
+cd ~/kubernetes-manifests.d
 # install external cloud-provider openstack
 DEPLOY_K8S_OPENSTACK_GIT=$(yq eval '.DEPLOY_K8S_OPENSTACK_GIT' $CCCFG)
 if test "$DEPLOY_K8S_OPENSTACK_GIT" = "true"; then

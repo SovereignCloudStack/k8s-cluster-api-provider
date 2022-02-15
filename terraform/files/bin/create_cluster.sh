@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+!/usr/bin/env bash
 
 ##    desc: a helper for deploy a workload cluster on mgmt cluster
 ## license: Apache-2.0
@@ -11,7 +11,7 @@ if test -n "$1"; then CLUSTER_NAME="$1"; fi
 KUBECONFIG_WORKLOADCLUSTER="${CLUSTER_NAME}.yaml"
 
 # Ensure image is there
-$HOME/wait_capi_image.sh "$1"
+wait_capi_image.sh "$1"
 
 # Switch to capi mgmt cluster
 export KUBECONFIG=~/.kube/config
@@ -110,29 +110,29 @@ if test "$USE_CILIUM" = "true"; then
   # FIXME: Do we need to allow overriding MTU here as well?
   KUBECONFIG=${CLUSTER_NAME}.yaml cilium install
 else
-  sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" calico.yaml | kubectl $KCONTEXT apply -f -
+  sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" ~/kubernetes-manifests.d/calico.yaml | kubectl $KCONTEXT apply -f -
 fi
 
 # Metrics
 DEPLOY_METRICS=$(yq eval '.DEPLOY_METRICS' $CCCFG)
 if test "$DEPLOY_METRICS" = "true"; then
-  bash ./apply_metrics.sh "$CLUSTER_NAME" || exit $?
+  apply_metrics.sh "$CLUSTER_NAME" || exit $?
 fi
 
 # OpenStack, Cinder
-bash ./apply_openstack_integration.sh "$CLUSTER_NAME" || exit $?
-bash ./apply_cindercsi.sh "$CLUSTER_NAME" || exit $?
+apply_openstack_integration.sh "$CLUSTER_NAME" || exit $?
+apply_cindercsi.sh "$CLUSTER_NAME" || exit $?
 
 # NGINX ingress
 DEPLOY_NGINX_INGRESS=$(yq eval '.DEPLOY_NGINX_INGRESS' $CCCFG)
 if test "$DEPLOY_NGINX_INGRESS" = "true"; then
-  bash ./apply_nginx_ingress.sh "$CLUSTER_NAME" || exit $?
+  apply_nginx_ingress.sh "$CLUSTER_NAME" || exit $?
 fi
 
 # Cert-Manager
 DEPLOY_CERT_MANAGER=$(yq eval '.DEPLOY_CERT_MANAGER' $CCCFG)
 if test "$DEPLOY_CERT_MANAGER" = "true"; then
-  bash ./apply_cert-manager.sh "$CLUSTER_NAME" || exit $?
+  apply_cert-manager.sh "$CLUSTER_NAME" || exit $?
 fi
 
 # Flux2
