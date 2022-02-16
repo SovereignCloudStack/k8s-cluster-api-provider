@@ -70,7 +70,7 @@ variable "capi_openstack_version" {
 variable "kubernetes_version" {
   description = "desired kubernetes version for the workload cluster"
   type        = string
-  default     = "v1.21.6"
+  default     = "v1.21.9"
 }
 
 variable "kube_image_raw" {
