@@ -10,7 +10,7 @@ clusterapi_version   = "<1.x.y>"		    # defaults to "1.0.4"
 capi_openstack_version = "<0.x.y>"		  # defaults to "0.5.0"
 image                = "<glance_image>"		  # defaults to "Ubuntu 20.04"
 # Settings for testcluster
-kubernetes_version   = "<v1.XX.XX>"		  # defaults to "v1.21.6"
+kubernetes_version   = "<v1.XX.XX>"		  # defaults to "v1.21.9"
 kube_image_raw       = "<boolean>"      # defaults to "false"
 calico_version       = "<v3.xx.y>"		  # defaults to "v3.22.0"
 controller_flavor    = "<flavor>"       # defaults to SCS-2V:4:20s (ditto)
