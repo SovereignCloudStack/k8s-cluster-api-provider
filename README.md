@@ -289,17 +289,20 @@ technical preview.
 
 ## Overview over the parameters in clusterctl.yaml and environment-XXX.tfvars
 
-Parameters controlling the management node creation
+Parameters controlling the Cluster-API management node (capi mgmt node) creation
 
 environment | clusterctl.yaml | provenance | default |  meaning
--+-+-+-+-
-prefix | | SCS | capi | Prefix used for OpenStack resources for the management node
-kind_flavor | | SCS | Flavor to be used for the k8s capi management node
+---|---|---|---|---
+`prefix` | | SCS | `capi` | Prefix used for OpenStack resources for the capi mgmt node
+`kind_flavor` | | SCS | `SCS-1V:4:10` | Flavor to be used for the k8s capi mgmt node
+`image` | | SCS | `Ubuntu 20.04` | Image to be deployed for the capi mgmt node
+`ssh_username` | | SCS | `ubuntu` | Name of the default user for the `image`
 
 Parameters controlling both management node creation and cluster creation
 
 environment | clusterctl.yaml | provenance | default |  meaning
--+-+-+-+-
-cloud_provider | OPENSTACK_CLOUD | capo | OS_CLOUD name in clouds.yaml
-external | OPENSTACK_EXTERNAL_NETWORK_ID | capo | Name/ID of the external (public) OpenStack network
+---|---|---|---|---
+`cloud_provider` | `OPENSTACK_CLOUD` | capo | `OS_CLOUD` name in clouds.yaml
+`external` | `OPENSTACK_EXTERNAL_NETWORK_ID` | capo | Name/ID of the external (public) OpenStack network
+`availability_zone` | `OPENSTACK_FAILURE_DOMAIN` | capo | Availability Zone(s) for the mgmt node / workload clusters
 
