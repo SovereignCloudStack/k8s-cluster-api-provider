@@ -7,6 +7,25 @@ Cluster API requires an existing Kubernetes cluster. It is built with [kind](htt
 on an OpenStack instance created via Terraform. This instance can be used later on for the management
 of the newly created cluster, or for creating additional clusters.
 
+Basically, this repositoy covers two topics:
+1. Automation (terraform) to bootstrap a cluster-API management node by installing
+   kind on a vanilla Ubuntu image and deploying some tools on this node (kubectl, k9s,
+   cilium, calico, helm, flux ...) and deploying cluster-API (clusterctl) and the
+   OpenStack cluster-api provider along with suitable credentials. The terraform
+   automation is driven by a Makefile for convenience. The tooling also contains
+   all the logic to clean up again.
+1. This node can be connected to via ssh and the deployed scripts there can be
+   used to create test clusters and then deploy various standardized tools (such
+   as e.g. OpenStack Cloud Controller Manager, cinder CSI, calico or ciliu,
+   nginx ingress controller, cert-manager, ...) and run tests (e.g. CNCF conformance
+   with sonobuoy). Note that the script collection will eventually be superceded
+   by the [capi-helm-chars](https://github.com/stackhpc/capi-helm-charts). The
+   medium-term goal is to actually create a reconciliation loop here that would
+   perform life-cycle-management for clusters according to the cluster configuration
+   stored in an enhanced cluster-api style clusterctl.yaml from git repositories
+   and thus allow a pure gitops style cluster management without ever ssh'ing to
+   the management node.
+
 ## Intended audience
 
 Creating and scaling k8s clusters on demand is providing a lot of flexibility to
@@ -26,6 +45,9 @@ call interface would allow the management server to be created on behalf of a us
 and then serve as an API endpoint to that user's k8s capi needs. Ideally with some
 dashboard or GUI that would shield less experienced users from all the YAML.
 
+Once we have the gitops style cluster control working, the self-service model
+will become more convenient to use.
+
 ## Preparations
 
 * Terraform must be installed (<https://learn.hashicorp.com/tutorials/terraform/install-cli>).
@@ -43,8 +65,8 @@ dashboard or GUI that would shield less experienced users from all the YAML.
   endpoint (with a trailing ``/v3``).
 * Copy the environments sample file from environments/environment-default.tfvars to
   ``environments/environment-<yourcloud>.tfvars`` and provide the necessary information like
-  machine flavor or machine image.
-* Pass ``ENVIRONMENT=<yourcloud`` to the ``make`` command or export ``ENVIRONMENT`` from
+  machine flavor or machine image. (See below for more details on this.)
+* Pass ``ENVIRONMENT=<yourcloud>`` to the ``make`` command or export ``ENVIRONMENT`` from
   your shell's environment. If the name of the environment equals the name of the cloud
   as specified in your ``clouds.yaml``, you can also just set ``OS_CLOUD`` in your shell's
   environment. (You can also edit the default in the Makefile, though we don't recommend
@@ -54,15 +76,19 @@ dashboard or GUI that would shield less experienced users from all the YAML.
 
 * ``make create``
 
-This will create an appication credential, networks, security groups and a virtual machine
-which gets bootstrapped with an installation of a local kubernetes cluster (with kind),
-where the cluster API provider will be installed and which will provide the API server
-for the k8s CAPI. Depending on the numer of control nodes in your config
-(``environment-<yourcloud>.tfvars``), a testcluster will be created using k8s CAPI.
-The VM will also get some tools deployed, so it is most convenient to log in to this
-management machine via ssh. You can do via ``make ssh``.  The kubeconfig with admin
-power for the created cluster is named ``testcluster.yaml`` and can be handed out to
-users that should get administrative control over the cluster.
+This will create an application credential, networks, security groups and a virtual machine
+which gets bootstrapped with an installation of some tools and a local kubernetes cluster
+(with kind), where the cluster API provider will be installed and which will provide the
+API server for the k8s CAPI. If the number of control nodes ``controller_count`` in
+your config (``environment-<yourcloud>.tfvars``) is zero, then that's all that is done.
+Otherwise, a testcluster will be created using k8s CAPI.
+
+The subsequent management of the cluster can best be done from the VM, as it has all
+the tools deployed there and config files can be edited and resubmitted to the kubernetes
+kind cluster for reconciliation. To log in to this management machine via ssh, you can
+issue ``make ssh``.  The kubeconfig with admin
+power for the created testcluster is named ``testcluster.yaml`` and can be handed out to
+users that should get full administrative control over the cluster.
 
 ## Teardown
 
@@ -85,11 +111,13 @@ the same kubernetes version number.
 
 ## Extensions
 
-You can use this repository as a starting point for some automation e.g. adding kubernetes manifests
-to the cluster or to run custom shell scripts in the end. To do so place your files in the `terraform/extension` folder.
-They will be uploaded to the management cluster. Files ending in ```*.sh``` will be executed in alphabetical
-order. All other files will just be uploaded. If you want to deploy resources in the new cluster-api-maintained cluster
-you can use `kubectl apply -f <your-manifest.yaml> --kubeconfig ~/testcluster.yaml` to do so.
+You can use this repository as a starting point for some automation e.g. adding
+kubernetes manifests to the cluster or to run custom shell scripts in the end.
+To do so place your files in the `terraform/extension` folder.  They will be
+uploaded to the management cluster. Files ending in ```*.sh``` will be executed
+in alphabetical order. All other files will just be uploaded. If you want to
+deploy resources in the new cluster-api-maintained cluster you can use `kubectl
+apply -f <your-manifest.yaml> --kubeconfig ~/testcluster.yaml` to do so.
 
 ## Application Credentials
 
@@ -112,6 +140,9 @@ same OpenStack project and use the same credentials. Obviously, nothing prevents
 you from copying a secondary AppCred into the VM and creating appropriate
 secrets to talk to other projects or other clouds simultaneously.
 
+The plan for the future is to create AppCreds per cluster (see #109), so
+credentials for individual clusters can be revoked.
+
 ## Cluster Management on the C-API management node
 
 You can use ``make ssh`` to log in to the C-API management node. There you can issue
@@ -124,9 +155,10 @@ of them. There are management scripts on the management node:
   ``cluster-template.yaml`` with the variables from ``clusterctl[-$CLUSTERNAME].yaml``
   to render a config file ``$CLUSTERNAME-config.yaml`` which will then be submitted
   to the capi server (``kind-kind`` context) for creating the control plane nodes
-  and worker nodes with openstack integration, cinder CSI, calico CNI,
-  metrics server, and the nginx ingress controller. (The later two can be
-  controlled by ``tfvars`` which are passed down into the ``clusterctl.yaml``.
+  and worker nodes with openstack integration, cinder CSI, calico or cilium CNI,
+  metrics server, and optionally nginx ingress controller, flux, cert-manager. 
+  (The latter of these can be controlled by ``tfvars`` which are passed down
+   into the ``clusterctl.yaml``.)
   The script returns once the control plane is fully working (the worker
   nodes might still be under construction). The kubectl file to talk to this
   cluster (as admin) can be found in ``$CLUSTERNAME.yaml``. Expect the cluster
@@ -135,29 +167,36 @@ of them. There are management scripts on the management node:
   default ``~/.kubernetes/config`` config file) or ``export KUBECONFIG=$CLUSTERNAME.yaml``\
   to talk to the workload cluster.
 * The installaton of the openstack integration, cinder CSI, metrics server and
-  nginx ingree controller is done via the ``apply_*.sh`` scripts that are called
+  nginx ingress controller is done via the ``bin/apply_*.sh`` scripts that are called
   from ``create_cluster.sh``. You can manually call them as well -- they take
   the cluster name as argument. The applied yaml files are left in the user's
   home directory -- you can ``kubectl delete -f`` them to remove the functionality
   again.
 * The ``create_cluster.sh`` script can be called with an existing cluster to apply
   changes to it.
-  Note that you can easily change the number of nodes, while the node specifications
-  itself (flavor, image, ...) can not be changed. You need to add a second machine
-  description template to the ``cluster-template.yaml`` to do such changes.
+  Note that you can easily change the number of nodes or add k8s services to a
+  cluster, while the node specifications itself (flavor, image, ...) can not
+  be changed. You need to add a second machine
+  description template to the ``cluster-template.yaml`` to do such changes;
+  the machine description names carry a ``-genwN`` (worker) resp. ``-gencN``
+  suffix that is meant to be adjusted for this purpose.
   You will also need to enhance it for multi-AZ or multi-region clusters.
   You can of course also delete the cluster and create a new one if that
   level of disruption is fine for you. (See below in Advanced cluster templating
   with helm to get an idea how we want to make this more convenient in the future.)
 * Use ``kubectl get clusters`` in the ``kind-kind`` context to see what clusters
-  exist.
+  exist. Use ``kubectl get all -A`` in the ``testcluster-admin@testcluster`` context
+  to get an overview over the state of your workload cluster. You can access the logs
+  from the capo controller in case you have trouble with cluster creation.
 * ``delete_cluster.sh [CLUSTERNAME]``: Tell the capi mgmt server to remove
   the cluster $CLUSTERNAME. It will also remove persistent volume claims belonging
   to the cluster. The script will return once the removal is done.
 * ``cleanup.sh``: Remove all running clusters.
 
 For your convenience, ``k9s`` is installed on the management node as well
-as ``calicoctl``, ``helm`` and ``sonobuoy``.
+as ``calicoctl``, ``cilium``, ``hubble``, ``cmctl``, ``helm`` and ``sonobuoy``.
+These binaries can all be found in ``/usr/local/bin`` while the helper scripts
+have been deployed to ``~/bin/``.
 
 ## Managing many clusters
 
@@ -211,7 +250,7 @@ latencies (>100ms in the default configuration which we don't change).
 
 We recommend to deploy the control nodes (which run etcd) on instances
 with SSD storage (which we reflect in the default flavor name) and
-recommend ensuring that the CPU oversubscription is not high and that
+recommend ensuring that the CPU oversubscription is low and that
 your network does not introduce latencies by significant packet drop.
 
 ## Multi-AZ and multi-cloud environments
@@ -220,7 +259,7 @@ The provided ``cluster-template.yaml`` assumes that all control nodes
 on one hand and all worker nodes on the other are equal. They are in the
 same cloud within the same availablity zone, using the same flavor.
 cluster API allows k8s clusters to have varying flavors, span availability
-zones and even clouds. For this, you'll have to create an advanced
+zones and even clouds. For this, you can create an advanced
 cluster-template with more different machine descriptions and potentially
 several secrets. Depending on your changes, the logic in ``create_cluster.sh``
 might also need enhancements to handle this. Extending this is not hard
@@ -243,3 +282,6 @@ completely assessed and tested the capabilities. We intend to do
 this after R1 and eventually recommend this as the standard way
 of managing clusters in production. At this point, it's included as a
 technical preview.
+
+## Overview over the parameters in clusterctl.yaml and environment-XXX.tfvars
+
