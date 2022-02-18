@@ -306,7 +306,7 @@ environment | clusterctl.yaml | provenance | default |  meaning
 ---|---|---|---|---
 `cloud_provider` | `OPENSTACK_CLOUD` | capo | | `OS_CLOUD` name in clouds.yaml
 `external` | `OPENSTACK_EXTERNAL_NETWORK_ID` | capo | | Name/ID of the external (public) OpenStack network
-`dns_nameserver` | `OPENSTACK_DNS_NAMESERVERS` | capo | '9.9.9.9' | List of nameservers for capi mgmt nodes and for cluster nodes
+`dns_nameserver` | `OPENSTACK_DNS_NAMESERVERS` | capo | `9.9.9.9` | List of nameservers for capi mgmt nodes and for cluster nodes
 `availability_zone` | `OPENSTACK_FAILURE_DOMAIN` | capo | | Availability Zone(s) for the mgmt node / workload clusters
 `kind_mtu` | `MTU_VALUE` | SCS | `0` | MTU for the mgmt node; Calico is set 50 bytes smaller; 0 means autodetection
 
@@ -342,12 +342,18 @@ environment | clusterctl.yaml | provenance | default | script |  meaning
 `deploy_cert_manager` | `DEPLOY_CERT_MANAGER` | SCS | `false` | `apply_cert-manager.sh` | Deploy cert-manager
 `deploy_flux` | `DEPLOY_FLUX` | SCS | `false` | | Deploy flux2 into the cluster
 
+The provenance capo means that this setting comes from the templates used by the cluster-api-provider-openstack.
+
 ## TODO
 
-* Unify settings naming
-* Move towards per cluster app creds
-* Opt-in for per cluster project
-* Subdirectories per cluster on capi mgmt node
-* Allow service deletion from `create_cluster.sh`
-* Move towards gitops style cluster management.
+* Unify settings naming (#136)
+* Move towards per cluster app creds (#109)
+* Opt-in for per cluster project (extends #109)
+* Subdirectories per cluster on capi mgmt node (#107, see also #117).
+* Allow service deletion from `create_cluster.sh` (#137, see also #131)
+* More pre-flight checks in `create_clster.sh` (#111).
+* Allow using newer OCCM and cinder CSI providers with fixed and tested versions. (#138)
+* Implement (optional) harbor deployment using k8s-harbor.(#139)
+* Move towards gitops style cluster management.(Design Doc to be written)
+
 
