@@ -7,16 +7,16 @@ Cluster API requires an existing Kubernetes cluster. It is built with [kind](htt
 on an OpenStack instance created via Terraform. This instance can be used later on for the management
 of the newly created cluster, or for creating additional clusters.
 
-Basically, this repositoy covers two topics:
+Basically, this repository covers two topics:
 1. Automation (terraform) to bootstrap a cluster-API management node by installing
-   kind on a vanilla Ubuntu image and deploying some tools on this node (kubectl, k9s,
-   cilium, calico, helm, flux ...) and deploying cluster-API (clusterctl) and the
-   OpenStack cluster-api provider along with suitable credentials. The terraform
-   automation is driven by a Makefile for convenience. The tooling also contains
-   all the logic to clean up again.
+   kind on a vanilla Ubuntu image and deploying some tools on this node (kubectl,
+   openstack CLI tools, k9s, cilium, calico, helm, flux ...) and deploying
+   cluster-API (clusterctl) and the OpenStack cluster-api provider along with
+   suitable credentials. The terraform automation is driven by a Makefile for
+   convenience. The tooling also contains all the logic to clean up again.
 1. This node can be connected to via ssh and the deployed scripts there can be
-   used to create test clusters and then deploy various standardized tools (such
-   as e.g. OpenStack Cloud Controller Manager, cinder CSI, calico or ciliu,
+   used to manage clusters and then deploy various standardized tools (such
+   as e.g. OpenStack Cloud Controller Manager, cinder CSI, calico or cilium,
    nginx ingress controller, cert-manager, ...) and run tests (e.g. CNCF conformance
    with sonobuoy). Note that the script collection will eventually be superceded
    by the [capi-helm-chars](https://github.com/stackhpc/capi-helm-charts). The
@@ -159,6 +159,10 @@ of them. There are management scripts on the management node:
   metrics server, and optionally nginx ingress controller, flux, cert-manager. 
   (The latter of these can be controlled by ``tfvars`` which are passed down
    into the ``clusterctl.yaml``.)
+  The script makes sure that appropriate capi images are available (it grabs them
+  from OSISM(https://minio.services.osism.tech/openstack-k8s-capi-images)
+  as needed and registers them with OpenStack, following the SCS image metadata
+  standard.
   The script returns once the control plane is fully working (the worker
   nodes might still be under construction). The kubectl file to talk to this
   cluster (as admin) can be found in ``$CLUSTERNAME.yaml``. Expect the cluster
@@ -284,4 +288,18 @@ of managing clusters in production. At this point, it's included as a
 technical preview.
 
 ## Overview over the parameters in clusterctl.yaml and environment-XXX.tfvars
+
+Parameters controlling the management node creation
+
+environment | clusterctl.yaml | provenance | default |  meaning
+-+-+-+-+-
+prefix | | SCS | capi | Prefix used for OpenStack resources for the management node
+kind_flavor | | SCS | Flavor to be used for the k8s capi management node
+
+Parameters controlling both management node creation and cluster creation
+
+environment | clusterctl.yaml | provenance | default |  meaning
+-+-+-+-+-
+cloud_provider | OPENSTACK_CLOUD | capo | OS_CLOUD name in clouds.yaml
+external | OPENSTACK_EXTERNAL_NETWORK_ID | capo | Name/ID of the external (public) OpenStack network
 
