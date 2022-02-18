@@ -141,7 +141,7 @@ you from copying a secondary AppCred into the VM and creating appropriate
 secrets to talk to other projects or other clouds simultaneously.
 
 The plan for the future is to create AppCreds per cluster 
-(see #109(https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/109) ),
+(see [#109](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/109)),
 so credentials for individual clusters can be revoked.
 
 ## Cluster Management on the C-API management node
@@ -161,7 +161,7 @@ of them. There are management scripts on the management node:
   (The latter of these can be controlled by ``tfvars`` which are passed down
    into the ``clusterctl.yaml``.)
   The script makes sure that appropriate capi images are available (it grabs them
-  from OSISM(https://minio.services.osism.tech/openstack-k8s-capi-images)
+  from [OSISM](https://minio.services.osism.tech/openstack-k8s-capi-images)
   as needed and registers them with OpenStack, following the SCS image metadata
   standard.
   The script returns once the control plane is fully working (the worker
@@ -347,7 +347,7 @@ The provenance capo means that this setting comes from the templates used by the
 
 ## TODO
 
-* Unify settings naming (#136(https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/136))
+* Unify settings naming ([#136](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/136))
 * Move towards per cluster app creds (#109)
 * Opt-in for per cluster project (extends #109)
 * Subdirectories per cluster on capi mgmt node (#107, see also #117).
