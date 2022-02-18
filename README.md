@@ -9,22 +9,34 @@ of the newly created cluster, or for creating additional clusters.
 
 Basically, this repository covers two topics:
 1. Automation (terraform) to bootstrap a cluster-API management node by installing
-   kind on a vanilla Ubuntu image and deploying some tools on this node (kubectl,
-   openstack CLI tools, k9s, cilium, calico, helm, flux ...) and deploying
-   cluster-API (clusterctl) and the OpenStack cluster-api provider along with
-   suitable credentials. The terraform automation is driven by a Makefile for
+   kind on a vanilla Ubuntu image and deploying some tools on this node (
+   [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/),
+   [openstack CLI tools](https://docs.openstack.org/newton/user-guide/common/cli-install-openstack-command-line-clients.html),
+   [k9s](https://github.com/derailed/k9s),
+   [cilium](https://cilium.io/),
+   [calico](https://www.tigera.io/tigera-products/calico/),
+   [helm](https://helm.sh/),
+   [flux](https://fluxcd.io/) ...) and deploying
+   [cluster-API]((https://cluster-api.sigs.k8s.io/) (clusterctl) and the
+   [OpenStack cluster-api provider](https://github.com/kubernetes-sigs/cluster-api-provider-openstack)
+   along with suitable credentials. The terraform automation is driven by a Makefile for
    convenience. The tooling also contains all the logic to clean up again.
 1. This node can be connected to via ssh and the deployed scripts there can be
    used to manage clusters and then deploy various standardized tools (such
-   as e.g. OpenStack Cloud Controller Manager, cinder CSI, calico or cilium,
-   nginx ingress controller, cert-manager, ...) and run tests (e.g. CNCF conformance
-   with sonobuoy). Note that the script collection will eventually be superceded
-   by the [capi-helm-chars](https://github.com/stackhpc/capi-helm-charts). The
+   as e.g. [OpenStack Cloud Controller Manager](https://github.com/kubernetes/cloud-provider-openstack)(OCCM),
+   [cinder CSI](https://github.com/kubernetes/cloud-provider-openstack/blob/master/docs/cinder-csi-plugin/using-cinder-csi-plugin.md),
+   calico or cilium,
+   [nginx ingress controller](https://kubernetes.github.io/ingress-nginx/),
+   [cert-manager](https://cert-manager.io/), ...) and run tests (e.g. CNCF conformance
+   with [sonobuoy](https://sonobuoy.io/)). Note that the script collection will
+   eventually be superceded by the
+   [capi-helm-charts](https://github.com/stackhpc/capi-helm-charts). The
    medium-term goal is to actually create a reconciliation loop here that would
    perform life-cycle-management for clusters according to the cluster configuration
-   stored in an enhanced cluster-api style clusterctl.yaml from git repositories
-   and thus allow a pure gitops style cluster management without ever ssh'ing to
-   the management node.
+   stored in an enhanced [cluster-api style](https://cluster-api.sigs.k8s.io/clusterctl/configuration.html)
+   clusterctl.yaml from git repositories
+   and thus allow a pure [gitops](https://www.weave.works/technologies/gitops/) style
+   cluster management without ever ssh'ing to the management node.
 
 ## Intended audience
 
@@ -121,7 +133,8 @@ apply -f <your-manifest.yaml> --kubeconfig ~/testcluster.yaml` to do so.
 
 ## Application Credentials
 
-The terraform creates an application credential that it passes into the created VM.
+The terraform creates an [application credential](https://docs.openstack.org/keystone/wallaby/user/application_credentials.html)
+that it passes into the created VM.
 This one is then used to authenticate the cluster API provider against the OpenStack
 API to allow it to create resources needed for the k8s cluster.
 
@@ -240,6 +253,12 @@ file).
   call various [sonobuoy](https://sonobuoy.io) test sets.
   This is how we call sonobuoy for our CI tests.
 
+* You can use `cilium connectivity test` to check whether your cilium
+  CNI is working properly. You will have to add two rules to the security
+  group `k8s-cluster-testcluster-cilium` though to allow for the NodePorts
+  to be accessible. As these ports are created dynamically, this is not
+  preconfigured.
+
 ## etcd leader changes
 
 While testing clusters with >= 3 control nodes, we have observed
@@ -348,13 +367,13 @@ The provenance capo means that this setting comes from the templates used by the
 ## TODO
 
 * Unify settings naming ([#136](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/136))
-* Move towards per cluster app creds (#109)
-* Opt-in for per cluster project (extends #109)
-* Subdirectories per cluster on capi mgmt node (#107, see also #117).
-* Allow service deletion from `create_cluster.sh` (#137, see also #131)
-* More pre-flight checks in `create_clster.sh` (#111).
-* Allow using newer OCCM and cinder CSI providers with fixed and tested versions. (#138)
-* Implement (optional) harbor deployment using k8s-harbor.(#139)
+* Move towards per cluster app creds ([#109](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/109))
+* Opt-in for per cluster project (extends [#109](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/109))
+* Subdirectories per cluster on capi mgmt node ([#107](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/107), see also [#117](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/117)).
+* Allow service deletion from `create_cluster.sh` ([#137](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/137), see also [#131](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/131))
+* More pre-flight checks in `create_clster.sh` ([#111](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/111)).
+* Allow using newer OCCM and cinder CSI providers with fixed and tested versions. ([#138](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/138))
+* Implement (optional) harbor deployment using k8s-harbor.([#139](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/139))
 * Move towards gitops style cluster management.(Design Doc to be written)
 
 
