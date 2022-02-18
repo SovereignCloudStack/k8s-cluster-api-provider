@@ -373,7 +373,7 @@ The provenance capo means that this setting comes from the templates used by the
 * Allow service deletion from `create_cluster.sh` ([#137](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/137), see also [#131](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/131))
 * More pre-flight checks in `create_clster.sh` ([#111](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/111)).
 * Allow using newer OCCM and cinder CSI providers with fixed and tested versions. ([#138](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/138))
-* Implement (optional) harbor deployment using k8s-harbor.([#139](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/139))
-* Move towards gitops style cluster management.(Design Doc to be written)
+* Implement (optional) harbor deployment using k8s-harbor. ([#139](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/139))
+* Move towards gitops style cluster management. (Design Doc in [Docs repo PR #47](https://github.com/SovereignCloudStack/Docs/pull/47) - draft)
 
 
