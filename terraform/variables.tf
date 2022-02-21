@@ -49,22 +49,16 @@ variable "ssh_username" {
   default     = "ubuntu"
 }
 
-variable "k9s_version" {
-  description = "desired version of the k9s tool"
-  type        = string
-  default     = "0.25.8"
-}
-
 variable "calico_version" {
   description = "desired version of calico"
   type        = string
-  default     = "v3.21.2"
+  default     = "v3.22.0"
 }
 
 variable "clusterapi_version" {
   description = "desired version of cluster-api"
   type        = string
-  default     = "1.0.2"
+  default     = "1.0.4"
 }
 
 variable "capi_openstack_version" {
@@ -76,7 +70,7 @@ variable "capi_openstack_version" {
 variable "kubernetes_version" {
   description = "desired kubernetes version for the workload cluster"
   type        = string
-  default     = "v1.21.6"
+  default     = "v1.21.9"
 }
 
 variable "kube_image_raw" {
@@ -92,9 +86,9 @@ variable "image_registration_extra_flags" {
 }
 
 variable "kind_mtu" {
-  description = "inner MTU used in the kind cluster on the capi-mgmtnode"
+  description = "MTU used in the kind cluster (0=autodetect), k8s cluster is 50 smaller"
   type        = number
-  default     = 1392
+  default     = 0
 }
 
 variable "worker_count" {
@@ -127,6 +121,18 @@ variable "deploy_nginx_ingress" {
   default     = true
 }
 
+variable "deploy_cert_manager" {
+  description = "deploy cert-manager into k8s-capi created clusters"
+  type        = bool
+  default     = false
+}
+
+variable "deploy_flux" {
+  description = "install flux into k8s-capi created clusters"
+  type        = bool
+  default     = false
+}
+
 variable "deploy_k8s_openstack_git" {
   description = "deploy k8s openstack provider from github instead of local copy, set to true for k8s >= 1.22, dont set it for < 1.20"
   type        = bool
@@ -139,8 +145,21 @@ variable "deploy_k8s_cindercsi_git" {
   default     = false
 }
 
+variable "anti_affinity" {
+  description = "use anti-affinity (soft for workers) to avoid k8s nodes on the same host"
+  type        = bool
+  default     = false
+}
+
 variable "dns_nameserver" {
   description = "nameserver to be set for subnets"
   type        = string
   default     = "9.9.9.9"
 }
+
+variable "use_cilium" {
+  description = "use cilium rather than calico as CNI"
+  type        = bool
+  default     = false
+}
+

@@ -17,7 +17,7 @@ if ! test -x /usr/local/bin/sonobuoy; then
 	rm ${SONOTARBALL}
 fi
 export KUBECONFIG=testcluster.yaml
-if ! test -r "$KUBECONFIG"; then echo "No $KUBECONFIG" 1>&2; exit 3; fi
+if ! test -s "$KUBECONFIG"; then echo "No $KUBECONFIG" 1>&2; exit 3; fi
 #./sonobuoy status 2>/dev/null
 #./sonobuoy delete --wait
 START=$(date +%s)

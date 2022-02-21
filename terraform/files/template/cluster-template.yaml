@@ -47,7 +47,7 @@ spec:
       kind: OpenStackMachineTemplate
       #apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
       apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
-      name: "k8s-clusterapi-${CLUSTER_NAME}-control-plane"
+      name: "k8s-clusterapi-${CLUSTER_NAME}-control-plane-genc1"
   kubeadmConfigSpec:
     initConfiguration:
       nodeRegistration:
@@ -68,7 +68,7 @@ spec:
         kubeletExtraArgs:
           cloud-provider: external
     postKubeadmCommands:
-      - curl https://docs.projectcalico.org/manifests/calico.yaml | sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" | kubectl apply --kubeconfig /etc/kubernetes/admin.conf -f -
+      - echo "No hardcoded calico" #curl https://docs.projectcalico.org/manifests/calico.yaml | sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" | kubectl apply --kubeconfig /etc/kubernetes/admin.conf -f -
       - grep 'hearbeat\-interval' /etc/kubernetes/manifests/etcd.yaml >/dev/null || true  # || sed -i '/\-\-trusted\-ca\-file/a\    - --heartbeat-interval=250\n    - --election-timeout=2500' /etc/kubernetes/manifests/etcd.yaml  # Disabled as uncoordinated etcd restart causes quorum loss
     preKubeadmCommands:
       - DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https curl
@@ -76,8 +76,8 @@ spec:
       - echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
       - apt-get update -y
       - TRIMMED_KUBERNETES_VERSION=$(echo ${KUBERNETES_VERSION} | sed 's/\./\./g' | sed 's/^v//')
-      - RESOLVED_KUBERNETES_VERSION=$(apt-cache policy kubelet | awk -v VERSION=$${TRIMMED_KUBERNETES_VERSION} '$1~ VERSION { print $1 }' | head -n1)
-      - apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips containerd.io kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
+      - RESOLVED_KUBERNETES_VERSION=$(apt-cache policy kubelet | sed 's/\*\*\*//' | awk -v VERSION=$${TRIMMED_KUBERNETES_VERSION} '$1~ VERSION { print $1 }' | head -n1)
+      - apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips containerd kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
       - systemctl daemon-reload
   version: "${KUBERNETES_VERSION}"
 ---
@@ -85,11 +85,12 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
 kind: OpenStackMachineTemplate
 metadata:
-  name: k8s-clusterapi-${CLUSTER_NAME}-control-plane
+  name: k8s-clusterapi-${CLUSTER_NAME}-control-plane-genc1
 spec:
   template:
     spec:
       flavor: ${OPENSTACK_CONTROL_PLANE_MACHINE_FLAVOR}
+      serverGroupID: ${OPENSTACK_SRVGRP_CONTROLLER}
       image: ${OPENSTACK_IMAGE_NAME}
       sshKeyName: ${OPENSTACK_SSH_KEY_NAME}
       cloudName: ${OPENSTACK_CLOUD}
@@ -99,11 +100,12 @@ spec:
       securityGroups:
         - name: allow-ssh
         - name: allow-icmp
+        - name: k8s-cluster-${CLUSTER_NAME}-cilium
 ---
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: MachineDeployment
 metadata:
-  name: "${CLUSTER_NAME}-md-0"
+  name: "${CLUSTER_NAME}-md-0-genw1"
 spec:
   clusterName: "${CLUSTER_NAME}"
   replicas: ${WORKER_MACHINE_COUNT}
@@ -116,11 +118,11 @@ spec:
       failureDomain: ${OPENSTACK_FAILURE_DOMAIN}
       bootstrap:
         configRef:
-          name: "${CLUSTER_NAME}-md-0"
+          name: "${CLUSTER_NAME}-md-0-genw1"
           apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
           kind: KubeadmConfigTemplate
       infrastructureRef:
-        name: "k8s-clusterapi-${CLUSTER_NAME}-md-0"
+        name: "k8s-clusterapi-${CLUSTER_NAME}-md-0-genw1"
         #apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
         apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
         kind: OpenStackMachineTemplate
@@ -129,7 +131,7 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
 kind: OpenStackMachineTemplate
 metadata:
-  name: k8s-clusterapi-${CLUSTER_NAME}-md-0
+  name: k8s-clusterapi-${CLUSTER_NAME}-md-0-genw1
 spec:
   template:
     spec:
@@ -138,16 +140,18 @@ spec:
         name: ${CLUSTER_NAME}-cloud-config
         kind: Secret
       flavor: ${OPENSTACK_NODE_MACHINE_FLAVOR}
+      serverGroupID: ${OPENSTACK_SRVGRP_WORKER}
       image: ${OPENSTACK_IMAGE_NAME}
       sshKeyName: ${OPENSTACK_SSH_KEY_NAME}
       securityGroups:
         - name: allow-ssh
         - name: allow-icmp
+        - name: k8s-cluster-${CLUSTER_NAME}-cilium
 ---
 apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: KubeadmConfigTemplate
 metadata:
-  name: ${CLUSTER_NAME}-md-0
+  name: ${CLUSTER_NAME}-md-0-genw1
 spec:
   template:
     spec:
@@ -162,8 +166,8 @@ spec:
         - echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
         - apt-get update -y
         - TRIMMED_KUBERNETES_VERSION=$(echo ${KUBERNETES_VERSION} | sed 's/\./\./g' | sed 's/^v//')
-        - RESOLVED_KUBERNETES_VERSION=$(apt-cache policy kubelet | awk -v VERSION=$${TRIMMED_KUBERNETES_VERSION} '$1~ VERSION { print $1 }' | head -n1)
-        - apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips containerd.io kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
+        - RESOLVED_KUBERNETES_VERSION=$(apt-cache policy kubelet | sed 's/\*\*\*//' | awk -v VERSION=$${TRIMMED_KUBERNETES_VERSION} '$1~ VERSION { print $1 }' | head -n1)
+        - apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips containerd kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
         - systemctl daemon-reload
 ---
 apiVersion: v1

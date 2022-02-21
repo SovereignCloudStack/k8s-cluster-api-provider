@@ -8,6 +8,13 @@ CLUSTERAPI_OPENSTACK_PROVIDER_VERSION=${capi_openstack_version}
 CLUSTERAPI_VERSION=${clusterapi_version}
 CALICO_VERSION=${calico_version}
 
+ARCH=$(uname -m | sed 's/x86_64/amd64/')
+# Install clusterctl
+echo "# install clusterctl $CLUSTERAPI_VERSION"
+# TODO: Check signature
+sudo curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/v$CLUSTERAPI_VERSION/clusterctl-linux-$ARCH -o /usr/local/bin/clusterctl
+sudo chmod +x /usr/local/bin/clusterctl
+
 # get the clusterctl version
 echo "show the clusterctl version:"
 clusterctl version --output yaml
@@ -24,9 +31,24 @@ clusterctl init --infrastructure openstack:v$CLUSTERAPI_OPENSTACK_PROVIDER_VERSI
 
 # Install calicoctl
 # TODO: Check signature
-curl -o calicoctl -O -L  "https://github.com/projectcalico/calicoctl/releases/download/$CALICO_VERSION/calicoctl"
+curl -o calicoctl -O -L "https://github.com/projectcalico/calico/releases/download/$CALICO_VERSION/calicoctl-linux-$ARCH"
+if test $? != 0 -o $(stat -c "%s" calicoctl) -lt 1000; then
+  curl -o calicoctl -O -L  "https://github.com/projectcalico/calicoctl/releases/download/$CALICO_VERSION/calicoctl"
+fi
 chmod +x calicoctl
 sudo mv calicoctl /usr/local/bin
+
+# Install cilium
+# TODO: Check signature
+curl -L --remote-name-all https://github.com/cilium/cilium-cli/releases/latest/download/cilium-linux-$ARCH.tar.gz{,.sha256sum}
+sha256sum --check cilium-linux-$ARCH.tar.gz.sha256sum || exit
+sudo tar xzvfC cilium-linux-$ARCH.tar.gz /usr/local/bin
+rm cilium-linux-$ARCH.tar.gz{,.sha256sum}
+HUBBLE_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/hubble/master/stable.txt)
+curl -L --remote-name-all https://github.com/cilium/hubble/releases/download/$HUBBLE_VERSION/hubble-linux-$ARCH.tar.gz{,.sha256sum}
+sha256sum --check hubble-linux-$ARCH.tar.gz.sha256sum || exit
+sudo tar xzvfC hubble-linux-$ARCH.tar.gz /usr/local/bin
+rm hubble-linux-$ARCH.tar.gz{,.sha256sum}
 
 # wait for CAPI pods
 echo "# wait for all components are ready for cluster-api"

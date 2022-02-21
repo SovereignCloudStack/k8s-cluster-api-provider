@@ -2,8 +2,8 @@
 # Fill in OPENSTACK_CLOUD_YAML_B64, OPENSTACK_CLOUD_PROVIDER_CONF_B64,
 #  OPENSTACK_CLOUD_CACERT_B64 into clusterctl.yaml
 
-# Install yq
-sudo snap install yq
+# yq installation done by bootstrap.sh
+#sudo snap install yq
 
 # Encode clouds.yaml
 # Using application credentials, we don't need project_id, and openstackclient is
