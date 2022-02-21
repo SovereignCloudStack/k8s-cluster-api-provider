@@ -18,7 +18,7 @@ variable "image" {
 variable "kind_flavor" {
   description = "openstack nova flavor for instance running kind (capi mgmt node)"
   type        = string
-  default     = "SCS-1V:4:10"
+  default     = "SCS-1V:4:20"
 }
 
 variable "controller_flavor" {
