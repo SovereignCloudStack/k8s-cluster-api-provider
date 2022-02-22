@@ -5,7 +5,7 @@
 
 STARTTIME=$(date +%s)
 # variables
-CLUSTERAPI_TEMPLATE=cluster-template.yaml
+CLUSTERAPI_TEMPLATE=~/cluster-template.yaml
 CLUSTER_NAME=testcluster
 if test -n "$1"; then CLUSTER_NAME="$1"; fi
 KUBECONFIG_WORKLOADCLUSTER="${CLUSTER_NAME}.yaml"
