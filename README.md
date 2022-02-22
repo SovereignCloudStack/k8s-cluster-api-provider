@@ -314,7 +314,7 @@ Parameters controlling the Cluster-API management node (capi mgmt node) creation
 environment | clusterctl.yaml | provenance | default |  meaning
 ---|---|---|---|---
 `prefix` | | SCS | `capi` | Prefix used for OpenStack resources for the capi mgmt node
-`kind_flavor` | | SCS | `SCS-1V:4:10` | Flavor to be used for the k8s capi mgmt node
+`kind_flavor` | | SCS | `SCS-1V:4:20` | Flavor to be used for the k8s capi mgmt node
 `image` | | SCS | `Ubuntu 20.04` | Image to be deployed for the capi mgmt node
 `ssh_username` | | SCS | `ubuntu` | Name of the default user for the `image`
 `clusterapi_version` | | SCS | `1.0.4` | Version of the cluster-API incl. `clusterctl`
