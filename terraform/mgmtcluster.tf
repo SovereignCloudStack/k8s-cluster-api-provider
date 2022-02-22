@@ -100,6 +100,11 @@ EOF
     destination = "/home/${var.ssh_username}/.ssh/id_rsa"
   }
 
+  provisioner "file"{
+    content     = templatefile("files/template/prepare_openstack.sh.tmpl", { prefix = var.prefix })
+    destination = "/home/${var.ssh_username}/bin/prepare_openstack.sh"
+  }
+
   provisioner "file" {
     content     = templatefile("files/template/deploy_cluster_api.sh.tmpl", { clusterapi_version = var.clusterapi_version, capi_openstack_version = var.capi_openstack_version, calico_version = var.calico_version })
     destination = "/home/${var.ssh_username}/bin/deploy_cluster_api.sh"
