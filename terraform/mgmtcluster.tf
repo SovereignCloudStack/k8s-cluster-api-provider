@@ -100,7 +100,7 @@ EOF
     destination = "/home/${var.ssh_username}/.ssh/id_rsa"
   }
 
-  provisioner "file"{
+  provisioner "file" {
     content     = templatefile("files/template/prepare_openstack.sh.tmpl", { prefix = var.prefix })
     destination = "/home/${var.ssh_username}/bin/prepare_openstack.sh"
   }
