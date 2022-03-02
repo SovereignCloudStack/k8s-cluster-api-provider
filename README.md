@@ -318,7 +318,7 @@ environment | clusterctl.yaml | provenance | default |  meaning
 `image` | | SCS | `Ubuntu 20.04` | Image to be deployed for the capi mgmt node
 `ssh_username` | | SCS | `ubuntu` | Name of the default user for the `image`
 `clusterapi_version` | | SCS | `1.0.4` | Version of the cluster-API incl. `clusterctl`
-`capi_openstack_version` | | SCS | `0.5.0` | Version of the cluster-api-provider-openstack (needs to fit the capi version)
+`capi_openstack_version` | | SCS | `0.5.2` | Version of the cluster-api-provider-openstack (needs to fit the capi version)
 
 Parameters controlling both management node creation and cluster creation:
 
