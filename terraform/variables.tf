@@ -64,7 +64,7 @@ variable "clusterapi_version" {
 variable "capi_openstack_version" {
   description = "desired version of the OpenStack cluster-api provider"
   type        = string
-  default     = "0.5.0"
+  default     = "0.5.2"
 }
 
 variable "kubernetes_version" {
