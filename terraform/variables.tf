@@ -24,7 +24,7 @@ variable "kind_flavor" {
 variable "controller_flavor" {
   description = "openstack nova flavor for instances running the k8s management nodes"
   type        = string
-  default     = "SCS-2V:4:20s"
+  default     = "SCS-2D:4:20s"
 }
 
 variable "worker_flavor" {
@@ -159,6 +159,18 @@ variable "dns_nameserver" {
 
 variable "use_cilium" {
   description = "use cilium rather than calico as CNI"
+  type        = bool
+  default     = false
+}
+
+variable "etcd_prio_boost" {
+  description = "boost etcd priority and lengthen heartbeat"
+  type        = bool
+  default     = false
+}
+
+variable "etcd_unsafe_fs" {
+  description = "mount controller root fs with nobarrier"
   type        = bool
   default     = false
 }

@@ -69,7 +69,8 @@ spec:
           cloud-provider: external
     postKubeadmCommands:
       - echo "No hardcoded calico" #curl https://docs.projectcalico.org/manifests/calico.yaml | sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" | kubectl apply --kubeconfig /etc/kubernetes/admin.conf -f -
-      - grep 'hearbeat\-interval' /etc/kubernetes/manifests/etcd.yaml >/dev/null || true  # || sed -i '/\-\-trusted\-ca\-file/a\    - --heartbeat-interval=250\n    - --election-timeout=2500' /etc/kubernetes/manifests/etcd.yaml  # Disabled as uncoordinated etcd restart causes quorum loss
+      - if test "${ETCD_PRIO_BOOST}" = "true"; then grep 'hearbeat\-interval' /etc/kubernetes/manifests/etcd.yaml >/dev/null || sed -i '/\-\-trusted\-ca\-file/a\    - --heartbeat-interval=250\n    - --election-timeout=2500' /etc/kubernetes/manifests/etcd.yaml; sed -i 's@\(cpu.\) 100m@\1 300m@' /etc/kubernetes/manifests/etcd.yaml; fi
+      - if test "${ETCD_UNSAFE_FS}" = "true"; then mount -o remount,barrier=0,commit=20 /; sed -i 's@errors=remount-ro@errors=remount-ro,barrier=0,commit=20@' /etc/fstab; fi
     preKubeadmCommands:
       - DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https curl
       - curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
@@ -77,7 +78,7 @@ spec:
       - apt-get update -y
       - TRIMMED_KUBERNETES_VERSION=$(echo ${KUBERNETES_VERSION} | sed 's/\./\./g' | sed 's/^v//')
       - RESOLVED_KUBERNETES_VERSION=$(apt-cache policy kubelet | sed 's/\*\*\*//' | awk -v VERSION=$${TRIMMED_KUBERNETES_VERSION} '$1~ VERSION { print $1 }' | head -n1)
-      - apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips containerd kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
+      - apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips containerd etcd-client kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
       - systemctl daemon-reload
   version: "${KUBERNETES_VERSION}"
 ---
