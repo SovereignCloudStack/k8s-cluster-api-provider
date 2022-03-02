@@ -274,8 +274,20 @@ latencies (>100ms in the default configuration which we don't change).
 
 We recommend to deploy the control nodes (which run etcd) on instances
 with SSD storage (which we reflect in the default flavor name) and
-recommend ensuring that the CPU oversubscription is low and that
+recommend using flavors with dedicated cores and that
 your network does not introduce latencies by significant packet drop.
+
+If you can not assign dedicated cores, you can enable `ETCD_PRIO_BOOST`
+to increase the heartbeat to 250ms and increase CPU priority for etcd.
+This is sage to use.
+
+If you can not use a flavor with low latency local storage (ideally SSD),
+you can also work around this with `ETCD_UNSAFE_FS`. This should typically
+be used in conjunction with `ETCD_PRIO_BOOST`. `ETCD_UNSAFE_FS` is using
+`barrier=0` mount option, which violates filesystem ordering guarantees.
+This works around storage latencies, but introduces the risk of inconsistent
+filesystem state and inconsistent etcd data in case of an unclean shutdown.
+You may be able to live with this risk in a multi-controller etcd setup.
 
 ## Multi-AZ and multi-cloud environments
 
