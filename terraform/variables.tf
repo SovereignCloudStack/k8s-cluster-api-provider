@@ -24,7 +24,7 @@ variable "kind_flavor" {
 variable "controller_flavor" {
   description = "openstack nova flavor for instances running the k8s management nodes"
   type        = string
-  default     = "SCS-2V:4:20s"
+  default     = "SCS-2D:4:20s"
 }
 
 variable "worker_flavor" {
