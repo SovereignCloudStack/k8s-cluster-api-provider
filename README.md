@@ -269,17 +269,18 @@ in a dozen of random failed tests in a sonobuoy conformance run.
 
 Too frequent etcd leader changes are detrimental to your control
 plane performance and can lead to transient failures. They are a sign
-that the infrastructure below your cluster is introducing too high
-latencies (>100ms in the default configuration which we don't change).
+that the infrastructure supporting your cluster is introducing too high
+latencies (>100ms in the default configuration which we don't change
+by default, see below).
 
 We recommend to deploy the control nodes (which run etcd) on instances
-with SSD storage (which we reflect in the default flavor name) and
+with local SSD storage (which we reflect in the default flavor name) and
 recommend using flavors with dedicated cores and that
 your network does not introduce latencies by significant packet drop.
 
 If you can not assign dedicated cores, you can enable `ETCD_PRIO_BOOST`
 to increase the heartbeat to 250ms and increase CPU priority for etcd.
-This is sage to use.
+This is safe to use.
 
 If you can not use a flavor with low latency local storage (ideally SSD),
 you can also work around this with `ETCD_UNSAFE_FS`. This should typically
@@ -288,6 +289,11 @@ be used in conjunction with `ETCD_PRIO_BOOST`. `ETCD_UNSAFE_FS` is using
 This works around storage latencies, but introduces the risk of inconsistent
 filesystem state and inconsistent etcd data in case of an unclean shutdown.
 You may be able to live with this risk in a multi-controller etcd setup.
+If you don't have flavors that fulfill the requirements (low-latency
+storage attached), your choice is between a single-controller cluster
+(without `ETCD_UNSAFE_FS`) and a multi-controller cluster with `ETCD_PRIO_BOOST`
+and `ETCD_UNSAFE_FS`. Neither option is perfect, but the multi-controller
+cluster is preferrable in such a scenario.
 
 ## Multi-AZ and multi-cloud environments
 
@@ -321,6 +327,10 @@ technical preview.
 
 ## Overview over the parameters in clusterctl.yaml and environment-XXX.tfvars
 
+The provenance capo means that this setting comes from the templates used by
+the cluster-api-provider-openstack, while SCS denotes that this setting has
+been added by the SCS project..
+
 Parameters controlling the Cluster-API management node (capi mgmt node) creation:
 
 environment | clusterctl.yaml | provenance | default |  meaning
@@ -352,7 +362,7 @@ environment | clusterctl.yaml | provenance | default |  meaning
 `kubernetes_version` | `KUBERNETES_VERSION` | capo | `v1.21.9` | Kubernetes version deployed into workload cluster
 ` ` | `OPENSTACK_IMAGE_NAME` | capo | `ubuntu-capi-image-${KUBERNETES_VERION}` | Image name for k8s controller and worker nodes
 `kube_image_raw` | `OPENSTACK_IMAGE_RAW` | SCS | `false` | Register images in raw format (instead of qcow2), good for ceph COW
-`image_registration_extra_flags` | `OPENSTACK_IMAGE_REGISTATION_EXTRA_FLAG` | SCS | `""` | Extra flags passed during image registration
+`image_registration_extra_flags` | `OPENSTACK_IMAGE_REGISTATION_EXTRA_FLAGS` | SCS | `""` | Extra flags passed during image registration
 ` ` | `OPENSTACK_CONTROL_PLANE_IP` | capo | `127.0.0.1` | Use localhost to talk to capi cluster (don't change on capi mgmt node)
 ` ` | `OPENSTACK_SSH_KEY_NAME` | capo | `${prefix}-keypair` | SSH key name generated and used to connect to workload cluster nodes
 `controller_flavor` | `OPENSTACK_CONTROL_PLANE_MACHINE_FLAVOR` | capo | `SCS-2D:4:20s` | Flavor to be used for control plane nodes
@@ -365,18 +375,17 @@ environment | clusterctl.yaml | provenance | default |  meaning
 `deploy_k8s_openstack_git` | `DEPLOY_K8S_OPENSTACK_GIT` | SCS | `false` | Deploy latest upstream OCCM version from git instead of v1.19.2
 `deploy_k8s_cindercsi_git` | `DEPLOY_K8S_CINDERCSI_GIT` | SCS | `false` | Deploy latest upstream cinder CSI version from git instead of v2.2.0
 `etcd_prio_boost` | `ETCD_PRIO_BOOST` | SCS | `false` | Longer heartbeat and high CPU share for etcd in case you don't have dedicated cores
-`etc_unsafe_fs` | `ETCD_UNSAFE_FS` | SCS | `false` | Use `barrier=0` for filesystem on control nodes to avoid storage latency. Unsafe.
+`etcd_unsafe_fs` | `ETCD_UNSAFE_FS` | SCS | `false` | Use `barrier=0` for filesystem on control nodes to avoid storage latency. Unsafe.
 
 Optional services deployed to cluster:
 
 environment | clusterctl.yaml | provenance | default | script |  meaning
 ---|---|---|---|---|---
-`deploy_metrics_service` | `DEPLOY_METRICS` | SCS | `true` | `apply_metrics.sh` | Deploy metrics service to nodes to make `kubectl top` work
+`deploy_metrics` | `DEPLOY_METRICS` | SCS | `true` | `apply_metrics.sh` | Deploy metrics service to nodes to make `kubectl top` work
 `deploy_nginx_ingress` | `DEPLOY_NGINX_INGRESS` | SCS | `true` | `apply_nginx_ingress.sh` | Deploy NGINX ingress controller (this spawns an OpenStack Loadbalancer)
-`deploy_cert_manager` | `DEPLOY_CERT_MANAGER` | SCS | `false` | `apply_cert-manager.sh` | Deploy cert-manager
+`deploy_cert_manager` | `DEPLOY_CERT_MANAGER` | SCS | `false` | `apply_cert_manager.sh` | Deploy cert-manager
 `deploy_flux` | `DEPLOY_FLUX` | SCS | `false` | | Deploy flux2 into the cluster
 
-The provenance capo means that this setting comes from the templates used by the cluster-api-provider-openstack.
 
 ## TODO
 
