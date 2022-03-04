@@ -109,7 +109,7 @@ variable "node_cidr" {
   default     = "10.8.0.0/20"
 }
 
-variable "deploy_metrics_service" {
+variable "deploy_metrics" {
   description = "deploy metrics service into k8s-capi created clusters"
   type        = bool
   default     = true
