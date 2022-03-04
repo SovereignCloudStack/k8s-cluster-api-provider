@@ -132,7 +132,7 @@ fi
 # Cert-Manager
 DEPLOY_CERT_MANAGER=$(yq eval '.DEPLOY_CERT_MANAGER' $CCCFG)
 if test "$DEPLOY_CERT_MANAGER" = "true"; then
-  apply_cert-manager.sh "$CLUSTER_NAME" || exit $?
+  apply_cert_manager.sh "$CLUSTER_NAME" || exit $?
 fi
 
 # Flux2
