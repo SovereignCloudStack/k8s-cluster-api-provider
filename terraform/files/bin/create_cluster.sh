@@ -32,7 +32,7 @@ fi
 # (2) For OCCM, CSI
 
 # Implement anti-affinity with server groups
-if grep '^ *OPENSTACK_ANTIAFFINITY: true' $CCCFG >/dev/null 2>&1; then
+if grep '^ *OPENSTACK_ANTI_AFFINITY: true' $CCCFG >/dev/null 2>&1; then
 	SRVGRP=$(openstack server group list -f value)
 	SRVGRP_CONTROLLER=$(echo "$SRVGRP" | grep "k8s-capi-${CLUSTER_NAME}-controller" | sed 's/^\([0-9a-f\-]*\) .*$/\1/')
 	SRVGRP_WORKER=$(echo "$SRVGRP" | grep "k8s-capi-${CLUSTER_NAME}-worker" | sed 's/^\([0-9a-f\-]*\) .*$/\1/')
