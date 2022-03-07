@@ -4,13 +4,14 @@ prefix               = "<prefix_for_openstack_resources>"  # defaults to "capi"
 cloud_provider       = "<name_for_provider>"
 availability_zone    = "<az>"
 external             = "<external_network_name>"
+dns_nameserver       = "<DNS_IP>"	# defaults to 9.9.9.9
 kind_flavor          = "<flavor>"       # defaults to SCS-1V:4:20  (larger does not hurt)
 ssh_username         = "<username_for_ssh>"	  # defaults to "ubuntu"
 clusterapi_version   = "<1.x.y>"		    # defaults to "1.0.4"
 capi_openstack_version = "<0.x.y>"		  # defaults to "0.5.2"
 image                = "<glance_image>"		  # defaults to "Ubuntu 20.04"
 # Settings for testcluster
-kubernetes_version   = "<v1.XX.XX>"		  # defaults to "v1.21.9"
+kubernetes_version   = "<v1.XX.XX>"		  # defaults to "v1.21.10"
 kube_image_raw       = "<boolean>"      # defaults to "false"
 calico_version       = "<v3.xx.y>"		  # defaults to "v3.22.0"
 controller_flavor    = "<flavor>"       # defaults to SCS-2V:4:20s (consider -2D with dedicated CPUs for multicontroller setups)
