@@ -8,13 +8,13 @@ STARTTIME=$(date +%s)
 CLUSTERAPI_TEMPLATE=~/cluster-template.yaml
 CLUSTER_NAME=testcluster
 if test -n "$1"; then CLUSTER_NAME="$1"; fi
-KUBECONFIG_WORKLOADCLUSTER="${CLUSTER_NAME}.yaml"
+KUBECONFIG_WORKLOADCLUSTER="$HOME/${CLUSTER_NAME}.yaml"
 
 # Ensure image is there
 wait_capi_image.sh "$1"
 
 # Switch to capi mgmt cluster
-export KUBECONFIG=~/.kube/config
+export KUBECONFIG=$HOME/.kube/config
 kubectl config use-context kind-kind || exit 1
 # get the needed clusterapi-variables
 echo "# show used variables for clustertemplate ${CLUSTERAPI_TEMPLATE}"
@@ -88,11 +88,11 @@ kubectl wait --timeout=5m --for=condition=Ready machine -l cluster.x-k8s.io/cont
 kubectl get secrets "${CLUSTER_NAME}-kubeconfig" --output go-template='{{ .data.value | base64decode }}' > "${KUBECONFIG_WORKLOADCLUSTER}" || exit 5
 chmod 0600 "${KUBECONFIG_WORKLOADCLUSTER}"
 echo "kubeconfig for ${CLUSTER_NAME} in ${KUBECONFIG_WORKLOADCLUSTER}"
-export KUBECONFIG=".kube/config:${KUBECONFIG_WORKLOADCLUSTER}"
+export KUBECONFIG="$HOME/.kube/config:${KUBECONFIG_WORKLOADCLUSTER}"
 MERGED=$(mktemp merged.yaml.XXXXXX)
 kubectl config view --flatten > $MERGED
-mv $MERGED .kube/config
-export KUBECONFIG=.kube/config
+mv $MERGED $HOME/.kube/config
+export KUBECONFIG=$HOME/.kube/config
 #kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
 KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
 
@@ -108,7 +108,7 @@ done
 MTU_VALUE=$(yq eval '.MTU_VALUE' $CCCFG)
 if test "$USE_CILIUM" = "true"; then
   # FIXME: Do we need to allow overriding MTU here as well?
-  KUBECONFIG=${CLUSTER_NAME}.yaml cilium install
+  KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium install
 else
   sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" ~/kubernetes-manifests.d/calico.yaml | kubectl $KCONTEXT apply -f -
 fi
@@ -138,7 +138,7 @@ fi
 # Flux2
 DEPLOY_FLUX=$(yq eval '.DEPLOY_FLUX' $CCCFG)
 if test "$DEPLOY_FLUX" = "true"; then
-  KUBECONFIG=${CLUSTER_NAME}.yaml flux install || exit $?
+  KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} flux install || exit $?
 fi
 
 echo "Wait for control plane of ${CLUSTER_NAME}"
@@ -146,9 +146,10 @@ kubectl config use-context kind-kind
 kubectl wait --timeout=20m cluster "${CLUSTER_NAME}" --for=condition=Ready || exit 10
 #kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
 if test "$USE_CILIUM" = "true"; then
-  KUBECONFIG=${CLUSTER_NAME}.yaml cilium status --wait
-  echo "Use KUBECONFIG=${CLUSTER_NAME}.yaml cilium connectivity test for testing CNI"
+  KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium status --wait
+  echo "Use KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium connectivity test for testing CNI"
 fi
+# Output some information on the cluster ...
 kubectl $KCONTEXT get pods --all-namespaces
 kubectl get openstackclusters
 clusterctl describe cluster ${CLUSTER_NAME}
