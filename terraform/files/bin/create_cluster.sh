@@ -8,7 +8,7 @@ STARTTIME=$(date +%s)
 CLUSTERAPI_TEMPLATE=~/cluster-template.yaml
 CLUSTER_NAME=testcluster
 if test -n "$1"; then CLUSTER_NAME="$1"; fi
-KUBECONFIG_WORKLOADCLUSTER="${CLUSTER_NAME}.yaml"
+KUBECONFIG_WORKLOADCLUSTER="~/${CLUSTER_NAME}.yaml"
 
 # Ensure image is there
 wait_capi_image.sh "$1"
@@ -88,7 +88,7 @@ kubectl wait --timeout=5m --for=condition=Ready machine -l cluster.x-k8s.io/cont
 kubectl get secrets "${CLUSTER_NAME}-kubeconfig" --output go-template='{{ .data.value | base64decode }}' > "${KUBECONFIG_WORKLOADCLUSTER}" || exit 5
 chmod 0600 "${KUBECONFIG_WORKLOADCLUSTER}"
 echo "kubeconfig for ${CLUSTER_NAME} in ${KUBECONFIG_WORKLOADCLUSTER}"
-export KUBECONFIG=".kube/config:${KUBECONFIG_WORKLOADCLUSTER}"
+export KUBECONFIG="~/.kube/config:${KUBECONFIG_WORKLOADCLUSTER}"
 MERGED=$(mktemp merged.yaml.XXXXXX)
 kubectl config view --flatten > $MERGED
 mv $MERGED .kube/config
@@ -108,7 +108,7 @@ done
 MTU_VALUE=$(yq eval '.MTU_VALUE' $CCCFG)
 if test "$USE_CILIUM" = "true"; then
   # FIXME: Do we need to allow overriding MTU here as well?
-  KUBECONFIG=${CLUSTER_NAME}.yaml cilium install
+  KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium install
 else
   sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" ~/kubernetes-manifests.d/calico.yaml | kubectl $KCONTEXT apply -f -
 fi
