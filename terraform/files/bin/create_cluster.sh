@@ -8,7 +8,7 @@ STARTTIME=$(date +%s)
 CLUSTERAPI_TEMPLATE=~/cluster-template.yaml
 CLUSTER_NAME=testcluster
 if test -n "$1"; then CLUSTER_NAME="$1"; fi
-KUBECONFIG_WORKLOADCLUSTER="~/${CLUSTER_NAME}.yaml"
+KUBECONFIG_WORKLOADCLUSTER="${HOME}/${CLUSTER_NAME}.yaml"
 
 # Ensure image is there
 wait_capi_image.sh "$1"
