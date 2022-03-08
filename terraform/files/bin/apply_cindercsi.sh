@@ -31,7 +31,7 @@ if test "$DEPLOY_K8S_CINDERCSI_GIT" = "true"; then
   CCSI=cindercsi-git.yaml
 else
   # FIXME: Should we ignore non-working snapshots?
-  kubectl $KCONTEXT apply -f ~/external-snapshot-crds.yaml || exit 8
+  kubectl $KCONTEXT apply -f external-snapshot-crds.yaml || exit 8
   CCSI=cinder.yaml
 fi
 cat >cindercsi-${CLUSTER_NAME}.sed <<EOT
