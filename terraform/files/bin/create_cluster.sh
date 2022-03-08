@@ -11,7 +11,7 @@ if test -n "$1"; then CLUSTER_NAME="$1"; fi
 KUBECONFIG_WORKLOADCLUSTER="$HOME/${CLUSTER_NAME}.yaml"
 
 # Ensure image is there
-wait_capi_image.sh "$1"
+wait_capi_image.sh "$1" || exit 1
 
 # Switch to capi mgmt cluster
 export KUBECONFIG=$HOME/.kube/config
