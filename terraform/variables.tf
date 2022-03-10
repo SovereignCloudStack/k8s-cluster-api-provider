@@ -153,8 +153,8 @@ variable "anti_affinity" {
 
 variable "dns_nameservers" {
   description = "array of nameservers to be set for subnets, can be left empty"
-  type        = list
-  default     = [ "5.1.66.255", "185.150.99.255" ]
+  type        = list(any)
+  default     = ["5.1.66.255", "185.150.99.255"]
 }
 
 variable "use_cilium" {
