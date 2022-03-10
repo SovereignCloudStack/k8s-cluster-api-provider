@@ -53,7 +53,7 @@ MTU_VALUE: 0
 # hint: openstack network list --external -f value -c ID
 OPENSTACK_EXTERNAL_NETWORK_ID: ${external}
 
-OPENSTACK_DNS_NAMESERVERS: [ %{ for dnsip in dns_nameservers ~} "${dnsip}", %{ endfor ~} ]
+OPENSTACK_DNS_NAMESERVERS: "[ %{ for dnsip in dns_nameservers ~} ${dnsip}, %{ endfor ~} ]"
 
 OPENSTACK_SSH_KEY_NAME: ${prefix}-keypair
 
