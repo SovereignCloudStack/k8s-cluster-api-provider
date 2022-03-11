@@ -7,7 +7,7 @@ external             = "<external_network_name>"
 dns_nameservers      = [ "DNS_IP1", "DNS_IP2" ]	  # defaults to [ "5.1.66.255", "185.150.99.255" ] (FF MUC)
 kind_flavor          = "<flavor>"                 # defaults to SCS-1V:4:20  (larger does not hurt)
 ssh_username         = "<username_for_ssh>"	  # defaults to "ubuntu"
-clusterapi_version   = "<1.x.y>"		  # defaults to "1.0.4"
+clusterapi_version   = "<1.x.y>"		  # defaults to "1.0.5"
 capi_openstack_version = "<0.x.y>"		  # defaults to "0.5.2"
 image                = "<glance_image>"		  # defaults to "Ubuntu 20.04"
 # Settings for testcluster
