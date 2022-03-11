@@ -32,8 +32,7 @@ spec:
   managedAPIServerLoadBalancer: true
   managedSecurityGroups: true
   nodeCidr: ${NODE_CIDR}
-  dnsNameservers:
-    - ${OPENSTACK_DNS_NAMESERVERS}
+  dnsNameservers: ${OPENSTACK_DNS_NAMESERVERS}
   externalNetworkId: ${OPENSTACK_EXTERNAL_NETWORK_ID}
 ---
 kind: KubeadmControlPlane

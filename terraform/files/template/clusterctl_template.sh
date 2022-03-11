@@ -33,3 +33,5 @@ yq eval '.OPENSTACK_CLOUD_PROVIDER_CONF_B64 = "'"$CLOUD_CONF_ENC"'"' -i clusterc
 yq eval '.OPENSTACK_CLOUD_CACERT_B64 = "'"$CLOUD_CA_ENC"'"' -i clusterctl.yaml
 # Generate SET_MTU_B64
 #MTU=`yq eval '.MTU_VALUE' clusterctl.yaml`
+# Fix up nameserver list (trailing comma -- cosmetic)
+sed '/OPENSTACK_DNS_NAMESERVERS:/s@, \]"@ ]"@' -i clusterctl.yaml
