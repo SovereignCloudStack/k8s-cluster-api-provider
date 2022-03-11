@@ -148,7 +148,7 @@ variable "deploy_k8s_cindercsi_git" {
 variable "anti_affinity" {
   description = "use anti-affinity (soft for workers) to avoid k8s nodes on the same host"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "dns_nameservers" {
