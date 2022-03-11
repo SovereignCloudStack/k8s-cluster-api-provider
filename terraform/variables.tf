@@ -76,7 +76,7 @@ variable "kubernetes_version" {
 variable "kube_image_raw" {
   description = "convert kubernetes image to raw format for ceph backed root disks"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "image_registration_extra_flags" {

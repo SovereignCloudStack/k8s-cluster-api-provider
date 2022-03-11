@@ -361,7 +361,7 @@ environment | clusterctl.yaml | provenance | default |  meaning
 `calico_version` | | SCS | `v3.22.0` | Version of the Calico CNI provider (ignored if `use_cilium` is set)
 `kubernetes_version` | `KUBERNETES_VERSION` | capo | `v1.21.10` | Kubernetes version deployed into workload cluster
 ` ` | `OPENSTACK_IMAGE_NAME` | capo | `ubuntu-capi-image-${KUBERNETES_VERION}` | Image name for k8s controller and worker nodes
-`kube_image_raw` | `OPENSTACK_IMAGE_RAW` | SCS | `false` | Register images in raw format (instead of qcow2), good for ceph COW
+`kube_image_raw` | `OPENSTACK_IMAGE_RAW` | SCS | `true` | Register images in raw format (instead of qcow2), good for ceph COW
 `image_registration_extra_flags` | `OPENSTACK_IMAGE_REGISTATION_EXTRA_FLAGS` | SCS | `""` | Extra flags passed during image registration
 ` ` | `OPENSTACK_CONTROL_PLANE_IP` | capo | `127.0.0.1` | Use localhost to talk to capi cluster (don't change on capi mgmt node)
 ` ` | `OPENSTACK_SSH_KEY_NAME` | capo | `${prefix}-keypair` | SSH key name generated and used to connect to workload cluster nodes
