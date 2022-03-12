@@ -36,5 +36,5 @@ if ! test -x /usr/local/bin/cmctl-$CERTMGR_VERSION; then
 	curl -L -o cmctl.tar.gz https://github.com/cert-manager/cert-manager/releases/download/${CERTMGR_VERSION}/cmctl-$OS-$ARCH.tar.gz
 	tar xzf cmctl.tar.gz && rm cmctl.tar.gz
 	sudo mv cmctl /usr/local/bin/cmctl-${CERTMGR_VERSION}
-	ln -sf cmctl-${CERTMGR_VERSION} /usr/local/bin/cmctl
+	sudo ln -sf cmctl-${CERTMGR_VERSION} /usr/local/bin/cmctl
 fi
