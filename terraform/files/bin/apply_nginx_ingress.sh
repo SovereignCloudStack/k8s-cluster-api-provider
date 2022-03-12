@@ -14,8 +14,8 @@ else
 fi
 
 echo "Deploy NGINX ingress $NGINX_VERSION controller to $CLUSTER_NAME"
-if test ! -s ~/kubernetes-manifests.d/nginx-ingress-controller.yaml; then
-	curl -L https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-${NGINX_VERSION}/deploy/static/provider/cloud/deploy.yaml > ~/kubernetes-manifests.d/nginx-ingress-controller.yaml
+if test ! -s ~/kubernetes-manifests.d/nginx-ingress-controller-${NGINX_VERSION}.yaml; then
+	curl -L https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-${NGINX_VERSION}/deploy/static/provider/cloud/deploy.yaml > ~/kubernetes-manifests.d/nginx-ingress-controller-${NGINX_VERSION}.yaml
 fi
-kubectl $KCONTEXT apply -f ~/kubernetes-manifests.d/nginx-ingress-controller.yaml
+kubectl $KCONTEXT apply -f ~/kubernetes-manifests.d/nginx-ingress-controller-${NGINX_VERSION}.yaml
 
