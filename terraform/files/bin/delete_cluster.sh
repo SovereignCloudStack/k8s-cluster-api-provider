@@ -18,8 +18,10 @@ done
 # Delete nginx ingress
 INPODS=$(kubectl $KCONTEXT --namespace ingress-nginx get pods) 
 if echo "$INPODS" | grep nginx >/dev/null 2>&1; then
+	NGINX_VERSION=$(yq eval '.DEPLOY_NGINX_INGERSS' $CCCFG)
+	if test "$NGINX_VERSION" = "true"; then NGINX_VERSION="v1.1.2"; fi
 	echo -en " Delete ingress \n "
-	kubectl $KCONTEXT delete -f ~/kubernetes-manifests.d/nginx-ingress-controller.yaml
+	kubectl $KCONTEXT delete -f ~/kubernetes-manifests.d/nginx-ingress-controller${NGINX_VERSION}.yaml
 fi
 # Delete persisten volumes
 PVCS=$(kubectl $KCONTEXT get persistentvolumeclaims | grep -v '^NAME' | awk '{ print $1; }')
