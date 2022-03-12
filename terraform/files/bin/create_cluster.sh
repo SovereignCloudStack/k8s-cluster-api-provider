@@ -137,7 +137,7 @@ fi
 
 # NGINX ingress
 DEPLOY_NGINX_INGRESS=$(yq eval '.DEPLOY_NGINX_INGRESS' $CCCFG)
-if test "$DEPLOY_NGINX_INGRESS" = "true"; then
+if test "$DEPLOY_NGINX_INGRESS" = "true" -o "${DEPLOY_NGINX_INGRESS:0:1}" = "v"; then
   apply_nginx_ingress.sh "$CLUSTER_NAME" || exit $?
 fi
 
