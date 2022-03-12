@@ -24,6 +24,7 @@ else
 	CCCFG=$HOME/clusterctl.yaml
 fi
 
+export OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)
 # TODO: Optional: Create own project for the cluster
 # If so, we need to share the image with the new project
 
@@ -40,6 +41,7 @@ if grep '^ *OPENSTACK_ANTI_AFFINITY: true' $CCCFG >/dev/null 2>&1; then
 		SRVGRP_CONTROLLER=$(openstack --os-compute-api-version 2.15 server group create --policy anti-affinity -f value -c id k8s-capi-${CLUSTER_NAME}-controller)
 		SRVGRP_WORKER=$(openstack --os-compute-api-version 2.15 server group create --policy soft-anti-affinity -f value -c id k8s-capi-${CLUSTER_NAME}-worker)
 	fi
+	echo "Adding server groups $SRVGRP_CONTROLLER and $SRVGRP_WORKER to $CCCFG"
 	if test -n "$SRVGRP_CONTROLLER"; then
 		sed -i "s/^\(OPENSTACK_SRVGRP_CONTROLLER:\).*\$/\1 $SRVGRP_CONTROLLER/" "$CCCFG"
 	fi
