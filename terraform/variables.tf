@@ -116,15 +116,15 @@ variable "deploy_metrics" {
 }
 
 variable "deploy_nginx_ingress" {
-  description = "deploy NGINX ingress controller into k8s-capi created clusters"
+  description = "deploy NGINX ingress controller (version) into k8s-capi created clusters"
   type        = string
   default     = "true"
 }
 
 variable "deploy_cert_manager" {
-  description = "deploy cert-manager into k8s-capi created clusters"
-  type        = bool
-  default     = false
+  description = "deploy cert-manager (version) into k8s-capi created clusters"
+  type        = string
+  default     = "false"
 }
 
 variable "deploy_flux" {

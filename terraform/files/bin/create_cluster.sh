@@ -127,7 +127,7 @@ fi
 
 # Cert-Manager
 DEPLOY_CERT_MANAGER=$(yq eval '.DEPLOY_CERT_MANAGER' $CCCFG)
-if test "$DEPLOY_CERT_MANAGER" = "true"; then
+if test "$DEPLOY_CERT_MANAGER" = "true" -o "${DEPLOY_CERT_MANAGER:0:1}" = "v"; then
   apply_cert_manager.sh "$CLUSTER_NAME" || exit $?
 fi
 

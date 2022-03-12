@@ -22,8 +22,8 @@ kind_mtu             = <number>         # defaults to 0 (autodetection)
 node_cidr            = "<CIDR>"         # defaults to "10.8.0.0/20"
 anti_affinity        = "<boolean>"      # defaults to "true"
 use_cilium           = "<boolean>"      # defaults to "false"
-deploy_nginx_ingress = "<boolean>"      # defaults to "true", you can also set vX.Y.Z if you want
-deploy_cert_manager  = "<boolean>"      # defaults to "false"
+deploy_nginx_ingress = "version/true/false"       # defaults to "true", you can also set vX.Y.Z if you want
+deploy_cert_manager  = "version/true/false"       # defaults to "false", you can also set to vX.Y.Z if you want
 deploy_flux          = "<boolean>"      # defaults to "false"
 deploy_metrics       = "<boolean>"      # defaults to "true"
 deploy_k8s_openstack_git = "<boolean>"  # defaults to "false", enable for k8s >= 1.22, dont for < 1.20
