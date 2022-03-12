@@ -113,20 +113,14 @@ else
   sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" ~/kubernetes-manifests.d/calico.yaml | kubectl $KCONTEXT apply -f -
 fi
 
-# Metrics
-DEPLOY_METRICS=$(yq eval '.DEPLOY_METRICS' $CCCFG)
-if test "$DEPLOY_METRICS" = "true"; then
-  apply_metrics.sh "$CLUSTER_NAME" || exit $?
-fi
-
 # OpenStack, Cinder
 apply_openstack_integration.sh "$CLUSTER_NAME" || exit $?
 apply_cindercsi.sh "$CLUSTER_NAME" || exit $?
 
-# NGINX ingress
-DEPLOY_NGINX_INGRESS=$(yq eval '.DEPLOY_NGINX_INGRESS' $CCCFG)
-if test "$DEPLOY_NGINX_INGRESS" = "true"; then
-  apply_nginx_ingress.sh "$CLUSTER_NAME" || exit $?
+# Metrics
+DEPLOY_METRICS=$(yq eval '.DEPLOY_METRICS' $CCCFG)
+if test "$DEPLOY_METRICS" = "true"; then
+  apply_metrics.sh "$CLUSTER_NAME" || exit $?
 fi
 
 # Cert-Manager
@@ -139,6 +133,12 @@ fi
 DEPLOY_FLUX=$(yq eval '.DEPLOY_FLUX' $CCCFG)
 if test "$DEPLOY_FLUX" = "true"; then
   KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} flux install || exit $?
+fi
+
+# NGINX ingress
+DEPLOY_NGINX_INGRESS=$(yq eval '.DEPLOY_NGINX_INGRESS' $CCCFG)
+if test "$DEPLOY_NGINX_INGRESS" = "true"; then
+  apply_nginx_ingress.sh "$CLUSTER_NAME" || exit $?
 fi
 
 echo "Wait for control plane of ${CLUSTER_NAME}"
