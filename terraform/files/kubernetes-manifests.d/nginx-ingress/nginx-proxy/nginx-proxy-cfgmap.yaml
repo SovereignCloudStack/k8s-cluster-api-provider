@@ -9,4 +9,3 @@ data:
   real-ip-header: "proxy_protcol"
   # FIXME: Could set exact address here
   set-real-ip-from: "0.0.0.0/0"
-

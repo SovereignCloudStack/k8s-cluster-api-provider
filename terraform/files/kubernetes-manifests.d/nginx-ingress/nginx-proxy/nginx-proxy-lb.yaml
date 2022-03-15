@@ -6,4 +6,3 @@ metadata:
   namespace: ingress-nginx
   annotations:
     loadbalancer.openstack.org/proxy-protocol: "true"
-
