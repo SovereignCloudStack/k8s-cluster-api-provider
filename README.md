@@ -392,6 +392,7 @@ environment | clusterctl.yaml | provenance | default | script |  meaning
 ---|---|---|---|---|---
 `deploy_metrics` | `DEPLOY_METRICS` | SCS | `true` | `apply_metrics.sh` | Deploy metrics service to nodes to make `kubectl top` work
 `deploy_nginx_ingress` | `DEPLOY_NGINX_INGRESS` | SCS | `true` | `apply_nginx_ingress.sh` | Deploy NGINX ingress controller (this spawns an OpenStack Loadbalancer), pass version (e.g. `v1.1.2`) to explicitly choose the version
+` ` | `NGINX_INGRESS_PROXY` | SCS | `true` | (ditto) | Configure LB and nginx to get real IP via PROXY protocol
 `deploy_cert_manager` | `DEPLOY_CERT_MANAGER` | SCS | `false` | `apply_cert_manager.sh` | Deploy cert-manager, pass version (e.g. `v1.7.1`) to explicitly choose a version
 `deploy_flux` | `DEPLOY_FLUX` | SCS | `false` | | Deploy flux2 into the cluster
 

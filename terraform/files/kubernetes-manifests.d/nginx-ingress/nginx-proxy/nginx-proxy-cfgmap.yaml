@@ -1,0 +1,12 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+data:
+  proxy-protocol: "True"
+  real-ip-header: "proxy_protcol"
+  # FIXME: Could set exact address here
+  set-real-ip-from: "0.0.0.0/0"
+

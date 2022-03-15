@@ -3,6 +3,8 @@
 k8s-cluster-api-provider was provided with R1 of Sovereign
 Cloud Stack and has since seen major updates.
 
+R2 was released on 2022-03-23.
+
 ## Updated software
 
 ### capi v1.0.x and openstack capi provider 0.5.x
@@ -37,6 +39,7 @@ Cloud Stack and has since seen major updates.
 
 ### loadbalancer name conflict
 
+### nginx health-monitor and proxy support
 
 
 ## Upgrade/Migration notes
@@ -51,7 +54,9 @@ Cloud Stack and has since seen major updates.
 
 ### Incomplete change capabilties (no removal of services)
 
-### Loadbalancer latency
+### 4 CNCF fails with cilium
+
+### Updatability
 
 ## Future roadmap
 
