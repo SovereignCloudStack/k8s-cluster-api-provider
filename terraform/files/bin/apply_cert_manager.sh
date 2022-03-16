@@ -17,7 +17,7 @@ fi
 # kubectl $KCONTEXT apply -f https://github.com/cert-manager/cert-manager/releases/download/v${CERTMGR_VERSION}/cert-manager.yaml
 if test ! -s ~/kubernetes-manifests.d/cert-manager-${CERTMGR_VERSION}.yaml; then
 	# FIXME: Check sig
-	curl -L https://github.com/cert-manager/cert-manager/releases/download/${CERTMGR_VERSION}/cert-manager.yaml > ~/kubernetes-manifests.d/cert-manager-${CERTMGR_VERSION}.yaml
+	curl -L https://github.com/cert-manager/cert-manager/releases/download/${CERTMGR_VERSION}/cert-manager.yaml > ~/kubernetes-manifests.d/cert-manager-${CERTMGR_VERSION}.yaml || exit 2
 fi
 kubectl $KCONTEXT apply -f ~/kubernetes-manifests.d/cert-manager-${CERTMGR_VERSION}.yaml || exit 9
 # TODO: Optionally test, using cert-manager-test.yaml
@@ -29,7 +29,7 @@ kubectl $KCONTEXT apply -f ~/kubernetes-manifests.d/cert-manager-${CERTMGR_VERSI
 #	tar xzf kubectl-cert-manager.tar.gz && rm kubectl-cert-manager.tar.gz
 #	sudo mv kubectl-cert_manager /usr/local/bin
 #fi
-# cmctl
+# cmctl -- don't treat trouble as fatal error
 if ! test -x /usr/local/bin/cmctl-$CERTMGR_VERSION; then
 	OS=linux; ARCH=$(uname -m | sed 's/x86_64/amd64/')
 	# FIXME: Check sig

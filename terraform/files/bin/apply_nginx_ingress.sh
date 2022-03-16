@@ -18,14 +18,14 @@ NODE_CIDR=$(yq eval '.NODE_CIDR' $CCCFG)
 cd ~/kubernetes-manifests.d/nginx-ingress
 echo "Deploy NGINX ingress $NGINX_VERSION controller to $CLUSTER_NAME"
 if test ! -s base/nginx-ingress-controller-${NGINX_VERSION}.yaml; then
-	curl -L https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-${NGINX_VERSION}/deploy/static/provider/cloud/deploy.yaml > base/nginx-ingress-controller-${NGINX_VERSION}.yaml
+	curl -L https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-${NGINX_VERSION}/deploy/static/provider/cloud/deploy.yaml > base/nginx-ingress-controller-${NGINX_VERSION}.yaml || exit 2
 fi
 ln -sf nginx-ingress-controller-${NGINX_VERSION}.yaml base/nginx-ingress-controller.yaml
 sed -i "s@set-real-ip-from: .*\$@set-real-ip-from: \"${NODE_CIDR}\"@" nginx-proxy/nginx-proxy-cfgmap.yaml
 if test "$NGINX_INGRESS_PROXY" = "$false"; then
-	kustomize build nginx-monitor > nginx-ingress-${CLUSTER_NAME}.yaml
+	kustomize build nginx-monitor > nginx-ingress-${CLUSTER_NAME}.yaml || exit 3
 else
-	kustomize build nginx-proxy > nginx-ingress-${CLUSTER_NAME}.yaml
+	kustomize build nginx-proxy > nginx-ingress-${CLUSTER_NAME}.yaml || exit 3
 fi
 kubectl $KCONTEXT apply -f nginx-ingress-${CLUSTER_NAME}.yaml
 
