@@ -5,11 +5,8 @@ metadata:
   name: ingress-nginx-controller
   namespace: ingress-nginx
 data:
-  #proxy-protocol: "True"
-  #real-ip-header: "proxy_protcol"
-  # FIXME: Could set exact address here, but keeping internal provides protection already
-  #set-real-ip-from: "0.0.0.0/0"
   # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap
   use-proxy-protocol: "true"
+  # FIXME: Could set exact LB VIP address here, NODE_CIDR is a good start
   proxy-real-ip-cidr: "0.0.0.0/0"
   #enable-real-ip: "true"
