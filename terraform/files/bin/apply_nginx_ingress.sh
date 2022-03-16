@@ -22,6 +22,7 @@ if test ! -s base/nginx-ingress-controller-${NGINX_VERSION}.yaml; then
 fi
 ln -sf nginx-ingress-controller-${NGINX_VERSION}.yaml base/nginx-ingress-controller.yaml
 sed -i "s@set-real-ip-from: .*\$@set-real-ip-from: \"${NODE_CIDR}\"@" nginx-proxy/nginx-proxy-cfgmap.yaml
+sed -i "s@proxy-real-ip-cidr: .*\$@proxy-real-ip-cidr: \"${NODE_CIDR}\"@" nginx-proxy/nginx-proxy-cfgmap.yaml
 if test "$NGINX_INGRESS_PROXY" = "$false"; then
 	kustomize build nginx-monitor > nginx-ingress-${CLUSTER_NAME}.yaml || exit 3
 else
