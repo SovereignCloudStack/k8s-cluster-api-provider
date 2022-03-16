@@ -12,10 +12,21 @@ elif test "$DEPLOY_NGINX_INGRESS" = "false"; then
 else
 	NGINX_VERSION="$DEPLOY_NGINX_INGRESS"
 fi
+NGINX_INGRESS_PROXY=$(yq eval '.NGINX_INGRESS_PROXY' $CCCFG)
+NODE_CIDR=$(yq eval '.NODE_CIDR' $CCCFG)
 
+cd ~/kubernetes-manifests.d/nginx-ingress
 echo "Deploy NGINX ingress $NGINX_VERSION controller to $CLUSTER_NAME"
-if test ! -s ~/kubernetes-manifests.d/nginx-ingress-controller-${NGINX_VERSION}.yaml; then
-	curl -L https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-${NGINX_VERSION}/deploy/static/provider/cloud/deploy.yaml > ~/kubernetes-manifests.d/nginx-ingress-controller-${NGINX_VERSION}.yaml
+if test ! -s base/nginx-ingress-controller-${NGINX_VERSION}.yaml; then
+	curl -L https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-${NGINX_VERSION}/deploy/static/provider/cloud/deploy.yaml > base/nginx-ingress-controller-${NGINX_VERSION}.yaml || exit 2
 fi
-kubectl $KCONTEXT apply -f ~/kubernetes-manifests.d/nginx-ingress-controller-${NGINX_VERSION}.yaml
+ln -sf nginx-ingress-controller-${NGINX_VERSION}.yaml base/nginx-ingress-controller.yaml
+sed -i "s@set-real-ip-from: .*\$@set-real-ip-from: \"${NODE_CIDR}\"@" nginx-proxy/nginx-proxy-cfgmap.yaml
+sed -i "s@proxy-real-ip-cidr: .*\$@proxy-real-ip-cidr: \"${NODE_CIDR}\"@" nginx-proxy/nginx-proxy-cfgmap.yaml
+if test "$NGINX_INGRESS_PROXY" = "$false"; then
+	kustomize build nginx-monitor > nginx-ingress-${CLUSTER_NAME}.yaml || exit 3
+else
+	kustomize build nginx-proxy > nginx-ingress-${CLUSTER_NAME}.yaml || exit 3
+fi
+kubectl $KCONTEXT apply -f nginx-ingress-${CLUSTER_NAME}.yaml
 
