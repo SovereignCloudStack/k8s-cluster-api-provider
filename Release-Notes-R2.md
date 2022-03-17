@@ -18,6 +18,8 @@ R2 was released on 2022-03-23.
 
 ### Independent Per-cluster settings
 
+### Use artifacts from git on management node
+
 ### cilium
 
 ### cert-manager
