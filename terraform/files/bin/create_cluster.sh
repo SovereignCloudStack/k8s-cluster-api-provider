@@ -8,12 +8,19 @@ STARTTIME=$(date +%s)
 . ~/.capi-settings
 . ~/bin/cccfg.inc
 
+# Ensure directory for cluster exists
 if test ! -d ~/$CLUSTER_NAME; then 
 	mkdir -p ~/$CLUSTER_NAME
 	cp -p ~/cluster-defaults/* ~/$CLUSTER_NAME/
 fi
-
+# Copy missing files individually as needed from cluster-defaults
+if test ! -s ~/$CLUSTER_NAME/cloud.conf; then
+	cp -p ~/cluster-defaults/cloud.conf ~/$CLUSTER_NAME/
+fi
 CLUSTERAPI_TEMPLATE=~/${CLUSTER_NAME}/cluster-template.yaml
+if test ! -s $CLUSTERAPI_TEMPLATE; then
+	cp -p ~/cluster-defaults/cluster-template.yaml ~/$CLUSTER_NAME/
+fi
 
 # Ensure image is there
 wait_capi_image.sh "$1" || exit 1
