@@ -66,11 +66,15 @@ clusterctl generate cluster "${CLUSTER_NAME}" --list-variables --from ${CLUSTERA
 
 # the needed variables are read from $HOME/.cluster-api/clusterctl.yaml
 echo "# rendering clusterconfig from template"
-# FIXME: Detect cluster presence by asking k8s (kind)
+unset CLUSTER_EXISTS
 if test -e ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml; then
-	echo "Warning: Overwriting config for ${CLUSTER_NAME}"
-	echo "Hit ^C to interrupt"
-	sleep 5
+	echo " Overwriting config for ${CLUSTER_NAME}"
+	CLUSTERS=$(kubectl get clusters | grep -v '^NAME' | grep "^$CLUSTER_NAME " | awk '{ print $1; }')
+	if test -n "$CLUSTERS"; then
+		export CLUSTER_EXISTS=1
+		echo -e " Warning: Cluster exists\n Hit ^C to interrupt"
+		sleep 6
+	fi
 fi
 #clusterctl config cluster ${CLUSTER_NAME} --from ${CLUSTERAPI_TEMPLATE} > rendered-${CLUSTERAPI_TEMPLATE}
 clusterctl generate cluster "${CLUSTER_NAME}" --from ${CLUSTERAPI_TEMPLATE} > ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
@@ -80,6 +84,7 @@ sed -i '/^ *serverGroupID: nonono$/d' ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.y
 # Test for CILIUM
 USE_CILIUM=$(yq eval '.USE_CILIUM' $CCCFG)
 if test "$USE_CILIUM" = "true"; then
+	echo "# Security groups for cilium"
 	enable-cilium-sg.sh "$CLUSTER_NAME"
 else
 	sed -i '/\-cilium$/d' ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
@@ -90,17 +95,17 @@ echo "# apply configuration and deploy cluster ${CLUSTER_NAME}"
 kubectl apply -f ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml || exit 3
 
 #Waiting for Clusterstate Ready
-echo "Waiting for Cluster=Ready"
+echo "# Waiting for Cluster=Ready"
 #wget https://gx-scs.okeanos.dev --quiet -O /dev/null
 #ping -c1 -w2 9.9.9.9 >/dev/null 2>&1
-sleep 1
+if test "$CLUSTER_EXISTS" = "1"; then sleep 12; fi
 kubectl wait --timeout=5s --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME} >/dev/null 2>&1 || sleep 25
 kubectl wait --timeout=15m --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME} || exit 1
 kubectl wait --timeout=5m --for=condition=Ready machine -l cluster.x-k8s.io/control-plane || exit 4
 
 kubectl get secrets "${CLUSTER_NAME}-kubeconfig" --output go-template='{{ .data.value | base64decode }}' > "${KUBECONFIG_WORKLOADCLUSTER}" || exit 5
 chmod 0600 "${KUBECONFIG_WORKLOADCLUSTER}"
-echo "kubeconfig for ${CLUSTER_NAME} in ${KUBECONFIG_WORKLOADCLUSTER}"
+echo "INFO: kubeconfig for ${CLUSTER_NAME} in ${KUBECONFIG_WORKLOADCLUSTER}"
 export KUBECONFIG="$HOME/.kube/config:${KUBECONFIG_WORKLOADCLUSTER}"
 MERGED=$(mktemp merged.yaml.XXXXXX)
 kubectl config view --flatten > $MERGED
@@ -117,12 +122,15 @@ do
 done
 
 # CNI
+echo "# Deploy services (CNI, OCCM, CSI, Metrics, Cert-Manager, Flux2, Ingress"
 MTU_VALUE=$(yq eval '.MTU_VALUE' $CCCFG)
 if test "$USE_CILIUM" = "true"; then
   # FIXME: Do we need to allow overriding MTU here as well?
   KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium install
+  touch ~/$CLUSTER_NAME/deployed-manifests.d/.cilium
 else
-  sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" ~/kubernetes-manifests.d/calico.yaml | kubectl $KCONTEXT apply -f -
+  sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" ~/kubernetes-manifests.d/calico.yaml > ~/$CLUSTER_NAME/deployed-manifests.d/calico.yaml
+  kubectl $KCONTEXT apply -f ~/$CLUSTER_NAME/deployed-manifests.d/calico.yaml
 fi
 
 # OpenStack, Cinder
@@ -154,23 +162,20 @@ if test "$DEPLOY_NGINX_INGRESS" = "true" -o "${DEPLOY_NGINX_INGRESS:0:1}" = "v";
   apply_nginx_ingress.sh "$CLUSTER_NAME" || exit $?
 fi
 
-echo "Wait for control plane of ${CLUSTER_NAME}"
+echo "# Wait for control plane of ${CLUSTER_NAME}"
 kubectl config use-context kind-kind
 kubectl wait --timeout=20m cluster "${CLUSTER_NAME}" --for=condition=Ready || exit 10
 #kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
 if test "$USE_CILIUM" = "true"; then
   KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium status --wait
-  echo "Use KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium connectivity test for testing CNI"
+  echo "INFO: Use KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium connectivity test for testing CNI"
 fi
 # Output some information on the cluster ...
 kubectl $KCONTEXT get pods --all-namespaces
 kubectl get openstackclusters
 clusterctl describe cluster ${CLUSTER_NAME}
 # Hints
-echo "Cluster ${CLUSTER_NAME} deployed in $(($(date +%s)-$STARTTIME))s"
-if test "$DEPLOY_METRICS" != "true"; then
-    echo "Use curl -L https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml | sed '/        - --kubelet-use-node-status-port/a\\        - --kubelet-insecure-tls' | kubectl $KCONTEXT apply -f -  to deploy the metrics service"
-fi
-echo "Use kubectl $KCONTEXT wait --for=condition=Ready --timeout=10m -n kube-system pods --all to wait for all cluster components to be ready"
-echo "Pass $KCONTEXT parameter to kubectl or use KUBECONFIG=$KUBECONFIG_WORKLOADCLUSTER to control the workload cluster"
+echo "INFO: Use kubectl $KCONTEXT wait --for=condition=Ready --timeout=10m -n kube-system pods --all to wait for all cluster components to be ready"
+echo "INFO: Pass $KCONTEXT parameter to kubectl or use KUBECONFIG=$KUBECONFIG_WORKLOADCLUSTER to control the workload cluster"
+echo "SUCCESS: Cluster ${CLUSTER_NAME} deployed in $(($(date +%s)-$STARTTIME))s"
 # eof
