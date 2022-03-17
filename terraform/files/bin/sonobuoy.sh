@@ -8,7 +8,7 @@
 unset TZ
 export LC_ALL=POSIX
 if ! test -x /usr/local/bin/sonobuoy; then
-	SONOBUOY_VERSION=0.53.2
+	SONOBUOY_VERSION=0.56.2
 	SONOTARBALL=sonobuoy_${SONOBUOY_VERSION}_linux_amd64.tar.gz
 	curl -LO https://github.com/vmware-tanzu/sonobuoy/releases/download/v${SONOBUOY_VERSION}/${SONOTARBALL} || exit 1
 	tar xvzf ${SONOTARBALL} || exit 2
