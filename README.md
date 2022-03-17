@@ -104,7 +104,7 @@ issue ``make ssh``.
 You can create and do life cycle management for many more clusters from this management node.
 
 The kubeconfig with admin
-power for the created testcluster is named ``testcluster.yaml`` (or ``$CLUSTER_NAME.yaml``
+power for the created testcluster is named ``testcluster/testcluster.yaml`` (or ``$CLUSTER_NAME/$CLUSTER_NAME.yaml``
 for all the other clusters) and can be handed out to
 users that should get full administrative control over the cluster. You can also retrieve
 them using ``make get-kubeconfig TESTCLUSTER=${CLUSTER_NAME}``, and possibly create an
@@ -175,13 +175,16 @@ be used to control the workload cluster ``testcluster``. You can of course creat
 of them. There are management scripts on the management node:
 
 * ``create_cluster.sh [CLUSTERNAME]``: Use this command to use the template
-  ``cluster-template.yaml`` with the variables from ``clusterctl[-$CLUSTERNAME].yaml``
-  to render a config file ``$CLUSTERNAME-config.yaml`` which will then be submitted
+  ``cluster-template.yaml`` with the variables from ``$CLUSTERNAME/clusterctl.yaml``
+  to render a config file ``$CLUSTERNAME/$CLUSTERNAME-config.yaml`` which will then be submitted
   to the capi server (``kind-kind`` context) for creating the control plane nodes
   and worker nodes with openstack integration, cinder CSI, calico or cilium CNI,
   metrics server, and optionally nginx ingress controller, flux, cert-manager. 
-  (The latter of these can be controlled by ``tfvars`` which are passed down
+  (These can be controlled by ``tfvars`` which are passed down
    into the ``clusterctl.yaml``.)
+  If the directory ``$CLUSTERNAME`` is not existing, one will be created,
+  copying over the defaults from ``cluster-defaults``. ``CLUSTERNAME``
+  must not contain whitespace.
   The script makes sure that appropriate capi images are available (it grabs them
   from [OSISM](https://minio.services.osism.tech/openstack-k8s-capi-images)
   as needed and registers them with OpenStack, following the SCS image metadata
