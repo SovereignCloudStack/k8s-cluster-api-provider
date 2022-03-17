@@ -1,8 +1,6 @@
 #!/bin/bash
 export KUBECONFIG=~/.kube/config
-if test -n "$1"; then CLUSTER_NAME="$1"; else CLUSTER_NAME=testcluster; fi
-if test -e ~/clusterctl-${CLUSTER_NAME}.yaml; then CCCFG=~/clusterctl-${CLUSTER_NAME}.yaml; else CCCFG=~/clusterctl.yaml; fi
-KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
+. ~/bin/cccfg.inc
 # Are we enabled? Has a version been set explicitly?
 DEPLOY_NGINX_INGRESS=$(yq eval '.DEPLOY_NGINX_INGRESS' $CCCFG)
 if test "$DEPLOY_NGINX_INGRESS" = "true"; then
