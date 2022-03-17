@@ -21,6 +21,9 @@ CLUSTERAPI_TEMPLATE=~/${CLUSTER_NAME}/cluster-template.yaml
 if test ! -s $CLUSTERAPI_TEMPLATE; then
 	cp -p ~/cluster-defaults/cluster-template.yaml ~/$CLUSTER_NAME/
 fi
+if test ! -d ~/$CLUSTER_NAME/deployed-manifests.d/; then
+	mkdir -p ~/$CLUSTER_NAME/deployed-manifests.d/
+fi
 
 # Ensure image is there
 wait_capi_image.sh "$1" || exit 1

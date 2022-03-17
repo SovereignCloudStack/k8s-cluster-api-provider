@@ -22,9 +22,9 @@ ln -sf nginx-ingress-controller-${NGINX_VERSION}.yaml base/nginx-ingress-control
 sed -i "s@set-real-ip-from: .*\$@set-real-ip-from: \"${NODE_CIDR}\"@" nginx-proxy/nginx-proxy-cfgmap.yaml
 sed -i "s@proxy-real-ip-cidr: .*\$@proxy-real-ip-cidr: \"${NODE_CIDR}\"@" nginx-proxy/nginx-proxy-cfgmap.yaml
 if test "$NGINX_INGRESS_PROXY" = "$false"; then
-	kustomize build nginx-monitor > ~/$CLUSTER_NAME/nginx-ingress.yaml || exit 3
+	kustomize build nginx-monitor > ~/$CLUSTER_NAME/deployed-manifests.d/nginx-ingress.yaml || exit 3
 else
-	kustomize build nginx-proxy > ~/$CLUSTER_NAME/nginx-ingress.yaml || exit 3
+	kustomize build nginx-proxy > ~/$CLUSTER_NAME/deployed-manifests.d/nginx-ingress.yaml || exit 3
 fi
-kubectl $KCONTEXT apply -f ~/$CLUSTER_NAME/nginx-ingress.yaml
+kubectl $KCONTEXT apply -f ~/$CLUSTER_NAME/deployed-manifests.d/nginx-ingress.yaml
 

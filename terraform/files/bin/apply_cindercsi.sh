@@ -16,8 +16,8 @@ if test "$DEPLOY_K8S_CINDERCSI_GIT" = "true"; then
     fi
   done
   # FIXME: Should we ignore non-working snapshots?
-  cp -p snapshot.storage.k8s.io_volumesnapshot* ~/${CLUSTER_NAME}/
-  cat snapshot.storage.k8s.io_volumesnapshot* | kubectl $KCONTEXT apply -f - || exit 8
+  cat snapshot.storage.k8s.io_volumesnapshot* > cindercsi-snapshot.yaml
+  cp -p cindercsi-snapshot.yaml ~/${CLUSTER_NAME}/deployed-manifests.d/
   # Now get cinder
   for name in cinder-csi-controllerplugin-rbac.yaml cinder-csi-controllerplugin.yaml cinder-csi-nodeplugin-rbac.yaml cinder-csi-nodeplugin.yaml csi-cinder-driver.yaml csi-secret-cinderplugin.yaml; do
     if ! test -s $name; then
@@ -30,15 +30,16 @@ if test "$DEPLOY_K8S_CINDERCSI_GIT" = "true"; then
   CCSI=cindercsi-git.yaml
 else
   # FIXME: Should we ignore non-working snapshots?
-  kubectl $KCONTEXT apply -f external-snapshot-crds.yaml || exit 8
+  cp -p external-snapshot-crds.yaml ~/$CLUSTER_NAME/deployed-manifests.d/cindercsi-snapshot.yaml
   CCSI=cinder.yaml
 fi
+kubectl $KCONTEXT apply -f ~/$CLUSTER_NAME/deployed-manifests.d/cindercsi-snapshot.yaml || exit 8
 cat >cindercsi-${CLUSTER_NAME}.sed <<EOT
 / *\- name: CLUSTER_NAME/{
 n
 s/value: .*\$/value: ${CLUSTER_NAME}/
 }
 EOT
-sed -f cindercsi-${CLUSTER_NAME}.sed $CCSI > ~/${CLUSTER_NAME}/cindercsi.yaml
-kubectl $KCONTEXT apply -f ~/${CLUSTER_NAME}/cindercsi.yaml || exit 8
+sed -f cindercsi-${CLUSTER_NAME}.sed $CCSI > ~/${CLUSTER_NAME}/deployed-manifests.d/cindercsi.yaml
+kubectl $KCONTEXT apply -f ~/${CLUSTER_NAME}/deployed-manifests.d/cindercsi.yaml || exit 8
 
