@@ -3,7 +3,6 @@
 . ~/bin/cccfg.inc
 
 KUBERNETES_VERSION=$(yq eval '.KUBERNETES_VERSION' $CCCFG)
-PROVIDER=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)
 #UBU_IMG_NM=ubuntu-capi-image-$KUBERNETES_VERSION
 UBU_IMG_NM=$(yq eval '.OPENSTACK_IMAGE_NAME' $CCCFG)
 IMG_RAW=$(yq eval '.OPENSTACK_IMAGE_RAW' $CCCFG)
@@ -13,7 +12,7 @@ VERSION_CAPI_IMAGE=$(echo $KUBERNETES_VERSION | sed 's/\.[[:digit:]]*$//g')
 UBU_IMG=ubuntu-2004-kube-$KUBERNETES_VERSION
 
 #download/upload image to openstack
-CAPIIMG=$(openstack --os-cloud $PROVIDER image list --name $UBU_IMG_NM)
+CAPIIMG=$(openstack image list --name $UBU_IMG_NM)
 IMGURL=https://minio.services.osism.tech/openstack-k8s-capi-images
 IMAGESRC=$IMGURL/ubuntu-2004-kube-$VERSION_CAPI_IMAGE/$UBU_IMG.qcow2
 if test -z "$CAPIIMG"; then
@@ -30,12 +29,12 @@ if test -z "$CAPIIMG"; then
   fi
   #TODO min-disk, min-ram, other std. image metadata
   echo "Creating image $UBU_IMG_NM from $UBU_IMG.$FMT"
-  openstack --os-cloud $PROVIDER image create --disk-format $FMT --min-ram 1024 --min-disk $DISKSZ --property image_build_date="$IMGDATE" --property image_original_user=ubuntu --property architecture=x86_64 --property hypervisor_type=kvm --property os_distro=ubuntu --property os_version="20.04" --property hw_disk_bus=scsi --property hw_scsi_model=virtio-scsi --property hw_rng_model=virtio --property image_source=$IMAGESRC --property kubernetes_version=$KUBERNETES_VERSION --tag managed_by_osism $IMGREG_EXTRA --file $UBU_IMG.$FMT $UBU_IMG_NM &
+  openstack image create --disk-format $FMT --min-ram 1024 --min-disk $DISKSZ --property image_build_date="$IMGDATE" --property image_original_user=ubuntu --property architecture=x86_64 --property hypervisor_type=kvm --property os_distro=ubuntu --property os_version="20.04" --property hw_disk_bus=scsi --property hw_scsi_model=virtio-scsi --property hw_rng_model=virtio --property image_source=$IMAGESRC --property kubernetes_version=$KUBERNETES_VERSION --tag managed_by_osism $IMGREG_EXTRA --file $UBU_IMG.$FMT $UBU_IMG_NM &
   sleep 5
   echo "Waiting for image $UBU_IMG_NM: "
   let -i ctr=0
   while test $ctr -le 64; do
-    CAPIIMG=$(openstack --os-cloud $PROVIDER image list --name $UBU_IMG_NM -f value -c ID -c Status)
+    CAPIIMG=$(openstack image list --name $UBU_IMG_NM -f value -c ID -c Status)
     STATUS="${CAPIIMG##* }"
     if test "$STATUS" = "saving" -o "$STATUS" = "active"; then break; fi
     echo -n "."

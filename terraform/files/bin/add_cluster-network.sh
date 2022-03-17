@@ -6,8 +6,6 @@
 export KUBECONFIG=~/.kube/config
 . ~/.capi-settings
 . ~/bin/cccfg.inc
-#NAMESPACE=$(yq eval .NAMESPACE $CCCFG)
-KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}" # "--namespace=$NAMESPACE"
 #
 
 OLDNICLIST=($(ls /sys/class/net | sort))

@@ -61,8 +61,9 @@ get_capi_helm.sh
 #git clone https://github.com/Pharb/kubernetes-iperf3.git
 
 CONTROLLERS=`yq eval '.CONTROL_PLANE_MACHINE_COUNT' ~/cluster-defaults/clusterctl.yaml`
+export TESTCLUSTER=${1:-testcluster}
 if test "$CONTROLLERS" != "0"; then
-    create_cluster.sh testcluster
+    create_cluster.sh $TESTCLUSTER
 fi
 # Extensions
 cd extension

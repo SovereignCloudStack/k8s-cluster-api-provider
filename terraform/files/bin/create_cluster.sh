@@ -25,6 +25,7 @@ if test ! -d ~/$CLUSTER_NAME/deployed-manifests.d/; then
 	mkdir -p ~/$CLUSTER_NAME/deployed-manifests.d/
 fi
 
+#export OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)
 # Ensure image is there
 wait_capi_image.sh "$1" || exit 1
 
@@ -34,7 +35,6 @@ kubectl config use-context kind-kind || exit 1
 # get the needed clusterapi-variables
 echo "# show used variables for clustertemplate ${CLUSTERAPI_TEMPLATE}"
 
-export OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)
 # TODO: Optional: Create own project for the cluster
 # If so, we need to share the image with the new project
 
