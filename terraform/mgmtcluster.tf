@@ -91,7 +91,12 @@ EOF
 
   provisioner "file" {
     source      = "files/bin/bootstrap.sh"
-    destination = "/home/${var.ssh_username}/"
+    destination = "/home/${var.ssh_username}/bootstrap.sh"
+  }
+
+  provisioner "file" {
+    source      = "files/bin/wait.sh"
+    destination = "/home/${var.ssh_username}/wait.sh"
   }
 
   provisioner "file" {
@@ -127,13 +132,13 @@ EOF
   provisioner "remote-exec" {
     inline = [
       "chmod 0600 /home/${var.ssh_username}/.ssh/id_rsa /home/${var.ssh_username}/cluster-defaults/clusterctl.yaml /home/${var.ssh_username}/cluster-defaults/cloud.conf /home/${var.ssh_username}/.config/openstack/clouds.yaml",
-      "chmod +x bin/*.sh"
+      "chmod 0755 /home/${var.ssh_username}/*.sh"
     ]
   }
 
   provisioner "remote-exec" {
     inline = [
-      "bash /home/${var.ssh_username}/bin/wait.sh"
+      "bash /home/${var.ssh_username}/wait.sh"
     ]
   }
 
