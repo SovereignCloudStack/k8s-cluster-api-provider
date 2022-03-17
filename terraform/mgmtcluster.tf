@@ -149,7 +149,7 @@ EOF
 
   provisioner "remote-exec" {
     inline = [
-      "bash /home/${var.ssh_username}/bin/bootstrap.sh"
+      "bash /home/${var.ssh_username}/bootstrap.sh feat/repo-on-mgmtcluster"
     ]
   }
 }

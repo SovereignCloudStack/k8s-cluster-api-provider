@@ -11,6 +11,7 @@ sudo snap install yq
 
 # Install k8s-cluster-api-provider repo
 git clone https://github.com/SovereignCloudStack/k8s-cluster-api-provider || exit 1
+if test -n "$1"; then cd k8s-cluster-api-provider; git checkout "$1" || exit 1; cd ..; fi
 # Create links
 ln -s k8s-cluster-api-provider/terraform/files/bin .
 ln -s k8s-cluster-api-provider/terraform/files/kubernetes-manifests.d .
