@@ -1,5 +1,5 @@
 output "mgmtcluster_address" {
-  value     = openstack_networking_floatingip_v2.mgmtcluster_floatingip.address
+  value = openstack_networking_floatingip_v2.mgmtcluster_floatingip.address
   #sensitive = true
 }
 
