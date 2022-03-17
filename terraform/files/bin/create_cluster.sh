@@ -145,6 +145,7 @@ fi
 DEPLOY_FLUX=$(yq eval '.DEPLOY_FLUX' $CCCFG)
 if test "$DEPLOY_FLUX" = "true"; then
   KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} flux install || exit $?
+  touch ~/$CLUSTER_NAME/deployed-manifests.d/.flux
 fi
 
 # NGINX ingress

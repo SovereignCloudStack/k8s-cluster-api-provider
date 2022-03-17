@@ -41,3 +41,4 @@ kubectl config delete-context "$CLUSTER_NAME-admin@$CLUSTER_NAME"
 kubectl config delete-user "$CLUSTER_NAME-admin"
 kubectl config delete-cluster "$CLUSTER_NAME"
 openstack security group delete k8s-cluster-${CLUSTER_NAME}-cilium >/dev/null 2>&1 || true
+# TODO: Clean up ~/$CLUSTER_NAME
