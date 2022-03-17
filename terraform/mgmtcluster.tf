@@ -64,7 +64,7 @@ runcmd:
   - echo net.netfilter.nf_conntrack_max=131072 > /etc/sysctl.d/90-conntrack_max.conf
   - sysctl -w -p /etc/sysctl.d/90-conntrack_max.conf
   - mkdir /etc/docker
-  - /home/${var.ssh_username}/bin/get_mtu.sh
+  - /tmp/get_mtu.sh
   - mv /tmp/daemon.json /etc/docker/daemon.json
   - groupadd docker
   - usermod -aG docker ${var.ssh_username}
@@ -90,13 +90,18 @@ EOF
   }
 
   provisioner "file" {
-    source      = "files/bin/bootstrap.sh"
-    destination = "/home/${var.ssh_username}/bootstrap.sh"
+    source      = "files/bin/get_k8s_git.sh"
+    destination = "/tmp/get_k8s_git.sh"
   }
 
   provisioner "file" {
     source      = "files/bin/wait.sh"
-    destination = "/home/${var.ssh_username}/wait.sh"
+    destination = "/tmp/wait.sh"
+  }
+
+  provisioner "file" {
+    source      = "files/bin/get_mtu.sh"
+    destination = "/tmp/get_mtu.sh"
   }
 
   provisioner "file" {
@@ -126,19 +131,19 @@ EOF
 
   provisioner "file" {
     source      = "files/fix-keystoneauth-plugins-unversioned.diff"
-    destination = "/home/${var.ssh_username}/fix-keystoneauth-plugins-unversioned.diff"
+    destination = "/tmp/fix-keystoneauth-plugins-unversioned.diff"
   }
 
   provisioner "remote-exec" {
     inline = [
       "chmod 0600 /home/${var.ssh_username}/.ssh/id_rsa /home/${var.ssh_username}/cluster-defaults/clusterctl.yaml /home/${var.ssh_username}/cluster-defaults/cloud.conf /home/${var.ssh_username}/.config/openstack/clouds.yaml",
-      "chmod 0755 /home/${var.ssh_username}/*.sh"
+      "chmod 0755 /tmp/*.sh"
     ]
   }
 
   provisioner "remote-exec" {
     inline = [
-      "bash /home/${var.ssh_username}/wait.sh"
+      "/tmp/wait.sh"
     ]
   }
 
@@ -147,9 +152,11 @@ EOF
     destination = "/home/${var.ssh_username}/"
   }
 
+  # FIXME: We should get the branch (and warnings for unpushed changes from the Makefile)
   provisioner "remote-exec" {
     inline = [
-      "bash /home/${var.ssh_username}/bootstrap.sh feat/repo-on-mgmtcluster"
+      "/tmp/get_k8s_git.sh ${var.git_branch}"
+      "/home/${var.ssh_username}/bootstrap.sh"
     ]
   }
 }

@@ -5,7 +5,7 @@ PROVIDER=$(yq eval '.OPENSTACK_CLOUD' ~/cluster-defaults/clusterctl.yaml)
 #install Openstack CLI
 sudo apt install -y python3-openstackclient python3-octaviaclient
 # fix bug 1876317
-sudo patch -p2 -N -d /usr/lib/python3/dist-packages/keystoneauth1 < ~/fix-keystoneauth-plugins-unversioned.diff
+sudo patch -p2 -N -d /usr/lib/python3/dist-packages/keystoneauth1 < /tmp/fix-keystoneauth-plugins-unversioned.diff
 
 # convenience
 echo "export OS_CLOUD=\"$PROVIDER\"" >> $HOME/.bash_aliases
