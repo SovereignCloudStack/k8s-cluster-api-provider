@@ -5,9 +5,9 @@ resource "openstack_compute_keypair_v2" "keypair" {
 
 # - application credential -
 resource "openstack_identity_application_credential_v3" "appcred" {
-  name        = "${var.prefix}-appcred"
-  description = "Credential for the ${var.prefix} management"
-  #unrestricted = true
+  name         = "${var.prefix}-appcred"
+  description  = "Credential for the ${var.prefix} management"
+  unrestricted = true
 }
 
 # - management cluster -

@@ -34,6 +34,10 @@ R2 was released on 2022-03-23.
 
 ### per-cluster app cred
 
+We use an unrestricted application credential on the management node now,
+so we can create per-cluster application credentials on it for better
+isolation. Note that pre-cluster application credentials have not yet
+been implemented.
 
 ## Important Bugfixes
 
