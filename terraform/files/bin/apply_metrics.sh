@@ -9,6 +9,6 @@ echo "Deploy metrics server to $CLUSTER_NAME"
 if test ! -s ~/kubernetes-manifests.d/metrics-server.yaml; then
 	curl -L https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml | sed '/        - --kubelet-use-node-status-port/a\        - --kubelet-insecure-tls' > ~/kubernetes-manifests.d/metrics-server.yaml
 fi
-cp -p ~/kubernetes-manifests.d/metrics.server.yaml ~/${CLUSTER_NAME}/
+cp -p ~/kubernetes-manifests.d/metrics-server.yaml ~/${CLUSTER_NAME}/
 kubectl $KCONTEXT apply -f ~/${CLUSTER_NAME}/metrics-server.yaml || exit 9
 
