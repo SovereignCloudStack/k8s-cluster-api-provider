@@ -9,6 +9,12 @@ export PATH=$PATH:~/bin
 # Need yaml parsing capabilities
 sudo snap install yq
 
+# Install k8s-cluster-api-provider repo
+git clone https://github.com/SovereignCloudStack/k8s-cluster-api-provider || exit 1
+# Create links
+ln -s k8s-cluster-api-provider/terraform/files/bin .
+ln -s k8s-cluster-api-provider/terraform/files/kubernetes-manifests.d .
+
 # Prepare OpenStack
 prepare_openstack.sh
 # Start image registration early, so it can proceed in the background
@@ -60,7 +66,7 @@ get_capi_helm.sh
 
 #git clone https://github.com/Pharb/kubernetes-iperf3.git
 
-CONTROLLERS=`yq eval '.CONTROL_PLANE_MACHINE_COUNT' clusterctl.yaml`
+CONTROLLERS=`yq eval '.CONTROL_PLANE_MACHINE_COUNT' ~/cluster-defaults/clusterctl.yaml`
 if test "$CONTROLLERS" != "0"; then
     create_cluster.sh testcluster
 fi

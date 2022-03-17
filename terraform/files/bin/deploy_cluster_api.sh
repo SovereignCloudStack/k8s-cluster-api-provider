@@ -4,9 +4,7 @@
 ## license: Apache-2.0
 
 # variables
-CLUSTERAPI_OPENSTACK_PROVIDER_VERSION=${capi_openstack_version}
-CLUSTERAPI_VERSION=${clusterapi_version}
-CALICO_VERSION=${calico_version}
+. ~/.capi-settings
 
 ARCH=$(uname -m | sed 's/x86_64/amd64/')
 # Install clusterctl

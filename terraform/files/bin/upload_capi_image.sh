@@ -1,13 +1,6 @@
 #!/usr/bin/env bash
 
-CLUSTER_NAME=testcluster
-if test -n "$1"; then CLUSTER_NAME="$1"; fi
-KUBECONFIG_WORKLOADCLUSTER="${CLUSTER_NAME}.yaml"
-if test -e "$HOME/clusterctl-${CLUSTER_NAME}.yaml"; then
-	CCCFG="$HOME/clusterctl-${CLUSTER_NAME}.yaml"
-else
-	CCCFG=$HOME/clusterctl.yaml
-fi
+. ~/bin/cccfg.inc
 
 KUBERNETES_VERSION=$(yq eval '.KUBERNETES_VERSION' $CCCFG)
 PROVIDER=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)

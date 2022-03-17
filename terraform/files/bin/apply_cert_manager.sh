@@ -1,8 +1,6 @@
 #!/bin/bash
+. ~/bin/cccfg.inc
 export KUBECONFIG=~/.kube/config
-if test -n "$1"; then CLUSTER_NAME="$1"; else CLUSTER_NAME=testcluster; fi
-if test -e ~/clusterctl-${CLUSTER_NAME}.yaml; then CCCFG=~/clusterctl-${CLUSTER_NAME}.yaml; else CCCFG=~/clusterctl.yaml; fi
-KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
 
 echo "Deploy cert-manager to $CLUSTER_NAME"
 # cert-manager
@@ -19,7 +17,8 @@ if test ! -s ~/kubernetes-manifests.d/cert-manager-${CERTMGR_VERSION}.yaml; then
 	# FIXME: Check sig
 	curl -L https://github.com/cert-manager/cert-manager/releases/download/${CERTMGR_VERSION}/cert-manager.yaml > ~/kubernetes-manifests.d/cert-manager-${CERTMGR_VERSION}.yaml || exit 2
 fi
-kubectl $KCONTEXT apply -f ~/kubernetes-manifests.d/cert-manager-${CERTMGR_VERSION}.yaml || exit 9
+cp -p ~/kubernetes-manifests.d/cert-manager-${CERTMGR_VERSION}.yaml "~/${CLUSTER_NAME}/cert-manager.yaml"
+kubectl $KCONTEXT apply -f "~/${CLUSTER_NAME}/cert-manager.yaml" || exit 9
 # TODO: Optionally test, using cert-manager-test.yaml
 # See https://cert-manager.io/docs/installation/kubernetes/
 # kubectl plugin

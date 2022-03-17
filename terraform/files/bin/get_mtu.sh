@@ -9,9 +9,9 @@ elif test -e /etc/docker/daemon.json && grep '"mtu":' /etc/docker/daemon.json >/
 	CLOUDMTU=$(grep '"mtu":' /etc/docker/daemon.json | sed 's/^ *"mtu": *//' | tr -d '"')
 	echo "Read MTU $CLOUDMTU from /etc/docker/daemon.json"
 else
-	CLOUDMTU=$(grep '^MTU_VALUE:' ~ubuntu/clusterctl.yaml | sed 's/MTU_VALUE: //')
+	CLOUDMTU=$(grep '^MTU_VALUE:' ~ubuntu/cluster-defaults/clusterctl.yaml | sed 's/MTU_VALUE: //')
 	if test "$CLOUDMTU" != "0"; then let CLOUDMTU+=50; fi
-	echo "Read MTU $CLOUDMTU from clusterctl.yaml"
+	echo "Read MTU $CLOUDMTU from ~/cluster-defaults/clusterctl.yaml"
 fi
 
 if test "$CLOUDMTU" == "0"; then
@@ -25,4 +25,4 @@ if test "$CLOUDMTU" == "0"; then
 	fi
 fi
 CALICOMTU=$(((CLOUDMTU-50)/8*8))
-sed -i "s/MTU_VALUE: 0/MTU_VALUE: $CALICOMTU/" ~ubuntu/clusterctl.yaml
+sed -i "s/MTU_VALUE: 0/MTU_VALUE: $CALICOMTU/" ~ubuntu/cluster-defaults/clusterctl.yaml
