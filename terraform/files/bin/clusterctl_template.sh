@@ -20,7 +20,7 @@ CLOUD_CONF_ENC=$(base64 -w 0 ~/cluster-defaults/cloud.conf)
 echo $CLOUD_CONF_ENC
 
 #Get CA and Encode CA
-cloud_provider=$(yq eval '.CLOUD_PROVIDER' ~/cluster-defaults/clusterctl.yaml)
+cloud_provider=$(yq eval '.OPENSTACK_CLOUD' ~/cluster-defaults/clusterctl.yaml)
 # Snaps are broken - can not access ~/.config/openstack/clouds.yaml
 AUTH_URL=$(cat ~/.config/openstack/clouds.yaml | yq eval .clouds.${cloud_provider}.auth.auth_url -)
 #AUTH_URL=$(grep -A12 "${cloud_provider}" ~/.config/openstack/clouds.yaml | grep auth_url | head -n1 | sed -e 's/^ *auth_url: //' -e 's/"//g')
