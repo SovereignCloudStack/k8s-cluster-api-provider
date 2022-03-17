@@ -1,9 +1,11 @@
 #!/bin/bash
 # Download and deploy helm
 
-HELMVER=3.7.0
-curl -LO https://get.helm.sh/helm-v${HELMVER}-linux-amd64.tar.gz
-tar xvzf helm-v${HELMVER}-linux-amd64.tar.gz
-sudo mv linux-amd64/helm /usr/local/bin/
-rm helm-v${HELMVER}-linux-amd64.tar.gz
+HELMVER=3.8.1
+OS=linux; ARCH=$(uname -m | sed 's/x86_64/amd64/')
+curl -LO https://get.helm.sh/helm-v${HELMVER}-$OS-$ARCH.tar.gz
+tar xvzf helm-v${HELMVER}-$OS-$ARCH.tar.gz
+sudo mv $OS-$ARCH/helm /usr/local/bin/
+rm helm-v${HELMVER}-$OS-$ARCH.tar.gz
+rm -rf $OS-$ARCH
 
