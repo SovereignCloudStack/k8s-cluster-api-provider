@@ -25,13 +25,14 @@ for pvc in $PVCS; do
 	echo -en " Delete pvc $pvc\n "
 	kubectl $KCONTEXT delete persistentvolumeclaim $pvc
 done
+PROVIDER=$(yq eval '.OPENSTACK_CLOUD' ~/cluster-defaults/clusterctl.yaml)
 # Delete server groups (if any)
 if grep '^ *OPENSTACK_ANTI_AFFINITY: true' $CCCFG >/dev/null 2>&1; then
-	SRVGRP=$(openstack server group list -f value)
+	SRVGRP=$(openstack --os-cloud="$PROVIDER" server group list -f value)
 	SRVGRP_CONTROLLER=$(echo "$SRVGRP" | grep "k8s-capi-${CLUSTER_NAME}-controller" | sed 's/^\([0-9a-f\-]*\) .*$/\1/')
 	SRVGRP_WORKER=$(echo "$SRVGRP" | grep "k8s-capi-${CLUSTER_NAME}-worker" | sed 's/^\([0-9a-f\-]*\) .*$/\1/')
 	if test -n "$SRVGRP_WORKER" -o -n "$SRVGRP_CONTROLLER"; then
-		openstack server group delete $SRVGRP_WORKER $SRVGRP_CONTROLLER
+		openstack --os-cloud="$PROVIDER" server group delete $SRVGRP_WORKER $SRVGRP_CONTROLLER
 	fi
 fi
 # Tell capi to clean up
@@ -40,5 +41,5 @@ kubectl delete cluster "$CLUSTER_NAME"
 kubectl config delete-context "$CLUSTER_NAME-admin@$CLUSTER_NAME"
 kubectl config delete-user "$CLUSTER_NAME-admin"
 kubectl config delete-cluster "$CLUSTER_NAME"
-openstack security group delete k8s-cluster-${CLUSTER_NAME}-cilium >/dev/null 2>&1 || true
+openstack --os-cloud="$PROVIDER" security group delete k8s-cluster-${CLUSTER_NAME}-cilium >/dev/null 2>&1 || true
 # TODO: Clean up ~/$CLUSTER_NAME
