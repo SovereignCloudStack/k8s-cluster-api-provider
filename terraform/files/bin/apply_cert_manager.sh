@@ -17,8 +17,8 @@ if test ! -s ~/kubernetes-manifests.d/cert-manager-${CERTMGR_VERSION}.yaml; then
 	# FIXME: Check sig
 	curl -L https://github.com/cert-manager/cert-manager/releases/download/${CERTMGR_VERSION}/cert-manager.yaml > ~/kubernetes-manifests.d/cert-manager-${CERTMGR_VERSION}.yaml || exit 2
 fi
-cp -p ~/kubernetes-manifests.d/cert-manager-${CERTMGR_VERSION}.yaml "~/${CLUSTER_NAME}/cert-manager.yaml"
-kubectl $KCONTEXT apply -f "~/${CLUSTER_NAME}/cert-manager.yaml" || exit 9
+cp -p ~/kubernetes-manifests.d/cert-manager-${CERTMGR_VERSION}.yaml ~/${CLUSTER_NAME}/cert-manager.yaml
+kubectl $KCONTEXT apply -f ~/${CLUSTER_NAME}/cert-manager.yaml || exit 9
 # TODO: Optionally test, using cert-manager-test.yaml
 # See https://cert-manager.io/docs/installation/kubernetes/
 # kubectl plugin

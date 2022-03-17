@@ -22,6 +22,6 @@ else
   OCCM=openstack.yaml
 fi
 sed -e "/^            \- \/bin\/openstack\-cloud\-controller\-manager/a\            - --cluster-name=${CLUSTER_NAME}" \
-    -e "/^        \- \/bin\/openstack\-cloud\-controller\-manager/a\        - --cluster-name=${CLUSTER_NAME}" $OCCM > "~/${CLUSTER_NAME}/openstack-ccm.yaml"
-kubectl $KCONTEXT apply -f "~/${CLUSTER_NAME}/openstack-ccm.yaml" || exit 7
+    -e "/^        \- \/bin\/openstack\-cloud\-controller\-manager/a\        - --cluster-name=${CLUSTER_NAME}" $OCCM > ~/${CLUSTER_NAME}/openstack-ccm.yaml
+kubectl $KCONTEXT apply -f ~/${CLUSTER_NAME}/openstack-ccm.yaml || exit 7
 

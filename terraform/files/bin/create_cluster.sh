@@ -8,9 +8,9 @@ STARTTIME=$(date +%s)
 . ~/.capi-settings
 . ~/bin/cccfg.inc
 
-if test ! -d "~/$CLUSTER_NAME"; then 
-	mkdir -p "~/$CLUSTER_NAME"
-	cp -p ~/cluster-defaults/* "~/$CLUSTER_NAME/"
+if test ! -d ~/$CLUSTER_NAME; then 
+	mkdir -p ~/$CLUSTER_NAME
+	cp -p ~/cluster-defaults/* ~/$CLUSTER_NAME/
 fi
 
 CLUSTERAPI_TEMPLATE=~/${CLUSTER_NAME}/cluster-template.yaml
@@ -57,27 +57,27 @@ clusterctl generate cluster "${CLUSTER_NAME}" --list-variables --from ${CLUSTERA
 # the needed variables are read from $HOME/.cluster-api/clusterctl.yaml
 echo "# rendering clusterconfig from template"
 # FIXME: Detect cluster presence by asking k8s (kind)
-if test -e "~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml"; then
+if test -e ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml; then
 	echo "Warning: Overwriting config for ${CLUSTER_NAME}"
 	echo "Hit ^C to interrupt"
 	sleep 5
 fi
 #clusterctl config cluster ${CLUSTER_NAME} --from ${CLUSTERAPI_TEMPLATE} > rendered-${CLUSTERAPI_TEMPLATE}
-clusterctl generate cluster "${CLUSTER_NAME}" --from ${CLUSTERAPI_TEMPLATE} > "~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml"
+clusterctl generate cluster "${CLUSTER_NAME}" --from ${CLUSTERAPI_TEMPLATE} > ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
 # Remove empty serverGroupID
-sed -i '/^ *serverGroupID: nonono$/d' "~/${CLJSTER_NAME}/${CLUSTER_NAME}-config.yaml"
+sed -i '/^ *serverGroupID: nonono$/d' ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
 
 # Test for CILIUM
 USE_CILIUM=$(yq eval '.USE_CILIUM' $CCCFG)
 if test "$USE_CILIUM" = "true"; then
 	enable-cilium-sg.sh "$CLUSTER_NAME"
 else
-	sed -i '/\-cilium$/d' "~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml"
+	sed -i '/\-cilium$/d' ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
 fi
 
 # apply to the kubernetes mgmt cluster
 echo "# apply configuration and deploy cluster ${CLUSTER_NAME}"
-kubectl apply -f "~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml" || exit 3
+kubectl apply -f ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml || exit 3
 
 #Waiting for Clusterstate Ready
 echo "Waiting for Cluster=Ready"

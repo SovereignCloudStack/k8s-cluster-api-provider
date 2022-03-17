@@ -16,7 +16,7 @@ if test "$DEPLOY_K8S_CINDERCSI_GIT" = "true"; then
     fi
   done
   # FIXME: Should we ignore non-working snapshots?
-  cp -p snapshot.storage.k8s.io_volumesnapshot* "~/${CLUSTER_NAME}/"
+  cp -p snapshot.storage.k8s.io_volumesnapshot* ~/${CLUSTER_NAME}/
   cat snapshot.storage.k8s.io_volumesnapshot* | kubectl $KCONTEXT apply -f - || exit 8
   # Now get cinder
   for name in cinder-csi-controllerplugin-rbac.yaml cinder-csi-controllerplugin.yaml cinder-csi-nodeplugin-rbac.yaml cinder-csi-nodeplugin.yaml csi-cinder-driver.yaml csi-secret-cinderplugin.yaml; do
@@ -39,6 +39,6 @@ n
 s/value: .*\$/value: ${CLUSTER_NAME}/
 }
 EOT
-sed -f cindercsi-${CLUSTER_NAME}.sed $CCSI > "~/${CLUSTER_NAME}/cindercsi.yaml
-kubectl $KCONTEXT apply -f "~/${CLUSTER_NAME}/cindercsi.yaml || exit 8
+sed -f cindercsi-${CLUSTER_NAME}.sed $CCSI > ~/${CLUSTER_NAME}/cindercsi.yaml
+kubectl $KCONTEXT apply -f ~/${CLUSTER_NAME}/cindercsi.yaml || exit 8
 
