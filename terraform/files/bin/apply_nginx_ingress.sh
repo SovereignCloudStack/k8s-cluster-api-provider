@@ -1,8 +1,6 @@
 #!/bin/bash
 export KUBECONFIG=~/.kube/config
-if test -n "$1"; then CLUSTER_NAME="$1"; else CLUSTER_NAME=testcluster; fi
-if test -e ~/clusterctl-${CLUSTER_NAME}.yaml; then CCCFG=~/clusterctl-${CLUSTER_NAME}.yaml; else CCCFG=~/clusterctl.yaml; fi
-KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
+. ~/bin/cccfg.inc
 # Are we enabled? Has a version been set explicitly?
 DEPLOY_NGINX_INGRESS=$(yq eval '.DEPLOY_NGINX_INGRESS' $CCCFG)
 if test "$DEPLOY_NGINX_INGRESS" = "true"; then
@@ -24,9 +22,9 @@ ln -sf nginx-ingress-controller-${NGINX_VERSION}.yaml base/nginx-ingress-control
 sed -i "s@set-real-ip-from: .*\$@set-real-ip-from: \"${NODE_CIDR}\"@" nginx-proxy/nginx-proxy-cfgmap.yaml
 sed -i "s@proxy-real-ip-cidr: .*\$@proxy-real-ip-cidr: \"${NODE_CIDR}\"@" nginx-proxy/nginx-proxy-cfgmap.yaml
 if test "$NGINX_INGRESS_PROXY" = "$false"; then
-	kustomize build nginx-monitor > nginx-ingress-${CLUSTER_NAME}.yaml || exit 3
+	kustomize build nginx-monitor > ~/$CLUSTER_NAME/deployed-manifests.d/nginx-ingress.yaml || exit 3
 else
-	kustomize build nginx-proxy > nginx-ingress-${CLUSTER_NAME}.yaml || exit 3
+	kustomize build nginx-proxy > ~/$CLUSTER_NAME/deployed-manifests.d/nginx-ingress.yaml || exit 3
 fi
-kubectl $KCONTEXT apply -f nginx-ingress-${CLUSTER_NAME}.yaml
+kubectl $KCONTEXT apply -f ~/$CLUSTER_NAME/deployed-manifests.d/nginx-ingress.yaml
 

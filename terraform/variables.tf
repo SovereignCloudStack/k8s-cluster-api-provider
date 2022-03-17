@@ -175,3 +175,8 @@ variable "etcd_unsafe_fs" {
   default     = false
 }
 
+variable "git_branch" {
+  description = "k8s-cluster-api-provider git branch to be checked out on mgmtserver"
+  type        = string
+  default     = "master"
+}

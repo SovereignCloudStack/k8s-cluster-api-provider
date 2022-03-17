@@ -5,11 +5,27 @@
 
 STARTTIME=$(date +%s)
 # variables
-CLUSTERAPI_TEMPLATE=~/cluster-template.yaml
-CLUSTER_NAME=testcluster
-if test -n "$1"; then CLUSTER_NAME="$1"; fi
-KUBECONFIG_WORKLOADCLUSTER="$HOME/${CLUSTER_NAME}.yaml"
+. ~/.capi-settings
+. ~/bin/cccfg.inc
 
+# Ensure directory for cluster exists
+if test ! -d ~/$CLUSTER_NAME; then 
+	mkdir -p ~/$CLUSTER_NAME
+	cp -p ~/cluster-defaults/* ~/$CLUSTER_NAME/
+fi
+# Copy missing files individually as needed from cluster-defaults
+if test ! -s ~/$CLUSTER_NAME/cloud.conf; then
+	cp -p ~/cluster-defaults/cloud.conf ~/$CLUSTER_NAME/
+fi
+CLUSTERAPI_TEMPLATE=~/${CLUSTER_NAME}/cluster-template.yaml
+if test ! -s $CLUSTERAPI_TEMPLATE; then
+	cp -p ~/cluster-defaults/cluster-template.yaml ~/$CLUSTER_NAME/
+fi
+if test ! -d ~/$CLUSTER_NAME/deployed-manifests.d/; then
+	mkdir -p ~/$CLUSTER_NAME/deployed-manifests.d/
+fi
+
+#export OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)
 # Ensure image is there
 wait_capi_image.sh "$1" || exit 1
 
@@ -18,13 +34,7 @@ export KUBECONFIG=$HOME/.kube/config
 kubectl config use-context kind-kind || exit 1
 # get the needed clusterapi-variables
 echo "# show used variables for clustertemplate ${CLUSTERAPI_TEMPLATE}"
-if test -e "$HOME/clusterctl-${CLUSTER_NAME}.yaml"; then
-	CCCFG="$HOME/clusterctl-${CLUSTER_NAME}.yaml"
-else
-	CCCFG=$HOME/clusterctl.yaml
-fi
 
-export OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)
 # TODO: Optional: Create own project for the cluster
 # If so, we need to share the image with the new project
 
@@ -56,27 +66,28 @@ clusterctl generate cluster "${CLUSTER_NAME}" --list-variables --from ${CLUSTERA
 
 # the needed variables are read from $HOME/.cluster-api/clusterctl.yaml
 echo "# rendering clusterconfig from template"
-if test -e "${CLUSTER_NAME}-config.yaml"; then
+# FIXME: Detect cluster presence by asking k8s (kind)
+if test -e ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml; then
 	echo "Warning: Overwriting config for ${CLUSTER_NAME}"
 	echo "Hit ^C to interrupt"
 	sleep 5
 fi
 #clusterctl config cluster ${CLUSTER_NAME} --from ${CLUSTERAPI_TEMPLATE} > rendered-${CLUSTERAPI_TEMPLATE}
-clusterctl generate cluster "${CLUSTER_NAME}" --from ${CLUSTERAPI_TEMPLATE} > "${CLUSTER_NAME}-config.yaml"
+clusterctl generate cluster "${CLUSTER_NAME}" --from ${CLUSTERAPI_TEMPLATE} > ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
 # Remove empty serverGroupID
-sed -i '/^ *serverGroupID: nonono$/d' "${CLUSTER_NAME}-config.yaml"
+sed -i '/^ *serverGroupID: nonono$/d' ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
 
 # Test for CILIUM
 USE_CILIUM=$(yq eval '.USE_CILIUM' $CCCFG)
 if test "$USE_CILIUM" = "true"; then
 	enable-cilium-sg.sh "$CLUSTER_NAME"
 else
-	sed -i '/\-cilium$/d' "${CLUSTER_NAME}-config.yaml"
+	sed -i '/\-cilium$/d' ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
 fi
 
 # apply to the kubernetes mgmt cluster
 echo "# apply configuration and deploy cluster ${CLUSTER_NAME}"
-kubectl apply -f "${CLUSTER_NAME}-config.yaml" || exit 3
+kubectl apply -f ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml || exit 3
 
 #Waiting for Clusterstate Ready
 echo "Waiting for Cluster=Ready"
@@ -96,7 +107,6 @@ kubectl config view --flatten > $MERGED
 mv $MERGED $HOME/.kube/config
 export KUBECONFIG=$HOME/.kube/config
 #kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
-KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
 
 SLEEP=0
 until kubectl $KCONTEXT api-resources
@@ -135,6 +145,7 @@ fi
 DEPLOY_FLUX=$(yq eval '.DEPLOY_FLUX' $CCCFG)
 if test "$DEPLOY_FLUX" = "true"; then
   KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} flux install || exit $?
+  touch ~/$CLUSTER_NAME/deployed-manifests.d/.flux
 fi
 
 # NGINX ingress

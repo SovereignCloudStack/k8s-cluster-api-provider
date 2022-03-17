@@ -1,11 +1,9 @@
 #!/bin/bash
 export KUBECONFIG=~/.kube/config
-if test -n "$1"; then CLUSTER_NAME="$1"; else CLUSTER_NAME=testcluster; fi
-if test -e ~/clusterctl-${CLUSTER_NAME}.yaml; then CCCFG=~/clusterctl-${CLUSTER_NAME}.yaml; else CCCFG=~/clusterctl.yaml; fi
-KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
+. ~/bin/cccfg.inc
 
 echo "Install external OpenStack cloud provider to $CLUSTER_NAME"
-kubectl $KCONTEXT create secret generic cloud-config --from-file="$HOME"/cloud.conf -n kube-system #|| exit 6
+kubectl $KCONTEXT create secret generic cloud-config --from-file="$HOME/$CLUSTER_NAME/"cloud.conf -n kube-system #|| exit 6
 
 cd ~/kubernetes-manifests.d
 # install external cloud-provider openstack
@@ -24,6 +22,6 @@ else
   OCCM=openstack.yaml
 fi
 sed -e "/^            \- \/bin\/openstack\-cloud\-controller\-manager/a\            - --cluster-name=${CLUSTER_NAME}" \
-    -e "/^        \- \/bin\/openstack\-cloud\-controller\-manager/a\        - --cluster-name=${CLUSTER_NAME}" $OCCM > "openstack-${CLUSTER_NAME}.yaml"
-kubectl $KCONTEXT apply -f "openstack-${CLUSTER_NAME}.yaml" || exit 7
+    -e "/^        \- \/bin\/openstack\-cloud\-controller\-manager/a\        - --cluster-name=${CLUSTER_NAME}" $OCCM > ~/${CLUSTER_NAME}/deployed-manifests.d/openstack-ccm.yaml
+kubectl $KCONTEXT apply -f ~/${CLUSTER_NAME}/deployed-manifests.d/openstack-ccm.yaml || exit 7
 

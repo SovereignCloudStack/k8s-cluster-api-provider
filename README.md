@@ -104,7 +104,7 @@ issue ``make ssh``.
 You can create and do life cycle management for many more clusters from this management node.
 
 The kubeconfig with admin
-power for the created testcluster is named ``testcluster.yaml`` (or ``$CLUSTER_NAME.yaml``
+power for the created testcluster is named ``testcluster/testcluster.yaml`` (or ``$CLUSTER_NAME/$CLUSTER_NAME.yaml``
 for all the other clusters) and can be handed out to
 users that should get full administrative control over the cluster. You can also retrieve
 them using ``make get-kubeconfig TESTCLUSTER=${CLUSTER_NAME}``, and possibly create an
@@ -174,14 +174,22 @@ is used for the C-API management while the context ``testcluster-admin@testclust
 be used to control the workload cluster ``testcluster``. You can of course create many
 of them. There are management scripts on the management node:
 
-* ``create_cluster.sh [CLUSTERNAME]``: Use this command to use the template
-  ``cluster-template.yaml`` with the variables from ``clusterctl[-$CLUSTERNAME].yaml``
-  to render a config file ``$CLUSTERNAME-config.yaml`` which will then be submitted
+* ``create_cluster.sh CLUSTERNAME``: Use this command to use the template
+  ``$CLUSTERNAME/cluster-template.yaml`` with the variables from ``$CLUSTERNAME/clusterctl.yaml``
+  to render a config file ``$CLUSTERNAME/$CLUSTERNAME-config.yaml`` which will then be submitted
   to the capi server (``kind-kind`` context) for creating the control plane nodes
   and worker nodes with openstack integration, cinder CSI, calico or cilium CNI,
-  metrics server, and optionally nginx ingress controller, flux, cert-manager. 
-  (The latter of these can be controlled by ``tfvars`` which are passed down
+  metrics server, and optionally nginx ingress controller, flux, cert-manager.
+  (These can be controlled by ``tfvars`` which are passed down
    into the ``clusterctl.yaml``.)
+  Note that ``CLUSTERNAME`` defaults to ``testcluster`` and must not contain
+  whitespace. If the directory ``~/$CLUSTERNAME/``
+  does not exist, it will be created as a copy of ``~/cluster-defaults/`` which
+  contains the settings passed from the terraform environment during management node
+  creation. (See below for a list of settings.). Note that it is sufficient to
+  copy and edit ``clusterctl.yaml`` from ``~/custer-defaults/``, as ``cloud.conf``
+  and ``cluster-template.yaml`` will be copied from ``create_cluster.sh`` if they
+  are missing.
   The script makes sure that appropriate capi images are available (it grabs them
   from [OSISM](https://minio.services.osism.tech/openstack-k8s-capi-images)
   as needed and registers them with OpenStack, following the SCS image metadata
@@ -193,6 +201,13 @@ of them. There are management scripts on the management node:
   ``--context=${CLUSTERNAME}-admin@$CLUSTERNAME`` to ``kubectl`` (with the
   default ``~/.kubernetes/config`` config file) or ``export KUBECONFIG=$CLUSTERNAME.yaml``\
   to talk to the workload cluster.
+* The subdirectory ``~/$CLUSTERNAME/deployed-manifests.d/`` will contain the
+  deployed manifests for reference (and in case of nginx-ingress also to facilitat
+  a full cleanup). 
+* The directory ``~/k8s-cluster-api-provider/`` contains a checked out git tree
+  from the SCS project. It can be updated (``git pull``) to receive the latest
+  fixes. This way, most incremental updates do not need the recreation of
+  the management node (and thus also not the recreation of your workload clusters).
 * The installaton of the openstack integration, cinder CSI, metrics server and
   nginx ingress controller is done via the ``bin/apply_*.sh`` scripts that are called
   from ``create_cluster.sh``. You can manually call them as well -- they take
@@ -402,11 +417,11 @@ environment | clusterctl.yaml | provenance | default | script |  meaning
 * Unify settings naming ([#136](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/136))
 * Move towards per cluster app creds ([#109](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/109))
 * Opt-in for per cluster project (extends [#109](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/109))
-* Subdirectories per cluster on capi mgmt node ([#107](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/107), see also [#117](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/117)).
 * Allow service deletion from `create_cluster.sh` ([#137](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/137), see also [#131](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/131))
 * More pre-flight checks in `create_clster.sh` ([#111](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/111)).
 * Allow using newer OCCM and cinder CSI providers with fixed and tested versions. ([#138](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/138))
 * Implement (optional) harbor deployment using k8s-harbor. ([#139](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/139))
 * Move towards gitops style cluster management. (Design Doc in [Docs repo PR #47](https://github.com/SovereignCloudStack/Docs/pull/47) - draft)
 
-
+See also the [issues](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues) and
+[PRs](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues) on github.

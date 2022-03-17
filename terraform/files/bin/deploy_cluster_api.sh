@@ -4,9 +4,7 @@
 ## license: Apache-2.0
 
 # variables
-CLUSTERAPI_OPENSTACK_PROVIDER_VERSION=${capi_openstack_version}
-CLUSTERAPI_VERSION=${clusterapi_version}
-CALICO_VERSION=${calico_version}
+. ~/.capi-settings
 
 ARCH=$(uname -m | sed 's/x86_64/amd64/')
 # Install clusterctl
@@ -23,7 +21,7 @@ clusterctl version --output yaml
 bash clusterctl_template.sh
 
 # cp clusterctl.yaml to the right place
-cp -p $HOME/clusterctl.yaml $HOME/.cluster-api/clusterctl.yaml
+cp -p $HOME/cluster-defaults/clusterctl.yaml $HOME/.cluster-api/clusterctl.yaml
 
 # deploy cluster-api on mgmt cluster
 echo "deploy cluster-api with openstack provider $CLUSTERAPI_OPENSTACK_PROVIDER_VERSION"
