@@ -70,7 +70,7 @@ unset CLUSTER_EXISTS
 if test -e ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml; then
 	echo " Overwriting config for ${CLUSTER_NAME}"
 	CLUSTERS=$(kubectl get clusters | grep -v '^NAME' | grep "^$CLUSTER_NAME " | awk '{ print $1; }')
-	if test -n "CLUSTERS"; then
+	if test -n "$CLUSTERS"; then
 		export CLUSTER_EXISTS=1
 		echo -e " Warning: Cluster exists\n Hit ^C to interrupt"
 		sleep 6
