@@ -74,7 +74,7 @@ clean: init
 	terraform workspace delete $(ENVIRONMENT)
 	@if test -e ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); then source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); ssh-keygen -R $$MGMTCLUSTER_ADDRESS -f ~/.ssh/known_hosts; fi
 	@rm -f .deploy.$(ENVIRONMENT) .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT) mycloud.$(ENVIRONMENT).yaml
-	@rm -f .kube.config.$(ENVIRONMENT) .cluster-api.clusterctl.yaml.$(ENVIRONMENT) rendered-cluster-template.yaml.$(ENVIRONMENT)
+	@rm -f .kubeconfig.$(ENVIRONMENT) $(TESTCLUSTER).yaml.$(ENVINRONMENT) clusterctl.$(TESTCLUSTER).yaml.$(ENVIRONMENT) .yaml.$(ENVIRONMENT) $(TESTCLUSTER)-config.yaml.$(ENVIRONMENT)
 
 fullclean:
 	prefix=$$(grep '^prefix *=' environments/environment-${ENVIRONMENT}.tfvars | sed -e 's/^[^=]*= *//' -e 's/"//g'); \
@@ -111,9 +111,9 @@ get-kubeconfig: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVI
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
 	scp -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS:.kube/config .kubeconfig.$(ENVIRONMENT); \
 	scp -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS:$(TESTCLUSTER)/$(TESTCLUSTER).yaml $(TESTCLUSTER).yaml.$(ENVIRONMENT); \
-	scp -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS:$(TESTCLUSTER)/clusterctl.yaml .cluster-api.clusterctl.yaml.$(ENVIRONMENT); \
+	scp -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS:$(TESTCLUSTER)/clusterctl.yaml clusterctl.$(TESTCLUSTER).yaml.$(ENVIRONMENT); \
 	scp -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS:$(TESTCLUSTER)/$(TESTCLUSTER)-config.yaml $(TESTCLUSTER)-config.yaml.$(ENVIRONMENT); \
-	Gsed -i "s/127\.0\.0\.1/$$MGMTCLUSTER_ADDRESS/" .cluster-api.clusterctl.yaml.$(ENVIRONMENT); \
+	sed -i "s/127\.0\.0\.1/$$MGMTCLUSTER_ADDRESS/" clusterctl.$(TESTCLUSTER).yaml.$(ENVIRONMENT); \
 	sed -i "s/127\.0\.0\.1/$$MGMTCLUSTER_ADDRESS/" .kubeconfig.$(ENVIRONMENT)
 
 deploy: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
@@ -192,6 +192,6 @@ openstack: init
 k9s: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
 	ssh -t -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS \
-	"KUBECONFIG=/etc/rancher/k3s/k3s.yaml:/home/ubuntu/$(TESTCLUSTER).yaml k9s --all-namespaces"
+	"KUBECONFIG=/home/ubuntu/.kube/config.yaml:/home/ubuntu/$(TESTCLUSTER)/$(TESTCLUSTER).yaml k9s --all-namespaces"
 
 PHONY: clean console attach detach ssh dry-run list deploy watch openstack create log console login k9s mycloud gitchk
