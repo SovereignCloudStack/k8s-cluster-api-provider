@@ -19,7 +19,7 @@ We test the kubernetes versions 1.19 -- 1.23 with the R2 cluster-api
 solution. We had tested 1.18 successfully before, so it will probably
 still work. 
 
-### calico 3.22.x, cilium 1.11.x, helm 3.8.x, sononbouy 0.56.x, k9s 0.25.x, kind 0.12.x
+### calico 3.22.x, cilium 1.11.x, helm 3.8.x, sonobuoy 0.56.x, k9s 0.25.x, kind 0.12.x
 
 We regularly update to the latest stable versions.
 
@@ -186,12 +186,19 @@ SCS cluster management.
 
 ### gitops ([Docs/#47](https://github.com/SovereignCloudStack/Docs/pull/47))
 
-We want to enable declarative gitops style cluster management, please se
+We want to enable declarative gitops style cluster management, please see
+this [pull request]((https://github.com/SovereignCloudStack/Docs/pull/47)) 
+for our Design Docs.
 
 ## Conformance
 
 With Calico CNI, the k8s clusters created with our SCS cluster-API based
-cluster management solution pass the CNCF conformance tests as run by sonobuoy.
+cluster management solution pass the CNCF conformance tests as run by
+[sonobuoy](https://sonobuoy.io/).
+
+With the gitops approach, we intend to standardize the
+`clusterctl.yaml` settings to allow a straightforward approach to
+declarative cluster management. This is intended for R3 (9/2022).
 
 ## Branch
 
