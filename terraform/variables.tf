@@ -64,7 +64,7 @@ variable "clusterapi_version" {
 variable "capi_openstack_version" {
   description = "desired version of the OpenStack cluster-api provider"
   type        = string
-  default     = "0.5.2"
+  default     = "0.5.3"
 }
 
 variable "kubernetes_version" {
@@ -116,15 +116,15 @@ variable "deploy_metrics" {
 }
 
 variable "deploy_nginx_ingress" {
-  description = "deploy NGINX ingress controller into k8s-capi created clusters"
-  type        = bool
-  default     = true
+  description = "deploy NGINX ingress controller (version) into k8s-capi created clusters"
+  type        = string
+  default     = "true"
 }
 
 variable "deploy_cert_manager" {
-  description = "deploy cert-manager into k8s-capi created clusters"
-  type        = bool
-  default     = false
+  description = "deploy cert-manager (version) into k8s-capi created clusters"
+  type        = string
+  default     = "false"
 }
 
 variable "deploy_flux" {
@@ -175,3 +175,8 @@ variable "etcd_unsafe_fs" {
   default     = false
 }
 
+variable "git_branch" {
+  description = "k8s-cluster-api-provider git branch to be checked out on mgmtserver"
+  type        = string
+  default     = "master"
+}

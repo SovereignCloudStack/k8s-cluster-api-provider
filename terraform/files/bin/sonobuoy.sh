@@ -8,15 +8,18 @@
 unset TZ
 export LC_ALL=POSIX
 if ! test -x /usr/local/bin/sonobuoy; then
-	SONOBUOY_VERSION=0.53.2
-	SONOTARBALL=sonobuoy_${SONOBUOY_VERSION}_linux_amd64.tar.gz
+	OS=linux; ARCH=$(uname -m | sed 's/x86_64/amd64/')
+	SONOBUOY_VERSION=0.56.2
+	SONOTARBALL=sonobuoy_${SONOBUOY_VERSION}_${OS}_${ARCH}.tar.gz
 	curl -LO https://github.com/vmware-tanzu/sonobuoy/releases/download/v${SONOBUOY_VERSION}/${SONOTARBALL} || exit 1
 	tar xvzf ${SONOTARBALL} || exit 2
 	chmod +x ./sonobuoy || exit 2
 	sudo mv sonobuoy /usr/local/bin/
+	mv LICENSE LICENSE.sonobuoy
 	rm ${SONOTARBALL}
 fi
-export KUBECONFIG=testcluster.yaml
+. ~/bin/cccfg.inc
+export KUBECONFIG="$KUBECONFIG_WORKLOADCLUSTER"
 if ! test -s "$KUBECONFIG"; then echo "No $KUBECONFIG" 1>&2; exit 3; fi
 #./sonobuoy status 2>/dev/null
 #./sonobuoy delete --wait

@@ -4,11 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 export KUBECONFIG=~/.kube/config
-if test -n "$1"; then CLUSTER_NAME="$1"; else CLUSTER_NAME=testcluster; fi
-if test -e ~/clusterctl-${CLUSTER_NAME}.yaml; then CCCFG=~/clusterctl-${CLUSTER_NAME}.yaml; else CCCFG=~/clusterctl.yaml; fi
+. ~/bin/cccfg.inc
+
 kubectl config use-context kind-kind
 echo "Deleting cluster $CLUSTER_NAME"
-KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
 # Delete workload pods (default namespace)
 PODS=$(kubectl $KCONTEXT get pods | grep -v '^NAME' | awk '{ print $1; }')
 for pod in $PODS; do
@@ -19,9 +18,9 @@ done
 INPODS=$(kubectl $KCONTEXT --namespace ingress-nginx get pods) 
 if echo "$INPODS" | grep nginx >/dev/null 2>&1; then
 	echo -en " Delete ingress \n "
-	kubectl $KCONTEXT delete -f ~/kubernetes-manifests.d/nginx-ingress-controller.yaml
+	kubectl $KCONTEXT delete -f ~/${CLUSTER_NAME}/deployed-manifests.d/nginx-ingress.yaml
 fi
-# Delete persisten volumes
+# Delete persistent volumes
 PVCS=$(kubectl $KCONTEXT get persistentvolumeclaims | grep -v '^NAME' | awk '{ print $1; }')
 for pvc in $PVCS; do
 	echo -en " Delete pvc $pvc\n "
@@ -43,3 +42,4 @@ kubectl config delete-context "$CLUSTER_NAME-admin@$CLUSTER_NAME"
 kubectl config delete-user "$CLUSTER_NAME-admin"
 kubectl config delete-cluster "$CLUSTER_NAME"
 openstack security group delete k8s-cluster-${CLUSTER_NAME}-cilium >/dev/null 2>&1 || true
+# TODO: Clean up ~/$CLUSTER_NAME

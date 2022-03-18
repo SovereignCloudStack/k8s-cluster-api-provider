@@ -4,15 +4,8 @@
 # (c) Kurt Garloff <garloff@osb-alliance.com>, 1/2022
 # SPDX-License-Identifier: Apache-2.0
 export KUBECONFIG=~/.kube/config
-if test -n "$1"; then
-	CLUSTER_NAME="$1"
-	CCYAML="clusterctl-$1.yaml"
-else
-	CLUSTER_NAME=testcluster
-	CCYAML=clusterctl.yaml
-fi
-#NAMESPACE=$(yq eval .NAMESPACE $CCCFG)
-KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}" # "--namespace=$NAMESPACE"
+. ~/.capi-settings
+. ~/bin/cccfg.inc
 #
 
 OLDNICLIST=($(ls /sys/class/net | sort))
@@ -29,7 +22,7 @@ findnewnic()
 	return 1
 }
 
-MGMT=$(openstack server list --name ".*\-mgmtcluster" -f value -c Name)
+MGMT=$(openstack server list --name "$PREFIX-mgmtcluster" -f value -c Name)
 openstack server add network $MGMT k8s-clusterapi-cluster-default-$CLUSTER_NAME || exit
 WAIT=0
 while test $WAIT -lt 30; do
@@ -43,7 +36,7 @@ done
 #sudo ip route del default dev $NEWNIC
 MAC=$(ip link show $NEWNIC | grep 'link/ether' | sed 's/^ *link\/ether \([0-9a-f:]*\) .*$/\1/')
 IP=$(openstack port list --mac=$MAC -f value -c 'Fixed IP Addresses' | sed "s/^.*'ip_address': '\([0-9\.]*\)'.*\$/\1/")
-NETMASK=$(grep NODE_CIDR "$CCYAML" | head -n 1 | sed 's/^.*NODE_CIDR: //')
+NETMASK=$(grep NODE_CIDR "$CCCFG" | head -n 1 | sed 's/^.*NODE_CIDR: //')
 NETMASK=${NETMASK#*/}
 sudo ip link set dev $NEWNIC up
 sudo ip add add $IP/$NETMASK dev $NEWNIC

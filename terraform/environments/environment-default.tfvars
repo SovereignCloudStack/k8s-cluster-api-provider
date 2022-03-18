@@ -8,7 +8,7 @@ dns_nameservers      = [ "DNS_IP1", "DNS_IP2" ]	  # defaults to [ "5.1.66.255", 
 kind_flavor          = "<flavor>"                 # defaults to SCS-1V:4:20  (larger does not hurt)
 ssh_username         = "<username_for_ssh>"	  # defaults to "ubuntu"
 clusterapi_version   = "<1.x.y>"		  # defaults to "1.0.5"
-capi_openstack_version = "<0.x.y>"		  # defaults to "0.5.2"
+capi_openstack_version = "<0.x.y>"		  # defaults to "0.5.3"
 image                = "<glance_image>"		  # defaults to "Ubuntu 20.04"
 # Settings for testcluster
 kubernetes_version   = "<v1.XX.XX>"		  # defaults to "v1.22.7"
@@ -22,8 +22,8 @@ kind_mtu             = <number>         # defaults to 0 (autodetection)
 node_cidr            = "<CIDR>"         # defaults to "10.8.0.0/20"
 anti_affinity        = "<boolean>"      # defaults to "true"
 use_cilium           = "<boolean>"      # defaults to "false"
-deploy_nginx_ingress = "<boolean>"      # defaults to "true"
-deploy_cert_manager  = "<boolean>"      # defaults to "false"
+deploy_nginx_ingress = "version/true/false"       # defaults to "true", you can also set vX.Y.Z if you want
+deploy_cert_manager  = "version/true/false"       # defaults to "false", you can also set to vX.Y.Z if you want
 deploy_flux          = "<boolean>"      # defaults to "false"
 deploy_metrics       = "<boolean>"      # defaults to "true"
 deploy_k8s_openstack_git = "<boolean>"  # defaults to "true", enable for k8s >= 1.22, dont for < 1.20
