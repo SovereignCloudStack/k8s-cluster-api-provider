@@ -72,25 +72,25 @@ The preparations are done on a deployment host, posssibly a tiny jumphost style 
 or some Linux/MacOS/WSL laptop.
 
 * Terraform must be installed (<https://learn.hashicorp.com/tutorials/terraform/install-cli>).
-* You need to have ``yq`` (python3-yq or yq snap) and GNU make installed.
-* You must have credentials to access the cloud. terraform will look for ``clouds.yaml``
-  and ``secure.yaml`` in the current working directory, in ``~/.config/openstack/``
-  and ``/etc/openstack`` (in this order), just like the openstack client.
+* You need to have `yq` (python3-yq or yq snap) and GNU make installed.
+* You must have credentials to access the cloud. terraform will look for `clouds.yaml`
+  and `secure.yaml` in the current working directory, in `~/.config/openstack/`
+  and `/etc/openstack` (in this order), just like the openstack client.
   (<https://docs.openstack.org/python-openstackclient/latest/configuration/index.html#clouds-yaml>)
-* As the ``v3applicationcredential`` ``auth_type`` plugin is being used, we hit a bug
+* As the `v3applicationcredential` `auth_type` plugin is being used, we hit a bug
   in Ubuntu 20.04 which ships python3-keystoneauth < 4.2.0, which does fail with
-  unversioned ``auth_url`` endpoints.
+  unversioned `auth_url` endpoints.
   (See OpenStack [bug 1876317](https://bugs.launchpad.net/keystoneauth/+bug/1876317).)
   While we try to patch the bug away in the deployed instance, the patching mechanism
-  is not very robust, so we recommend you have a versioned ``auth_url``
-  endpoint (with a trailing ``/v3``).
+  is not very robust, so we recommend you have a versioned `auth_url`
+  endpoint (with a trailing `/v3`).
 * Copy the environments sample file from environments/environment-default.tfvars to
-  ``environments/environment-<yourcloud>.tfvars`` and provide the necessary information like
+  `environments/environment-<yourcloud>.tfvars` and provide the necessary information like
   machine flavor or machine image. You can comment out all lines where the defaults
   match your needs. (See below for more details on this.)
-* Pass ``ENVIRONMENT=<yourcloud>`` to the ``make`` command or export ``ENVIRONMENT`` from
+* Pass `ENVIRONMENT=<yourcloud>` to the `make` command or export `ENVIRONMENT` from
   your shell's environment. If the name of the environment equals the name of the cloud
-  as specified in your ``clouds.yaml``, you can also just set ``OS_CLOUD`` in your shell's
+  as specified in your `clouds.yaml`, you can also just set `OS_CLOUD` in your shell's
   environment. (You can also edit the default in the Makefile, though we don't recommend
   this.)
 
@@ -201,7 +201,7 @@ of them. There are management scripts on the management node:
   which will then be submitted to the capi server (``kind-kind`` context) for creating
   the control plane nodes and worker nodes. The script will also apply openstack integration,
   cinder CSI, calico or cilium CNI, and optionally also metrics server, nginx ingress controller,
-  flux, cert-manager. (These can be controlled by ``DEPLOY_XXX` variables, see below.
+  flux, cert-manager. (These can be controlled by `DEPLOY_XXX` variables, see below.
   Defaults can be preconfigured from the environment.tfvars file during management node
   creation.)
   Note that ``CLUSTERNAME`` defaults to ``testcluster`` and must not contain

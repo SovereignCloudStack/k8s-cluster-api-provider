@@ -104,7 +104,8 @@ Previously, only one DNS server could be supplied using the `OPENSTACK_DNS_NAMES
 setting, which contradicts best practice for DNS resolution. We can now supply a comma-
 separated list and default to the excellent name service provided by 
 (FFMUC)[https://ffmuc.net/wiki/doku.php?id=knb:dns]:
-`"[ 62.138.222.111, 62.138.222.222 ]"`. We had experienced UDP:53 failures with quad9 
+`"[ 5.1.66.255, 185.150.99.255 ]"`.
+We had experienced UDP:53 failures with quad9 
 (which was the old default) before.
 
 ### loadbalancer name conflict (#93)
@@ -132,15 +133,21 @@ It is enabled by default, as we expect most users to find this desirable.
 
 ### Incompatible changes
 
-* ANTIAFFINITY -> ANTI_AFFINITY (#152)
-* deploy_metrics_service -> deploy_metrics (#149)
-* dns_nameserver*s* (#164)
+* The `OPENSTACK_ANTIAFFINITY` `clusterctl.yaml` setting, introduced during the
+  R2 development cycle was renamed to `OPENSTACK_ANTI_AFFINITY` for consistency
+  reasons (#152).
+* The `tfvars` setting `deploy_metrics_service` was rename to `deploy_metrics` (#149).
+* As mentioned before, we do support multiple nameservers now. The `clusterctl.yaml`
+  setting's name used the plural before, but not so the `tfvars`. It was names
+  `dns_nameserver` and now is called `dns_nameservers` (#164).
 
 ### Changed defaults
 
-* raw images (#165)
-* k8s default version is v1.22.7 currently.
-* cinder/occm git versions are enabled by default now (#165), matching the k8s version.
+* As SCS clouds are using ceph backed storage for the images, we convert the clusterapi
+  images to raw format by default now (#165).
+* If you don't specify a `kubernetes_version`, the default now is v1.22.7.
+* For k8s-1.22, it's much better to use the cinder/occm git versions, so we enable
+  them by default now (#165).
 
 ## Removals and deprecations
 
@@ -148,12 +155,12 @@ None.
 
 ## Known issues and limitations
 
-### --insecure metrics (#148)
+### metrics with --kubelet-insecure-tls (#148)
 
-Like most kubeadm based setups, we used --insecure-tls for the metric service to be
-allowed to talk to kubelets to retrieve metrics. This can be improved.
+Like most kubeadm based setups, we used --kubelet-insecure-tls for the metric
+service to be allowed to talk to kubelets to retrieve metrics. This can be improved.
 
-### Incomplete change capabilties (no removal of services - #137)
+### No removal of services from `create_cluster.sh` (#137)
 
 You can call `create_cluster.sh` many times to apply changes to your
 workload cluster -- it currently however does not remove any of the deployed
@@ -161,7 +168,15 @@ standard services that you might have had enabled before and now set to
 `false`. (We will require a `--force-remove` option or so to ensure that
 users are aware of the risks.)
 
-### 4 CNCF conformance fails with cilium (#144)
+### No support for switching b/w calico and cilium (#131
+
+Switching between the two CNI alternatives is currently not facilitated
+by the `create_cluster.sh` script. It can be done by removing the
+current CNI manually (delete the deployment yaml or cilium uninstall)
+and then calling `create_cluster.sh`. However, this has the potential
+to disrupt the workloads in your workload clusters.
+
+### 4 CNCF conformance test fails with cilium (#144)
 
 We want to understand whether these four failures could be avoided by tweaking
 the configuration or whether those are commonly ignored. The investigation
@@ -200,7 +215,7 @@ With the gitops approach, we intend to standardize the
 `clusterctl.yaml` settings to allow a straightforward approach to
 declarative cluster management. This is intended for R3 (9/2022).
 
-## Branch
+## Branching
 
 We tag the R2 branch with the v3.0.0 tag and create a v3.0.x branches
 for users that want to exclusively see bug and security fixes.
@@ -209,9 +224,13 @@ however might never see anything beyond what we put into v3.0.x
 if we don't create a minor release). 
 If we decide to create a minor release, we would also create a 
 v3.1.0 tag and a v3.1.x branch.
+These branches will receive updates until the end of October 2022.
 
 ## Contribution
 
 We appreciate contribution to strategy and implemention, please join
 our community -- or just leave input on the github issues and PRs.
-(TODO: Add pointer to contributor's guide!)
+Have a look at our [contributor guide](https://scs.community/docs/contributor/).
+We also have worked on a [Code of Conduct](https://github.com/SovereignCloudStack/Docs/pull/26)
+to document the expected behavior of contributors and how we deal with
+cases where individuals fail to meet the expectation.
