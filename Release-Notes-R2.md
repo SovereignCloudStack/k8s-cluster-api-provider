@@ -127,7 +127,8 @@ kustomization of the nginx-ingress deployment.
 
 Using the kustomization, the option `NGINX_INGRESS_PROXY` setting has also been introduced,
 allowing the http/https services to receive the real IP address via the PROXY protocol.
-It is enabled by default, as we expect most users to find this desirable.
+It is disabled by default; while we expect most users to find this desirable, it can create
+challenges for internal access to the nginx ingress.
 
 ## Upgrade/Migration notes
 
