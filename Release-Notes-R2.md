@@ -168,7 +168,7 @@ standard services that you might have had enabled before and now set to
 `false`. (We will require a `--force-remove` option or so to ensure that
 users are aware of the risks.)
 
-### No support for switching b/w calico and cilium (#131
+### No support for changing b/w calico and cilium (#131)
 
 Switching between the two CNI alternatives is currently not facilitated
 by the `create_cluster.sh` script. It can be done by removing the
@@ -176,7 +176,7 @@ current CNI manually (delete the deployment yaml or cilium uninstall)
 and then calling `create_cluster.sh`. However, this has the potential
 to disrupt the workloads in your workload clusters.
 
-### 4 CNCF conformance test fails with cilium (#144)
+### Four CNCF conformance test fails with cilium (#144)
 
 We want to understand whether these four failures could be avoided by tweaking
 the configuration or whether those are commonly ignored. The investigation

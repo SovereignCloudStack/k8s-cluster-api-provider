@@ -255,6 +255,10 @@ of them. There are management scripts on the management node:
   the cluster $CLUSTERNAME. It will also remove persistent volume claims belonging
   to the cluster. The script will return once the removal is done.
 * ``cleanup.sh``: Remove all running clusters.
+* `add_cluster-network.sh CLUSTERNAME` adds the management to the node network
+  of the cluster `CLUSTERNAME`, assuming that it runs on the same cloud (region).
+  `remove_cluster-network.sh` undoes this again. This is useful for debugging
+  purposes.
 
 For your convenience, ``k9s`` is installed on the management node as well
 as ``calicoctl``, ``cilium``, ``hubble``, ``cmctl``, ``helm`` and ``sonobuoy``.
