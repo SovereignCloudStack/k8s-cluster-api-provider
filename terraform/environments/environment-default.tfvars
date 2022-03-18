@@ -11,7 +11,7 @@ clusterapi_version   = "<1.x.y>"		  # defaults to "1.0.5"
 capi_openstack_version = "<0.x.y>"		  # defaults to "0.5.3"
 image                = "<glance_image>"		  # defaults to "Ubuntu 20.04"
 # Settings for testcluster
-kubernetes_version   = "<v1.XX.XX>"		  # defaults to "v1.21.10"
+kubernetes_version   = "<v1.XX.XX>"		  # defaults to "v1.22.7"
 kube_image_raw       = "<boolean>"      # defaults to "true"
 calico_version       = "<v3.xx.y>"	# defaults to "v3.22.1"
 controller_flavor    = "<flavor>"       # defaults to SCS-2D:4:20s (use etcd tweaks if you only have SCS-2V:4:20 in multi-controller setups)
@@ -26,7 +26,7 @@ deploy_nginx_ingress = "version/true/false"       # defaults to "true", you can 
 deploy_cert_manager  = "version/true/false"       # defaults to "false", you can also set to vX.Y.Z if you want
 deploy_flux          = "<boolean>"      # defaults to "false"
 deploy_metrics       = "<boolean>"      # defaults to "true"
-deploy_k8s_openstack_git = "<boolean>"  # defaults to "false", enable for k8s >= 1.22, dont for < 1.20
-deploy_k8s_cindercsi_git = "<boolean>"  # defaults to "false", dito
+deploy_k8s_openstack_git = "<boolean>"  # defaults to "true", enable for k8s >= 1.22, dont for < 1.20
+deploy_k8s_cindercsi_git = "<boolean>"  # defaults to "true", dito
 etcd_prio_boost     = "<boolean>"       # defaults to "false", can be safely enabled
 etcd_unsafe_fs      = "<boolean>"       # defaults to "false", dangerous

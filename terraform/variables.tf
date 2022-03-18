@@ -70,7 +70,7 @@ variable "capi_openstack_version" {
 variable "kubernetes_version" {
   description = "desired kubernetes version for the workload cluster"
   type        = string
-  default     = "v1.21.10"
+  default     = "v1.22.7"
 }
 
 variable "kube_image_raw" {
@@ -136,13 +136,13 @@ variable "deploy_flux" {
 variable "deploy_k8s_openstack_git" {
   description = "deploy k8s openstack provider from github instead of local copy, set to true for k8s >= 1.22, dont set it for < 1.20"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "deploy_k8s_cindercsi_git" {
   description = "deploy k8s cinder CSI provider from github instead of local copy, dito"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "anti_affinity" {
