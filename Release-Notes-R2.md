@@ -108,7 +108,7 @@ separated list and default to the excellent name service provided by
 We had experienced UDP:53 failures with quad9 
 (which was the old default) before.
 
-### loadbalancer name conflict (#93)
+### loadbalancer name conflict (#93, #191)
 
 The loadbalancer would previoiusly be created without encoding the name of cluster in
 its name -- this would lead to conflicts and thus result in the inability to manage
