@@ -21,7 +21,12 @@ if test "$DEPLOY_K8S_OPENSTACK_GIT" = "true"; then
 else
   OCCM=openstack.yaml
 fi
-sed -e "/^            \- \/bin\/openstack\-cloud\-controller\-manager/a\            - --cluster-name=${CLUSTER_NAME}" \
-    -e "/^        \- \/bin\/openstack\-cloud\-controller\-manager/a\        - --cluster-name=${CLUSTER_NAME}" $OCCM > ~/${CLUSTER_NAME}/deployed-manifests.d/openstack-ccm.yaml
+if grep '\-\-cluster\-name=' $OCCM >/dev/null 2>&1; then
+	sed "/ *\- name: CLUSTER_NAME/n
+s/value: kubernetes/value: ${CLUSTER_NAME}/" $OCCM > ~/${CLUSTER_NAME}/deployed-manifests.d/openstack-ccm.yaml
+else
+	sed -e "/^            \- \/bin\/openstack\-cloud\-controller\-manager/a\            - --cluster-name=${CLUSTER_NAME}" \
+	    -e "/^        \- \/bin\/openstack\-cloud\-controller\-manager/a\        - --cluster-name=${CLUSTER_NAME}" $OCCM > ~/${CLUSTER_NAME}/deployed-manifests.d/openstack-ccm.yaml
+fi
 kubectl $KCONTEXT apply -f ~/${CLUSTER_NAME}/deployed-manifests.d/openstack-ccm.yaml || exit 7
 
