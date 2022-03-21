@@ -24,6 +24,8 @@ fi
 if test ! -d ~/$CLUSTER_NAME/deployed-manifests.d/; then
 	mkdir -p ~/$CLUSTER_NAME/deployed-manifests.d/
 fi
+CCCFG="$HOME/${CLUSTER_NAME}/clusterctl.yaml"
+fixup_k8s_version.sh $CCCFG
 
 #export OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)
 # Ensure image is there
