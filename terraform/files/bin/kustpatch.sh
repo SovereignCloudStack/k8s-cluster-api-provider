@@ -39,29 +39,37 @@ if test -z "$1"; then usage; fi
 # stupid snap
 #TMPDIR=$(mktemp -d /dev/shm/kustpatch.XXXXXX) || exit 2
 if test ! -d ~/tmp; then mkdir ~/tmp; fi
+IWD=$(pwd)
 KTMPDIR=$(mktemp -d ~/tmp/kustpatch.XXXXXX) || exit 2
-cd $KTMPDIR || exit 2
 
-mkdir base
-mkdir patch
-cd base; kustomize create || exit 3
+mkdir $KTMPDIR/base || exit 2
+mkdir $KTMPDIR/patch
+cd $KTMPDIR/base; kustomize create || exit 3
 cd ..; cp -p base/kustomization.yaml patch/
+cd $IWD
 
-cat > base/base.yaml
-if test ! -s base/base.yaml; then
-	INPUT=$(grep '^#YAML_TO_PATCH:' "$@" | sed 's/^#YAML_TO_PATCH: *//g' | head -n1)
-	if test -z "$INPUT"; then echo "ERROR: Pass input YAML via stdin (or specify in patch header)" 1>&2; usage; fi
-	if test ! -s "$INPUT"; then echo "ERROR: Base file $INPUT not readable" 1>&2; usage; fi
-	cp -p "$INPUT" base/base.yaml
+if test ! -t 0; then cat > $KTMPDIR/base/base.yaml; fi
+if test ! -s $KTMPDIR/base/base.yaml; then
+	INPUT=$(grep '^#YAML_TO_PATCH:' "$@" | sed 's/^.*#YAML_TO_PATCH: *//g' | head -n1)
+	if test -z "$INPUT"; then echo "ERROR: Pass input YAML via stdin (or specify in patch header)" 1>&2; usage 4; fi
+	if test "${INPUT:0:4}" = "http"; then
+		curl -fsSL "$INPUT" -o $KTMPDIR/base/base.yaml
+		RC=$?
+		if test $RC != 0; then echo "ERROR: Could not retrieve $INPUT" 1>&2; usage 4; fi
+	else
+		if test ! -s "$INPUT"; then echo "ERROR: Base file $INPUT not readable" 1>&2; usage 4; fi
+		cp -p "$INPUT" $KTMPDIR/base/base.yaml
+	fi
 fi
-echo -e "resources:\n  - base.yaml" >> base/kustomization.yaml
-echo -e "bases:\n - ../base\npatches:" >> patch/kustomization.yaml
+echo -e "resources:\n  - base.yaml" >> $KTMPDIR/base/kustomization.yaml
+echo -e "bases:\n - ../base\npatches:" >> $KTMPDIR/patch/kustomization.yaml
 
 for patch in "$@"; do
-       if test ! -s "$patch"; then echo "ERROR: Patch file $patch not readable" 1>&2; usage; fi
-       cp -p "$patch" patch/
-       echo " - ${patch##*/}" >> patch/kustomization.yaml
+       if test ! -s "$patch"; then echo "ERROR: Patch file $patch not readable" 1>&2; usage 5; fi
+       cp -p "$patch" $KTMPDIR/patch/
+       echo " - ${patch##*/}" >> $KTMPDIR/patch/kustomization.yaml
 done
+cd $KTMPDIR
 kustomize build patch
 RC=$?
 cleanup
