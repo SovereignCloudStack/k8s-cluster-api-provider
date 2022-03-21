@@ -16,17 +16,22 @@ if test "$DEPLOY_K8S_OPENSTACK_GIT" = "true"; then
     fi
   done
   # Note: Do not deploy openstack-cloud-controller-manager-pod.yaml
-  cat cloud-controller-manager*.yaml openstack-cloud-controller-manager-ds.yaml > openstack-git.yaml
+  cat cloud-controller-manager*.yaml > cloud-controller-manager-rbac-git.yaml
+  cat openstack-cloud-controller-manager-ds.yaml > openstack-git.yaml
+  CCMR=cloud-controller-manager-rbac-git.yaml
   OCCM=openstack-git.yaml
 else
+  CCMR=cloud-controller-manager-rbac.yaml
   OCCM=openstack.yaml
 fi
 if grep '\-\-cluster\-name=' $OCCM >/dev/null 2>&1; then
 	sed "/ *\- name: CLUSTER_NAME/n
-s/value: kubernetes/value: ${CLUSTER_NAME}/" $OCCM > ~/${CLUSTER_NAME}/deployed-manifests.d/openstack-ccm.yaml
+s/value: kubernetes/value: ${CLUSTER_NAME}/" $OCCM > ~/${CLUSTER_NAME}/deployed-manifests.d/openstack-cloud-controller-manager.yaml
 else
 	sed -e "/^            \- \/bin\/openstack\-cloud\-controller\-manager/a\            - --cluster-name=${CLUSTER_NAME}" \
-	    -e "/^        \- \/bin\/openstack\-cloud\-controller\-manager/a\        - --cluster-name=${CLUSTER_NAME}" $OCCM > ~/${CLUSTER_NAME}/deployed-manifests.d/openstack-ccm.yaml
+	    -e "/^        \- \/bin\/openstack\-cloud\-controller\-manager/a\        - --cluster-name=${CLUSTER_NAME}" $OCCM > ~/${CLUSTER_NAME}/deployed-manifests.d/openstack-cloud-controller-manager.yaml
 fi
-kubectl $KCONTEXT apply -f ~/${CLUSTER_NAME}/deployed-manifests.d/openstack-ccm.yaml || exit 7
+cp -p $CCMR ~/${CLUSTER_NAME}/deployed-manifests.d/cloud-controller-manager-rbac.yaml
+kubectl $KCONTEXT apply -f ~/${CLUSTER_NAME}/deployed-manifests.d/cloud-controller-manager-rbac.yaml || exit 7
+kubectl $KCONTEXT apply -f ~/${CLUSTER_NAME}/deployed-manifests.d/openstack-cloud-controller-manager.yaml || exit 7
 
