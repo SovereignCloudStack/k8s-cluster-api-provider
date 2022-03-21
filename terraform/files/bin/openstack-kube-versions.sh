@@ -20,6 +20,13 @@ dotversion()
 	echo $VERSION
 }
 
+setversions()
+{
+	OCCM_VERSION=${occm_versions[$1]}
+	CCSI_VERSION=${ccsi_versions[$1]}
+	MCSI_VERSION=${mcsi_versions[$1]}
+}
+
 find_openstack_versions()
 {
 	k8s=${1:-$KUBERNETES_VERSION}
@@ -29,14 +36,15 @@ find_openstack_versions()
 	k8min=$(dotversion ${k8s_versions[0]})
 	k8max=$(dotversion ${k8s_versions[$((NUMV-1))]})
 	#echo "$k8vers $k8min $k8max"
-	if test $k8vers -lt $k8min; then echo MIN; fi
-	if test $k8vers -gt $((k8max+99)); then echo MAX; fi
+	if test $k8vers -lt $k8min; then setversions 0; return 0; fi
+	if test $k8vers -gt $((k8max+99)); then setversions $((NUMV-1)); return 0; fi
 	declare -i idx=0
 	for k8 in ${k8s_versions[*]}; do
 		k8test=$(dotversion $k8)
-		if test $k8vers -ge $k8test -a $k8vers -le $((k8test+99)); then echo "Found $k8 ($idx)"; break; fi
+		if test $k8vers -ge $k8test -a $k8vers -le $((k8test+99)); then setversions $idx; return 0; break; fi
 		let idx+=1
 	done
+	return 1
 }
 			
 
