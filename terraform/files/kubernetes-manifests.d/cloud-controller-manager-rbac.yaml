@@ -169,4 +169,3 @@ items:
         namespace: kube-system
 kind: List
 metadata: {}
-
