@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: CC-BY-SA-4.0
 k8s_versions=("v1.18.20" "v1.19.16" "v1.20.12" "v1.21.11" "v1.22.8" "v1.23.5")
 # OCCM, CCM-RBAC, Cinder CSI, Cinder-Snapshot (TODO: Manila CIS)
-occm_versions=("v1.18.2" "v1.19.6" "v1.20.5" "v1.21.1" "v1.22.1" "v1.23.1")
+occm_versions=("v1.18.2" "v1.19.5" "v1.20.5" "v1.21.1" "v1.22.1" "v1.23.1")
 ccmr_versions=(""        ""        ""        "v1.21.1" "v1.22.1" "v1.23.1")
-ccsi_versions=("v1.18.2" "v1.19.6" "v1.20.5" "v1.21.1" "v1.22.1" "v1.23.1")
+ccsi_versions=("v1.18.2" "v1.19.5" "v1.20.5" "v1.21.1" "v1.22.1" "v1.23.1")
 min_snapshot_master="v1.21.0"
 
 # Convert vxx.yy.zz to the number xxyyzz. Also works for z.y.z (0x0y0z).
