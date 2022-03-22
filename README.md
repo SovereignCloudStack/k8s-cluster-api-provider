@@ -218,7 +218,7 @@ of them. There are management scripts on the management node:
   default ``~/.kubernetes/config`` config file) or ``export KUBECONFIG=$CLUSTERNAME.yaml``\
   to talk to the workload cluster.
 * The subdirectory ``~/$CLUSTERNAME/deployed-manifests.d/`` will contain the
-  deployed manifests for reference (and in case of nginx-ingress also to facilitat
+  deployed manifests for reference (and in case of nginx-ingress also to facilitate
   a full cleanup).
 * The ``clusterctl.yaml`` file can be edited the ``create_cluster.sh`` script
   be called again to submit the changes. (If you have not done any changes,
@@ -237,11 +237,13 @@ of them. There are management scripts on the management node:
   from the SCS project. It can be updated (``git pull``) to receive the latest
   fixes and improvements. This way, most incremental updates do not need the
   recreation of the management node (and thus also not the recreation of your
-  managed workload clusters).
+  managed workload clusters), but can be applied with calling `create_cluster.sh`
+  again to the workload clusters.
 * The installaton of the openstack integration, cinder CSI, metrics server and
   nginx ingress controller is done via the ``bin/apply_*.sh`` scripts that are called
   from ``create_cluster.sh``. You can manually call them as well -- they take
-  the cluster name as argument. The applied yaml files are collected in 
+  the cluster name as argument. (It's better to just call `create_cluster.sh`
+  again, though.) The applied yaml files are collected in
   ``~/$CLUSTERNAME/deployed-manifests.d/``. You can ``kubectl delete -f`` them
   to remove the functionality again.
 * You can of course also delete the cluster and create a new one if that
@@ -255,7 +257,7 @@ of them. There are management scripts on the management node:
   the cluster $CLUSTERNAME. It will also remove persistent volume claims belonging
   to the cluster. The script will return once the removal is done.
 * ``cleanup.sh``: Remove all running clusters.
-* `add_cluster-network.sh CLUSTERNAME` adds the management to the node network
+* `add_cluster-network.sh CLUSTERNAME` adds the management node to the node network
   of the cluster `CLUSTERNAME`, assuming that it runs on the same cloud (region).
   `remove_cluster-network.sh` undoes this again. This is useful for debugging
   purposes.
@@ -299,7 +301,7 @@ file).
 
 * ``sonobuoy`` runs a subset of the k8s tests, providing a simple way to
   filter the >5000 existing test cases to only run the CNCF conformance
-  tests or to restrict to non-disruptive tests. The ``sonobuoy.sh`` wrapper
+  tests or to restrict testing to non-disruptive tests. The ``sonobuoy.sh`` wrapper
   helps with calling it. There are also ``Makefile`` targets ``check-*`` that
   call various [sonobuoy](https://sonobuoy.io) test sets.
   This is how we call sonobuoy for our CI tests.
@@ -313,8 +315,8 @@ file).
 As of 3/2022, our tests cover 1.19.latest ... 1.23.latest.
 All of them pass the sonobuoy CNCF conformance tests.
 
-We default to latest OCCM and cinder CSI from git, as the old
-included versions do only work until 1.21.latest.
+The default setting `true` chooses appropriate openstack and
+cinder integration code.
 
 ## etcd leader changes
 
