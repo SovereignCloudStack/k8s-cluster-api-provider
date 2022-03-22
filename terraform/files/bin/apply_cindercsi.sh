@@ -16,7 +16,7 @@ else
   find_openstack_versions $DEPLOY_CINDERCSI
   CCSI_VERSION=$DEPLOY_CINDERCSI
 fi
-echo "Install Cinder CSI persistent storage support $CCSI_VERSION to $CLUSTER_NAME"
+echo "# Install Cinder CSI persistent storage support $CCSI_VERSION to $CLUSTER_NAME"
 
 if test -n "$SNAP_VERSION"; then
   # deploy snapshot CRDs
