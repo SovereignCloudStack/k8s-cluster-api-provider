@@ -15,8 +15,8 @@ KUBERNETES_VERSION: ${kubernetes_version}
 OPENSTACK_IMAGE_NAME: ubuntu-capi-image-${kubernetes_version}
 # deploy openstack and cindercsi from github instead of local copies
 # hint: use git for k8s > 1.21, do not use git for < 1.20
-DEPLOY_K8S_OPENSTACK_GIT: ${deploy_k8s_openstack_git}
-DEPLOY_K8S_CINDERCSI_GIT: ${deploy_k8s_cindercsi_git}
+DEPLOY_OCCM: ${deploy_occm}
+DEPLOY_CINDERCSI: ${deploy_cindercsi}
 
 # cilium
 USE_CILIUM: ${use_cilium}
