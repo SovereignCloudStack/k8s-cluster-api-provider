@@ -12,6 +12,11 @@ min_snapshot_master="v1.21.0"
 # Convert vxx.yy.zz to the number xxyyzz. Also works for z.y.z (0x0y0z).
 dotversion()
 {
+	if test "$1" = "latest" -o "$1" = "main" -o "$1" = "master" -o "$1" = "HEAD"; then
+		VERSION=999999
+		echo $VERSION
+		return
+	fi
 	VERS=${1#v}
 	one=${VERS%%.*}
 	two=${VERS#*.}
