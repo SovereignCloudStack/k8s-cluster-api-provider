@@ -26,7 +26,7 @@ deploy_nginx_ingress = "version/true/false"       # defaults to "true", you can 
 deploy_cert_manager  = "version/true/false"       # defaults to "false", you can also set to vX.Y.Z if you want
 deploy_flux          = "<boolean>"      # defaults to "false"
 deploy_metrics       = "<boolean>"      # defaults to "true"
-deploy_k8s_openstack_git = "<boolean>"  # defaults to "true", enable for k8s >= 1.22, dont for < 1.20
-deploy_k8s_cindercsi_git = "<boolean>"  # defaults to "true", dito
-etcd_prio_boost     = "<boolean>"       # defaults to "false", can be safely enabled
-etcd_unsafe_fs      = "<boolean>"       # defaults to "false", dangerous
+deploy_occm          = "<version>"      # defaults to "true" (meaning matching k8s)
+deploy_cindercsi     = "<version>"      # defaults to "true", dito
+etcd_prio_boost      = "<boolean>"      # defaults to "false", can be safely enabled
+etcd_unsafe_fs       = "<boolean>"      # defaults to "false", dangerous

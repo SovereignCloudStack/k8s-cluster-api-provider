@@ -133,16 +133,16 @@ variable "deploy_flux" {
   default     = false
 }
 
-variable "deploy_k8s_openstack_git" {
-  description = "deploy k8s openstack provider from github instead of local copy, set to true for k8s >= 1.22, dont set it for < 1.20"
-  type        = bool
-  default     = true
+variable "deploy_occm" {
+  description = "deploy k8s openstack provider version. True matches k8s version"
+  type        = string
+  default     = "true"
 }
 
-variable "deploy_k8s_cindercsi_git" {
-  description = "deploy k8s cinder CSI provider from github instead of local copy, dito"
-  type        = bool
-  default     = true
+variable "deploy_cindercsi" {
+  description = "deploy k8s cinder CSI provider version. True matches k8s version"
+  type        = string
+  default     = "true"
 }
 
 variable "anti_affinity" {

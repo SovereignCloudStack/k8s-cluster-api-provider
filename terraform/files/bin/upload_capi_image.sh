@@ -2,6 +2,7 @@
 
 . ~/bin/cccfg.inc
 
+~/bin/fixup_k8s_version.sh $CCCFG
 KUBERNETES_VERSION=$(yq eval '.KUBERNETES_VERSION' $CCCFG)
 #UBU_IMG_NM=ubuntu-capi-image-$KUBERNETES_VERSION
 UBU_IMG_NM=$(yq eval '.OPENSTACK_IMAGE_NAME' $CCCFG)

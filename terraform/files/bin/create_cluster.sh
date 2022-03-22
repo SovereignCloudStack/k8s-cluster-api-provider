@@ -24,6 +24,8 @@ fi
 if test ! -d ~/$CLUSTER_NAME/deployed-manifests.d/; then
 	mkdir -p ~/$CLUSTER_NAME/deployed-manifests.d/
 fi
+CCCFG="$HOME/${CLUSTER_NAME}/clusterctl.yaml"
+fixup_k8s_version.sh $CCCFG
 
 #export OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)
 # Ensure image is there
@@ -54,15 +56,22 @@ if grep '^ *OPENSTACK_ANTI_AFFINITY: true' $CCCFG >/dev/null 2>&1; then
 	echo "Adding server groups $SRVGRP_CONTROLLER and $SRVGRP_WORKER to $CCCFG"
 	if test -n "$SRVGRP_CONTROLLER"; then
 		sed -i "s/^\(OPENSTACK_SRVGRP_CONTROLLER:\).*\$/\1 $SRVGRP_CONTROLLER/" "$CCCFG"
+	else
+		echo "ERROR: Server group could not be created" 1>&2
+		# exit 2
+		sed -i "s/^\(OPENSTACK_SRVGRP_CONTROLLER:\).*\$/\1 nonono/" "$CCCFG"
 	fi
 	if test -n "$SRVGRP_WORKER"; then
 		sed -i "s/^\(OPENSTACK_SRVGRP_WORKER:\).*\$/\1 $SRVGRP_WORKER/" "$CCCFG"
+	else
+		sed -i "s/^\(OPENSTACK_SRVGRP_WORKER:\).*\$/\1 nonono/" "$CCCFG"
 	fi
 fi
 
 cp -p "$CCCFG" $HOME/.cluster-api/clusterctl.yaml
-#clusterctl config cluster ${CLUSTER_NAME} --list-variables --from ${CLUSTERAPI_TEMPLATE}
-clusterctl generate cluster "${CLUSTER_NAME}" --list-variables --from ${CLUSTERAPI_TEMPLATE} || exit 2
+KCCCFG="--config $CCCFG"
+#clusterctl $KCCCFG config cluster ${CLUSTER_NAME} --list-variables --from ${CLUSTERAPI_TEMPLATE}
+clusterctl $KCCCFG generate cluster "${CLUSTER_NAME}" --list-variables --from ${CLUSTERAPI_TEMPLATE} || exit 2
 
 # the needed variables are read from $HOME/.cluster-api/clusterctl.yaml
 echo "# rendering clusterconfig from template"
@@ -76,8 +85,8 @@ if test -e ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml; then
 		sleep 6
 	fi
 fi
-#clusterctl config cluster ${CLUSTER_NAME} --from ${CLUSTERAPI_TEMPLATE} > rendered-${CLUSTERAPI_TEMPLATE}
-clusterctl generate cluster "${CLUSTER_NAME}" --from ${CLUSTERAPI_TEMPLATE} > ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
+#clusterctl $KCCCFG config cluster ${CLUSTER_NAME} --from ${CLUSTERAPI_TEMPLATE} > rendered-${CLUSTERAPI_TEMPLATE}
+clusterctl $KCCCFG generate cluster "${CLUSTER_NAME}" --from ${CLUSTERAPI_TEMPLATE} > ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
 # Remove empty serverGroupID
 sed -i '/^ *serverGroupID: nonono$/d' ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
 
@@ -122,7 +131,7 @@ do
 done
 
 # CNI
-echo "# Deploy services (CNI, OCCM, CSI, Metrics, Cert-Manager, Flux2, Ingress"
+echo "# Deploy services (CNI, OCCM, CSI, Metrics, Cert-Manager, Flux2, Ingress)"
 MTU_VALUE=$(yq eval '.MTU_VALUE' $CCCFG)
 if test "$USE_CILIUM" = "true"; then
   # FIXME: Do we need to allow overriding MTU here as well?
@@ -173,7 +182,7 @@ fi
 # Output some information on the cluster ...
 kubectl $KCONTEXT get pods --all-namespaces
 kubectl get openstackclusters
-clusterctl describe cluster ${CLUSTER_NAME}
+clusterctl $KCCCFG describe cluster ${CLUSTER_NAME}
 # Hints
 echo "INFO: Use kubectl $KCONTEXT wait --for=condition=Ready --timeout=10m -n kube-system pods --all to wait for all cluster components to be ready"
 echo "INFO: Pass $KCONTEXT parameter to kubectl or use KUBECONFIG=$KUBECONFIG_WORKLOADCLUSTER to control the workload cluster"
