@@ -56,9 +56,15 @@ if grep '^ *OPENSTACK_ANTI_AFFINITY: true' $CCCFG >/dev/null 2>&1; then
 	echo "Adding server groups $SRVGRP_CONTROLLER and $SRVGRP_WORKER to $CCCFG"
 	if test -n "$SRVGRP_CONTROLLER"; then
 		sed -i "s/^\(OPENSTACK_SRVGRP_CONTROLLER:\).*\$/\1 $SRVGRP_CONTROLLER/" "$CCCFG"
+	else
+		echo "ERROR: Server group could not be created" 1>&2
+		# exit 2
+		sed -i "s/^\(OPENSTACK_SRVGRP_CONTROLLER:\).*\$/\1 nonono/" "$CCCFG"
 	fi
 	if test -n "$SRVGRP_WORKER"; then
 		sed -i "s/^\(OPENSTACK_SRVGRP_WORKER:\).*\$/\1 $SRVGRP_WORKER/" "$CCCFG"
+	else
+		sed -i "s/^\(OPENSTACK_SRVGRP_WORKER:\).*\$/\1 nonono/" "$CCCFG"
 	fi
 fi
 
