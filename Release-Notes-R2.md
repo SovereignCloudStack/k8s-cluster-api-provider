@@ -81,7 +81,7 @@ async filesystem options) to allow stable setups with multiple control nodes
 on clouds that can not guarantee low-latency storage access (due to not exposing
 local disks/SSDs/NMVEs). While not ideal, a multi controller cluster this workaround
 is still deemed more resilient than a single-node controller setup which was the
-only stable choice on such clouds before.(#)[]
+only stable choice on such clouds before.
 
 ### MTU autodetection (#110)
 
@@ -141,6 +141,15 @@ challenges for internal access to the nginx ingress.
 * As mentioned before, we do support multiple nameservers now. The `clusterctl.yaml`
   setting's name used the plural before, but not so the `tfvars`. It was names
   `dns_nameserver` and now is called `dns_nameservers` (#164).
+* We have flags `DEPLOY_K8S_OPENSTACK_GIT` to indicate that we want the latest git
+  master version for the OpenStack Cloud Controller Manager (OCCM) deployed rather
+  than the older version referenced here. Same story with `DEPLOY_K8S_CINDERCSI_GIT`.
+  This has been replaced with the settings `DEPLOY_OCCM` and `DEPLOY_CINDERCSI`,
+  which can be set to either `false` (not recommended), `true` (the default,
+  picking a good version that matches your k8s version) or an explicit version
+  number such as e.g. `v1.21.1`. The default is typically a good choice.
+  Choose `master` if you want the latest and greatest (which was the old beahviro
+  if you set the `.._GIT` settings to `true`.
 
 ### Changed defaults
 
