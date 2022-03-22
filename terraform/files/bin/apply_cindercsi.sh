@@ -6,7 +6,7 @@ export KUBECONFIG=~/.kube/config
 
 # apply cinder-csi
 KUBERNETES_VERSION=$(yq eval '.KUBERNETES_VERSION' $CCCFG)
-DEPLOY_K8S_CINDERCSI=$(yq eval '.DEPLOY_K8S_CINDERCSI' $CCCFG)
+DEPLOY_CINDERCSI=$(yq eval '.DEPLOY_CINDERCSI' $CCCFG)
 if test "$DEPLOY_CINDERCSI" = "null"; then DEPLOY_CINDERCSI=true; fi
 cd ~/kubernetes-manifests.d/
 if test "$DEPLOY_CINDERCSI" = "false"; then exit 1; fi
@@ -29,7 +29,7 @@ if test -n "$SNAP_VERSION"; then
   done
   # FIXME: Should we ignore non-working snapshots?
   cat snapshot.storage.k8s.io_volumesnapshot* > cindercsi-snapshot-$SNAP_VERSION.yaml
-  cp -p cindercsi-snapshot-$SNAP_VERSION.yaml ~/${CLUSTER_NAME}/deployed-manifests.d/
+  cp -p cindercsi-snapshot-$SNAP_VERSION.yaml ~/${CLUSTER_NAME}/deployed-manifests.d/cindercsi-snapshot.yaml
 else
   cp -p external-snapshot-crds.yaml ~/$CLUSTER_NAME/deployed-manifests.d/cindercsi-snapshot.yaml
 fi
