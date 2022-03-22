@@ -18,7 +18,7 @@ done
 INPODS=$(kubectl $KCONTEXT --namespace ingress-nginx get pods) 
 if echo "$INPODS" | grep nginx >/dev/null 2>&1; then
 	echo -en " Delete ingress \n "
-	kubectl $KCONTEXT delete -f ~/${CLUSTER_NAME}/deployed-manifests.d/nginx-ingress.yaml
+	timeout 150 kubectl $KCONTEXT delete -f ~/${CLUSTER_NAME}/deployed-manifests.d/nginx-ingress.yaml
 fi
 # Delete persistent volumes
 PVCS=$(kubectl $KCONTEXT get persistentvolumeclaims | grep -v '^NAME' | awk '{ print $1; }')
@@ -36,7 +36,6 @@ if grep '^ *OPENSTACK_ANTI_AFFINITY: true' $CCCFG >/dev/null 2>&1; then
 	fi
 fi
 # Tell capi to clean up
-sleep 1
 kubectl delete cluster "$CLUSTER_NAME"
 kubectl config delete-context "$CLUSTER_NAME-admin@$CLUSTER_NAME"
 kubectl config delete-user "$CLUSTER_NAME-admin"
