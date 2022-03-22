@@ -10,7 +10,7 @@ cd ~/kubernetes-manifests.d
 KUBERNETES_VERSION=$(yq eval '.KUBERNETES_VERSION' $CCCFG)
 DEPLOY_OCCM=$(yq eval '.DEPLOY_OCCM' $CCCFG)
 if test "$DEPLOY_OCCM" = "null"; then DEPLOY_OCCM=true; fi
-if test "$DEPLOY_OCCM" = "false"; then exit 1; fi
+if test "$DEPLOY_OCCM" = "false"; then echo "ERROR: k8s will be uninitialized without occm" 1>&2; exit 1; fi
 if test "$DEPLOY_OCCM" = "true"; then
   find_openstack_versions $KUBERNETES_VERSION
 else
@@ -22,7 +22,7 @@ else
     OCCM_VERSION=$DEPLOY_OCCM
   fi
 fi
-echo "Install external OpenStack cloud provider $OCCM_VERSION to $CLUSTER_NAME"
+echo "# Install external OpenStack cloud provider $OCCM_VERSION to $CLUSTER_NAME"
 
 if test -n "$OCCM_VERSION"; then
   for name in openstack-cloud-controller-manager-ds.yaml openstack-cloud-controller-manager-pod.yaml; do
