@@ -51,8 +51,9 @@ else
   CCMR=cloud-controller-manager-rbac.yaml
 fi
 if grep '\-\-cluster\-name=' $OCCM >/dev/null 2>&1; then
-	sed "/ *\- name: CLUSTER_NAME/n
-s/value: kubernetes/value: ${CLUSTER_NAME}/" $OCCM > ~/${CLUSTER_NAME}/deployed-manifests.d/openstack-cloud-controller-manager.yaml
+	sed "/ *\- name: CLUSTER_NAME/{n
+s/value: kubernetes/value: ${CLUSTER_NAME}/
+}" $OCCM > ~/${CLUSTER_NAME}/deployed-manifests.d/openstack-cloud-controller-manager.yaml
 else
 	sed -e "/^            \- \/bin\/openstack\-cloud\-controller\-manager/a\            - --cluster-name=${CLUSTER_NAME}" \
 	    -e "/^        \- \/bin\/openstack\-cloud\-controller\-manager/a\        - --cluster-name=${CLUSTER_NAME}" $OCCM > ~/${CLUSTER_NAME}/deployed-manifests.d/openstack-cloud-controller-manager.yaml

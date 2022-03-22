@@ -50,7 +50,8 @@ else
   CCSI=cinder.yaml
 fi
 kubectl $KCONTEXT apply -f ~/$CLUSTER_NAME/deployed-manifests.d/cindercsi-snapshot.yaml || exit 8
-sed "/ *\- name: CLUSTER_NAME/n
-s/value: .*\$/value: ${CLUSTER_NAME}/" $CCSI > ~/$CLUSTER_NAME/deployed-manifests.d/cindercsi.yaml
+sed "/ *\- name: CLUSTER_NAME/{n
+s/value: .*\$/value: ${CLUSTER_NAME}/
+}" $CCSI > ~/$CLUSTER_NAME/deployed-manifests.d/cindercsi.yaml
 kubectl $KCONTEXT apply -f ~/${CLUSTER_NAME}/deployed-manifests.d/cindercsi.yaml || exit 8
 
