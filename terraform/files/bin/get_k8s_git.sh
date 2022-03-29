@@ -12,4 +12,7 @@ cd
 # Create links
 ln -s k8s-cluster-api-provider/terraform/files/bin .
 ln -s k8s-cluster-api-provider/terraform/files/kubernetes-manifests.d .
+mkdir ~/doc
+ln -s ../k8s-cluster-api-provider/README.md ~/doc
+ln -s ~/k8s-cluster-api-provider/Release-Notes*.md ~/doc
 

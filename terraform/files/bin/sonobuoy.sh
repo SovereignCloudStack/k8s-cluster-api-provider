@@ -8,6 +8,7 @@
 unset TZ
 export LC_ALL=POSIX
 if ! test -x /usr/local/bin/sonobuoy; then
+	cd ~
 	OS=linux; ARCH=$(uname -m | sed 's/x86_64/amd64/')
 	SONOBUOY_VERSION=0.56.2
 	SONOTARBALL=sonobuoy_${SONOBUOY_VERSION}_${OS}_${ARCH}.tar.gz
@@ -15,7 +16,7 @@ if ! test -x /usr/local/bin/sonobuoy; then
 	tar xvzf ${SONOTARBALL} || exit 2
 	chmod +x ./sonobuoy || exit 2
 	sudo mv sonobuoy /usr/local/bin/
-	mv LICENSE LICENSE.sonobuoy
+	mv LICENSE ~/doc/LICENSE.sonobuoy-${SONOBUOY_VERSION}
 	rm ${SONOTARBALL}
 fi
 . ~/bin/cccfg.inc
