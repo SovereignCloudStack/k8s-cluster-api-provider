@@ -16,6 +16,10 @@ dotversion()
 		VERSION=999999
 		echo $VERSION
 		return
+	elif test -z "$1"; then
+		VERSION=1
+		echo $VERSION
+		return
 	fi
 	VERS=${1#v}
 	one=${VERS%%.*}
