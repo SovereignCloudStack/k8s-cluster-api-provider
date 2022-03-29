@@ -8,6 +8,7 @@
 unset TZ
 export LC_ALL=POSIX
 if ! test -x /usr/local/bin/sonobuoy; then
+	cd ~
 	OS=linux; ARCH=$(uname -m | sed 's/x86_64/amd64/')
 	SONOBUOY_VERSION=0.56.2
 	SONOTARBALL=sonobuoy_${SONOBUOY_VERSION}_${OS}_${ARCH}.tar.gz
