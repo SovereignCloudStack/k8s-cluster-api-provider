@@ -37,5 +37,5 @@ if ! test -x /usr/local/bin/cmctl-$CERTMGR_VERSION; then
 	tar xzf cmctl.tar.gz && rm cmctl.tar.gz
 	sudo mv cmctl /usr/local/bin/cmctl-${CERTMGR_VERSION}
 	sudo ln -sf cmctl-${CERTMGR_VERSION} /usr/local/bin/cmctl
-	mv LICENSES LICENSES.cert-manager-${CERTMGR_VERSION}
+	mv LICENSES ~/doc/LICENSES.cert-manager-${CERTMGR_VERSION}
 fi

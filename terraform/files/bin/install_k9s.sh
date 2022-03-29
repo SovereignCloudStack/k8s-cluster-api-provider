@@ -12,5 +12,5 @@ VERSION=$(echo $REDIR | sed 's@^.*/\(v[0-9\.]*\).*$@\1@')
 cd ~
 curl -L https://github.com/derailed/k9s/releases/download/$VERSION/k9s_Linux_$ARCH.tar.gz | tar xzvf -
 sudo mv ./k9s /usr/local/bin/k9s
-mv README.md README-k9s-$VERSION.md
-mv LICENSE LICENSE-k9s-$VERSION
+mv README.md ~/doc/README-k9s-$VERSION.md
+mv LICENSE ~/doc/LICENSE-k9s-$VERSION

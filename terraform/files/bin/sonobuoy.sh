@@ -16,7 +16,7 @@ if ! test -x /usr/local/bin/sonobuoy; then
 	tar xvzf ${SONOTARBALL} || exit 2
 	chmod +x ./sonobuoy || exit 2
 	sudo mv sonobuoy /usr/local/bin/
-	mv LICENSE LICENSE.sonobuoy
+	mv LICENSE ~/doc/LICENSE.sonobuoy-${SONOBUOY_VERSION}
 	rm ${SONOTARBALL}
 fi
 . ~/bin/cccfg.inc
