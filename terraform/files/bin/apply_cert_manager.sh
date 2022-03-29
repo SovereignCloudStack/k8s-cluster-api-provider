@@ -30,10 +30,12 @@ kubectl $KCONTEXT apply -f ~/${CLUSTER_NAME}/deployed-manifests.d/cert-manager.y
 #fi
 # cmctl -- don't treat trouble as fatal error
 if ! test -x /usr/local/bin/cmctl-$CERTMGR_VERSION; then
+	cd ~
 	OS=linux; ARCH=$(uname -m | sed 's/x86_64/amd64/')
 	# FIXME: Check sig
 	curl -L -o cmctl.tar.gz https://github.com/cert-manager/cert-manager/releases/download/${CERTMGR_VERSION}/cmctl-$OS-$ARCH.tar.gz
 	tar xzf cmctl.tar.gz && rm cmctl.tar.gz
 	sudo mv cmctl /usr/local/bin/cmctl-${CERTMGR_VERSION}
 	sudo ln -sf cmctl-${CERTMGR_VERSION} /usr/local/bin/cmctl
+	mv LICENSES ~/doc/LICENSES.cert-manager-${CERTMGR_VERSION}
 fi
