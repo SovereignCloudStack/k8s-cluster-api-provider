@@ -39,12 +39,13 @@ if test -n "$CCSI_VERSION"; then
   for name in cinder-csi-controllerplugin-rbac.yaml cinder-csi-controllerplugin.yaml cinder-csi-nodeplugin-rbac.yaml cinder-csi-nodeplugin.yaml csi-cinder-driver.yaml csi-secret-cinderplugin.yaml; do
     NAME=${name%.yaml}-$CCSI_VERSION.yaml
     if ! test -s $NAME; then
-        curl -L https://github.com/kubernetes/cloud-provider-openstack/raw/master/manifests/cinder-csi-plugin/$name -o $NAME
+        #curl -L https://github.com/kubernetes/cloud-provider-openstack/raw/master/manifests/cinder-csi-plugin/$name -o $NAME
+        curl -L https://raw.githubusercontent.com/kubernetes/cloud-provider-openstack/$CCSI_VERSION/manifests/cinder-csi-plugin/$name -o $NAME
 	echo -e "\n---" >> $NAME
     fi
   done
   # Note: We leave out the secret which we should already have
-  cat cinder-csi-*-rbac-$CCSI_VERSION.yaml cinder-csi-*plugin-$CCSI_VERSION.yaml csi-cinder-driver-$CCSI_VERSION.yaml cinder-provider-$CCSI_VERSION.yaml > cindercsi-$CCSI_VERSION.yaml
+  cat cinder-csi-*-rbac-$CCSI_VERSION.yaml cinder-csi-*plugin-$CCSI_VERSION.yaml csi-cinder-driver-$CCSI_VERSION.yaml cinder-provider.yaml > cindercsi-$CCSI_VERSION.yaml
   CCSI=cindercsi-$CCSI_VERSION.yaml
 else
   CCSI=cinder.yaml
