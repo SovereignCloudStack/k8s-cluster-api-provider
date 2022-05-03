@@ -34,6 +34,8 @@ else
   YQIN=-
 endif
 
+CLOUD=$(shell ( grep '^cloud_provider' environments/environment-$(ENVIRONMENT).tfvars || echo $(ENVIRONMENT) ) | sed 's@^cloud_provider[^=]*= *"*\([^"]*\).*$$@\1@' )
+
 GITBRANCH=$(shell git branch | grep '^*' | sed 's/^* //')
 
 init:	mycloud
@@ -52,8 +54,8 @@ state-push: init
 dry-run: init
 	terraform plan -var-file="environments/environment-$(ENVIRONMENT).tfvars" -var "git_branch=$(GITBRANCH)" $(PARAMS)
 
-mycloud:
-	@$(YQ) '.clouds."$(ENVIRONMENT)"' $(YQIN) < <(cat ./clouds.yaml ~/.config/openstack/clouds.yaml /etc/openstack/clouds.yaml 2>/dev/null) > mycloud.$(ENVIRONMENT).yaml
+mycloud: environments/environment-$(ENVIRONMENT).tfvars
+	@$(YQ) '.clouds."$(CLOUD)"' $(YQIN) < <(cat ./clouds.yaml ~/.config/openstack/clouds.yaml /etc/openstack/clouds.yaml 2>/dev/null) > mycloud.$(CLOUD).yaml
 
 gitchk:
 	@git diff -r origin/$(GITBRANCH) > git.diff
