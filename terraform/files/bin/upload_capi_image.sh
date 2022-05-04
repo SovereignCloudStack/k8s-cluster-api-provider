@@ -12,6 +12,7 @@ IMGREG_EXTRA=$(yq eval '.OPENSTACK_IMAGE_REGISTRATION_EXTRA_FLAGS' $CCCFG)
 VERSION_CAPI_IMAGE=$(echo $KUBERNETES_VERSION | sed 's/\.[[:digit:]]*$//g')
 UBU_IMG=ubuntu-2004-kube-$KUBERNETES_VERSION
 
+WAITLOOP=64
 #download/upload image to openstack
 CAPIIMG=$(openstack image list --name $UBU_IMG_NM)
 IMGURL=https://minio.services.osism.tech/openstack-k8s-capi-images
@@ -29,12 +30,14 @@ if test -z "$CAPIIMG"; then
     qemu-img convert $UBU_IMG.qcow2 -O raw -S 4k $UBU_IMG.raw && rm $UBU_IMG.qcow2 || exit 1
   fi
   #TODO min-disk, min-ram, other std. image metadata
+  mkdir -p ~/tmp
   echo "Creating image $UBU_IMG_NM from $UBU_IMG.$FMT"
-  openstack image create --disk-format $FMT --min-ram 1024 --min-disk $DISKSZ --property image_build_date="$IMGDATE" --property image_original_user=ubuntu --property architecture=x86_64 --property hypervisor_type=kvm --property os_distro=ubuntu --property os_version="20.04" --property hw_disk_bus=scsi --property hw_scsi_model=virtio-scsi --property hw_rng_model=virtio --property image_source=$IMAGESRC --property kubernetes_version=$KUBERNETES_VERSION --tag managed_by_osism $IMGREG_EXTRA --file $UBU_IMG.$FMT $UBU_IMG_NM &
+  nohup openstack image create --disk-format $FMT --min-ram 1024 --min-disk $DISKSZ --property image_build_date="$IMGDATE" --property image_original_user=ubuntu --property architecture=x86_64 --property hypervisor_type=kvm --property os_distro=ubuntu --property os_version="20.04" --property hw_disk_bus=scsi --property hw_scsi_model=virtio-scsi --property hw_rng_model=virtio --property image_source=$IMAGESRC --property kubernetes_version=$KUBERNETES_VERSION --tag managed_by_osism $IMGREG_EXTRA --file $UBU_IMG.$FMT $UBU_IMG_NM  > ~/tmp/img-create-$UBU_IMG_NM.out &
+  CPID=$!
   sleep 5
   echo "Waiting for image $UBU_IMG_NM: "
   let -i ctr=0
-  while test $ctr -le 64; do
+  while test $ctr -le $WAITLOOP; do
     CAPIIMG=$(openstack image list --name $UBU_IMG_NM -f value -c ID -c Status)
     STATUS="${CAPIIMG##* }"
     if test "$STATUS" = "saving" -o "$STATUS" = "active"; then break; fi
@@ -43,9 +46,10 @@ if test -z "$CAPIIMG"; then
     sleep 10
   done
   echo " $CAPIIMG"
-  if test $ctr -ge 60; then
+  if test $ctr -ge $WAITLOOP; then
     echo "ERROR: Image $UBU_IMG_NM not found" 1>&2
     exit 2
   fi
+  # wait $CPID
   rm $UBU_IMG.$FMT
 fi
