@@ -4,6 +4,7 @@
 # (c) Kurt Garloff <garloff@osb-alliance.com>, 3/2022
 # SPDX-License-Identifier: CC-BY-SA-4.9
 cd
+getent hosts github.com || sleep 30
 git clone https://github.com/SovereignCloudStack/k8s-cluster-api-provider || exit 1
 cd k8s-cluster-api-provider
 if test -n "$1"; then git checkout "$1" || exit 1; fi
