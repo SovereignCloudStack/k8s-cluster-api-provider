@@ -30,7 +30,8 @@ if test -z "$CAPIIMG"; then
   fi
   #TODO min-disk, min-ram, other std. image metadata
   echo "Creating image $UBU_IMG_NM from $UBU_IMG.$FMT"
-  openstack image create --disk-format $FMT --min-ram 1024 --min-disk $DISKSZ --property image_build_date="$IMGDATE" --property image_original_user=ubuntu --property architecture=x86_64 --property hypervisor_type=kvm --property os_distro=ubuntu --property os_version="20.04" --property hw_disk_bus=scsi --property hw_scsi_model=virtio-scsi --property hw_rng_model=virtio --property image_source=$IMAGESRC --property kubernetes_version=$KUBERNETES_VERSION --tag managed_by_osism $IMGREG_EXTRA --file $UBU_IMG.$FMT $UBU_IMG_NM &
+  openstack image create --disk-format $FMT --min-ram 1024 --min-disk $DISKSZ --property image_build_date="$IMGDATE" --property image_original_user=ubuntu --property architecture=x86_64 --property hypervisor_type=kvm --property os_distro=ubuntu --property os_version="20.04" --property hw_disk_bus=scsi --property hw_scsi_model=virtio-scsi --property hw_rng_model=virtio --property image_source=$IMAGESRC --property kubernetes_version=$KUBERNETES_VERSION --tag managed_by_osism $IMGREG_EXTRA --file $UBU_IMG.$FMT $UBU_IMG_NM  </dev/null &
+  CPID=$!
   sleep 5
   echo "Waiting for image $UBU_IMG_NM: "
   let -i ctr=0
@@ -47,5 +48,6 @@ if test -z "$CAPIIMG"; then
     echo "ERROR: Image $UBU_IMG_NM not found" 1>&2
     exit 2
   fi
+  # wait $CPID
   rm $UBU_IMG.$FMT
 fi
