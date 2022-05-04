@@ -12,6 +12,7 @@ IMGREG_EXTRA=$(yq eval '.OPENSTACK_IMAGE_REGISTRATION_EXTRA_FLAGS' $CCCFG)
 VERSION_CAPI_IMAGE=$(echo $KUBERNETES_VERSION | sed 's/\.[[:digit:]]*$//g')
 UBU_IMG=ubuntu-2004-kube-$KUBERNETES_VERSION
 
+WAITLOOP=64
 #download/upload image to openstack
 CAPIIMG=$(openstack image list --name $UBU_IMG_NM)
 IMGURL=https://minio.services.osism.tech/openstack-k8s-capi-images
@@ -36,7 +37,7 @@ if test -z "$CAPIIMG"; then
   sleep 5
   echo "Waiting for image $UBU_IMG_NM: "
   let -i ctr=0
-  while test $ctr -le 64; do
+  while test $ctr -le $WAITLOOP; do
     CAPIIMG=$(openstack image list --name $UBU_IMG_NM -f value -c ID -c Status)
     STATUS="${CAPIIMG##* }"
     if test "$STATUS" = "saving" -o "$STATUS" = "active"; then break; fi
@@ -45,7 +46,7 @@ if test -z "$CAPIIMG"; then
     sleep 10
   done
   echo " $CAPIIMG"
-  if test $ctr -ge 60; then
+  if test $ctr -ge $WAITLOOP; then
     echo "ERROR: Image $UBU_IMG_NM not found" 1>&2
     exit 2
   fi
