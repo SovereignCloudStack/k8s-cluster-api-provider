@@ -106,9 +106,10 @@ kubectl apply -f ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml || exit 3
 
 #Waiting for Clusterstate Ready
 echo "# Waiting for Cluster=Ready"
+sync; sleep 2
 #wget https://gx-scs.okeanos.dev --quiet -O /dev/null
 #ping -c1 -w2 9.9.9.9 >/dev/null 2>&1
-if test "$CLUSTER_EXISTS" = "1"; then sleep 12; fi
+if test "$CLUSTER_EXISTS" != "1"; then sleep 12; fi
 kubectl wait --timeout=5s --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME} >/dev/null 2>&1 || sleep 25
 kubectl wait --timeout=15m --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME} || exit 1
 kubectl wait --timeout=5m --for=condition=Ready machine -l cluster.x-k8s.io/control-plane || exit 4
