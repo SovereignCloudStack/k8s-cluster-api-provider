@@ -31,7 +31,4 @@ CLOUD_CA_ENC=$(base64 -w 0 /etc/ssl/certs/"$CERT_CERT")
 yq eval '.OPENSTACK_CLOUD_YAML_B64 = "'"$CLOUD_YAML_ENC"'"' -i ~/cluster-defaults/clusterctl.yaml
 yq eval '.OPENSTACK_CLOUD_PROVIDER_CONF_B64 = "'"$CLOUD_CONF_ENC"'"' -i ~/cluster-defaults/clusterctl.yaml
 yq eval '.OPENSTACK_CLOUD_CACERT_B64 = "'"$CLOUD_CA_ENC"'"' -i ~/cluster-defaults/clusterctl.yaml
-# Generate SET_MTU_B64
-#MTU=`yq eval '.MTU_VALUE' ~/cluster-defaults/clusterctl.yaml`
-# Fix up nameserver list (trailing comma -- cosmetic)
-sed '/OPENSTACK_DNS_NAMESERVERS:/s@, \]"@ ]"@' -i ~/cluster-defaults/clusterctl.yaml
+
