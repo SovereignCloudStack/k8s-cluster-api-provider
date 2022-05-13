@@ -1,8 +1,9 @@
 # Table of kubernetes and openstack versions
 # (c) Kurt Garloff <kurt@garloff.de>, 3/2022
 # SPDX-License-Identifier: CC-BY-SA-4.0
-k8s_versions=("v1.18.20" "v1.19.16" "v1.20.12" "v1.21.11" "v1.22.8" "v1.23.5")
-# OCCM, CCM-RBAC, Cinder CSI, Cinder-Snapshot (TODO: Manila CIS)
+# Images from https://minio.services.osism.tech/openstack-k8s-capi-images
+k8s_versions=("v1.18.20" "v1.19.16" "v1.20.12" "v1.21.12" "v1.22.9" "v1.23.6")
+# OCCM, CCM-RBAC, Cinder CSI, Cinder-Snapshot (TODO: Manila CSI)
 occm_versions=(""         ""       "v1.21.1" "v1.21.1" "v1.22.1" "v1.23.1")
 #ccmr_versions=(""        ""        ""        ""        "v1.22.1" "v1.23.1")
 ccmr_versions=(""        ""        "v1.22.1" "v1.22.1" "v1.22.1" "v1.23.1")
