@@ -35,7 +35,10 @@ if grep '^ *OPENSTACK_ANTI_AFFINITY: true' $CCCFG >/dev/null 2>&1; then
 		openstack server group delete $SRVGRP_WORKER $SRVGRP_CONTROLLER
 	fi
 fi
+# Detach network interface (if ever attached)
+remove_cluster-network.sh "$CLUSTER_NAME" >/dev/null || true
 # Tell capi to clean up
+# TODO: Do this with timeout, possibly do some additional diagnostics to help with clean up
 kubectl delete cluster "$CLUSTER_NAME"
 kubectl config delete-context "$CLUSTER_NAME-admin@$CLUSTER_NAME"
 kubectl config delete-user "$CLUSTER_NAME-admin"
