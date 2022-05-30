@@ -20,7 +20,7 @@ if test ! -s base/nginx-ingress-controller-${NGINX_VERSION}.yaml; then
 	curl -L https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-${NGINX_VERSION}/deploy/static/provider/cloud/deploy.yaml > base/nginx-ingress-controller-${NGINX_VERSION}.yaml || exit 2
 fi
 ln -sf nginx-ingress-controller-${NGINX_VERSION}.yaml base/nginx-ingress-controller.yaml
-if test "$NGINX_INGRESS_PROXY" = "$false"; then
+if test "$NGINX_INGRESS_PROXY" = "false"; then
 	kustomize build nginx-monitor > ~/$CLUSTER_NAME/deployed-manifests.d/nginx-ingress.yaml || exit 3
 else
 	kustomize build nginx-proxy > ~/$CLUSTER_NAME/deployed-manifests.d/nginx-ingress.yaml || exit 3
