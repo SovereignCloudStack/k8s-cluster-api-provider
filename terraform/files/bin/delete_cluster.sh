@@ -39,9 +39,30 @@ fi
 remove_cluster-network.sh "$CLUSTER_NAME" >/dev/null || true
 # Tell capi to clean up
 # TODO: Do this with timeout, possibly do some additional diagnostics to help with clean up
-kubectl delete cluster "$CLUSTER_NAME"
+timeout 150 kubectl delete cluster "$CLUSTER_NAME"
+RC=$?
 kubectl config delete-context "$CLUSTER_NAME-admin@$CLUSTER_NAME"
 kubectl config delete-user "$CLUSTER_NAME-admin"
 kubectl config delete-cluster "$CLUSTER_NAME"
+if test $RC != 0; then
+	PORTS=$(openstack port list --fixed-ip subnet=k8s-clusterapi-cluster-default-$CLUSTER_NAME -f value -c Id -c Status -c fixed_ips)
+	NODE_CIDR=$(grep NODE_CIDR ~/$CLUSTER_NAME/clusterctl.yaml | sed 's/^NODE_CIDR: *//')
+	NODE_START=${NODE_CIDR%.*}; NODE_START=${NODE_START%.*}
+	while read id stat fixed; do
+		if test "$stat" != "DOWN"; then continue; fi
+		ADR=$(echo "$fixed" | sed "s/^.*ip_address': '\([0-9\.]*\)'.*\$/\1/")
+		ADR_START="${ADR%.*}"; ADR_START="${ADR_START%.*}"
+		if test "$NODE_START" != "$ADR_START"; then continue; fi
+		ADR_END="${ADR#$ADR_START.}"
+		if test "$ADR_END" = "0.1" -o "$ADR_END" = "0.2"; then continue; fi
+		echo "Clean up port $id ($ADR) ..."
+		openstack port delete $id
+	done < <(echo "$PORTS")
+fi
 openstack security group delete k8s-cluster-${CLUSTER_NAME}-cilium >/dev/null 2>&1 || true
+if test $RC != 0; then
+	timeout 150 kubectl delete cluster "$CLUSTER_NAME"
+	# Non existent cluster means success
+	if ! kubectl get cluster "$CLUSTER_NAME"; then exit 0; fi
+fi
 # TODO: Clean up ~/$CLUSTER_NAME
