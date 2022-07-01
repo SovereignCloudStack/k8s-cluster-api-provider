@@ -1,0 +1,64 @@
+diff --git a/terraform/files/template/cluster-template.yaml b/terraform/files/template/cluster-template.yaml
+index b7b90c5..25af06b 100644
+--- a/cluster-template.yaml
++++ b/cluster-template.yaml
+@@ -46,7 +46,7 @@ spec:
+       kind: OpenStackMachineTemplate
+       #apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+       apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+-      name: "k8s-clusterapi-${CLUSTER_NAME}-control-plane-genc1"
++      name: "k8s-clusterapi-${CLUSTER_NAME}-control-plane-${CONTROL_PLANE_MACHINE_GEN}"
+   kubeadmConfigSpec:
+     initConfiguration:
+       nodeRegistration:
+@@ -85,7 +85,7 @@ spec:
+ apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+ kind: OpenStackMachineTemplate
+ metadata:
+-  name: k8s-clusterapi-${CLUSTER_NAME}-control-plane-genc1
++  name: k8s-clusterapi-${CLUSTER_NAME}-control-plane-${CONTROL_PLANE_MACHINE_GEN}
+ spec:
+   template:
+     spec:
+@@ -105,7 +105,7 @@ spec:
+ apiVersion: cluster.x-k8s.io/v1beta1
+ kind: MachineDeployment
+ metadata:
+-  name: "${CLUSTER_NAME}-md-0-genw1"
++  name: "${CLUSTER_NAME}-md-0-no1"
+ spec:
+   clusterName: "${CLUSTER_NAME}"
+   replicas: ${WORKER_MACHINE_COUNT}
+@@ -118,11 +118,11 @@ spec:
+       failureDomain: ${OPENSTACK_FAILURE_DOMAIN}
+       bootstrap:
+         configRef:
+-          name: "${CLUSTER_NAME}-md-0-genw1"
++          name: "${CLUSTER_NAME}-md-0-${WORKER_MACHINE_GEN}"
+           apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+           kind: KubeadmConfigTemplate
+       infrastructureRef:
+-        name: "k8s-clusterapi-${CLUSTER_NAME}-md-0-genw1"
++        name: "k8s-clusterapi-${CLUSTER_NAME}-md-0-${WORKER_MACHINE_GEN}"
+         #apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+         apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+         kind: OpenStackMachineTemplate
+@@ -131,7 +131,7 @@ spec:
+ apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+ kind: OpenStackMachineTemplate
+ metadata:
+-  name: k8s-clusterapi-${CLUSTER_NAME}-md-0-genw1
++  name: k8s-clusterapi-${CLUSTER_NAME}-md-0-${WORKER_MACHINE_GEN}
+ spec:
+   template:
+     spec:
+@@ -151,7 +151,7 @@ spec:
+ apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+ kind: KubeadmConfigTemplate
+ metadata:
+-  name: ${CLUSTER_NAME}-md-0-genw1
++  name: ${CLUSTER_NAME}-md-0-${WORKER_MACHINE_GEN}
+ spec:
+   template:
+     spec:
+
