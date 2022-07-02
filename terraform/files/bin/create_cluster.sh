@@ -27,14 +27,15 @@ fi
 CCCFG="$HOME/${CLUSTER_NAME}/clusterctl.yaml"
 fixup_k8s_version.sh $CCCFG
 
+export PREFIX CLUSTER_NAME
+# Determine whether we need a new application credential
+create_appcred.sh || exit 1
+# Update OS_CLOUD
+export OS_CLOUD=$PREFIX-$CLUSTER_NAME
+
 #export OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)
 # Ensure image is there
 wait_capi_image.sh "$1" || exit 1
-
-# Determine whether we need a new application credential
-create_appcred.sh
-# Update OS_CLOUD
-export OS_CLOUD=$PREFIX-$CLUSTER_NAME
 
 # Switch to capi mgmt cluster
 export KUBECONFIG=$HOME/.kube/config

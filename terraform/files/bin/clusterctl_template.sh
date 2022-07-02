@@ -32,7 +32,7 @@ echo $CLOUD_CONF_ENC
 # Update OPENSTACK_CLOUD
 yq eval '.OPENSTACK_CLOUD = "'"$OS_CLOUD"'"' -i ~/$CLUSTER_NAME/clusterctl.yaml
 # Snaps are broken - can not access ~/.config/openstack/clouds.yaml
-AUTH_URL=$(cat ~/.config/openstack/clouds.yaml | yq eval .clouds.${OS_CLOUDS}.auth.auth_url -)
+AUTH_URL=$(print-cloud.py | yq eval .clouds.${OS_CLOUD}.auth.auth_url -)
 #AUTH_URL=$(grep -A12 "${cloud_provider}" ~/.config/openstack/clouds.yaml | grep auth_url | head -n1 | sed -e 's/^ *auth_url: //' -e 's/"//g')
 AUTH_URL_SHORT=$(echo "$AUTH_URL" | sed s'/https:\/\///' | sed s'/\/.*$//')
 CERT_CERT=$(openssl s_client -connect "$AUTH_URL_SHORT" </dev/null 2>&1 | head -n 1 | sed s'/.*CN\ =\ //' | sed s'/\ /_/g' | sed s'/$/.pem/')

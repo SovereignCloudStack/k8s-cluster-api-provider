@@ -66,9 +66,9 @@ def findcloud(cloudname, fn):
             print("---\n#Cloud %s in %s:\nclouds:" % (cloudname, fn))
             #output_nonsecret(line)
             if 'cloud' in repl_list:
-                print("%s%s" % (indent, repl_list["cloud"]))
+                print("%s%s:" % (indent, repl_list["cloud"]))
             else:
-                print("%s%s" % (indent, cloudname))
+                print("%s%s:" % (indent, cloudname))
             continue
         if not found:
             continue
@@ -83,7 +83,7 @@ def main(argv):
     home = os.environ["HOME"]
     err = 0
     try:
-        optlist, arg = getopt.gnu_getopt(argv, "c:r:i:h", ('--cloud=', '--replace=', '--inject='. '--help'))
+        optlist, arg = getopt.gnu_getopt(argv, "c:r:i:h", ('--cloud=', '--replace=', '--inject=', '--help'))
     except getopt.GetoptError as exc:
         print("Error:", exc, file=sys.stderr)
         sys.exit(usage())
