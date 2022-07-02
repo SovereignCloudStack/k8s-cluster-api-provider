@@ -34,9 +34,13 @@ DEPLOY_METRICS: ${deploy_metrics}
 # OpenStack flavors and machine count
 OPENSTACK_CONTROL_PLANE_MACHINE_FLAVOR: ${controller_flavor}
 CONTROL_PLANE_MACHINE_COUNT: ${controller_count}
+# Increase generation counter when changing flavor or k8s version or other MD settings
+CONTROL_PLANE_MACHINE_GEN: genc01
 
 OPENSTACK_NODE_MACHINE_FLAVOR: ${worker_flavor}
 WORKER_MACHINE_COUNT: ${worker_count}
+# Increase generation counter when changing flavor or k8s version or other MD settings
+WORKER_MACHINE_GEN: genw01
 
 # Openstack Availablity Zone
 OPENSTACK_FAILURE_DOMAIN: ${availability_zone}

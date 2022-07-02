@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Run sonobuoy tests
+# Usage: sonobuoy.sh CLUSTERNAME [sonobuoy-args]
 #
 # (c) Kurt Garloff <garloff@osb-alliance.com>
 # SPDX-License-Identifier: Apache-2.0
@@ -20,6 +21,7 @@ if ! test -x /usr/local/bin/sonobuoy; then
 	rm ${SONOTARBALL}
 fi
 . ~/bin/cccfg.inc
+shift
 export KUBECONFIG="$KUBECONFIG_WORKLOADCLUSTER"
 if ! test -s "$KUBECONFIG"; then echo "No $KUBECONFIG" 1>&2; exit 3; fi
 #./sonobuoy status 2>/dev/null
