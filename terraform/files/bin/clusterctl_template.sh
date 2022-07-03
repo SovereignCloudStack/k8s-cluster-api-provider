@@ -31,8 +31,9 @@ CLOUD_CONF_ENC=$(base64 -w 0 ~/$CLUSTER_NAME/cloud.conf)
 
 #Get CA and Encode CA
 # Update OPENSTACK_CLOUD
-yq eval '.OPENSTACK_CLOUD = "'"$OS_CLOUD"'"' -i ~/$CLUSTER_NAME/clusterctl.yaml
 if test "$OS_CLOUD" != "$OLD_OS_CLOUD"; then
+  echo "#Info: Changing OPENSTACK_CLOUD frpm $OLD_OS_CLOUD to $OS_CLOUD"
+  yq eval '.OPENSTACK_CLOUD = "'"$OS_CLOUD"'"' -i ~/$CLUSTER_NAME/clusterctl.yaml
   sed -i "/^OPENSTACK_CLOUD:/a\
 OLD_OPENSTACK_CLOUD: $OLD_OS_CLOUD" ~/$CLUSTER_NAME/clusterctl.yaml
 fi
