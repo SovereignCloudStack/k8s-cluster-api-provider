@@ -31,7 +31,8 @@ export PREFIX CLUSTER_NAME
 # Determine whether we need a new application credential
 create_appcred.sh || exit 1
 # Update OS_CLOUD
-export OS_CLOUD=$PREFIX-$CLUSTER_NAME
+#export OS_CLOUD=$PREFIX-$CLUSTER_NAME
+export OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)
 
 #export OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)
 # Ensure image is there

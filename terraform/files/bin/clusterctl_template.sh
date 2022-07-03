@@ -32,8 +32,10 @@ CLOUD_CONF_ENC=$(base64 -w 0 ~/$CLUSTER_NAME/cloud.conf)
 #Get CA and Encode CA
 # Update OPENSTACK_CLOUD
 yq eval '.OPENSTACK_CLOUD = "'"$OS_CLOUD"'"' -i ~/$CLUSTER_NAME/clusterctl.yaml
-sed -i "/^OPENSTACK_CLOUD:/a\
+if test "$OS_CLOUD" != "$OLD_OS_CLOUD"; then
+  sed -i "/^OPENSTACK_CLOUD:/a\
 OLD_OPENSTACK_CLOUD: $OLD_OS_CLOUD" ~/$CLUSTER_NAME/clusterctl.yaml
+fi
 # Snaps are broken - can not access ~/.config/openstack/clouds.yaml
 AUTH_URL=$(print-cloud.py | yq eval .clouds.${OS_CLOUD}.auth.auth_url -)
 #AUTH_URL=$(grep -A12 "${cloud_provider}" ~/.config/openstack/clouds.yaml | grep auth_url | head -n1 | sed -e 's/^ *auth_url: //' -e 's/"//g')
