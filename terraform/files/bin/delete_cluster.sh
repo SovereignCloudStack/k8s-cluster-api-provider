@@ -66,3 +66,23 @@ if test $RC != 0; then
 	if ! kubectl get cluster "$CLUSTER_NAME"; then exit 0; fi
 fi
 # TODO: Clean up ~/$CLUSTER_NAME
+# Delete app cred
+openstack application credential delete $PREFIX-$CLUSTER_NAME-appcred
+# Remove from clouds.yaml
+cat > ~/tmp/rmv-$OS_CLOUD.sed <<EOT
+/^  $OS_CLOUD:/{
+s/^.*$$//
+n
+:a
+/^  [a-zA-Z0-9]/b out
+s/^.*$$//
+n
+b a
+}
+:out
+EOT
+sed -f ~/tmp/rmv-$OS_CLOUD.sed ~/.config/openstack/clouds.yaml | grep -v '^$' >~/tmp/clouds-no-$OS_CLOUD.yaml
+mv $tmp/clouds-no-$OS_CLOUD.yaml ~/.config/openstack/clouds.yaml
+# Copy OS_CLOUD from cluster-defaults to ~/$CLUSTER_NAME/clusterctl.yaml
+export OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' ~/cluster-defaults/clusterctl.yaml)
+yq eval '.OPENSTACK_CLOUD = "'"$OS_CLOUD"'"' -i ~/$CLUSTER_NAME/clusterctl.yaml
