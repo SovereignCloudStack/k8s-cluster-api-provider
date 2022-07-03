@@ -15,7 +15,7 @@ if test -z "$1"; then CLUSTER_NAME="cluster-defaults"; else CLUSTER_NAME="$1"; f
 if test -z "$PROJECTID"; then
   PROJECTID=$(grep 'tenant.id=' ~/$CLUSTER_NAME/cloud.conf | sed 's/^[^=]*=//')
 else
-  sed -i "s/^tenant.id=.*\$/tenant.id=$PROJECTID/" ~/$CLUSTER_NAME/cloud.conf
+  sed -i "s/^tenant.id=.*\$/tenant-id=$PROJECTID/" ~/$CLUSTER_NAME/cloud.conf
 fi
 #CLOUD_YAML_ENC=$( (cat ~/.config/openstack/clouds.yaml; echo "      project_id: $PROJECTID") | base64 -w 0)
 OLD_OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' ~/$CLUSTER_NAME/clusterctl.yaml)
@@ -23,11 +23,11 @@ if test -z "$OS_CLOUD"; then
   OS_CLOUD=$OLD_OS_CLOUD
 fi
 CLOUD_YAML_ENC=$(print-cloud.py -s | sed 's/#project_id:/project_id:/' | base64 -w 0)
-echo $CLOUD_YAML_ENC
+#echo $CLOUD_YAML_ENC
 
 # Encode cloud.conf
 CLOUD_CONF_ENC=$(base64 -w 0 ~/$CLUSTER_NAME/cloud.conf)
-echo $CLOUD_CONF_ENC
+#echo $CLOUD_CONF_ENC
 
 #Get CA and Encode CA
 # Update OPENSTACK_CLOUD
