@@ -18,7 +18,7 @@ if test -z "$APPCRED_ID"; then
 		exit 1
 	fi
 	read APPCRED_ID APPCRED_PRJ APPCRED_SECRET < <(echo $NEWCRED)
-	# Replace secret
+	# FIXME: Generate a fresh section rather than relying on cleanliness
 	print-cloud.py -c $PREFIX-$CLUSTER_NAME -r application_credential_id=$APPCRED_ID -r application_credential_secret="\"$APPCRED_SECRET\"" -i auth_type="#project_id: $APPCRED_PRJ" | grep -v '^#' | grep -v '^---' | grep -v '^clouds:' >> ~/.config/openstack/clouds.yaml
 	# And remove from env
 	unset APPCRED_SECRET

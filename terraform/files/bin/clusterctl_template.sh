@@ -32,7 +32,7 @@ echo $CLOUD_CONF_ENC
 #Get CA and Encode CA
 # Update OPENSTACK_CLOUD
 yq eval '.OPENSTACK_CLOUD = "'"$OS_CLOUD"'"' -i ~/$CLUSTER_NAME/clusterctl.yaml
-sed -i "/^OPENSTACK_CLOUD:/a
+sed -i "/^OPENSTACK_CLOUD:/a\
 OLD_OPENSTACK_CLOUD: $OLD_OS_CLOUD" ~/$CLUSTER_NAME/clusterctl.yaml
 # Snaps are broken - can not access ~/.config/openstack/clouds.yaml
 AUTH_URL=$(print-cloud.py | yq eval .clouds.${OS_CLOUD}.auth.auth_url -)
