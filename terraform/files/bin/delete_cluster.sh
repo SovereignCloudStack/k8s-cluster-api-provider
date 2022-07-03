@@ -71,6 +71,7 @@ fi
 if grep '^OLD_OPENSTACK_CLOUD:' $CCCFG >/dev/null 2>&1; then
   # Remove from clouds.yaml
   print-cloud.py -x -s >~/tmp/clouds-no-$OS_CLOUD.yaml || exit 5
+  cp -p ~/.config/openstack/clouds.yaml ~/.config/openstack/clouds.yaml.$OS_CLOUD
   mv ~/tmp/clouds-no-$OS_CLOUD.yaml ~/.config/openstack/clouds.yaml
   # Restore old OS_CLOUD
   sed -i -e '/^OPENSTACK_CLOUD:/d' -e 's/^OLD_OPENSTACK_CLOUD:/OPENSTACK_CLOUD:/' $CCCFG
