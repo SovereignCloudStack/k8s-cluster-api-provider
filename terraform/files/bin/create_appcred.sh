@@ -11,7 +11,7 @@
 export KUBECONFIG=$HOME/.kube/config
 kubectl config use-context kind-kind || exit 1
 # If the cluster exists already and we don't have a private appcred, leave it alone
-if kubectl get cluster $CLUSTER_NAME >/dev/null 2>&1 && ! grep '^OLD_OPENSTACK_CLOUD' ~/$CLUSTER_NAME/clusterctl.yaml; then
+if kubectl get cluster $CLUSTER_NAME >/dev/null 2>&1 && ! grep '^OLD_OPENSTACK_CLOUD' ~/$CLUSTER_NAME/clusterctl.yaml >/dev/null 2>&1; then
   echo "#Warn: Old style cluster, disable new appcred handling"
   exit 0
 fi
