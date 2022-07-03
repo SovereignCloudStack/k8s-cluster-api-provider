@@ -2,5 +2,16 @@
   "extends": [
     "config:base"
   ],
-  "commitBody": "Signed-off-by: Renovate Bot <bot@renovateapp.com>"
+  "commitBody": "Signed-off-by: Renovate Bot <bot@renovateapp.com>",
+  "regexManagers":[
+    {
+      "fileMatch":[
+        "^\\.github\\/workflows\\/.*\\.yml"
+      ],
+      "matchStrings":[
+        "terraform_version: (?<currentValue>.*?)  # renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\n"
+     ],
+     "extractVersionTemplate": "^v(?<version>.*)$"
+    }
+  ]
 }
