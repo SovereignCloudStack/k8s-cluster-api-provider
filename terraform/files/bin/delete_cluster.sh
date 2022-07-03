@@ -70,20 +70,7 @@ fi
 # Delete app cred
 openstack application credential delete $PREFIX-$CLUSTER_NAME-appcred
 # Remove from clouds.yaml
-cat > ~/tmp/rmv-$OS_CLOUD.sed <<EOT
-/^  $OS_CLOUD:/{
-s/^.*\$//
-n
-:a
-/^  [a-zA-Z0-9]/b out
-s/^.*\$//
-n
-b a
-}
-:out
-EOT
-sed -f ~/tmp/rmv-$OS_CLOUD.sed ~/.config/openstack/clouds.yaml | grep -v '^$' >~/tmp/clouds-no-$OS_CLOUD.yaml
+print-cloud -x -s >~/tmp/clouds-no-$OS_CLOUD.yaml || exit 5
 mv ~/tmp/clouds-no-$OS_CLOUD.yaml ~/.config/openstack/clouds.yaml
-# Copy OS_CLOUD from cluster-defaults to ~/$CLUSTER_NAME/clusterctl.yaml
-export OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' ~/cluster-defaults/clusterctl.yaml)
-yq eval '.OPENSTACK_CLOUD = "'"$OS_CLOUD"'"' -i ~/$CLUSTER_NAME/clusterctl.yaml
+# Restore old OS_CLOUD
+sed -i -e '/^OPENSTACK_CLOUD:/d' -e 's/^OLD_OPENSTACK_CLOUD:/OPENSTACK_CLOUD:/' $CCCFG

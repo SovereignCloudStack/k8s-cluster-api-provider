@@ -6,14 +6,18 @@
 
 import sys, os, string, getopt
 
-repl_list={}
-inj_list={}
+repl_list = {}
+inj_list = {}
+reveal = False
+exclude = False
 
 def usage():
     print("Usage: print_cloud.py [OPTIONS] [CLOUD [CLOUD [..]]]", file=sys.stderr)
-    print("OPTIONS: --cloud CLOUD: Replace cloud name", file=sys.stderr)
-    print("         --replace attr=value", file=sys.stderr)
-    print("         --inject attr=value", file=sys.stderr)
+    print("OPTIONS: -c/--cloud CLOUD: Replace cloud name", file=sys.stderr)
+    print("         -r/--replace attr=value", file=sys.stderr)
+    print("         -i/--inject attr=value", file=sys.stderr)
+    print("         -s/--sensitive", file=sys.stderr)
+    print("         -x/--exclude", file=sys.stderr)
     return 1
 
 def countws(st):
@@ -30,12 +34,13 @@ def output_nonsecret(ln):
     elif kwds[0][idx:] in inj_list:
         print("%s%s" % (kwds[0][:idx], inj_list[kwds[0][idx:]]))
         print(ln)
-    elif 'password' in kwds[0] or 'secret' in kwds[0] or 'token' in kwds[0]:
+    elif not reveal and ('password' in kwds[0] or 'secret' in kwds[0] or 'token' in kwds[0]):
         print('%s: SECRET' % kwds[0])
     else:
         print(ln)
 
 def findcloud(cloudname, fn):
+    hits = 0
     if not os.access(fn, os.R_OK):
         return False
     f = open(fn, "r")
@@ -49,6 +54,8 @@ def findcloud(cloudname, fn):
             continue
         if line == "clouds:":
             #print("Found clouds:")
+            if exclude:
+                output_nonsecret(line)
             nextind = True
             continue
         if not line or (line and line[0] == "#") or not line.rstrip(string.whitespace):
@@ -63,6 +70,9 @@ def findcloud(cloudname, fn):
             nextind = False
         if not found and line == "%s%s:" % (indent, cloudname):
             found = True
+            hits += 1
+            if exclude:
+                continue
             print("---\n#Cloud %s in %s:\nclouds:" % (cloudname, fn))
             #output_nonsecret(line)
             if 'cloud' in repl_list:
@@ -70,20 +80,24 @@ def findcloud(cloudname, fn):
             else:
                 print("%s%s:" % (indent, cloudname))
             continue
-        if not found:
-            continue
-        if line[:lenind] != indent or line[lenind:lenind+1] not in string.whitespace:
+        if found and (line[:lenind] != indent or line[lenind:lenind+1] not in string.whitespace):
             #print("END: %s" % line)
-            return found
+            if not exclude:
+                return found
+            else:
+                found = False
+        if not found ^ exclude:
+            continue
         output_nonsecret(line)
-    return found
+    return hits > 0
 
 def main(argv):
-    global repl_list, inj_list
+    global repl_list, inj_list, reveal, exclude
     home = os.environ["HOME"]
     err = 0
     try:
-        optlist, arg = getopt.gnu_getopt(argv, "c:r:i:h", ('--cloud=', '--replace=', '--inject=', '--help'))
+        optlist, arg = getopt.gnu_getopt(argv, "c:r:i:hsx",
+                ('--cloud=', '--replace=', '--inject=', '--help', '--sensitive', '--exclude'))
     except getopt.GetoptError as exc:
         print("Error:", exc, file=sys.stderr)
         sys.exit(usage())
@@ -91,6 +105,10 @@ def main(argv):
         if opt[0] == '-h' or opt[0] == '--help':
             usage()
             sys.exit(0)
+        elif opt[0] == '-s' or opt[0] == '--sensitive':
+            reveal = True
+        elif opt[0] == '-x' or opt[0] == '--exclude':
+            exclude = True
         elif opt[0] == '-c' or opt[0] == '--cloud':
             repl_list['cloud'] = opt[1]
         elif opt[0] == '-r' or opt[0] == '--replace':

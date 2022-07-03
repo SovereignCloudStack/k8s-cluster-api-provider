@@ -18,10 +18,11 @@ else
   sed -i "s/^tenant.id=.*\$/tenant.id=$PROJECTID/" ~/$CLUSTER_NAME/cloud.conf
 fi
 #CLOUD_YAML_ENC=$( (cat ~/.config/openstack/clouds.yaml; echo "      project_id: $PROJECTID") | base64 -w 0)
+OLD_OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' ~/$CLUSTER_NAME/clusterctl.yaml)
 if test -z "$OS_CLOUD"; then
-  OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' ~/$CLUSTER_NAME/clusterctl.yaml)
+  OS_CLOUD=$OLD_OS_CLOUD
 fi
-CLOUD_YAML_ENC=$(print-cloud.py | sed 's/#project_id:/project_id:/' | base64 -w 0)
+CLOUD_YAML_ENC=$(print-cloud.py -s | sed 's/#project_id:/project_id:/' | base64 -w 0)
 echo $CLOUD_YAML_ENC
 
 # Encode cloud.conf
@@ -31,6 +32,8 @@ echo $CLOUD_CONF_ENC
 #Get CA and Encode CA
 # Update OPENSTACK_CLOUD
 yq eval '.OPENSTACK_CLOUD = "'"$OS_CLOUD"'"' -i ~/$CLUSTER_NAME/clusterctl.yaml
+sed -i "s/^OPENSTACK_CLOUD:/a
+OLD_OPENSTACK_CLOUD: $OLD_OS_CLOUD" ~/$CLUSTER_NAME/clusterctl.yaml
 # Snaps are broken - can not access ~/.config/openstack/clouds.yaml
 AUTH_URL=$(print-cloud.py | yq eval .clouds.${OS_CLOUD}.auth.auth_url -)
 #AUTH_URL=$(grep -A12 "${cloud_provider}" ~/.config/openstack/clouds.yaml | grep auth_url | head -n1 | sed -e 's/^ *auth_url: //' -e 's/"//g')
