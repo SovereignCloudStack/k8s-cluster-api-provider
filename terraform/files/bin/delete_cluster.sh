@@ -74,7 +74,7 @@ if grep '^OLD_OPENSTACK_CLOUD:' $CCCFG >/dev/null 2>&1; then
   cp -p ~/.config/openstack/clouds.yaml ~/.config/openstack/clouds.yaml.$OS_CLOUD
   mv ~/tmp/clouds-no-$OS_CLOUD.yaml ~/.config/openstack/clouds.yaml
   # Restore old OS_CLOUD
-  sed -i -e '/^OPENSTACK_CLOUD:/d' -e 's/^OLD_OPENSTACK_CLOUD:/OPENSTACK_CLOUD:/' $CCCFG
+  sed -i '/^OPENSTACK_CLOUD:/d' $CCCFG; sed -i 's/^OLD_OPENSTACK_CLOUD:/OPENSTACK_CLOUD:/' $CCCFG
   # Delete app cred
   OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)
   openstack application credential delete $PREFIX-$CLUSTER_NAME-appcred

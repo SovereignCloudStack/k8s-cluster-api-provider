@@ -5,7 +5,7 @@ APPCREDS=$(openstack application credential list -f value -c ID -c Name -c "Proj
 while read id nm prjid; do
 	#echo "\"$nm\" \"$prjid\" \"$id\""
 	if test "$nm" = "$PREFIX-$CLUSTER_NAME-appcred"; then
-		echo "Reuse AppCred $nm $id"
+		echo "#Reuse AppCred $nm $id"
 		APPCRED_ID=$id
 		APPCRED_PRJ=$prjid
 	fi
@@ -18,6 +18,7 @@ if test -z "$APPCRED_ID"; then
 		exit 1
 	fi
 	read APPCRED_ID APPCRED_PRJ APPCRED_SECRET < <(echo $NEWCRED)
+	echo "#Created AppCred $APPCRED_ID"
 	if test ! -e ~/.config/openstack/clouds.yaml.orig; then cp -p ~/.config/openstack/clouds.yaml ~/.config/openstack/clouds.yaml.orig; fi
 	# FIXME: Generate a fresh section rather than relying on cleanliness
 	print-cloud.py -c $PREFIX-$CLUSTER_NAME -r application_credential_id=$APPCRED_ID -r application_credential_secret="\"$APPCRED_SECRET\"" -i auth_url="#project_id: $APPCRED_PRJ" | grep -v '^#' | grep -v '^---' | grep -v '^clouds:' >> ~/.config/openstack/clouds.yaml
