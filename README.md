@@ -144,6 +144,39 @@ so it can be reused.
 You need to manually unregister it, if you want your next deployment to register a new image with
 the same kubernetes version number.
 
+## Create new cluster
+
+``make ssh``
+`` bin/create_cluster <customize-name>``
+
+## Troubleshooting
+
+To find out in which condition the deployment status is, you can use the following way:
+
+``kubectl logs -n capo-system capo-manager-[TAB]``
+
+Some steps are:
+
+``Successfulcreateloadbalancer``
+
+``Reconciled Cluster create successful``
+
+## Environments
+
+ for the plusserver community environment it can choose here: 
+``export ENVIRONMENT=gx-scs``
+
+ or insert inside of Makefile:
+``ENVIRONMENT=gx-scs``
+
+ for the wavestack environment it can choose:
+ ``export ENVIRONMENT=gx-wavestack``
+ 
+ or insert inside of Makefile:
+ ``ENVIRONMENT=gx-wavestack``
+
+ a cloud.yaml and secure.yaml will needed for the environments in side of terraform folder.
+
 ## Extensions
 
 You can use this repository as a starting point for some automation e.g. adding
