@@ -151,6 +151,7 @@ cleanup "security group" $CLUSTER
 #cleanup "image" ubuntu-capi-image
 cleanup volume $CLUSTER
 cleanup "server group" "k8s-capi-$CLUSTER"
+cleanup "application credential" "$CAPIPRE-$CLUSTER-appcred"
 
 # Continue with capi control plane
 if test "$FULL" == "1"; then

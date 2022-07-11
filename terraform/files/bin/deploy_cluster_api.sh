@@ -17,8 +17,13 @@ sudo chmod +x /usr/local/bin/clusterctl
 echo "show the clusterctl version:"
 clusterctl version --output yaml
 
-# set some Variables to the clusterctl.yaml
-bash clusterctl_template.sh
+# We used to encode secrets here for clusterctl.yaml
+#bash clusterctl_template.sh
+# This is done per cluster now, here's what's left:
+# Generate SET_MTU_B64
+#MTU=`yq eval '.MTU_VALUE' ~/cluster-defaults/clusterctl.yaml`
+# Fix up nameserver list (trailing comma -- cosmetic)
+sed '/OPENSTACK_DNS_NAMESERVERS:/s@, \]"@ ]"@' -i ~/cluster-defaults/clusterctl.yaml
 
 # cp clusterctl.yaml to the right place
 cp -p $HOME/cluster-defaults/clusterctl.yaml $HOME/.cluster-api/clusterctl.yaml

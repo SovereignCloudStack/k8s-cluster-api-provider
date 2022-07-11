@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 export KUBECONFIG=~/.kube/config
+. ~/.capi-settings
 . ~/bin/cccfg.inc
 
 kubectl config use-context kind-kind
@@ -64,5 +65,18 @@ if test $RC != 0; then
 	timeout 150 kubectl delete cluster "$CLUSTER_NAME"
 	# Non existent cluster means success
 	if ! kubectl get cluster "$CLUSTER_NAME"; then exit 0; fi
+fi
+# TODO: Clean up machine templates etc.
+# Clean up appcred stuff (for new style appcred mgmt)
+if grep '^OLD_OPENSTACK_CLOUD:' $CCCFG >/dev/null 2>&1; then
+  # Remove from clouds.yaml
+  print-cloud.py -x -s >~/tmp/clouds-no-$OS_CLOUD.yaml || exit 5
+  cp -p ~/.config/openstack/clouds.yaml ~/.config/openstack/clouds.yaml.$OS_CLOUD
+  mv ~/tmp/clouds-no-$OS_CLOUD.yaml ~/.config/openstack/clouds.yaml
+  # Restore old OS_CLOUD
+  sed -i '/^OPENSTACK_CLOUD:/d' $CCCFG; sed -i 's/^OLD_OPENSTACK_CLOUD:/OPENSTACK_CLOUD:/' $CCCFG
+  # Delete app cred
+  OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)
+  openstack application credential delete $PREFIX-$CLUSTER_NAME-appcred
 fi
 # TODO: Clean up ~/$CLUSTER_NAME
