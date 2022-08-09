@@ -79,14 +79,14 @@ fi
 cp -p "$CCCFG" $HOME/.cluster-api/clusterctl.yaml
 KCCCFG="--config $CCCFG"
 #clusterctl $KCCCFG config cluster ${CLUSTER_NAME} --list-variables --from ${CLUSTERAPI_TEMPLATE}
-clusterctl $KCCCFG generate cluster "${CLUSTER_NAME}" --list-variables --from ${CLUSTERAPI_TEMPLATE} || exit 2
+clusterctl $KCCCFG generate cluster "${CLUSTER_NAME}" --target-namespace "${CLUSTER_NAME}" --list-variables --from ${CLUSTERAPI_TEMPLATE} || exit 2
 
 # the needed variables are read from $HOME/.cluster-api/clusterctl.yaml
 echo "# rendering clusterconfig from template"
 unset CLUSTER_EXISTS
 if test -e ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml; then
 	echo " Overwriting config for ${CLUSTER_NAME}"
-	CLUSTERS=$(kubectl get clusters | grep -v '^NAME' | grep "^$CLUSTER_NAME " | awk '{ print $1; }')
+	CLUSTERS=$(kubectl get clusters -A | grep -v '^NAME' | grep "^$CLUSTER_NAME " | awk '{ print $2; }')
 	if test -n "$CLUSTERS"; then
 		export CLUSTER_EXISTS=1
 		echo -e " Warning: Cluster exists\n Hit ^C to interrupt"
@@ -94,7 +94,7 @@ if test -e ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml; then
 	fi
 fi
 #clusterctl $KCCCFG config cluster ${CLUSTER_NAME} --from ${CLUSTERAPI_TEMPLATE} > rendered-${CLUSTERAPI_TEMPLATE}
-clusterctl $KCCCFG generate cluster "${CLUSTER_NAME}" --from ${CLUSTERAPI_TEMPLATE} > ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
+clusterctl $KCCCFG generate cluster "${CLUSTER_NAME}" --from ${CLUSTERAPI_TEMPLATE} --target-namespace "${CLUSTER_NAME}" > ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
 # Remove empty serverGroupID
 sed -i '/^ *serverGroupID: nonono$/d' ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
 

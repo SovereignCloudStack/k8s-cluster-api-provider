@@ -18,6 +18,9 @@ OPENSTACK_IMAGE_NAME: ubuntu-capi-image-${kubernetes_version}
 DEPLOY_OCCM: ${deploy_occm}
 DEPLOY_CINDERCSI: ${deploy_cindercsi}
 
+# Create CAPI objects for this cluster in namespace
+NAMESPACE: ${namespace}
+
 # cilium
 USE_CILIUM: ${use_cilium}
 # deploy nginx ingress controller
