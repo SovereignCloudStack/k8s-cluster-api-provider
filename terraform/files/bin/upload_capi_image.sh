@@ -14,7 +14,7 @@ UBU_IMG=ubuntu-2004-kube-$KUBERNETES_VERSION
 
 WAITLOOP=64
 #download/upload image to openstack
-CAPIIMG=$(openstack image list --name $UBU_IMG_NM)
+CAPIIMG=$(openstack image list --name "$UBU_IMG_NM")
 IMGURL=https://minio.services.osism.tech/openstack-k8s-capi-images
 IMAGESRC=$IMGURL/ubuntu-2004-kube-$VERSION_CAPI_IMAGE/$UBU_IMG.qcow2
 if test -z "$CAPIIMG"; then
@@ -38,7 +38,7 @@ if test -z "$CAPIIMG"; then
   echo "Waiting for image $UBU_IMG_NM: "
   let -i ctr=0
   while test $ctr -le $WAITLOOP; do
-    CAPIIMG=$(openstack image list --name $UBU_IMG_NM -f value -c ID -c Status)
+    CAPIIMG=$(openstack image list --name "$UBU_IMG_NM" -f value -c ID -c Status)
     STATUS="${CAPIIMG##* }"
     if test "$STATUS" = "saving" -o "$STATUS" = "active"; then break; fi
     echo -n "."
