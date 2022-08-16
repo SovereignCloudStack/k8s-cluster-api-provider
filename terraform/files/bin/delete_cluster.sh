@@ -37,7 +37,7 @@ if grep '^ *OPENSTACK_ANTI_AFFINITY: true' $CCCFG >/dev/null 2>&1; then
 	fi
 fi
 # Detach network interface (if ever attached)
-remove_cluster-network.sh "$CLUSTER_NAME" >/dev/null || true
+~/bin/remove_cluster-network.sh "$CLUSTER_NAME" >/dev/null || true
 # Tell capi to clean up
 # TODO: Do this with timeout, possibly do some additional diagnostics to help with clean up
 timeout 150 kubectl delete cluster "$CLUSTER_NAME"
