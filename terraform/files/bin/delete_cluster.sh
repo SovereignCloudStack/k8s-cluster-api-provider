@@ -70,6 +70,7 @@ fi
 # Clean up appcred stuff (for new style appcred mgmt)
 if grep '^OLD_OPENSTACK_CLOUD:' $CCCFG >/dev/null 2>&1; then
   # Remove from clouds.yaml
+  mkdir -p ~/tmp
   echo "Removing application credential $PREFIX-$CLUSTER_NAME-appcred ..."
   OS_CLOUD="$PREFIX-$CLUSTER_NAME" print-cloud.py -x -s >~/tmp/clouds-no-$OS_CLOUD.yaml || exit 5
   cp -p ~/.config/openstack/clouds.yaml ~/.config/openstack/clouds.yaml.$OS_CLOUD
