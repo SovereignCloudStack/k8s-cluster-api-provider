@@ -6,6 +6,10 @@
 # (c) Kurt Garloff <garloff@osb-alliance.com>
 # SPDX-License-Identifier: Apache-2.0
 #
+# Source .bash_aliases in case we are called from non-interactive bash (Makefile)
+# This does not seem to be strictly needed for sonobuoy.sh right now.
+source ~/.bash_aliases
+
 unset TZ
 export LC_ALL=POSIX
 if ! test -x /usr/local/bin/sonobuoy; then

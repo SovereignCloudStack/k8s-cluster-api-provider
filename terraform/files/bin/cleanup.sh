@@ -1,6 +1,9 @@
 #!/bin/bash
 # cleanup.sh
 
+# Source .bash_aliases in case we are called from non-interactive bash (Makefile)
+source ~/.bash_aliases
+
 export KUBECONFIG=~/.kube/config
 kubectl config use-context kind-kind
 CLUSTERS=$(kubectl get clusters | grep -v '^NAME' | awk '{ print $1; }')
