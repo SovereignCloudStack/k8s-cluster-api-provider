@@ -3,6 +3,8 @@
 ##    desc: a helper for deploy a workload cluster on mgmt cluster
 ## license: Apache-2.0
 
+# Source .bash_aliases in case we are called from non-interactive bash (Makefile)
+source ~/.bash_aliases
 # variables
 . ~/.capi-settings
 
