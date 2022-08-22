@@ -48,7 +48,7 @@ spec:
       kind: OpenStackMachineTemplate
       #apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
       apiVersion: infrastructure.cluster.x-k8s.io/v1alpha5
-      name: "${CLUSTER_NAME}-control-plane-${CONTROL_PLANE_MACHINE_GEN}"
+      name: "${PREFIX}-${CLUSTER_NAME}-control-plane-${CONTROL_PLANE_MACHINE_GEN}"
   kubeadmConfigSpec:
     initConfiguration:
       nodeRegistration:
@@ -87,7 +87,7 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha5
 kind: OpenStackMachineTemplate
 metadata:
-  name: ${CLUSTER_NAME}-control-plane-${CONTROL_PLANE_MACHINE_GEN}
+  name: ${PREFIX}-${CLUSTER_NAME}-control-plane-${CONTROL_PLANE_MACHINE_GEN}
 spec:
   template:
     spec:
@@ -102,12 +102,12 @@ spec:
       securityGroups:
         - name: allow-ssh
         - name: allow-icmp
-        - name: k8s-cluster-${CLUSTER_NAME}-cilium
+        - name: ${PREFIX}-${CLUSTER_NAME}-cilium
 ---
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: MachineDeployment
 metadata:
-  name: "${CLUSTER_NAME}-md-0-no1"
+  name: "${PREFIX}-${CLUSTER_NAME}-md-0-no1"
 spec:
   clusterName: "${CLUSTER_NAME}"
   replicas: ${WORKER_MACHINE_COUNT}
@@ -120,11 +120,11 @@ spec:
       failureDomain: ${OPENSTACK_FAILURE_DOMAIN}
       bootstrap:
         configRef:
-          name: "${CLUSTER_NAME}-md-0-${WORKER_MACHINE_GEN}"
+          name: "${PREFIX}-${CLUSTER_NAME}-md-0-${WORKER_MACHINE_GEN}"
           apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
           kind: KubeadmConfigTemplate
       infrastructureRef:
-        name: "${CLUSTER_NAME}-md-0-${WORKER_MACHINE_GEN}"
+        name: "${PREFIX}-${CLUSTER_NAME}-md-0-${WORKER_MACHINE_GEN}"
         #apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
         apiVersion: infrastructure.cluster.x-k8s.io/v1alpha5
         kind: OpenStackMachineTemplate
@@ -133,7 +133,7 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha5
 kind: OpenStackMachineTemplate
 metadata:
-  name: k8s-clusterapi-${CLUSTER_NAME}-md-0-${WORKER_MACHINE_GEN}
+  name: ${PREFIX}-${CLUSTER_NAME}-md-0-${WORKER_MACHINE_GEN}
 spec:
   template:
     spec:
@@ -148,12 +148,12 @@ spec:
       securityGroups:
         - name: allow-ssh
         - name: allow-icmp
-        - name: k8s-cluster-${CLUSTER_NAME}-cilium
+        - name: ${PREFIX}-${CLUSTER_NAME}-cilium
 ---
 apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: KubeadmConfigTemplate
 metadata:
-  name: ${CLUSTER_NAME}-md-0-${WORKER_MACHINE_GEN}
+  name: ${PREFIX}-${CLUSTER_NAME}-md-0-${WORKER_MACHINE_GEN}
 spec:
   template:
     spec:

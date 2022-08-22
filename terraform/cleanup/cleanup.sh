@@ -150,7 +150,7 @@ cleanup_list router "" "" "$RTR"
 cleanup "security group" $CLUSTER
 #cleanup "image" ubuntu-capi-image
 cleanup volume $CLUSTER
-cleanup "server group" "k8s-capi-$CLUSTER"
+cleanup "server group" "$CAPIPRE-$CLUSTER"
 cleanup "application credential" "$CAPIPRE-$CLUSTER-appcred"
 
 # Continue with capi control plane
