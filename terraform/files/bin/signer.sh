@@ -12,6 +12,10 @@
 #   changed using options -f, -a and -u.
 # * -u asks the underlaying infra (OpenStack) whether hosts and IPs exist as requested
 #   in the CSr and judges the approval based on it.
+# You could run this in an endless loop (in tmux):
+#   while true; signer.sh CLUSTERNAME -u; sleep 30; done
+# Note that a proper CSR handler (in CAPI) is the real solution for valid server
+# certificates. Consider this script a PoC.
 
 usage()
 {
@@ -102,6 +106,9 @@ checkvalidity()
 }
 
 while read req age signer requestor status; do
+	# Skip header
+	if test "$req" = "NAME"; then continue; fi
+	# Status
 	if test "$status" = "Approved,Issued"; then continue
 	elif test "$status" = "Approved"; then sign $req; continue
 	elif test "$status" != "Pending"; then echo "Unexpected $req status $status"; continue
