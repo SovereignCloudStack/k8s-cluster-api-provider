@@ -4,10 +4,10 @@
 # Images from https://minio.services.osism.tech/openstack-k8s-capi-images
 k8s_versions=("v1.18.20" "v1.19.16" "v1.20.12" "v1.21.14" "v1.22.12" "v1.23.9" "v1.24.2")
 # OCCM, CCM-RBAC, Cinder CSI, Cinder-Snapshot (TODO: Manila CSI)
-occm_versions=(""         ""       "v1.21.1" "v1.21.1" "v1.22.1" "v1.23.1" "v1.24.0")
-#ccmr_versions=(""        ""        ""        ""        "v1.22.1" "v1.23.1" "v1.24.0")
-ccmr_versions=(""        ""        "v1.22.1" "v1.22.1" "v1.22.1" "v1.23.1" "v1.24.0")
-ccsi_versions=(""        ""        "v1.20.5" "v1.21.1" "v1.22.1" "v1.23.1" "v1.24.0")
+occm_versions=(""         ""       "v1.21.1" "v1.21.1" "v1.22.1" "v1.23.4" "v1.24.2")
+#ccmr_versions=(""        ""        ""        ""        "v1.22.1" "v1.23.4" "v1.24.2")
+ccmr_versions=(""        ""        "v1.22.1" "v1.22.1" "v1.22.1" "v1.23.4" "v1.24.2")
+ccsi_versions=(""        ""        "v1.20.5" "v1.21.1" "v1.22.1" "v1.23.4" "v1.24.2")
 min_snapshot_master="v1.21.0"
 
 # Convert vxx.yy.zz to the number xxyyzz. Also works for z.y.z (0x0y0z).
