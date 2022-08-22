@@ -9,13 +9,17 @@
 # * Calling signer.sh CLUSTERNAME will sign all CSRs that have been marked approved
 #   with the CA cert and push the cert back into k8s.
 # * For Pending requests, it will display and interactively ask, which can be
-#   changed using options -f and -a.
+#   changed using options -f, -a and -u.
+# * -u asks the underlaying infra (OpenStack) whether hosts and IPs exist as requested
+#   in the CSr and judges the approval based on it.
 
 usage()
 {
 	echo "Usage: signer.sh CLUSTERNAME [OPTIONS]"
 	echo "Options: -a => only sign approved CSRs"
 	echo "         -f => approve and sign all"
+	echo "         -u => unattended mode: check CSRs and approve and sign"
+	echo "               valid ones. Valid=correct name and IP in IaaS"
 	echo "Default is to ask for unapproved"
 	exit 1
 }
@@ -27,6 +31,7 @@ CTX="--context=$1-admin@$1"
 shift
 if test "$1" == "-a"; then ONLYAPPROVED=1; shift; fi
 if test "$1" == "-f"; then FORCEAPPROVE=1; shift; fi
+if test "$1" == "-u"; then UNATTENDED=1; shift; fi
 
 if test ! -r ca.crt -o ! -r ca.key; then
 	echo "Need ca.crt and ca.key in current directory"
@@ -55,10 +60,11 @@ if test ! -r server-signing-config.json; then cat > server-signing-config.json <
 EOT
 fi
 
+# Default, overwritten by checkvalidity()
+CERTAPI=v1beta1
+
 sign()
 {
-	# FIXME: Need to determine API version
-	CERTAPI=v1beta1
 	REQ=$(kubectl $CTX get csr $1 -o jsonpath='{.spec.request}' | base64 --decode) || exit 4
 	OSSLINFO=$(echo "$REQ" | openssl req -noout -text -in -)
 	echo "Signing $1: $OSSLINFO"
@@ -70,6 +76,30 @@ sign()
 		kubectl $CTX replace --raw /apis/certificates.k8s.io/$CERTAPI/certificatesigningrequests/$1/status -f - || exit 6
 }
 
+checkvalidity()
+{
+	KCSR=$(kubectl $CTX get csr $1 -o json)
+	HNAME=$(echo "$KCSR" | jq .spec.username | tr -d '"')
+	HNAME=${HNAME#system:node:}
+	CRAPI=$(echo "$KCSR" | jq .metadata.managedFields[].apiVersion | tr -d '"')
+	CERTAPI=${CRAPI##*io/}
+	#echo "Cert request for $HNAME (API $CERTAPI)"
+	REQ=$(echo "$KCSR" | jq .spec.request | tr -d '"')
+	SAN=$(echo "$REQ" | base64 -d | openssl req -noout -text | grep -A1 "X509v3 Subject Alternative Name:" | grep "DNS:")
+	#echo $SAN
+	HNM2=${SAN#*DNS:}; HNM2=${HNM2%%,*}
+	IP=${SAN#*,}; IP=${IP# IP Address:}
+	if test -z "$HNM2" -o -z "$IP"; then echo "Parsing error"; return 1; fi
+	echo "Cert request for $HNM2 ($IP):"
+	OST=$(openstack server list --name="$HNM2" -f value -c Networks)
+	RC=$?
+	if test "$RC" != 0; then echo "Not found"; return $$c; fi
+	MYIP=${OST##*=}
+	if test "$MYIP" != "$IP"; then echo "IP does not match"; return 3; fi
+	# FIXME: Should we compare CA and cluster to belong together?
+	echo "Good for OpenStack"
+	return 0
+}
 
 while read req age signer requestor status; do
 	if test "$status" = "Approved,Issued"; then continue
@@ -78,8 +108,12 @@ while read req age signer requestor status; do
 	fi
 	#FIXME: Should ask openstack whether DNS nama and IP match ....
 	if test "$ONLYAPPROVED" = "1"; then continue; fi
-	if test "$FORCEAPPROVE" = "1"; then
-		echo "Force approval for $req ($requestor -> $signer / $age)"
+	checkvalidity $req
+	VALID=$?
+	if test $VALID = 0 -a "$UNATTENDED" = "1" || test "$FORCEAPPROVE" = "1"; then
+		if test "$FORCEAPPROVE" = "1"; then
+			echo "Force approval for $req ($requestor -> $signer / $age)"
+		fi
 		kubectl $CTX certificate approve $req
 		sign $req
 		continue
