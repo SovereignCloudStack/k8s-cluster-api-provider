@@ -95,7 +95,7 @@ cleanup()
 # main
 if test "$1" == "--verbose"; then VERBOSE=1; shift; fi
 if test "$1" == "--full"; then FULL=1; shift; fi
-if test -z "$1"; then CLUSTER="k8s-clusterapi"; else CLUSTER="$1"; shift; fi
+if test -z "$1"; then CLUSTER="testcluster"; else CLUSTER="$1"; shift; fi
 if test -z "$1"; then CAPIPRE="capi"; else CAPIPRE="$1"; shift; fi
 
 # For full cleanup, delete CAPI mgmt server first
