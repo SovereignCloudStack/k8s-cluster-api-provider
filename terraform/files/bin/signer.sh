@@ -90,7 +90,7 @@ checkvalidity()
 	HNM2=${SAN#*DNS:}; HNM2=${HNM2%%,*}
 	IP=${SAN#*,}; IP=${IP# IP Address:}
 	if test -z "$HNM2" -o -z "$IP"; then echo "Parsing error"; return 1; fi
-	echo "Cert request for $HNM2 ($IP):"
+	echo "Cert request $1 for $HNM2 ($IP):"
 	OST=$(openstack server list --name="$HNM2" -f value -c Networks)
 	RC=$?
 	if test "$RC" != 0; then echo "Not found"; return $$c; fi
@@ -104,7 +104,7 @@ checkvalidity()
 while read req age signer requestor status; do
 	if test "$status" = "Approved,Issued"; then continue
 	elif test "$status" = "Approved"; then sign $req; continue
-	elif test "$status" != "Pending"; then continue
+	elif test "$status" != "Pending"; then echo "Unexpected $req status $status"; continue
 	fi
 	#FIXME: Should ask openstack whether DNS nama and IP match ....
 	if test "$ONLYAPPROVED" = "1"; then continue; fi
