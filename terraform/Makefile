@@ -5,6 +5,7 @@
 #ENVIRONMENT ?= gx-citycloud
 #ENVIRONMENT = gx-scs
 SHELL=/bin/bash
+SED ?= sed
 #ENVIRONMENT = gx-bc
 OPENSTACK ?= openstack
 USERNAME ?= ubuntu
@@ -24,7 +25,7 @@ ifneq (,$(wildcard ./minio.env))
   include minio.env
 endif
 
-YQVERSION=$(shell yq --version | sed -e 's/^yq //' -e 's/^.*version //')
+YQVERSION=$(shell yq --version | $(SED) -e 's/^yq //' -e 's/^.*version //')
 YQMAJOR=$(shell YQV="$(YQVERSION)"; echo "$${YQV%%.*}")
 ifeq ($(YQMAJOR),2)
   YQ=yq --yaml-output
@@ -34,9 +35,9 @@ else
   YQIN=-
 endif
 
-CLOUD=$(shell ( grep '^cloud_provider' environments/environment-$(ENVIRONMENT).tfvars || echo $(ENVIRONMENT) ) | sed 's@^cloud_provider[^=]*= *"*\([^"]*\).*$$@\1@' )
+CLOUD=$(shell ( grep '^cloud_provider' environments/environment-$(ENVIRONMENT).tfvars || echo $(ENVIRONMENT) ) | $(SED) 's@^cloud_provider[^=]*= *"*\([^"]*\).*$$@\1@' )
 
-GITBRANCH=$(shell git branch | grep '^*' | sed 's/^* //')
+GITBRANCH=$(shell git branch | grep '^*' | $(SED) 's/^* //')
 
 init:	mycloud
 	@if [ ! -d .terraform/plugins ]; then terraform init; fi
@@ -59,7 +60,7 @@ mycloud: environments/environment-$(ENVIRONMENT).tfvars
 
 gitchk:
 	@git diff -r origin/$(GITBRANCH) > git.diff
-	@if test -s git.diff; then echo "WARN: Local changes won't be used on mgmtcluster. Commit and push them"; cat git.diff; fi
+	@if test -s git.diff; then echo "WARN: Local changes won't be u$(SED) on mgmtcluster. Commit and push them"; cat git.diff; fi
 
 create: init
 	@touch .deploy.$(ENVIRONMENT)
@@ -79,7 +80,7 @@ clean: init
 	@rm -f .kubeconfig.$(ENVIRONMENT) $(TESTCLUSTER).yaml.$(ENVINRONMENT) clusterctl.$(TESTCLUSTER).yaml.$(ENVIRONMENT) .yaml.$(ENVIRONMENT) $(TESTCLUSTER)-config.yaml.$(ENVIRONMENT)
 
 fullclean:
-	prefix=$$(grep '^prefix *=' environments/environment-${ENVIRONMENT}.tfvars | sed -e 's/^[^=]*= *//' -e 's/"//g'); \
+	prefix=$$(grep '^prefix *=' environments/environment-${ENVIRONMENT}.tfvars | $(SED) -e 's/^[^=]*= *//' -e 's/"//g'); \
 	./cleanup/cleanup.sh --verbose --full $(TESTCLUSTER) $${prefix}
 	@if test -e ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); then source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); ssh-keygen -R $$MGMTCLUSTER_ADDRESS -f ~/.ssh/known_hosts; rm -f .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); fi
 	$(MAKE) clean
@@ -115,8 +116,8 @@ get-kubeconfig: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVI
 	scp -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS:$(TESTCLUSTER)/$(TESTCLUSTER).yaml $(TESTCLUSTER).yaml.$(ENVIRONMENT); \
 	scp -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS:$(TESTCLUSTER)/clusterctl.yaml clusterctl.$(TESTCLUSTER).yaml.$(ENVIRONMENT); \
 	scp -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS:$(TESTCLUSTER)/$(TESTCLUSTER)-config.yaml $(TESTCLUSTER)-config.yaml.$(ENVIRONMENT); \
-	sed -i "s/127\.0\.0\.1/$$MGMTCLUSTER_ADDRESS/" clusterctl.$(TESTCLUSTER).yaml.$(ENVIRONMENT); \
-	sed -i "s/127\.0\.0\.1/$$MGMTCLUSTER_ADDRESS/" .kubeconfig.$(ENVIRONMENT)
+	$(SED) -i "s/127\.0\.0\.1/$$MGMTCLUSTER_ADDRESS/" clusterctl.$(TESTCLUSTER).yaml.$(ENVIRONMENT); \
+	$(SED) -i "s/127\.0\.0\.1/$$MGMTCLUSTER_ADDRESS/" .kubeconfig.$(ENVIRONMENT)
 
 deploy: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
@@ -175,7 +176,7 @@ watch: .deploy.id_rsa.$(ENVIRONMENT) .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT)
 		if test -n "$$LEN" -a "$$LEN" != "$$DISP"; then \
 		  OUT=$$(ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS sudo tail -n $$((LEN-DISP)) /var/log/cloud-init-output.log 2>/dev/null); \
 		  echo -e "$$OUT" | \
-		    sed -e "s/^\(TASK.*\)$$/$$BOLD\1$$NORM/" \
+		    $(SED) -e "s/^\(TASK.*\)$$/$$BOLD\1$$NORM/" \
 		        -e "s/^\(PLAY.*\)$$/$$GREEN\1$$NORM/" \
 			-e "s/^\(The system is finally up.*\)$$/$$GREENBOLD\1$$NORM/" \
 			-e "s/\(FAILED\)/$$RED\1$$NORM/g" \

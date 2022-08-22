@@ -13,6 +13,11 @@ echo "# install clusterctl $CLUSTERAPI_VERSION"
 sudo curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/v$CLUSTERAPI_VERSION/clusterctl-linux-$ARCH -o /usr/local/bin/clusterctl
 sudo chmod +x /usr/local/bin/clusterctl
 
+# Source .bash_aliases in case we are called from non-interactive bash (Makefile)
+# This does not seem to be strictly needed for deploy_cluster_api.sh right now.
+# We have moved it until after installation of clusterctl to avoid a cosmetic error.
+source ~/.bash_aliases
+
 # get the clusterctl version
 echo "show the clusterctl version:"
 clusterctl version --output yaml
