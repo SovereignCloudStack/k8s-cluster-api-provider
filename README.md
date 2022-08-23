@@ -416,7 +416,7 @@ environment | clusterctl.yaml | provenance | default |  meaning
 ---|---|---|---|---
 `node_cidr` | `NODE_CIDR` | SCS | `10.8.0.0/20` | IPv4 address range (CIDR notation) for workload nodes
 `use_cilium` | `USE_CILIUM` | SCS | `false` | Use cilium as CNI instead of calico
-`calico_version` | | SCS | `v3.22.1` | Version of the Calico CNI provider (ignored if `use_cilium` is set)
+`calico_version` | | SCS | `v3.24.0` | Version of the Calico CNI provider (ignored if `use_cilium` is set)
 `kubernetes_version` | `KUBERNETES_VERSION` | capo | `v1.22.x` | Kubernetes version deployed into workload cluster (`.x` means latest patch release)
 ` ` | `OPENSTACK_IMAGE_NAME` | capo | `ubuntu-capi-image-${KUBERNETES_VERION}` | Image name for k8s controller and worker nodes
 `kube_image_raw` | `OPENSTACK_IMAGE_RAW` | SCS | `true` | Register images in raw format (instead of qcow2), good for ceph COW
