@@ -60,7 +60,7 @@ mycloud: environments/environment-$(ENVIRONMENT).tfvars
 
 gitchk:
 	@git diff -r origin/$(GITBRANCH) > git.diff
-	@if test -s git.diff; then echo "WARN: Local changes won't be u$(SED) on mgmtcluster. Commit and push them"; cat git.diff; fi
+	@if test -s git.diff; then echo "WARN: Local changes won't be used on mgmtcluster. Commit and push them"; cat git.diff; fi
 
 create: init
 	@touch .deploy.$(ENVIRONMENT)
