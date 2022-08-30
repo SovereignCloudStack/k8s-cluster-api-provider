@@ -7,7 +7,7 @@
 # (c) Kurt Garloff <garloff@osb-alliance.com>, 8/2021
 # SPDX-License-Identifier: CC-BY-SA-4.0
 #
-# Usage: cleanup.sh [--full] [CLUSTERNAME]
+# Usage: cleanup.sh [--full] [CLUSTERNAME] [PREFIX]
 
 if test -z "$OPENSTACK"; then OPENSTACK="openstack"; fi
 
