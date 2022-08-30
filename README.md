@@ -469,6 +469,7 @@ environment | clusterctl.yaml | provenance | default |  meaning
 `deploy_cindercsi` | `DEPLOY_CINDERCSI` | SCS | `true` | Deploy the given (or latest matching for the default true value) of cinder CSI.
 `etcd_prio_boost` | `ETCD_PRIO_BOOST` | SCS | `false` | Longer heartbeat and high CPU share for etcd in case you don't have dedicated cores
 `etcd_unsafe_fs` | `ETCD_UNSAFE_FS` | SCS | `false` | Use `barrier=0` for filesystem on control nodes to avoid storage latency. Unsafe.
+`testcluster_name` | (cmd line)     | SCS | `testcluster` | Allows setting the default cluster name, created at bootstrap (if `controller_count` is larger than 0)
 
 Optional services deployed to cluster:
 
