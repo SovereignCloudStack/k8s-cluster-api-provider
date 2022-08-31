@@ -9,6 +9,9 @@ export PATH=$PATH:~/bin
 # Need yaml parsing capabilities
 sudo snap install yq
 
+# Source global settings
+test -r ~/.capi-settings && source ~/.capi-settings
+
 # Prepare OpenStack
 prepare_openstack.sh
 # Start image registration early, so it can proceed in the background
@@ -61,7 +64,7 @@ get_capi_helm.sh
 #git clone https://github.com/Pharb/kubernetes-iperf3.git
 
 CONTROLLERS=`yq eval '.CONTROL_PLANE_MACHINE_COUNT' ~/cluster-defaults/clusterctl.yaml`
-export TESTCLUSTER=${1:-testcluster}
+export TESTCLUSTER=${1:-$TESTCLUSTER}
 if test "$CONTROLLERS" != "0"; then
     create_cluster.sh $TESTCLUSTER
 fi

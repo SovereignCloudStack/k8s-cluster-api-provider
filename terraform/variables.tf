@@ -180,3 +180,9 @@ variable "git_branch" {
   type        = string
   default     = "master"
 }
+
+variable "testcluster_name" {
+  description = "name of the testcluster optionally created during bootstrap"
+  type        = string
+  default     = "testcluster"
+}

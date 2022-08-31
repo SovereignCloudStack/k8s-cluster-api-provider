@@ -30,3 +30,4 @@ deploy_occm          = "<version>"      # defaults to "true" (meaning matching k
 deploy_cindercsi     = "<version>"      # defaults to "true", dito
 etcd_prio_boost      = "<boolean>"      # defaults to "false", can be safely enabled
 etcd_unsafe_fs       = "<boolean>"      # defaults to "false", dangerous
+testcluster_name     = "NAME"           # defaults to "testcluster"

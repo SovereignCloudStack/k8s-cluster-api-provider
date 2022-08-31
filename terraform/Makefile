@@ -10,7 +10,7 @@ SED ?= sed
 OPENSTACK ?= openstack
 USERNAME ?= ubuntu
 CONSOLE = capi-mgmtcluster
-TESTCLUSTER ?= testcluster
+#TESTCLUSTER ?= testcluster
 
 # check for openstack credentials
 NEED_OSCLOUD := $(shell test -z "$$OS_PASSWORD" -a -z "$$OS_CLOUD" && echo 1 || echo 0)
@@ -36,6 +36,9 @@ else
 endif
 
 CLOUD=$(shell ( grep '^cloud_provider' environments/environment-$(ENVIRONMENT).tfvars || echo $(ENVIRONMENT) ) | $(SED) 's@^cloud_provider[^=]*= *"*\([^"]*\).*$$@\1@' )
+ifeq ($(TESTCLUSTER),)
+TESTCLUSTER=$(shell ( grep '^testcluster_name' environments/environment-$(ENVIRONMENT).tfvars || echo testcluster ) | $(SED) 's@^testcluster_name[^=]*= *"*\([^"]*\).*$$@\1@' )
+endif
 
 GITBRANCH=$(shell git branch | grep '^*' | $(SED) 's/^* //')
 
