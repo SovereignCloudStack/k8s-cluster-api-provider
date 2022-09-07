@@ -156,7 +156,7 @@ EOF
   # FIXME: We should get the branch (and warnings for unpushed changes from the Makefile)
   provisioner "remote-exec" {
     inline = [
-      "/tmp/get_k8s_git.sh ${var.git_branch}",
+      "/tmp/get_k8s_git.sh ${var.git_repo} ${var.git_branch}",
       "/home/${var.ssh_username}/bin/bootstrap.sh"
     ]
   }
