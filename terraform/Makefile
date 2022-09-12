@@ -41,6 +41,7 @@ TESTCLUSTER=$(shell ( grep '^testcluster_name' environments/environment-$(ENVIRO
 endif
 
 GITBRANCH=$(shell git branch | grep '^*' | $(SED) 's/^* //')
+GITREPO=$(shell git config --get remote.origin.url)
 
 init:	mycloud
 	@if [ ! -d .terraform/plugins ]; then terraform init; fi
@@ -67,7 +68,7 @@ gitchk:
 
 create: init
 	@touch .deploy.$(ENVIRONMENT)
-	terraform apply -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" -var "git_branch=$(GITBRANCH)"
+	terraform apply -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" -var "git_branch=$(GITBRANCH)" -var "git_repo=$(GITREPO)"
 
 show: init
 	@terraform show
