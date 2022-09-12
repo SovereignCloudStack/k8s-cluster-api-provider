@@ -181,6 +181,12 @@ variable "git_branch" {
   default     = "master"
 }
 
+variable "git_repo" {
+  description = "github repository url that should be used for the deployment"
+  type        = string
+  default     = "https://github.com/SovereignCloudStack/k8s-cluster-api-provider"
+}
+
 variable "testcluster_name" {
   description = "name of the testcluster optionally created during bootstrap"
   type        = string
