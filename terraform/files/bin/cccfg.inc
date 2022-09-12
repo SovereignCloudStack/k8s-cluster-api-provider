@@ -1,5 +1,6 @@
 # File to be included
-if test -n "$1"; then CLUSTER_NAME="${1%/}"; else CLUSTER_NAME=testcluster; fi
+. ~/.capi-settings
+if test -n "$1"; then CLUSTER_NAME="${1%/}"; else CLUSTER_NAME="$TESTCLUSTER"; fi
 export CLUSTER_NAME
 KUBECONFIG_WORKLOADCLUSTER="${HOME}/${CLUSTER_NAME}/${CLUSTER_NAME}.yaml"
 if test -e "$HOME/${CLUSTER_NAME}/clusterctl.yaml"; then

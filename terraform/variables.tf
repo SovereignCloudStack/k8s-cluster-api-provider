@@ -58,7 +58,7 @@ variable "calico_version" {
 variable "clusterapi_version" {
   description = "desired version of cluster-api"
   type        = string
-  default     = "1.0.5"
+  default     = "1.1.5"
 }
 
 variable "capi_openstack_version" {
@@ -70,7 +70,7 @@ variable "capi_openstack_version" {
 variable "kubernetes_version" {
   description = "desired kubernetes version for the workload cluster"
   type        = string
-  default     = "v1.22.x"
+  default     = "v1.23.x"
 }
 
 variable "kube_image_raw" {
@@ -179,4 +179,10 @@ variable "git_branch" {
   description = "k8s-cluster-api-provider git branch to be checked out on mgmtserver"
   type        = string
   default     = "master"
+}
+
+variable "testcluster_name" {
+  description = "name of the testcluster optionally created during bootstrap"
+  type        = string
+  default     = "testcluster"
 }
