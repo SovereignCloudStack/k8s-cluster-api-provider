@@ -430,7 +430,7 @@ environment | clusterctl.yaml | provenance | default |  meaning
 `kind_flavor` | | SCS | `SCS-1V:4:20` | Flavor to be used for the k8s capi mgmt node
 `image` | | SCS | `Ubuntu 20.04` | Image to be deployed for the capi mgmt node
 `ssh_username` | | SCS | `ubuntu` | Name of the default user for the `image`
-`clusterapi_version` | | SCS | `1.2.1` | Version of the cluster-API incl. `clusterctl`
+`clusterapi_version` | | SCS | `1.2.2` | Version of the cluster-API incl. `clusterctl`
 `capi_openstack_version` | | SCS | `0.6.3` | Version of the cluster-api-provider-openstack (needs to fit the capi version)
 
 Parameters controlling both management node creation and cluster creation:
@@ -484,11 +484,9 @@ environment | clusterctl.yaml | provenance | default | script |  meaning
 
 ## TODO (Highlights)
 
-* Move towards per cluster app creds ([#109](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/109))
 * Opt-in for per cluster project (extends [#109](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/109))
 * Allow service deletion from `create_cluster.sh` ([#137](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/137), see also [#131](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/131))
 * More pre-flight checks in `create_clster.sh` ([#111](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/111)).
-* Allow using newer OCCM and cinder CSI providers with fixed and tested versions. ([#138](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/138))
 * Implement (optional) harbor deployment using k8s-harbor. ([#139](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/139))
 * Move towards gitops style cluster management. (Design Doc in [Docs repo PR #47](https://github.com/SovereignCloudStack/Docs/pull/47) - draft)
 
