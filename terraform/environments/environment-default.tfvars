@@ -13,7 +13,7 @@ image                = "<glance_image>"		  # defaults to "Ubuntu 20.04"
 # Settings for testcluster
 kubernetes_version   = "<v1.XX.XX>"		  # defaults to "v1.23.x"
 kube_image_raw       = "<boolean>"      # defaults to "true"
-calico_version       = "<v3.xx.y>"	# defaults to "v3.22.1"
+calico_version       = "<v3.xx.y>"	# defaults to "v3.24.1"
 controller_flavor    = "<flavor>"       # defaults to SCS-2D:4:20s (use etcd tweaks if you only have SCS-2V:4:20 in multi-controller setups)
 worker_flavor        = "<flavor>"       # defaults to SCS-2V:4:20  (larger helps)
 controller_count     = <number>         # defaults to 1 (0 skips testcluster creation)
