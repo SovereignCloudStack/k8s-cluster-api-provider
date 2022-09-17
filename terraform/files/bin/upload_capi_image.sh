@@ -25,6 +25,11 @@ if test -z "$CAPIIMG"; then
   DISKSZ=$(echo "$IMGINFO" | grep '^virtual size' | sed 's/^[^(]*(\([0-9]*\) bytes).*$/\1/')
   DISKSZ=$(((DISKSZ+1073741823)/1073741824))
   IMGDATE=$(date -r $UBU_IMG.qcow2 +%F)
+  if test ${IMGDATE:5:99} == "02-29"; then
+    UNTIL=$((${IMGDATE:0:4}+1))-03-01
+  else
+    UNTIL=$((${IMGDATE:0:4}+1))-${IMGDATE:5:99}
+  fi
   if test "$IMG_RAW" = "true"; then
     FMT=raw
     qemu-img convert $UBU_IMG.qcow2 -O raw -S 4k $UBU_IMG.raw && rm $UBU_IMG.qcow2 || exit 1
@@ -32,7 +37,7 @@ if test -z "$CAPIIMG"; then
   #TODO min-disk, min-ram, other std. image metadata
   mkdir -p ~/tmp
   echo "Creating image $UBU_IMG_NM from $UBU_IMG.$FMT"
-  nohup openstack image create --disk-format $FMT --min-ram 1024 --min-disk $DISKSZ --property image_build_date="$IMGDATE" --property image_original_user=ubuntu --property architecture=x86_64 --property hypervisor_type=kvm --property os_distro=ubuntu --property os_version="20.04" --property hw_disk_bus=scsi --property hw_scsi_model=virtio-scsi --property hw_rng_model=virtio --property image_source=$IMAGESRC --property kubernetes_version=$KUBERNETES_VERSION --tag managed_by_osism $IMGREG_EXTRA --file $UBU_IMG.$FMT $UBU_IMG_NM  > ~/tmp/img-create-$UBU_IMG_NM.out &
+  nohup openstack image create --disk-format $FMT --min-ram 1024 --min-disk $DISKSZ --property image_build_date="$IMGDATE" --property image_original_user=ubuntu --property architecture=x86_64 --property hypervisor_type=kvm --property os_distro=ubuntu --property os_version="20.04" --property hw_disk_bus=scsi --property hw_scsi_model=virtio-scsi --property hw_rng_model=virtio --property image_source=$IMAGESRC --property image_description="https://github.com/osism/k8s-capi-images" --property kubernetes_version=$KUBERNETES_VERSION --property replace_frequency=never --property provided_until=$UNTIL --property uuid_validity=$UNTIL --tag managed_by_osism $IMGREG_EXTRA --file $UBU_IMG.$FMT $UBU_IMG_NM  > ~/tmp/img-create-$UBU_IMG_NM.out &
   CPID=$!
   sleep 5
   echo "Waiting for image $UBU_IMG_NM: "
