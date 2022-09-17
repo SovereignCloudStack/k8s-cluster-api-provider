@@ -166,13 +166,13 @@ variable "use_cilium" {
 variable "etcd_prio_boost" {
   description = "boost etcd priority and lengthen heartbeat"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "etcd_unsafe_fs" {
   description = "mount controller root fs with nobarrier"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "git_branch" {
