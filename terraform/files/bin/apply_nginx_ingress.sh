@@ -5,7 +5,7 @@ export KUBECONFIG=~/.kube/config
 KUBERNETES_VERSION=$(yq eval '.KUBERNETES_VERSION' $CCCFG)
 DEPLOY_NGINX_INGRESS=$(yq eval '.DEPLOY_NGINX_INGRESS' $CCCFG)
 if test "$DEPLOY_NGINX_INGRESS" = "true"; then
-	if test "${KUBERNETES_VERSION:0:4}" = "v1.1"; then NGINX_VERSION="v1.0.2"; else NGINX_VERSION="v1.1.2"; fi
+	if test "${KUBERNETES_VERSION:0:4}" = "v1.1"; then NGINX_VERSION="v1.0.2"; else NGINX_VERSION="v1.3.0"; fi
 elif test "$DEPLOY_NGINX_INGRESS" = "false"; then
 	echo "nginx ingress disabled" 1>&2; exit 1
 else
