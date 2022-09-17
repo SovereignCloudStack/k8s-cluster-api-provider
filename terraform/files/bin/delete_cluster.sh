@@ -79,7 +79,11 @@ if grep '^OLD_OPENSTACK_CLOUD:' $CCCFG >/dev/null 2>&1; then
   sed -i '/^OPENSTACK_CLOUD:/d' $CCCFG; sed -i 's/^OLD_OPENSTACK_CLOUD:/OPENSTACK_CLOUD:/' $CCCFG
   # Delete app cred
   OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)
-  openstack application credential delete "$PREFIX-$CLUSTER_NAME-appcred" || RC=1
+  if test $RC = 0; then
+    openstack application credential delete "$PREFIX-$CLUSTER_NAME-appcred" || RC=1
+  else
+    echo "Please delete application credential $PREFIX-$CLUSTER_NAME-appcred once capo has cleaned everything up."
+  fi
 fi
 # TODO: Clean up ~/$CLUSTER_NAME
 exit $RC
