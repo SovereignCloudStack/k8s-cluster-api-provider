@@ -69,9 +69,15 @@ spec:
         kubeletExtraArgs:
           cloud-provider: external
     postKubeadmCommands:
-      - echo "No hardcoded calico" #curl https://docs.projectcalico.org/manifests/calico.yaml | sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" | kubectl apply --kubeconfig /etc/kubernetes/admin.conf -f -
-      - if test "${ETCD_PRIO_BOOST}" = "true"; then grep 'hearbeat\-interval' /etc/kubernetes/manifests/etcd.yaml >/dev/null || sed -i '/\-\-trusted\-ca\-file/a\    - --heartbeat-interval=250\n    - --election-timeout=2500' /etc/kubernetes/manifests/etcd.yaml; sed -i 's@\(cpu.\) 100m@\1 300m@' /etc/kubernetes/manifests/etcd.yaml; fi
+      - grep 'hearbeat\-interval' /etc/kubernetes/manifests/etcd.yaml >/dev/null || sed -i '/\-\-trusted\-ca\-file/a\    - --heartbeat-interval=250\n    - --election-timeout=2500\n    - --auto-compaction-mode=periodic\n    - --auto-compaction-retention=8h' /etc/kubernetes/manifests/etcd.yaml
+      - sed -i 's/snapshot\-count=10000/snapshot-count=6000/' /etc/kubernetes/manifests/etcd.yaml
       - if test "${ETCD_UNSAFE_FS}" = "true"; then mount -o remount,barrier=0,commit=20 /; sed -i 's@errors=remount-ro@errors=remount-ro,barrier=0,commit=20@' /etc/fstab; fi
+      - sync; systemctl restart kubelet
+      - echo '/Td6WFoAAATm1rRGAgAhARYAAAB0L+Wj4Cf/AghdADKdCInIXzi76UCrv6lGxPkCEQbF9d6MjZT2W7J7WkHNVaJnq3VKRVCj0pxRs1eW7uDAfL+Kr4WiVvlGmdB4kk0dxTvBz7vMlf3BZ/Zu2ZFN0YXBWLPgFYOU/fU+oU840jwFa4xJGEqEp8VT4L60R1/r91nJ6Nepy5WpTcRBW4UoS+/E/QTXaXY72HOh1Yun1Ra9n9l6cf2/0O+Qy9tnBPVxRrfsYG50NslelAMjJEYnaXrEwrIuZjQJ7Hi6WbI3gA8pOfhTuIMGGoFxIKw6RY3+t6NJMlKWqCwQ+arLsleJKaVDqM6Ay8Uj9F9n2tEYhDQVP6COfTQ4ZQ80CGM8hw2siyJfT3AHI/5ZsQxLWn0xcoTrun4Hd1uVtLPhlQ9FRoCQDB4gHvziX4hhH15gsuZR/Y3X06z85j+Sx+VoNl2TJEKBUZlxGHyZZw1JO7t1Aiuk2xzNGlCY69VWY1996VzecKALg/tY9oR5tl/V2WjbkYUjzWaFGIYsabgnSePh5/eHOfQ6qvsyUQRTOClogPKICwB1dDXeGDEpoE0luX3B2buqp8PE82TGyPFwGTEDTnRN6BAmnm1IXv2GAYe2mroKIU6MwAizFGl6z2hcZPWdxLlqMdlsHLPn+sk36QaV0vCU7IGVf2scAiAz6cIunRqT6BMqW+K6BMYVajxzYgWiBcwHTPJofgAA/4LYCWy6X+QAAaQEgFAAAG65vTWxxGf7AgAAAAAEWVo=' | base64 -d | tar -C /etc/systemd/system -xvJ
+      - systemctl daemon-reload
+      - systemctl enable etcd-defrag.service
+      - systemctl enable etcd-defrag.timer
+      - while test -z "$EPID"; do sleep 5; EPID=`pgrep etcd`; done; renice -n-10 $EPID; ionice -c2 -n0 -p $EPID
     preKubeadmCommands:
       - DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https curl
       - curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
