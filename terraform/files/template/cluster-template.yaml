@@ -72,6 +72,7 @@ spec:
       - echo "No hardcoded calico" #curl https://docs.projectcalico.org/manifests/calico.yaml | sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" | kubectl apply --kubeconfig /etc/kubernetes/admin.conf -f -
       - if test "${ETCD_PRIO_BOOST}" = "true"; then grep 'hearbeat\-interval' /etc/kubernetes/manifests/etcd.yaml >/dev/null || sed -i '/\-\-trusted\-ca\-file/a\    - --heartbeat-interval=250\n    - --election-timeout=2500' /etc/kubernetes/manifests/etcd.yaml; sed -i 's@\(cpu.\) 100m@\1 300m@' /etc/kubernetes/manifests/etcd.yaml; fi
       - if test "${ETCD_UNSAFE_FS}" = "true"; then mount -o remount,barrier=0,commit=20 /; sed -i 's@errors=remount-ro@errors=remount-ro,barrier=0,commit=20@' /etc/fstab; fi
+      - sync; systemctl restart kubelet
     preKubeadmCommands:
       - DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https curl
       - curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
