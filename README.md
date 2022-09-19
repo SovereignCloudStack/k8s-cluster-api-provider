@@ -147,7 +147,7 @@ the same kubernetes version number.
 ## Create new cluster
 
 ``make ssh``
-`` bin/create_cluster <customize-name>``
+``create_cluster.sh <CLUSTER_NAME>``
 
 ## Troubleshooting
 
@@ -349,6 +349,10 @@ All of them pass the sonobuoy CNCF conformance tests.
 
 The default setting `true` chooses appropriate openstack and
 cinder integration code.
+
+## Upgrading from earlier versions
+
+There is an upgrade guide in docs/Upgrade-Guide.md
 
 ## etcd leader changes
 
