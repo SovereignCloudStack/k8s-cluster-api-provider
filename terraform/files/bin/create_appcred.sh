@@ -5,7 +5,7 @@
 # Call clusterctl_template.sh to update clusterctl.yaml
 # 
 # (c) Kurt Garloff <garloff@osb-alliance.com>, 7/2022
-# SPDX-License-Identifier: CC-BY-SA-4.0
+# SPDX-License-Identifier: Apache-2.0
 # 
 #Determine whether we need a new application credential
 export KUBECONFIG=$HOME/.kube/config

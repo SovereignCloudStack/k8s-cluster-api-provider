@@ -2,7 +2,7 @@
 # fixup_k8s_version.sh
 # Patch $1 (clusterctl.yaml) with fixed up k8s version if needed
 # (c) Kurt Garloff, 03/2022
-# SPDX-License-Identifier: CC-BY-SA-4.0
+# SPDX-License-Identifier: Apache-2.0
 
 if test -z "$1"; then echo "ERROR: Need clusterctl.yaml arg" 1>&2; exit 1; fi
 KUBERNETES_VERSION=$(yq eval '.KUBERNETES_VERSION' $1)

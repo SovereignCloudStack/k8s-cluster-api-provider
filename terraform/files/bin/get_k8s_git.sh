@@ -2,7 +2,7 @@
 # Install k8s-cluster-api-provider repo
 # Optional args: branch and patch
 # (c) Kurt Garloff <garloff@osb-alliance.com>, 3/2022
-# SPDX-License-Identifier: CC-BY-SA-4.9
+# SPDX-License-Identifier: Apache-2.0
 cd
 getent hosts github.com || sleep 30
 cd k8s-cluster-api-provider
