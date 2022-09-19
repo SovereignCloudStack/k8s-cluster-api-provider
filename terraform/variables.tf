@@ -164,9 +164,9 @@ variable "use_cilium" {
 }
 
 variable "etcd_prio_boost" {
-  description = "boost etcd priority and lengthen heartbeat"
+  description = "boost etcd priority and lengthen heartbeat (ignored, always on)"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "etcd_unsafe_fs" {

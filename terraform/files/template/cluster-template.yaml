@@ -84,7 +84,7 @@ spec:
         content: |
           [Unit]
           Description=Run etcdctl defrag
-          Documentation=https://etcd.io/docs/v3.3.12/op-guide/maintenance/#defragmentation
+          Documentation=https://etcd.io/docs/v3.5/op-guide/maintenance/#defragmentation
           After=network.target
 
           [Service]
