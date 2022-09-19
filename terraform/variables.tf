@@ -58,7 +58,7 @@ variable "calico_version" {
 variable "clusterapi_version" {
   description = "desired version of cluster-api"
   type        = string
-  default     = "1.2.1"
+  default     = "1.2.2"
 }
 
 variable "capi_openstack_version" {
