@@ -106,7 +106,7 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/capi-settings.tmpl", { clusterapi_version = var.clusterapi_version, capi_openstack_version = var.capi_openstack_version, calico_version = var.calico_version, prefix = var.prefix })
+    content     = templatefile("files/template/capi-settings.tmpl", { clusterapi_version = var.clusterapi_version, capi_openstack_version = var.capi_openstack_version, calico_version = var.calico_version, prefix = var.prefix, testcluster_name = var.testcluster_name })
     destination = "/home/${var.ssh_username}/.capi-settings"
   }
 
@@ -156,7 +156,7 @@ EOF
   # FIXME: We should get the branch (and warnings for unpushed changes from the Makefile)
   provisioner "remote-exec" {
     inline = [
-      "/tmp/get_k8s_git.sh ${var.git_branch}",
+      "/tmp/get_k8s_git.sh ${var.git_repo} ${var.git_branch}",
       "/home/${var.ssh_username}/bin/bootstrap.sh"
     ]
   }

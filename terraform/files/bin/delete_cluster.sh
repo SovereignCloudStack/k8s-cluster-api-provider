@@ -30,8 +30,8 @@ done
 # Delete server groups (if any)
 if grep '^ *OPENSTACK_ANTI_AFFINITY: true' $CCCFG >/dev/null 2>&1; then
 	SRVGRP=$(openstack server group list -f value)
-	SRVGRP_CONTROLLER=$(echo "$SRVGRP" | grep "k8s-capi-${CLUSTER_NAME}-controller" | sed 's/^\([0-9a-f\-]*\) .*$/\1/')
-	SRVGRP_WORKER=$(echo "$SRVGRP" | grep "k8s-capi-${CLUSTER_NAME}-worker" | sed 's/^\([0-9a-f\-]*\) .*$/\1/')
+	SRVGRP_CONTROLLER=$(echo "$SRVGRP" | grep "${PREFIX}-${CLUSTER_NAME}-controller" | sed 's/^\([0-9a-f\-]*\) .*$/\1/')
+	SRVGRP_WORKER=$(echo "$SRVGRP" | grep "${PREFIX}-${CLUSTER_NAME}-worker" | sed 's/^\([0-9a-f\-]*\) .*$/\1/')
 	if test -n "$SRVGRP_WORKER" -o -n "$SRVGRP_CONTROLLER"; then
 		openstack server group delete $SRVGRP_WORKER $SRVGRP_CONTROLLER
 	fi
@@ -60,7 +60,7 @@ if test $RC != 0; then
 		openstack port delete $id
 	done < <(echo "$PORTS")
 fi
-openstack security group delete k8s-cluster-${CLUSTER_NAME}-cilium >/dev/null 2>&1 || true
+openstack security group delete ${PREFIX}-${CLUSTER_NAME}-cilium >/dev/null 2>&1 || true
 if test $RC != 0; then
 	timeout 150 kubectl delete cluster "$CLUSTER_NAME"
 	# Non existent cluster means success
@@ -79,7 +79,11 @@ if grep '^OLD_OPENSTACK_CLOUD:' $CCCFG >/dev/null 2>&1; then
   sed -i '/^OPENSTACK_CLOUD:/d' $CCCFG; sed -i 's/^OLD_OPENSTACK_CLOUD:/OPENSTACK_CLOUD:/' $CCCFG
   # Delete app cred
   OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)
-  openstack application credential delete "$PREFIX-$CLUSTER_NAME-appcred" || RC=1
+  if test $RC = 0; then
+    openstack application credential delete "$PREFIX-$CLUSTER_NAME-appcred" || RC=1
+  else
+    echo "Please delete application credential $PREFIX-$CLUSTER_NAME-appcred once capo has cleaned everything up."
+  fi
 fi
 # TODO: Clean up ~/$CLUSTER_NAME
 exit $RC

@@ -430,8 +430,8 @@ environment | clusterctl.yaml | provenance | default |  meaning
 `kind_flavor` | | SCS | `SCS-1V:4:20` | Flavor to be used for the k8s capi mgmt node
 `image` | | SCS | `Ubuntu 20.04` | Image to be deployed for the capi mgmt node
 `ssh_username` | | SCS | `ubuntu` | Name of the default user for the `image`
-`clusterapi_version` | | SCS | `1.0.5` | Version of the cluster-API incl. `clusterctl`
-`capi_openstack_version` | | SCS | `0.6.2` | Version of the cluster-api-provider-openstack (needs to fit the capi version)
+`clusterapi_version` | | SCS | `1.2.1` | Version of the cluster-API incl. `clusterctl`
+`capi_openstack_version` | | SCS | `0.6.3` | Version of the cluster-api-provider-openstack (needs to fit the capi version)
 
 Parameters controlling both management node creation and cluster creation:
 
@@ -449,8 +449,8 @@ environment | clusterctl.yaml | provenance | default |  meaning
 ---|---|---|---|---
 `node_cidr` | `NODE_CIDR` | SCS | `10.8.0.0/20` | IPv4 address range (CIDR notation) for workload nodes
 `use_cilium` | `USE_CILIUM` | SCS | `false` | Use cilium as CNI instead of calico
-`calico_version` | | SCS | `v3.22.1` | Version of the Calico CNI provider (ignored if `use_cilium` is set)
-`kubernetes_version` | `KUBERNETES_VERSION` | capo | `v1.22.x` | Kubernetes version deployed into workload cluster (`.x` means latest patch release)
+`calico_version` | | SCS | `v3.24.1` | Version of the Calico CNI provider (ignored if `use_cilium` is set)
+`kubernetes_version` | `KUBERNETES_VERSION` | capo | `v1.23.x` | Kubernetes version deployed into workload cluster (`.x` means latest patch release)
 ` ` | `OPENSTACK_IMAGE_NAME` | capo | `ubuntu-capi-image-${KUBERNETES_VERION}` | Image name for k8s controller and worker nodes
 `kube_image_raw` | `OPENSTACK_IMAGE_RAW` | SCS | `true` | Register images in raw format (instead of qcow2), good for ceph COW
 `image_registration_extra_flags` | `OPENSTACK_IMAGE_REGISTATION_EXTRA_FLAGS` | SCS | `""` | Extra flags passed during image registration
@@ -469,6 +469,7 @@ environment | clusterctl.yaml | provenance | default |  meaning
 `deploy_cindercsi` | `DEPLOY_CINDERCSI` | SCS | `true` | Deploy the given (or latest matching for the default true value) of cinder CSI.
 `etcd_prio_boost` | `ETCD_PRIO_BOOST` | SCS | `false` | Longer heartbeat and high CPU share for etcd in case you don't have dedicated cores
 `etcd_unsafe_fs` | `ETCD_UNSAFE_FS` | SCS | `false` | Use `barrier=0` for filesystem on control nodes to avoid storage latency. Unsafe.
+`testcluster_name` | (cmd line)     | SCS | `testcluster` | Allows setting the default cluster name, created at bootstrap (if `controller_count` is larger than 0)
 
 Optional services deployed to cluster:
 

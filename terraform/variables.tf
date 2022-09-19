@@ -52,25 +52,25 @@ variable "ssh_username" {
 variable "calico_version" {
   description = "desired version of calico"
   type        = string
-  default     = "v3.22.1"
+  default     = "v3.24.1"
 }
 
 variable "clusterapi_version" {
   description = "desired version of cluster-api"
   type        = string
-  default     = "1.0.5"
+  default     = "1.2.1"
 }
 
 variable "capi_openstack_version" {
   description = "desired version of the OpenStack cluster-api provider"
   type        = string
-  default     = "0.6.2"
+  default     = "0.6.3"
 }
 
 variable "kubernetes_version" {
   description = "desired kubernetes version for the workload cluster"
   type        = string
-  default     = "v1.22.x"
+  default     = "v1.23.x"
 }
 
 variable "kube_image_raw" {
@@ -179,4 +179,16 @@ variable "git_branch" {
   description = "k8s-cluster-api-provider git branch to be checked out on mgmtserver"
   type        = string
   default     = "master"
+}
+
+variable "git_repo" {
+  description = "github repository url that should be used for the deployment"
+  type        = string
+  default     = "https://github.com/SovereignCloudStack/k8s-cluster-api-provider"
+}
+
+variable "testcluster_name" {
+  description = "name of the testcluster optionally created during bootstrap"
+  type        = string
+  default     = "testcluster"
 }

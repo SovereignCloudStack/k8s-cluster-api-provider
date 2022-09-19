@@ -7,7 +7,7 @@
 # (c) Kurt Garloff <garloff@osb-alliance.com>, 8/2021
 # SPDX-License-Identifier: CC-BY-SA-4.0
 #
-# Usage: cleanup.sh [--full] [CLUSTERNAME]
+# Usage: cleanup.sh [--full] [CLUSTERNAME] [PREFIX]
 
 if test -z "$OPENSTACK"; then OPENSTACK="openstack"; fi
 
@@ -95,8 +95,10 @@ cleanup()
 # main
 if test "$1" == "--verbose"; then VERBOSE=1; shift; fi
 if test "$1" == "--full"; then FULL=1; shift; fi
-if test -z "$1"; then CLUSTER="k8s-clusterapi"; else CLUSTER="$1"; shift; fi
+if test -z "$1"; then CLUSTER="testcluster"; else CLUSTER="$1"; shift; fi
 if test -z "$1"; then CAPIPRE="capi"; else CAPIPRE="$1"; shift; fi
+CAPIPRE2="k8s-clusterapi-cluster-default"
+CAPIPRE3="k8s-cluster-default"
 
 # For full cleanup, delete CAPI mgmt server first
 if test "$FULL" == "1"; then
@@ -134,29 +136,31 @@ if test -n "$NOCASCADE"; then
 else
 	cleanup_list loadbalancer 1 "--cascade" "$LBS"
 fi
-cleanup server $CLUSTER
-cleanup port $CLUSTER
-RTR=$(resourcelist router $CLUSTER)
-SUBNETS=$(resourcelist subnet $CLUSTER)
+cleanup server $CAPIPRE-$CLUSTER
+cleanup port $CAPIPRE-$CLUSTER
+RTR=$(resourcelist router $CAPIPRE2-$CLUSTER)
+SUBNETS=$(resourcelist subnet $CAPIPRE2-$CLUSTER)
 if test -n "$RTR" -a -n "$SUBNETS"; then
 	echo $OPENSTACK router remove subnet $RTR $SUBNETS 1>&2
 	$OPENSTACK router remove subnet $RTR $SUBNETS
 fi
 cleanup_list subnet "" "" "$SUBNETS"
-#cleanup subnet $CLUSTER
-cleanup network $CLUSTER
-#cleanup router $CLUSTER
+#cleanup subnet $CAPIPRE2-$CLUSTER
+cleanup network $CAPIPRE2-$CLUSTER
+#cleanup router $CAPIPRE2-$CLUSTER
 cleanup_list router "" "" "$RTR"
-cleanup "security group" $CLUSTER
+cleanup "security group" $CAPIPRE3-$CLUSTER
+cleanup "security group" $CAPIPRE-$CLUSTER-cilium
 #cleanup "image" ubuntu-capi-image
-cleanup volume $CLUSTER
-cleanup "server group" "k8s-capi-$CLUSTER"
+# The PVC volumes are NOT deleted here
+cleanup volume $CAPIPRE-$CLUSTER
+cleanup "server group" "$CAPIPRE-$CLUSTER"
 cleanup "application credential" "$CAPIPRE-$CLUSTER-appcred"
 
 # Continue with capi control plane
 if test "$FULL" == "1"; then
-	RTR=$(resourcelist router ${CAPIPRE}-)
-	SUBNETS=$(resourcelist subnet ${CAPIPRE}-)
+	RTR=$(resourcelist router ${CAPIPRE}-rtr)
+	SUBNETS=$(resourcelist subnet ${CAPIPRE}-subnet)
 	if test -n "$RTR" -a -n "$SUBNETS"; then
 		echo $OPENSTACK router remove subnet $RTR $SUBNETS 1>&2
 		$OPENSTACK router remove subnet $RTR $SUBNETS
@@ -164,14 +168,14 @@ if test "$FULL" == "1"; then
 	if test -n "$SUBNETS"; then
 		cleanup port "" "--fixed-ip subnet=$SUBNETS"
 	fi
-	#cleanup subnet ${CAPIPRE}-
+	#cleanup subnet ${CAPIPRE}-subnet
 	cleanup_list subnet "" "" "$SUBNETS"
-	cleanup network ${CAPIPRE}-
+	cleanup network ${CAPIPRE}-net
 	#cleanup router ${CAPIPRE}-
 	cleanup_list router "" "" "$RTR"
-	cleanup "security group" ${CAPIPRE}-
+	cleanup "security group" ${CAPIPRE}-mgmt
 	cleanup "security group" allow-
-	cleanup keypair ${CAPIPRE}-
+	cleanup keypair ${CAPIPRE}-keypair
 	cleanup "application credential" ${CAPIPRE}-appcred
 	#cleanup volume pvc-
 	echo "Volumes from Cinder CSI left:"

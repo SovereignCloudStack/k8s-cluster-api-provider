@@ -10,7 +10,7 @@ SED ?= sed
 OPENSTACK ?= openstack
 USERNAME ?= ubuntu
 CONSOLE = capi-mgmtcluster
-TESTCLUSTER ?= testcluster
+#TESTCLUSTER ?= testcluster
 
 # check for openstack credentials
 NEED_OSCLOUD := $(shell test -z "$$OS_PASSWORD" -a -z "$$OS_CLOUD" && echo 1 || echo 0)
@@ -36,8 +36,12 @@ else
 endif
 
 CLOUD=$(shell ( grep '^cloud_provider' environments/environment-$(ENVIRONMENT).tfvars || echo $(ENVIRONMENT) ) | $(SED) 's@^cloud_provider[^=]*= *"*\([^"]*\).*$$@\1@' )
+ifeq ($(TESTCLUSTER),)
+TESTCLUSTER=$(shell ( grep '^testcluster_name' environments/environment-$(ENVIRONMENT).tfvars || echo testcluster ) | $(SED) 's@^testcluster_name[^=]*= *"*\([^"]*\).*$$@\1@' )
+endif
 
 GITBRANCH=$(shell git branch | grep '^*' | $(SED) 's/^* //')
+GITREPO=$(shell git config --get remote.origin.url | sed 's%git@\([^:]*\):%https://\1/%')
 
 init:	mycloud
 	@if [ ! -d .terraform/plugins ]; then terraform init; fi
@@ -64,7 +68,7 @@ gitchk:
 
 create: init
 	@touch .deploy.$(ENVIRONMENT)
-	terraform apply -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" -var "git_branch=$(GITBRANCH)"
+	terraform apply -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" -var "git_branch=$(GITBRANCH)" -var "git_repo=$(GITREPO)"
 
 show: init
 	@terraform show
