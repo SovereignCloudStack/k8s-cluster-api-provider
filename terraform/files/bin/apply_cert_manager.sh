@@ -6,7 +6,7 @@ echo "Deploy cert-manager to $CLUSTER_NAME"
 # cert-manager
 DEPLOY_CERT_MANAGER=$(yq eval '.DEPLOY_CERT_MANAGER' $CCCFG)
 if test "$DEPLOY_CERT_MANAGER" = "true"; then
-	CERTMGR_VERSION="v1.7.1"
+	CERTMGR_VERSION="v1.9.1"
 elif test "$DEPLOY_CERT_MANAGER" = "false"; then
 	echo "cert-manager disabled" 1>&2; exit 1
 else
@@ -37,5 +37,5 @@ if ! test -x /usr/local/bin/cmctl-$CERTMGR_VERSION; then
 	tar xzf cmctl.tar.gz && rm cmctl.tar.gz
 	sudo mv cmctl /usr/local/bin/cmctl-${CERTMGR_VERSION}
 	sudo ln -sf cmctl-${CERTMGR_VERSION} /usr/local/bin/cmctl
-	mv LICENSES ~/doc/LICENSES.cert-manager-${CERTMGR_VERSION}
+	mv LICENS* ~/doc/LICENSE.cert-manager-${CERTMGR_VERSION}
 fi
