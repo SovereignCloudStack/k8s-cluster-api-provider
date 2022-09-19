@@ -25,7 +25,11 @@ if test -z "$CAPIIMG"; then
   DISKSZ=$(echo "$IMGINFO" | grep '^virtual size' | sed 's/^[^(]*(\([0-9]*\) bytes).*$/\1/')
   DISKSZ=$(((DISKSZ+1073741823)/1073741824))
   IMGDATE=$(date -r $UBU_IMG.qcow2 +%F)
-  UNTIL="$((${IMGDATE:0:4}+1))${IMGDATE:4:6}"
+  if test ${IMGDATE:5:99} == "02-29"; then
+    UNTIL=$((${IMGDATE:0:4}+1))-03-01
+  else
+    UNTIL=$((${IMGDATE:0:4}+1))-${IMGDATE:5:99}
+  fi
   if test "$IMG_RAW" = "true"; then
     FMT=raw
     qemu-img convert $UBU_IMG.qcow2 -O raw -S 4k $UBU_IMG.raw && rm $UBU_IMG.qcow2 || exit 1
