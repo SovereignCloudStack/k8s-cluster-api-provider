@@ -7,7 +7,7 @@ metadata:
 spec:
   clusterNetwork:
     pods:
-      cidrBlocks: ["192.168.0.0/16"] # CIDR block used by Calico.
+      cidrBlocks: ["192.168.0.0/16"]    # CIDR block used by Calico.
     serviceDomain: "cluster.local"
   infrastructureRef:
     #apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
@@ -63,15 +63,64 @@ spec:
       controllerManager:
         extraArgs:
           cloud-provider: external
+      etcd:
+        local:
+          dataDir: /var/lib/etcd
+          extraArgs:
+            heartbeat-interval: "250"
+            election-timeout: "2500"
+            snapshot-count: "6400"
+            auto-compaction-mode: periodic
+            auto-compaction-retention: 8h
     joinConfiguration:
       nodeRegistration:
         name: '{{ local_hostname }}'
         kubeletExtraArgs:
           cloud-provider: external
+    files:
+      - path: /etc/systemd/system/etcd-defrag.service
+        owner: "root:root"
+        permissions: "0644"
+        content: |
+          [Unit]
+          Description=Run etcdctl defrag
+          Documentation=https://etcd.io/docs/v3.5/op-guide/maintenance/#defragmentation
+          After=network.target
+
+          [Service]
+          Type=oneshot
+          Environment="LOG_DIR=/var/log"
+          Environment="ETCDCTL_API=3"
+          ExecStart=sync
+          ExecStart=sleep 2
+          ExecStart=etcdctl --cert /etc/kubernetes/pki/etcd/peer.crt --key /etc/kubernetes/pki/etcd/peer.key --cacert /etc/kubernetes/pki/etcd/ca.crt defrag
+          ExecStart=sleep 3
+          ExecStart=etcdctl --cert /etc/kubernetes/pki/etcd/peer.crt --key /etc/kubernetes/pki/etcd/peer.key --cacert /etc/kubernetes/pki/etcd/ca.crt snapshot save /root/etcd-backup
+          ExecStart=xz -f /root/etcd-backup
+          ExecStart=fstrim -v /var/lib/etcd
+
+          [Install]
+          WantedBy=multi-user.target
+      - path: /etc/systemd/system/etcd-defrag.timer
+        owner: "root:root"
+        permissions: "0644"
+        content: |
+          [Unit]
+          Description=Run etcd-defrag.service every day
+          After=network.target
+
+          [Timer]
+          OnCalendar=*-*-* 02:30:00
+          RandomizedDelaySec=15m
+
+          [Install]
+          WantedBy=multi-user.target
     postKubeadmCommands:
-      - echo "No hardcoded calico" #curl https://docs.projectcalico.org/manifests/calico.yaml | sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" | kubectl apply --kubeconfig /etc/kubernetes/admin.conf -f -
-      - if test "${ETCD_PRIO_BOOST}" = "true"; then grep 'hearbeat\-interval' /etc/kubernetes/manifests/etcd.yaml >/dev/null || sed -i '/\-\-trusted\-ca\-file/a\    - --heartbeat-interval=250\n    - --election-timeout=2500' /etc/kubernetes/manifests/etcd.yaml; sed -i 's@\(cpu.\) 100m@\1 300m@' /etc/kubernetes/manifests/etcd.yaml; fi
       - if test "${ETCD_UNSAFE_FS}" = "true"; then mount -o remount,barrier=0,commit=20 /; sed -i 's@errors=remount-ro@errors=remount-ro,barrier=0,commit=20@' /etc/fstab; fi
+      - sync; systemctl restart kubelet    # We should no longer need this
+      - while test -z "$EPID"; do sleep 5; EPID=`pgrep etcd`; done; renice -10 $EPID; ionice -c2 -n0 -p $EPID
+      - systemctl enable etcd-defrag.service
+      - systemctl enable etcd-defrag.timer
     preKubeadmCommands:
       - DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https curl
       - curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
@@ -81,6 +130,7 @@ spec:
       - RESOLVED_KUBERNETES_VERSION=$(apt-cache policy kubelet | sed 's/\*\*\*//' | awk -v VERSION=$${TRIMMED_KUBERNETES_VERSION} '$1~ VERSION { print $1 }' | head -n1)
       - apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips containerd etcd-client kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
       - systemctl daemon-reload
+      # TODO: Detect local SSD and mkfs/mount /var/lib/etcd
   version: "${KUBERNETES_VERSION}"
 ---
 #apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
