@@ -2,7 +2,7 @@
 # nginx_proxy_realip.sh
 # Set proxy-real-ip-cidr in ingress-nginx-controller configmap to LB VIP
 # (c) Kurt Garloff <garloff@osb-alliance.com>, 3/2022
-# SPDX-License-Identifier: CC-BY-SA-4.0
+# SPDX-License-Identifier: Apache-2.0
 
 . ~/bin/cccfg.inc
 

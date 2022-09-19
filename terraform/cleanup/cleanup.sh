@@ -5,7 +5,7 @@
 # Unlike ospurge, this only cleans up what comes from the provider
 #
 # (c) Kurt Garloff <garloff@osb-alliance.com>, 8/2021
-# SPDX-License-Identifier: CC-BY-SA-4.0
+# SPDX-License-Identifier: Apache-2.0
 #
 # Usage: cleanup.sh [--full] [CLUSTERNAME] [PREFIX]
 

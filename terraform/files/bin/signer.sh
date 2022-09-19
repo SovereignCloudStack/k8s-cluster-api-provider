@@ -1,7 +1,7 @@
 #!/bin/bash
 # k8s signer
 # (c) Kurt Garloff <garloff@osb-alliance.com>, 8/2022
-# SPDX-License-Identifier: CC-BY-SA-4.0
+# SPDX-License-Identifier: Apache-2.0
 #
 # Usage:
 # * Create a directory where you put the kubernetes ca.crt and .key.
