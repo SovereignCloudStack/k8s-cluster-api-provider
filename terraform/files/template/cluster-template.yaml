@@ -118,7 +118,7 @@ spec:
     postKubeadmCommands:
       - if test "${ETCD_UNSAFE_FS}" = "true"; then mount -o remount,barrier=0,commit=20 /; sed -i 's@errors=remount-ro@errors=remount-ro,barrier=0,commit=20@' /etc/fstab; fi
       - sync; systemctl restart kubelet
-      - while test -z "$EPID"; do sleep 5; EPID=`pgrep etcd`; done; renice -n-10 $EPID; ionice -c2 -n0 -p $EPID
+      - while test -z "$EPID"; do sleep 5; EPID=`pgrep etcd`; done; renice -10 $EPID; ionice -c2 -n0 -p $EPID
       - systemctl enable etcd-defrag.service
       - systemctl enable etcd-defrag.timer
     preKubeadmCommands:
