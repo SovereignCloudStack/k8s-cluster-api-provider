@@ -144,22 +144,25 @@ so it can be reused.
 You need to manually unregister it, if you want your next deployment to register a new image with
 the same kubernetes version number.
 
-## Create new cluster
+## Create a new cluster
 
 ``make ssh``
 `` bin/create_cluster <customize-name>``
 
+This will copy the defaults from ``~/cluster-defaults/`` into a directory with your
+cluster name and then ask cluster-api to create the cluster. The scripts also take
+care of security groups, anti-affinity, node image registration (if needed) and
+of deploying CCM, CNI, CSI as well as optional services such as metrics or nginx-ingress
+controller.
+
+You can access the new cluster with ``kubectl --context clustername-admin@cluster``
+or ``KUBECONFIG=~/clustername/clustername.yaml kubectl``.
+
+The management cluster is in context ``kind-kind``.
+
 ## Troubleshooting
 
-To find out in which condition the deployment status is, you can use the following way:
-
-``kubectl logs -n capo-system capo-manager-[TAB]``
-
-Some steps are:
-
-``Successfulcreateloadbalancer``
-
-``Reconciled Cluster create successful``
+Please see the Maintenance and Troubleshooting Guide in the `doc/` directory.
 
 ## Environments
 
