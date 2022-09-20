@@ -48,9 +48,10 @@ sudo mv calicoctl /usr/local/bin
 
 # Install cilium
 # TODO: Check signature
-CILIUM_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium/master/stable.txt)
+CILIUM_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/master/stable.txt)
 curl -L --remote-name-all https://github.com/cilium/cilium-cli/releases/download/$CILIUM_VERSION/cilium-linux-$ARCH.tar.gz{,.sha256sum}
 sha256sum --check cilium-linux-$ARCH.tar.gz.sha256sum || exit
+#https://github.com/cilium/cilium-cli/releases/download/v0.12.3/cilium-linux-amd64.tar.gz
 sudo tar xzvfC cilium-linux-$ARCH.tar.gz /usr/local/bin
 rm cilium-linux-$ARCH.tar.gz{,.sha256sum}
 HUBBLE_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/hubble/master/stable.txt)
