@@ -15,7 +15,7 @@ export LC_ALL=POSIX
 if ! test -x /usr/local/bin/sonobuoy; then
 	cd ~
 	OS=linux; ARCH=$(uname -m | sed 's/x86_64/amd64/')
-	SONOBUOY_VERSION=0.56.2
+	SONOBUOY_VERSION=0.56.10
 	SONOTARBALL=sonobuoy_${SONOBUOY_VERSION}_${OS}_${ARCH}.tar.gz
 	curl -LO https://github.com/vmware-tanzu/sonobuoy/releases/download/v${SONOBUOY_VERSION}/${SONOTARBALL} || exit 1
 	tar xvzf ${SONOTARBALL} || exit 2
@@ -52,7 +52,7 @@ END=$(date +%s)
 declare -i fail=0
 while read number; do
 	let fail+=$number
-done < <(echo "$REPORT" | grep 'Failed: ' | sed 's/Failed: //')
+done < <(echo "$REPORT" | grep '^Failed: [0-9]\+' | sed 's/Failed: \([0-9]\+\)/\1/')
 sonobuoy delete $ALL --wait
 if test $fail != 0; then
 	echo "FAIL: Investigate $resfile for further inspection" 1>&2
