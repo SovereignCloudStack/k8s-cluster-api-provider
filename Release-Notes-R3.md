@@ -105,7 +105,10 @@ and dislike the chosen name -- it is thus adjustable now.
 
 ### New upgrade guide (#)
 
-### New maintenance and troubleshooting guide (#)
+### New maintenance and troubleshooting guide (#292)
+
+Please check the doc directory.
+<https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/Maintenance_and_Troubleshooting.md>
 
 ## Changed defaults/settings
 
