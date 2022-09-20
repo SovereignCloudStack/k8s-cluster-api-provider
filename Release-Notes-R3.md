@@ -1,12 +1,12 @@
-# Release Notes for SCS k8s-capi-provider for R3
+# Release Notes of SCS k8s-capi-provider for R3
 
-k8s-cluster-api-provider was provided with R1 of Sovereign
+k8s-cluster-api-provider was provided with Release 1 (R1) of Sovereign
 Cloud Stack and has since seen major updates in R2 and was
 hardened for production use during the R3 development phase.
 
-The SCS cluster management solution was heavily used by the
-development and integration work in the Gaia-X Federation 
-Services [GXFS](https://gxfs.eu/) project; the resulting
+The SCS cluster management solution is heavily used by the
+development and integration work in the [Gaia-X Federation 
+Services (GXFS)](https://gxfs.eu/) project; the resulting
 Open Source Software nicely combines with
 [Sovereign Cloud Stack](https://scs.community/) to form a
 rather complete set of tools that can be used to provide
@@ -20,15 +20,15 @@ R3 was released on 2022-09-21.
 
 After reaching the 1.0.x (`v1beta1`) status with R2, we have seen
 further improvements in the 
-[Kubernetes Cluster API Provider]()
+[Kubernetes Cluster API Provider](https://cluster-api.sigs.k8s.io/)
 and the
-[OpenStack Provider for CAPI]()
+[OpenStack Provider for CAPI](https://cluster-api-openstack.sigs.k8s.io/)
 especially with respect to operational stability
 in situations with errors.
 
 ### k8s versions (1.21 -- 1.25)
 
-We test the kubernetes versions 1.21 -- 1.25 with the R3 cluster-api
+We test the Kubernetes versions 1.21 -- 1.25 with the R3 Cluster API
 solution. We had tested earlier versions (down to 1.18) successfully before,
 and we don't expect them to break.
 
@@ -59,24 +59,24 @@ tested intesively.
 
 ### Per-cluster app cred (#177, #226, #232, #272)
 
-This was prepared during the R2 development and finalized for R3:
+This new feature was prepared during the R2 development and finalized for R3:
 We use an unrestricted application credential on the management node;
 for each cluster a distinct restricted application credential (an application
 credential that can not create any further credentials) is created now.
 This is useful in case the application credential needs to be withdrawn
 (e.g. because it was leaked) -- in that case only the one cluster using
-it will be affected. So this helps the operations teams to better isolate
+it will be affected. This helps the operations teams to better isolate
 many clusters in their handling.
 
 ### Simplified (rolling) node upgrades (#223)
 
-clusterctl offers the ability to upgrade to a newer k8s version
+Clusterctl offers the ability to upgrade to a newer k8s version
 or doing other changes to the k8s control-plane and worker nodes
 (such as e.g. changing the flavor type). It orchestrates a nice
-rolling upgrade, avoiding downtime, for these cases (assuming you
+rolling upgrade for these cases and thus avoids downtime (assuming you
 have not created single-node control-planes).
 
-It was previously a bit tedious to perform, as it required changing
+Upgrades were previously a bit tedious to perform, as this required changing
 the names of the machine templates in the `cluster-template.yaml`.
 This is no longer the case: Just increase the generation counters
 of `CONTROL_PLANE_MACHINE_GEN` and `WORKER_MACHINE_GEN` in your
@@ -85,17 +85,17 @@ to invoke the rolling upgrade.
 
 ### Background etcd maintenance tasks (#282)
 
-etcd stores the historical states of its keys and values.
-This can lead to a rather large database, slowing down etcd or -- in
-extreme cases -- leading to exhausting the allocated space of 2GiB.
+Since etcd stores the historical states of its keys and values,
+this behaviour can lead to a rather large database, slowing down etcd or -- in
+extreme cases -- leading to exhaustion of the allocated space of 2GiB.
 
-We now limit the stored old states to compact the database and have also
-add a nightly maintenance job that defragments the database to release
+We now limit the amount of stored old states to compact the database and have also
+add a nightly maintenance job that defragments the database and releases
 unused space. We also store a snapshot of the database state to help
 with recovery in case things go terribly wrong. (No, we have not observed
 this.)
 
-### testcluster name adjustment (#264)
+### Testcluster name adjustment (#264)
 
 When deploying a new management host, users can choose to directly
 create a testcluster. This was typically used for CI tests and the
@@ -143,8 +143,8 @@ get a consistently clean state.
 ### License is Apache-2.0 now (#242)
 
 A number of the scripts used SCS/k8s-cluster-api-provider
-was released under the CC-BY-SA-4.0 license before. Other pieces
-in the repository were under the Apache-2.0 license which is very
+was released under the [CC-BY-SA-4.0 license](https://creativecommons.org/licenses/by-sa/4.0/) before. Other pieces
+in the repository were under the [Apache-2.0 license](https://www.apache.org/licenses/LICENSE-2.0) which is very
 popular in the modern Cloud and CNCF world. This made license
 compliance a bit tricky for consumers of the code, so we
 relicensed all code in this repository to be under Apache-2.0.
