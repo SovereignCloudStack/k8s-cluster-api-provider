@@ -313,10 +313,15 @@ and edit the copy to describe the properties of the cluster to be created.
 Use ``./create_cluster.sh MYCLUSTER`` then to create a workload cluster
 with the name ``MYCLUSTER``. You will find the kubeconfig file in
 ``~/MYCLUSTER/MYCLUSTER.yaml``, granting its owner admin access to that cluster.
-Likewise, ``delete_cluster.sh`` and the ``aaply_*.sh`` scripts take a
+Likewise, ``delete_cluster.sh`` and the ``apply_*.sh`` scripts take a
 cluster name as parameter.
 
 This way, dozens of clusters can be controlled from one management node.
+
+You can add credentials from different projects into
+``~/.config/openstack/clouds.yaml`` and reference them in the ``OPENSTACK_CLOUD``
+setting in ``clusterctl.yaml``, this way managing clusters in many different
+projects and even clouds from one management host.
 
 ## Testing
 
@@ -348,11 +353,8 @@ file).
 
 ## Supported k8s versions
 
-As of 3/2022, our tests cover 1.19.latest ... 1.23.latest.
+As of 9/2022, our tests cover 1.21.latest ... 1.25.latest.
 All of them pass the sonobuoy CNCF conformance tests.
-
-The default setting `true` chooses appropriate openstack and
-cinder integration code.
 
 ## etcd leader changes
 
