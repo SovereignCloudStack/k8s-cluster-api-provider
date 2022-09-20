@@ -103,11 +103,27 @@ You can now issue the command `clusterctl upgrade plan` and clusterctl will
 list the components in your (kind) management cluster that can be upgraded.
 Here's an example output:
 ```
-TBW
+ubuntu@capi-old-mgmtcluster:~ [0]$ clusterctl upgrade plan
+Checking cert-manager version...
+Cert-Manager is already up to date
 
+Checking new release availability...
+
+Latest release available for the v1beta1 API Version of Cluster API (contract):
+
+NAME                       NAMESPACE                           TYPE                     CURRENT VERSION   NEXT VERSION
+bootstrap-kubeadm          capi-kubeadm-bootstrap-system       BootstrapProvider        v1.0.5            v1.2.2
+control-plane-kubeadm      capi-kubeadm-control-plane-system   ControlPlaneProvider     v1.0.5            v1.2.2
+cluster-api                capi-system                         CoreProvider             v1.0.5            v1.2.2
+infrastructure-openstack   capo-system                         InfrastructureProvider   v0.5.3            v0.6.3
+
+You can now apply the upgrade by executing the following command:
+
+clusterctl upgrade apply --contract v1beta1
 ```
 
-You can then upgrade the components ...
+You can then upgrade the components. You can do them one-by-one or simply do
+``clusterctl upgrade apply --contract v1beta1``
 
 #### New templates
 
