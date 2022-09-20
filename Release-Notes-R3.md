@@ -260,20 +260,43 @@ for the SCS community. This has been built using the
 We intend to provide an easy way to create ow harbor instances along with
 SCS cluster management.
 
-### gitops ([Docs/#47](https://github.com/SovereignCloudStack/Docs/pull/47))
+### Cluster standardization
 
-THIS NEEDS TO BE REWRITTEN TO REFLECT CURRENT PLANNING.
+Most users of the cluster-API based cluster management will only ever need
+to touch the `clusterctl.yaml` settings file. Our intention is thus to
+standardize cluster-management on that level: Have a simple yaml file
+that describes the wanted cluster state. Exposing all the power of
+cluster-API behind it is optional and not required for SCS conformance.
 
-We want to enable declarative gitops style cluster management, please see
-this [pull request]((https://github.com/SovereignCloudStack/Docs/pull/47)) 
-for our Design Docs.
+The settings are currently processed with the cluster-template by clusterctl
+and then submitted to the k8s management cluster. In our to be standardized
+approach, we will have a few cluster templates; the simple one that is
+already used today and more complex ones that e.g. support multiple machine
+deployments. The settings will be made cloud-provider independent; we intend
+to allow non-OpenStack clouds and even non-CAPI implementations with respects
+to SCS standards conformance. Obviously, few pieces of the reference implementation
+will work as is, but this should not affect the user. The cluster-templates
+obviously will be provider dependent as well, but its behavior will be
+standardized.
 
-### helm charts
+To allow for templating, we may go beyond the clusterctl capabilities
+and use helm or helmfile for this. This may also allow us to incorporate
+some of the nice work from the
+[capi-helm-charts](https://github.com/stackhpc/capi-helm-charts) from
+[StackHPC](https://stackhpc.com).
 
-The [capi-helm-charts](https://github.com/stackhpc/capi-helm-charts) from
-[StackHPC](https://stackhpc.com) are still on the roadmap as our future
-tooling for managing Clusters on SCS, repositioning the scripts based
-tooling to be used for PoCs rather than production deployments.
+We are currently pondering whether we can expose the k8s management cluster
+kube API to users in a multi-tenant scenario. We certainly would need some
+work with namespaces, kata containers and such to make it safe in a
+multi-tenant scenario. Right now, we may opt to put a REST interface
+in front of the kubeAPI to better shield it.
+
+We had some thoughts to allow gitops style management
+(see [Docs/#47](https://github.com/SovereignCloudStack/Docs/pull/47))
+where cluster settings
+would be automatically fed from a git repository; we still have this vision,
+but after numerous discussions came to the conclusion that this will be
+an opt-in feature.
 
 ## Conformance
 
