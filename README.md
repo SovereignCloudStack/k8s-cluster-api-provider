@@ -353,6 +353,7 @@ cinder integration code.
 ## Upgrading from earlier versions
 
 There is an upgrade guide in docs/Upgrade-Guide.md
+<https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/Upgrade-Guide.md>
 
 ## etcd leader changes
 
