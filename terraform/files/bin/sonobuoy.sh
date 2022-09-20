@@ -52,7 +52,7 @@ END=$(date +%s)
 declare -i fail=0
 while read number; do
 	let fail+=$number
-done < <(echo "$REPORT" | grep 'Failed: ' | sed 's/Failed: //')
+done < <(echo "$REPORT" | grep '^Failed: [0-9]\+' | sed 's/Failed: \([0-9]\+\)/\1/')
 sonobuoy delete $ALL --wait
 if test $fail != 0; then
 	echo "FAIL: Investigate $resfile for further inspection" 1>&2
