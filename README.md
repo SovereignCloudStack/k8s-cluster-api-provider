@@ -163,6 +163,7 @@ The management cluster is in context ``kind-kind``.
 ## Troubleshooting
 
 Please see the Maintenance and Troubleshooting Guide in the `doc/` directory.
+<https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/Maintenance_and_Troubleshooting.md>
 
 ## Environments
 
