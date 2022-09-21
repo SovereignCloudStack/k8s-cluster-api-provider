@@ -147,7 +147,7 @@ the same kubernetes version number.
 ## Create a new cluster
 
 ``make ssh``
-`` bin/create_cluster <customize-name>``
+``create_cluster.sh <CLUSTER_NAME>``
 
 This will copy the defaults from ``~/cluster-defaults/`` into a directory with your
 cluster name and then ask cluster-api to create the cluster. The scripts also take
@@ -355,6 +355,11 @@ file).
 
 As of 9/2022, our tests cover 1.21.latest ... 1.25.latest.
 All of them pass the sonobuoy CNCF conformance tests.
+
+## Upgrading from earlier versions
+
+There is an upgrade guide in docs/Upgrade-Guide.md
+<https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/Upgrade-Guide.md>
 
 ## etcd leader changes
 

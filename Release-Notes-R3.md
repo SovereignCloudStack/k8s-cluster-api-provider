@@ -103,7 +103,10 @@ cluster was hardcoded to be called `testcluster`.
 However, some users might want to use such a cluster for other purpose
 and dislike the chosen name -- it is thus adjustable now.
 
-### New upgrade guide (#)
+### New upgrade guide (#293)
+
+See `doc/` directory.
+<https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/Upgrade-Guide.md>
 
 ### New maintenance and troubleshooting guide (#292)
 
