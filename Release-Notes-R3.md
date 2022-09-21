@@ -108,7 +108,10 @@ and dislike the chosen name -- it is thus adjustable now.
 See `doc/` directory.
 <https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/Upgrade-Guide.md>
 
-### New maintenance and troubleshooting guide (#)
+### New maintenance and troubleshooting guide (#292)
+
+Please check the doc directory.
+<https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/Maintenance_and_Troubleshooting.md>
 
 ## Changed defaults/settings
 
@@ -229,12 +232,16 @@ and then calling `create_cluster.sh`. However, this has the potential
 to disrupt the workloads in your workload clusters.
 This is unchanged from R2.
 
-### Four CNCF conformance test fails with cilium (#144)
+### One CNCF conformance test fail with cilium (#144)
 
-We want to understand whether these four failures could be avoided by tweaking
-the configuration or whether those are commonly ignored. The investigation
-still has to be done.
-This is unchanged from R2.
+We want to understand whether this failure could be avoided by tweaking
+the configuration or whether those are commonly ignored. More investigation
+is needed.
+```
+[sig-network] HostPort validates that there is no conflict between pods with same hostPort but different hostIP and protocol [LinuxOnly]
+ [Conformance]
+```
+This is down from four failures in R2.
 
 ## Future roadmap
 

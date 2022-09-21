@@ -144,22 +144,26 @@ so it can be reused.
 You need to manually unregister it, if you want your next deployment to register a new image with
 the same kubernetes version number.
 
-## Create new cluster
+## Create a new cluster
 
 ``make ssh``
 ``create_cluster.sh <CLUSTER_NAME>``
 
+This will copy the defaults from ``~/cluster-defaults/`` into a directory with your
+cluster name and then ask cluster-api to create the cluster. The scripts also take
+care of security groups, anti-affinity, node image registration (if needed) and
+of deploying CCM, CNI, CSI as well as optional services such as metrics or nginx-ingress
+controller.
+
+You can access the new cluster with ``kubectl --context clustername-admin@cluster``
+or ``KUBECONFIG=~/clustername/clustername.yaml kubectl``.
+
+The management cluster is in context ``kind-kind``.
+
 ## Troubleshooting
 
-To find out in which condition the deployment status is, you can use the following way:
-
-``kubectl logs -n capo-system capo-manager-[TAB]``
-
-Some steps are:
-
-``Successfulcreateloadbalancer``
-
-``Reconciled Cluster create successful``
+Please see the Maintenance and Troubleshooting Guide in the `doc/` directory.
+<https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/Maintenance_and_Troubleshooting.md>
 
 ## Environments
 
@@ -309,10 +313,15 @@ and edit the copy to describe the properties of the cluster to be created.
 Use ``./create_cluster.sh MYCLUSTER`` then to create a workload cluster
 with the name ``MYCLUSTER``. You will find the kubeconfig file in
 ``~/MYCLUSTER/MYCLUSTER.yaml``, granting its owner admin access to that cluster.
-Likewise, ``delete_cluster.sh`` and the ``aaply_*.sh`` scripts take a
+Likewise, ``delete_cluster.sh`` and the ``apply_*.sh`` scripts take a
 cluster name as parameter.
 
 This way, dozens of clusters can be controlled from one management node.
+
+You can add credentials from different projects into
+``~/.config/openstack/clouds.yaml`` and reference them in the ``OPENSTACK_CLOUD``
+setting in ``clusterctl.yaml``, this way managing clusters in many different
+projects and even clouds from one management host.
 
 ## Testing
 
@@ -344,11 +353,8 @@ file).
 
 ## Supported k8s versions
 
-As of 3/2022, our tests cover 1.19.latest ... 1.23.latest.
+As of 9/2022, our tests cover 1.21.latest ... 1.25.latest.
 All of them pass the sonobuoy CNCF conformance tests.
-
-The default setting `true` chooses appropriate openstack and
-cinder integration code.
 
 ## Upgrading from earlier versions
 
