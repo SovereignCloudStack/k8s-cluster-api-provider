@@ -76,6 +76,12 @@ if test "$CONTROL_PLANE_MACHINE_COUNT" -gt 0 &&  grep '^ *OPENSTACK_ANTI_AFFINIT
 	fi
 fi
 
+# Patch registry location for k8s >= 1.25
+K8S_MAJMIN=$(grep '^KUBERNETES_VERSION:' $CCCFG | sed 's/^KUBERNETES_VERSION: v\([0-9]*\)\.\([0-9]*\).*$/\1\2/')
+if test "$K8S_MAJMIN" -ge 125 && grep 'k8s\.gcr\.io' ${CLUSTERAPI_TEMPLATE} >/dev/null 2>&1; then
+	sed -i 's/k8s\.gcr\.io/registry.k8s.io/g' ${CLUSTERAPI_TEMPLATE}
+fi
+
 cp -p "$CCCFG" $HOME/.cluster-api/clusterctl.yaml
 KCCCFG="--config $CCCFG"
 #clusterctl $KCCCFG config cluster ${CLUSTER_NAME} --list-variables --from ${CLUSTERAPI_TEMPLATE}
