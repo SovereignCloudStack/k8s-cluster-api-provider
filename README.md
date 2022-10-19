@@ -466,7 +466,7 @@ environment | clusterctl.yaml | provenance | default |  meaning
 `image_registration_extra_flags` | `OPENSTACK_IMAGE_REGISTATION_EXTRA_FLAGS` | SCS | `""` | Extra flags passed during image registration
 ` ` | `OPENSTACK_CONTROL_PLANE_IP` | capo | `127.0.0.1` | Use localhost to talk to capi cluster (don't change on capi mgmt node)
 ` ` | `OPENSTACK_SSH_KEY_NAME` | capo | `${prefix}-keypair` | SSH key name generated and used to connect to workload cluster nodes
-`controller_flavor` | `OPENSTACK_CONTROL_PLANE_MACHINE_FLAVOR` | capo | `SCS-2D:4:20s` | Flavor to be used for control plane nodes
+`controller_flavor` | `OPENSTACK_CONTROL_PLANE_MACHINE_FLAVOR` | capo | `SCS-2C:4:20s` | Flavor to be used for control plane nodes
 `worker_flavor` | `OPENSTACK_NODE_MACHINE_FLAVOR` | capo | `SCS-2V:4:20` | Flavor to be used for worker nodes
 `controller_count` | `CONTROL_PLANE_MACHINE_COUNT` | capo | `1` | Number of control plane nodes in testcluster (0 skips testcluster creation)
 `` | `CONTROL_PLANE_MACHINE_GEN` | SCS | `genc01` | Suffix for control plane node resources, to be changed for rolling upgrades
