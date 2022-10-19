@@ -2,12 +2,12 @@
 # (c) Kurt Garloff <kurt@garloff.de>, 3/2022
 # SPDX-License-Identifier: Apache-2.0
 # Images from https://minio.services.osism.tech/openstack-k8s-capi-images
-k8s_versions=("v1.18.20" "v1.19.16" "v1.20.12" "v1.21.14" "v1.22.13" "v1.23.10" "v1.24.4" "v1.25.0")
+k8s_versions=("v1.18.20" "v1.19.16" "v1.20.12" "v1.21.14" "v1.22.15" "v1.23.13" "v1.24.7" "v1.25.3")
 # OCCM, CCM-RBAC, Cinder CSI, Cinder-Snapshot (TODO: Manila CSI)
-occm_versions=(""         ""       "v1.21.1" "v1.21.1" "v1.22.1" "v1.23.4" "v1.24.2" "v1.25.0")
-#ccmr_versions=(""        ""        ""        ""        "v1.22.1" "v1.23.4" "v1.24.2" "v1.25.0")
-ccmr_versions=(""        ""        "v1.22.1" "v1.22.1" "v1.22.1" "v1.23.4" "v1.24.2" "v1.25.0")
-ccsi_versions=(""        ""        "v1.20.5" "v1.21.1" "v1.22.1" "v1.23.4" "v1.24.2" "v1.25.0")
+occm_versions=(""         ""       "v1.21.1" "v1.21.1" "v1.22.1" "v1.23.4" "v1.24.5" "v1.25.3")
+#ccmr_versions=(""        ""        ""        ""        "v1.22.1" "v1.23.4" "v1.24.5" "v1.25.3")
+ccmr_versions=(""        ""        "v1.22.1" "v1.22.1" "v1.22.1" "v1.23.4" "v1.24.5" "v1.25.3")
+ccsi_versions=(""        ""        "v1.20.5" "v1.21.1" "v1.22.1" "v1.23.4" "v1.24.5" "v1.25.3")
 min_snapshot_master="v1.21.0"
 
 # Convert vxx.yy.zz to the number xxyyzz. Also works for z.y.z (0x0y0z).
@@ -41,6 +41,25 @@ setversions()
 	CCSI_VERSION=${ccsi_versions[$1]}
 }
 
+# Limit patchlevel to $1 in var $2
+adjustpl()
+{
+	if test ${2##*.} -le $1; then echo "$2"
+	else echo "${2%.*}.$1"
+	fi
+}
+
+# Avoid minor version being larger then k8s version for OCCM >= v1.25.0
+# (Cloud-Provider-OpenStack v1.xx.yy requires k8s API v1.xx.yy for xx >= 25)
+limitpatchlevels()
+{
+	K8PL=${k8s##*.}
+	OCCM_VERSION=$(adjustpl $K8PL $OCCM_VERSION)
+	CCMR_VERSION=$(adjustpl $K8PL $CCMR_VERSION)
+	CCSI_VERSION=$(adjustpl $K8PL $CCSI_VERSION)
+	unset K8PL
+}
+
 # Determine which openstack-cloud-provider versions to use
 find_openstack_versions()
 {
@@ -58,7 +77,11 @@ find_openstack_versions()
 	declare -i idx=0
 	for k8 in ${k8s_versions[*]}; do
 		k8test=$(dotversion ${k8%.*})
-		if test $k8vers -ge $k8test -a $k8vers -le $((k8test+99)); then setversions $idx; return 0; break; fi
+		if test $k8vers -ge $k8test -a $k8vers -le $((k8test+99)); then
+			setversions $idx
+			if test $k8vers -ge 12500; then limitpatchlevels $k8s; fi
+			return 0
+		fi
 		let idx+=1
 	done
 	return 1
