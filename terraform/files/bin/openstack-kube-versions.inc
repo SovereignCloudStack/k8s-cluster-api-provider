@@ -2,7 +2,7 @@
 # (c) Kurt Garloff <kurt@garloff.de>, 3/2022
 # SPDX-License-Identifier: Apache-2.0
 # Images from https://minio.services.osism.tech/openstack-k8s-capi-images
-k8s_versions=("v1.18.20" "v1.19.16" "v1.20.12" "v1.21.14" "v1.22.15" "v1.23.13" "v1.24.7" "v1.25.3")
+k8s_versions=("v1.18.20" "v1.19.16" "v1.20.12" "v1.21.14" "v1.22.16" "v1.23.14" "v1.24.8" "v1.25.4")
 # OCCM, CCM-RBAC, Cinder CSI, Cinder-Snapshot (TODO: Manila CSI)
 occm_versions=(""         ""       "v1.21.1" "v1.21.1" "v1.22.2" "v1.23.4" "v1.24.5" "v1.25.3")
 #ccmr_versions=(""        ""        ""        ""        "v1.22.2" "v1.23.4" "v1.24.5" "v1.25.3")
