@@ -76,9 +76,9 @@ if test "$CONTROL_PLANE_MACHINE_COUNT" -gt 0 &&  grep '^ *OPENSTACK_ANTI_AFFINIT
 	fi
 fi
 
-# Patch registry location for k8s >= 1.25
+# Patch registry location for k8s >= 1.21
 K8S_MAJMIN=$(grep '^KUBERNETES_VERSION:' $CCCFG | sed 's/^KUBERNETES_VERSION: v\([0-9]*\)\.\([0-9]*\).*$/\1\2/')
-if test "$K8S_MAJMIN" -ge 125 && grep 'k8s\.gcr\.io' ${CLUSTERAPI_TEMPLATE} >/dev/null 2>&1; then
+if test "$K8S_MAJMIN" -ge 121 && grep 'k8s\.gcr\.io' ${CLUSTERAPI_TEMPLATE} >/dev/null 2>&1; then
 	sed -i 's/k8s\.gcr\.io/registry.k8s.io/g' ${CLUSTERAPI_TEMPLATE}
 fi
 
