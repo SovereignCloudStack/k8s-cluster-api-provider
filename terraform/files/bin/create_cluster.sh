@@ -120,9 +120,9 @@ sync; sleep 2
 #wget https://gx-scs.okeanos.dev --quiet -O /dev/null
 #ping -c1 -w2 9.9.9.9 >/dev/null 2>&1
 if test "$CLUSTER_EXISTS" != "1"; then sleep 12; fi
-kubectl wait --timeout=5s --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME} >/dev/null 2>&1 || sleep 25
-kubectl wait --timeout=15m --for=condition=certificatesavailable kubeadmcontrolplanes --selector=cluster.x-k8s.io/cluster-name=${CLUSTER_NAME} || exit 1
-kubectl wait --timeout=5m --for=condition=Ready machine -l cluster.x-k8s.io/control-plane || exit 4
+kubectl wait --timeout=5s --for=condition=certificatesavailable kubeadmcontrolplanes -l cluster.x-k8s.io/cluster-name=${CLUSTER_NAME} >/dev/null 2>&1 || sleep 25
+kubectl wait --timeout=14m --for=condition=certificatesavailable kubeadmcontrolplanes -l cluster.x-k8s.io/cluster-name=${CLUSTER_NAME} || exit 1
+kubectl wait --timeout=8m --for=condition=Ready machine -l cluster.x-k8s.io/control-plane,cluster.x-k8s.io/cluster-name=${CLUSTER_NAME} || exit 4
 
 kubectl get secrets "${CLUSTER_NAME}-kubeconfig" --output go-template='{{ .data.value | base64decode }}' > "${KUBECONFIG_WORKLOADCLUSTER}" || exit 5
 chmod 0600 "${KUBECONFIG_WORKLOADCLUSTER}"
