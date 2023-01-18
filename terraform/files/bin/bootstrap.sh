@@ -38,6 +38,8 @@ source <( clusterctl completion bash )
 
 # Error code in prompt
 PS1="\${PS1%\\\\\$ } [\\\$?]\\\$ "
+# We may do git commits and nano feels unusual ...
+export VISUAL=/usr/bin/vim
 # eof
 EOF
 
