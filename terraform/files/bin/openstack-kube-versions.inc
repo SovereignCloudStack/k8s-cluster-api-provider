@@ -66,6 +66,8 @@ find_openstack_versions()
 	k8s=${1:-$KUBERNETES_VERSION}
 	k8vers=$(dotversion $k8s)
 	if test -z "$k8s"; then echo "ERROR: Need to pass k8s version" 1>&2; return 1; fi
+	# WARN for v1.26.x, as capo does not officially support it yet
+	if test $k8vers -ge 12600; then echo "WARNING: k8s v1.26+ not yet officially supported by capo" 1>&2; fi
 	NUMV=${#k8s_versions[*]}
 	k8min=$(dotversion ${k8s_versions[0]%.*})
 	k8max=$(dotversion ${k8s_versions[$((NUMV-1))]%.*})
