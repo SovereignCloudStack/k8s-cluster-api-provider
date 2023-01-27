@@ -30,6 +30,7 @@ if test -n "$OCCM_VERSION"; then
     if test ! -s $NAME; then
       curl -L https://github.com/kubernetes/cloud-provider-openstack/raw/$OCCM_VERSION/manifests/controller-manager/$name -o $NAME
       echo -e "\n---" >> $NAME
+      sed -i "s|\(docker.io/k8scloudprovider/openstack-cloud-controller-manager:\).*|\1$OCCM_VERSION|g" $NAME
     fi
   done
   OCCM=openstack-cloud-controller-manager-ds-$OCCM_VERSION.yaml
