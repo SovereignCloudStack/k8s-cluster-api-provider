@@ -1,4 +1,5 @@
 # Table of kubernetes and openstack versions
+# vim: set syntax=bash:
 # (c) Kurt Garloff <kurt@garloff.de>, 3/2022
 # SPDX-License-Identifier: Apache-2.0
 # Images from https://minio.services.osism.tech/openstack-k8s-capi-images
@@ -9,6 +10,8 @@ occm_versions=(""         ""       "v1.21.1"   "v1.21.1"  "v1.22.2"  "v1.23.4"  
 ccmr_versions=(""         ""        "v1.22.2"  "v1.22.2"  "v1.22.2"  "v1.23.4"  "v1.24.5" "v1.25.3" "v1.26.0")
 ccsi_versions=(""         ""        "v1.20.5"  "v1.21.1"  "v1.22.2"  "v1.23.4"  "v1.24.5" "v1.25.3" "v1.26.0")
 min_snapshot_master="v1.21.0"
+# Versions that require a --allow-preview-versions flag
+techprev_versions=("v1.26" "v1.27" "v2")
 
 # Convert vxx.yy.zz to the number xxyyzz. Also works for z.y.z (0x0y0z).
 dotversion()
@@ -60,14 +63,23 @@ limitpatchlevels()
 	unset K8PL
 }
 
+# Is is tech preview
+is_tech_preview()
+{
+	k8s=${1:-$KUBERNETES_VERSION}
+	for tp in ${techprev_versions[@]}; do
+		tpln=${#tp}
+		if test ${k8s:0:$tpln} = $tp; then return 0; fi
+	done
+	return 1
+}
+
 # Determine which openstack-cloud-provider versions to use
 find_openstack_versions()
 {
 	k8s=${1:-$KUBERNETES_VERSION}
 	k8vers=$(dotversion $k8s)
 	if test -z "$k8s"; then echo "ERROR: Need to pass k8s version" 1>&2; return 1; fi
-	# WARN for v1.26.x, as capo does not officially support it yet
-	if test $k8vers -ge 12600; then echo "WARNING: k8s v1.26+ not yet officially supported by capo" 1>&2; fi
 	NUMV=${#k8s_versions[*]}
 	k8min=$(dotversion ${k8s_versions[0]%.*})
 	k8max=$(dotversion ${k8s_versions[$((NUMV-1))]%.*})
