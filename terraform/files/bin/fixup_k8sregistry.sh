@@ -9,8 +9,8 @@
 if test -z "$2"; then echo "ERROR: Need clusterctl.yaml cluster-template args" 1>&2; exit 1; fi
 K8SVER=$(grep '^KUBERNETES_VERSION:' "$1" | sed 's/^KUBERNETES_VERSION: v\([0-9.]*\)/\1/')
 K8SMINOR=${K8SVER#*.}
-K8SVER=${K8SVER%%.*}${K8SMINOR%%.*}$(printf %02i 0${K8SVER##*.})
-echo $K8SVER
+K8SVER=${K8SVER%%.*}${K8SMINOR%%.*}$(printf %02i 0${K8SMINOR:3:99})
+#echo $K8SVER
 if grep 'k8s\.gcr\.io' "$2" >/dev/null 2>&1; then
     if test "$K8SVER" -ge 12409 \
 	|| test "$K8SVER" -lt 12400 -a "$K8SVER" -ge 12315 \
