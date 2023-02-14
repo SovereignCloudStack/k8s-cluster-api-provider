@@ -76,7 +76,7 @@ if test "$CONTROL_PLANE_MACHINE_COUNT" -gt 0 &&  grep '^ *OPENSTACK_ANTI_AFFINIT
 	fi
 fi
 
-# Patch registry location for k8s >= 1.21
+# Patch registry location for k8s (~newer than Nov 2022)
 fixup_k8sregistry.sh "$CCCFG" "${CLUSTERAPI_TEMPLATE}"
 
 cp -p "$CCCFG" $HOME/.cluster-api/clusterctl.yaml
