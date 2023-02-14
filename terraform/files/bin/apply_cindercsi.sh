@@ -46,6 +46,7 @@ if test -n "$CCSI_VERSION"; then
   done
   # Note: We leave out the secret which we should already have
   cat cinder-csi-*-rbac-$CCSI_VERSION.yaml cinder-csi-*plugin-$CCSI_VERSION.yaml csi-cinder-driver-$CCSI_VERSION.yaml cinder-provider.yaml > cindercsi-$CCSI_VERSION.yaml
+  # correct ccsi image version - workaround for the https://github.com/kubernetes/cloud-provider-openstack/issues/2094
   sed -i "s|\(docker.io/k8scloudprovider/cinder-csi-plugin:\).*|\1$CCSI_VERSION|g" cindercsi-$CCSI_VERSION.yaml
   CCSI=cindercsi-$CCSI_VERSION.yaml
 else
