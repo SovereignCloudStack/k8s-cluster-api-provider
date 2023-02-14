@@ -25,7 +25,7 @@ if test ! -d ~/$CLUSTER_NAME/deployed-manifests.d/; then
 	mkdir -p ~/$CLUSTER_NAME/deployed-manifests.d/
 fi
 CCCFG="$HOME/${CLUSTER_NAME}/clusterctl.yaml"
-fixup_k8s_version.sh $CCCFG
+fixup_k8s_version.sh $CCCFG || exit 1
 
 export PREFIX CLUSTER_NAME
 # Determine whether we need a new application credential
