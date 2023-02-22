@@ -1,14 +1,17 @@
 # Table of kubernetes and openstack versions
+# vim: set syntax=bash:
 # (c) Kurt Garloff <kurt@garloff.de>, 3/2022
 # SPDX-License-Identifier: Apache-2.0
 # Images from https://minio.services.osism.tech/openstack-k8s-capi-images
-k8s_versions=("v1.18.20" "v1.19.16" "v1.20.12" "v1.21.14" "v1.22.16" "v1.23.14" "v1.24.8" "v1.25.4")
+k8s_versions=("v1.18.20" "v1.19.16" "v1.20.12" "v1.21.14" "v1.22.17" "v1.23.15" "v1.24.9" "v1.25.5" "v1.26.0")
 # OCCM, CCM-RBAC, Cinder CSI, Cinder-Snapshot (TODO: Manila CSI)
-occm_versions=(""         ""       "v1.21.1" "v1.21.1" "v1.22.2" "v1.23.4" "v1.24.5" "v1.25.3")
-#ccmr_versions=(""        ""        ""        ""        "v1.22.2" "v1.23.4" "v1.24.5" "v1.25.3")
-ccmr_versions=(""        ""        "v1.22.2" "v1.22.2" "v1.22.2" "v1.23.4" "v1.24.5" "v1.25.3")
-ccsi_versions=(""        ""        "v1.20.5" "v1.21.1" "v1.22.2" "v1.23.4" "v1.24.5" "v1.25.3")
+occm_versions=(""         ""       "v1.21.1"   "v1.21.1"  "v1.22.2"  "v1.23.4"  "v1.24.5" "v1.25.3" "v1.26.0") 
+#ccmr_versions=(""         ""        ""         ""         "v1.22.2"  "v1.23.4"  "v1.24.5" "v1.25.3" "v1.26.0")
+ccmr_versions=(""         ""        "v1.22.2"  "v1.22.2"  "v1.22.2"  "v1.23.4"  "v1.24.5" "v1.25.3" "v1.26.0")
+ccsi_versions=(""         ""        "v1.20.5"  "v1.21.1"  "v1.22.2"  "v1.23.4"  "v1.24.5" "v1.25.3" "v1.26.0")
 min_snapshot_master="v1.21.0"
+# Versions that require a --allow-preview-versions flag
+techprev_versions=("v1.26" "v1.27" "v2")
 
 # Convert vxx.yy.zz to the number xxyyzz. Also works for z.y.z (0x0y0z).
 dotversion()
@@ -58,6 +61,17 @@ limitpatchlevels()
 	CCMR_VERSION=$(adjustpl $K8PL $CCMR_VERSION)
 	CCSI_VERSION=$(adjustpl $K8PL $CCSI_VERSION)
 	unset K8PL
+}
+
+# Is is tech preview
+is_tech_preview()
+{
+	k8s=${1:-$KUBERNETES_VERSION}
+	for tp in ${techprev_versions[@]}; do
+		tpln=${#tp}
+		if test ${k8s:0:$tpln} = $tp; then return 0; fi
+	done
+	return 1
 }
 
 # Determine which openstack-cloud-provider versions to use

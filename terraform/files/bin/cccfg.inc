@@ -1,5 +1,6 @@
 # File to be included
 . ~/.capi-settings
+if test "$1" == "--allow-preview-versions"; then export ALLOW_PREVIEW_VERSIONS=1; shift; fi
 if test -n "$1"; then CLUSTER_NAME="${1%/}"; else CLUSTER_NAME="$TESTCLUSTER"; fi
 export CLUSTER_NAME
 KUBECONFIG_WORKLOADCLUSTER="${HOME}/${CLUSTER_NAME}/${CLUSTER_NAME}.yaml"

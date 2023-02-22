@@ -25,7 +25,7 @@ if test ! -d ~/$CLUSTER_NAME/deployed-manifests.d/; then
 	mkdir -p ~/$CLUSTER_NAME/deployed-manifests.d/
 fi
 CCCFG="$HOME/${CLUSTER_NAME}/clusterctl.yaml"
-fixup_k8s_version.sh $CCCFG
+fixup_k8s_version.sh $CCCFG || exit 1
 
 export PREFIX CLUSTER_NAME
 # Determine whether we need a new application credential
@@ -76,11 +76,8 @@ if test "$CONTROL_PLANE_MACHINE_COUNT" -gt 0 &&  grep '^ *OPENSTACK_ANTI_AFFINIT
 	fi
 fi
 
-# Patch registry location for k8s >= 1.21
-K8S_MAJMIN=$(grep '^KUBERNETES_VERSION:' $CCCFG | sed 's/^KUBERNETES_VERSION: v\([0-9]*\)\.\([0-9]*\).*$/\1\2/')
-if test "$K8S_MAJMIN" -ge 121 && grep 'k8s\.gcr\.io' ${CLUSTERAPI_TEMPLATE} >/dev/null 2>&1; then
-	sed -i 's/k8s\.gcr\.io/registry.k8s.io/g' ${CLUSTERAPI_TEMPLATE}
-fi
+# Patch registry location for k8s (~newer than Nov 2022)
+fixup_k8sregistry.sh "$CCCFG" "${CLUSTERAPI_TEMPLATE}"
 
 cp -p "$CCCFG" $HOME/.cluster-api/clusterctl.yaml
 KCCCFG="--config $CCCFG"
