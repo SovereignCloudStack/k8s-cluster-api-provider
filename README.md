@@ -487,7 +487,8 @@ environment | clusterctl.yaml | provenance | default | script |  meaning
 ---|---|---|---|---|---
 `deploy_metrics` | `DEPLOY_METRICS` | SCS | `true` | `apply_metrics.sh` | Deploy metrics service to nodes to make `kubectl top` work
 `deploy_nginx_ingress` | `DEPLOY_NGINX_INGRESS` | SCS | `true` | `apply_nginx_ingress.sh` | Deploy NGINX ingress controller (this spawns an OpenStack Loadbalancer), pass version to explicitly choose the version, `true` results in `v1.3.0` (`v1.0.2` for k8s <= 1.19)
-` ` | `NGINX_INGRESS_PROXY` | SCS | `false` | (ditto) | Configure LB and nginx to get real IP via PROXY protocol; may cause trouble for pod to LB connections.
+` ` | `NGINX_INGRESS_PROXY` | SCS | `true` | (ditto) | Configure LB and nginx to get real IP via PROXY protocol; trouble for pod to LB connections has been resolved by setting hostname
+`use_ovn_lb_provider` | `USE_OVN_LB_PROVIDER` | SCS | `false` | `apply_nginx_ingress.sh` | Clouds using OVN networking can deploy the OVN provider that has low overhead (L3) and makes real client IPs visible without proxy protocol hacks. Set to `auto` to enable; is currently still disabled by default due to health-monitor bug with floating IPs.
 `deploy_cert_manager` | `DEPLOY_CERT_MANAGER` | SCS | `false` | `apply_cert_manager.sh` | Deploy cert-manager, pass version (e.g. `v1.9.1`) to explicitly choose a version
 `deploy_flux` | `DEPLOY_FLUX` | SCS | `false` | | Deploy flux2 into the cluster
 

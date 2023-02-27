@@ -192,3 +192,9 @@ variable "testcluster_name" {
   type        = string
   default     = "testcluster"
 }
+
+variable "use_ovn_lb_provider" {
+  description = "usage of OVN octavia provider (false, auto, true)"
+  type        = string
+  default     = "false"
+}
