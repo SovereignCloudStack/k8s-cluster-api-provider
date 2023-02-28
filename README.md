@@ -77,13 +77,6 @@ or some Linux/MacOS/WSL laptop.
   and `secure.yaml` in the current working directory, in `~/.config/openstack/`
   and `/etc/openstack` (in this order), just like the openstack client.
   (<https://docs.openstack.org/python-openstackclient/latest/configuration/index.html#clouds-yaml>)
-* As the `v3applicationcredential` `auth_type` plugin is being used, we hit a bug
-  in Ubuntu 20.04 which ships python3-keystoneauth < 4.2.0, which does fail with
-  unversioned `auth_url` endpoints.
-  (See OpenStack [bug 1876317](https://bugs.launchpad.net/keystoneauth/+bug/1876317).)
-  While we try to patch the bug away in the deployed instance, the patching mechanism
-  is not very robust, so we recommend you have a versioned `auth_url`
-  endpoint (with a trailing `/v3`).
 * Copy the environments sample file from environments/environment-default.tfvars to
   `environments/environment-<yourcloud>.tfvars` and provide the necessary information like
   machine flavor or machine image. You can comment out all lines where the defaults
@@ -118,17 +111,18 @@ The kubeconfig with admin
 power for the created testcluster is named ``testcluster/testcluster.yaml`` (or
 ``$CLUSTER_NAME/$CLUSTER_NAME.yaml`` for all the other clusters) and can be handed out to
 users that should get full administrative control over the cluster. You can also retrieve
-them using ``make get-kubeconfig TESTCLUSTER=${CLUSTER_NAME}``, and possibly create an
+them using ``make get-kubeconfig TESTCLUSTER=${CLUSTER_NAME}`` from the machines where
+you created the management host from, and possibly create an
 encrypted .zip file for handing these out. (You can omit ``TESTCLUSTER=...`` for the
 default testcluster.)
 
 ## Teardown
 
-``make clean`` does ssh to the C-API management server to clean up the created clusters prior
+``make clean`` does ssh to the CAPI management server to clean up the created clusters prior
 to terraform cleaning up the resources it has created. This is sometimes insufficient to clean up
 unfortunately, some error in the deployment may result in resources left around.
-``make fullclean`` uses a custom script (using the
-openstack CLI) to clean up trying to not hit any resources not created by the capi or terraform.
+``make fullclean`` uses a custom script (using the openstack CLI) to clean up everything
+while trying to not hit any resources not created by the capi or terraform.
 It is the recommended way for doing cleanups if ``make clean`` fails. Watch out for leftover
 floating IP addresses and persistent volumes, as these can not be easily traced back to the
 cluster-API created resources and may thus be left.
@@ -146,10 +140,14 @@ the same kubernetes version number.
 
 ## Create a new cluster
 
-``make ssh``
-``create_cluster.sh <CLUSTER_NAME>``
+On the management host (login with ``make ssh``), create a directory (below the home of
+the standard ubuntu user) with the name of your cluster. Copy over ``clusterctl.yaml`` from
+``~/cluster-defaults/`` and edit it according to your needs. You can also copy over other
+files from ``~/clluster-defaults/`` and adjust them, but this is only needed in exceptional
+cases.
+Now run ``create_cluster.sh <CLUSTER_NAME>``
 
-This will copy the defaults from ``~/cluster-defaults/`` into a directory with your
+This will copy all missing defaults from ``~/cluster-defaults/`` into the directory with your
 cluster name and then ask cluster-api to create the cluster. The scripts also take
 care of security groups, anti-affinity, node image registration (if needed) and
 of deploying CCM, CNI, CSI as well as optional services such as metrics or nginx-ingress
@@ -159,6 +157,10 @@ You can access the new cluster with ``kubectl --context clustername-admin@cluste
 or ``KUBECONFIG=~/clustername/clustername.yaml kubectl``.
 
 The management cluster is in context ``kind-kind``.
+
+Note that you can always change `clusterctl.yaml` and re-run `create_cluster.sh`.
+The script is idempotent and running it multiple times with the unchanged input
+file will result in no changes to the cluster.
 
 ## Troubleshooting
 
@@ -181,15 +183,15 @@ Please see the Maintenance and Troubleshooting Guide in the `doc/` directory.
 
  a cloud.yaml and secure.yaml will needed for the environments in side of terraform folder.
 
-## Extensions
+## Extensions (deprecated)
 
 You can use this repository as a starting point for some automation e.g. adding
 kubernetes manifests to the cluster or to run custom shell scripts in the end.
 To do so place your files in the `terraform/extension` folder.  They will be
 uploaded to the management cluster. Files ending in ```*.sh``` will be executed
 in alphabetical order. All other files will just be uploaded. If you want to
-deploy resources in the new cluster-api-maintained cluster you can use `kubectl
-apply -f <your-manifest.yaml> --kubeconfig ~/$CLUSTER_NAME/$CLUSTER_NAME.yaml` to do so.
+deploy resources in the new cluster-api-maintained cluster you can use ``kubectl
+apply -f <your-manifest.yaml> --kubeconfig ~/$CLUSTER_NAME/$CLUSTER_NAME.yaml`` to do so.
 
 ## Application Credentials
 
@@ -207,19 +209,18 @@ The AppCredential has a few advantages:
   breach more easy to contain.
 * AppCreds are connected to one project and can be revoked.
 
-We are using an inrestricted AppCred which can create further AppCreds, so
-we can each cluster its own (restricted) credentials. This is not yet
-implemented, but will soon be. Currently, all clusters created from the 
-management node will belong to the same OpenStack project and use the
-same credentials.
+We are using an unrestricted AppCred for the management host which can then create
+further AppCreds, so we can each cluster its own (restricted) credentials.
+In the case of breaches, these AppCreds can be revoked.
 
-The plan for the future is to create AppCreds per cluster 
-(see [#109](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/109)),
-so credentials for individual clusters can be revoked.
+Note that you can have additional projects or clouds listed in your
+``~/.config/openstack/clouds.yaml`` (and ``secure.yaml``) and reference them
+in the ``OPENSTACK_CLOUD`` setting of your ``clusterctl.yaml``, so you can
+manage clusters in various projects and clouds from the same management host.
 
 ## Cluster Management on the C-API management node
 
-You can use ``make ssh`` to log in to the C-API management node. There you can issue
+You can use ``make ssh`` to log in to the CAPI management node. There you can issue
 ``clusterctl`` and ``kubectl`` (aliased to ``k``) commands. The context ``kind-kind``
 is used for the C-API management while the context ``testcluster-admin@testcluster`` can
 be used to control the workload cluster ``testcluster``. You can of course create many
