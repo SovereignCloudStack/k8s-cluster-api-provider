@@ -486,7 +486,7 @@ Optional services deployed to cluster:
 environment | clusterctl.yaml | provenance | default | script |  meaning
 ---|---|---|---|---|---
 `deploy_metrics` | `DEPLOY_METRICS` | SCS | `true` | `apply_metrics.sh` | Deploy metrics service to nodes to make `kubectl top` work
-`deploy_nginx_ingress` | `DEPLOY_NGINX_INGRESS` | SCS | `true` | `apply_nginx_ingress.sh` | Deploy NGINX ingress controller (this spawns an OpenStack Loadbalancer), pass version to explicitly choose the version, `true` results in `v1.3.0` (`v1.0.2` for k8s <= 1.19)
+`deploy_nginx_ingress` | `DEPLOY_NGINX_INGRESS` | SCS | `true` | `apply_nginx_ingress.sh` | Deploy NGINX ingress controller (this spawns an OpenStack Loadbalancer), pass version to explicitly choose the version, `true` results in `v1.6.4` (`v1.0.2` for k8s <= 1.19)
 ` ` | `NGINX_INGRESS_PROXY` | SCS | `false` | (ditto) | Configure LB and nginx to get real IP via PROXY protocol; may cause trouble for pod to LB connections.
 `deploy_cert_manager` | `DEPLOY_CERT_MANAGER` | SCS | `false` | `apply_cert_manager.sh` | Deploy cert-manager, pass version (e.g. `v1.11.0`) to explicitly choose a version
 `deploy_flux` | `DEPLOY_FLUX` | SCS | `false` | | Deploy flux2 into the cluster
