@@ -28,6 +28,8 @@ CCCFG="$HOME/${CLUSTER_NAME}/clusterctl.yaml"
 fixup_k8s_version.sh $CCCFG || exit 1
 
 export PREFIX CLUSTER_NAME
+# Handle wanted OVN loadbalancer
+handle_ovn_lb.sh "$CLUSTER_NAME"
 # Determine whether we need a new application credential
 create_appcred.sh || exit 1
 # Update OS_CLOUD
