@@ -44,7 +44,7 @@ so we do allow the deployment using an override parameter.
 
 We regularly update to the latest stable versions.
 
-### cert-manager 1..x, nginx-ingress 1..0
+### cert-manager 1.11.x, nginx-ingress 1..0
 
 ## New features
 
