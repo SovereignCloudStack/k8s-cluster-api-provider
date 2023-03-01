@@ -48,48 +48,13 @@ We regularly update to the latest stable versions.
 
 ## New features
 
-### Supporting proxy protocal and the OVN provider for the Octavia loadbalancer
+### Enabling the proxy protocol for nginx ingress and preliminary support for OVN LB
 
-The default CNCF nginx ingress controller deployment chart use `externalTrafficPolicy: local`.
-This disables the normal `kube-proxy` forwarding connections to the right node.
-In an ideal world, this saves a hop and allows the service to see the real client IP.
-For this to work, a few further conditions must be true:
-* A load-balancer must be in front of the service forwarding the traffic to the correct
-  (worker) nodes. This requires some integration between k8s and the load-balancer or
-  a load-balancer health monitor to detect which nodes respond.
-* A load-balancer that terminates the TCP connection (L4 loadbalancer) and then opens the
-  connection to the backend member will occlude the real client IP. We thus need to
-  either have L3 load-balancing to expose the client IP or create a side-channel for
-  the load-balancer to share this information with the backend service.
-
-For the deployment of the nginx ingress controller with the cluster
-(`DEPLOY_NGINX_INGRESS=true`), we had always enabled the OpenStack's load-balancer's
-health-monitor using a special annotation to make the traffic flow. There also has
-been the option to enable the proxy protocol to enable the load-balancer to
-forward information on the real client IP to the nginx service; however the
-proxy protocol was disabled by default due to fact that it broke local traffic
-to the load-balancer. The breakage has been addressed, so we could change the
-default.
-
-Using the proxy protocol is only our second best choice:
-* The solution is application specific; when you deploy your own services,
-  you have extra work to add the correct custom annotations or may not even
-  have the ability to see the real client IPs.
-* The custom header is not particularly nice design.
-
-Our best option would be to have a load-balancer that works at layer 3 of the
-network. Turns out that such a thing exists in SCS IaaS deployments that use
-OVN for networking. We would still need the health-monitor, but not the
-proxy protcol. To use the OVN loadbalancer, set `USE_OVN_LB_PROVIDER` to `auto`.
-This will use it if your cloud support it (and then also enable the health-monitor
-by default). On these clouds, serivces with `externalTrafficPolicy: local` should
-work like a charm. On all others, they won't.
-
-We still had to set the default to `False`: There currently is an upstream bug
-that prevents the health-monitor with OVN provider load-balancers to be
-effective for accesses via the floating-IP address. Until this is resolved,
-we can not get everything to work. We are looking into the upstream issue
-and hope to contribute and backport a fix before R5.
+We have been able to address the issue that the proxy protocol breaks internal
+connections to nginx. So we enable it by default now, allowing the nginx
+service to see the real client IPs. We would like not to need this, but are
+not fully there. For users that deploy services with `externalTrafficPolicy:  local`,
+it's worth reading the document at (doc/LoadBalancer-ExtTrafficLocal.md).
 
 ### Completed upgrade guide (#293)
 
