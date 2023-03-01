@@ -19,19 +19,17 @@ echo "Deploy NGINX ingress $NGINX_VERSION controller to $CLUSTER_NAME"
 if test ! -s base/nginx-ingress-controller-${NGINX_VERSION}.yaml; then
 	curl -L https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-${NGINX_VERSION}/deploy/static/provider/cloud/deploy.yaml > base/nginx-ingress-controller-${NGINX_VERSION}.yaml || exit 2
 fi
+# Default to original (mey be overwritten by kustomize)
+cp -p base/nginx-ingress-controller-${NGINX_VERSION}.yaml ~/$CLUSTER_NAME/deployed-manifests.d/nginx-ingress.yaml
 ln -sf nginx-ingress-controller-${NGINX_VERSION}.yaml base/nginx-ingress-controller.yaml
 if test "$NGINX_INGRESS_PROXY" = "false"; then
-    if ! grep '^enable-health-monitor=true'  ~/$CLUSTER_NAME/cloud.conf >/dev/null 2>&1; then
+    if ! grep '^enable\-health\-monitor=true'  ~/$CLUSTER_NAME/cloud.conf >/dev/null 2>&1; then
 	kustomize build nginx-monitor > ~/$CLUSTER_NAME/deployed-manifests.d/nginx-ingress.yaml || exit 3
     fi
 else
-    if ! grep '^lb-provider=ovn' ~/$CLUSTER_NAME/cloud.conf >/dev/null 2>&1; then
+    if ! grep '^lb\-provider=ovn' ~/$CLUSTER_NAME/cloud.conf >/dev/null 2>&1; then
 	kustomize build nginx-proxy > ~/$CLUSTER_NAME/deployed-manifests.d/nginx-ingress.yaml || exit 3
     fi
-fi
-# If we have not processed with kustomize, use the original
-if test ! -s ~/$CLUSTER_NAME/deployed-manifests.d/nginx-ingress.yaml; then
-	cp -p base/nginx-ingress-controller-${NGINX_VERSION}.yaml ~/$CLUSTER_NAME/deployed-manifests.d/nginx-ingress.yaml
 fi
 sed -i "s@set-real-ip-from: .*\$@set-real-ip-from: \"${NODE_CIDR}\"@" ~/$CLUSTER_NAME/deployed-manifests.d/nginx-ingress.yaml
 sed -i "s@proxy-real-ip-cidr: .*\$@proxy-real-ip-cidr: \"${NODE_CIDR}\"@" ~/$CLUSTER_NAME/deployed-manifests.d/nginx-ingress.yaml
