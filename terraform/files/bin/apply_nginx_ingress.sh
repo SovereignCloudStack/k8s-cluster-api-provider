@@ -23,7 +23,7 @@ fi
 cp -p base/nginx-ingress-controller-${NGINX_VERSION}.yaml ~/$CLUSTER_NAME/deployed-manifests.d/nginx-ingress.yaml
 ln -sf nginx-ingress-controller-${NGINX_VERSION}.yaml base/nginx-ingress-controller.yaml
 if test "$NGINX_INGRESS_PROXY" = "false"; then
-    if ! grep '^enable\-health\-monitor=true'  ~/$CLUSTER_NAME/cloud.conf >/dev/null 2>&1; then
+    if ! grep '^create\-monitor=true'  ~/$CLUSTER_NAME/cloud.conf >/dev/null 2>&1; then
 	kustomize build nginx-monitor > ~/$CLUSTER_NAME/deployed-manifests.d/nginx-ingress.yaml || exit 3
     fi
 else

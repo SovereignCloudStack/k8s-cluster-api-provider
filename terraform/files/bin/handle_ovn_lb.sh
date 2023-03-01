@@ -47,15 +47,16 @@ use_ovn()
 	CLOUDCONF="$HOME/$CLUSTER_NAME/cloud.conf"
 	set_cfg_octavia "lb-provider" "ovn"
 	set_cfg_octavia "lb-method" "SOURCE_IP_PORT"
-	set_cfg_octavia "enable-health-monitor" "true"
+	set_cfg_octavia "create-monitor" "true"
 }
 
 disable_ovn()
 {
 	CLOUDCONF="$HOME/$CLUSTER_NAME/cloud.conf"
 	#sed -i "s/^\(lb-provider=ovn\)/#\1/g" $CLOUDCONF
-	sed -i '/lb-provider=ovn/d' $CLOUDCONF
-	sed -i '/lb-method=SOURCE_IP_PORT/d' $CLOUDCONF
+	sed -i '/lb\-provider=ovn/d' $CLOUDCONF
+	sed -i '/lb\-method=SOURCE_IP_PORT/d' $CLOUDCONF
+	#sed -i '/create\-monitor=true/d' $CLOUDCONF
 }
 
 export USE_OVN=$(yq eval '.USE_OVN_LB_PROVIDER' $CCCFG)
