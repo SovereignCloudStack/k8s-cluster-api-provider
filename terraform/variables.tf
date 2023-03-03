@@ -52,7 +52,7 @@ variable "ssh_username" {
 variable "calico_version" {
   description = "desired version of calico"
   type        = string
-  default     = "v3.24.1"
+  default     = "v3.25.0"
 }
 
 variable "clusterapi_version" {
