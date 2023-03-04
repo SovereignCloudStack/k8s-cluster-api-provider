@@ -99,9 +99,12 @@ spec:
           ExecStart=chmod 0600 /root/etcd-backup
           ExecStart=xz -f /root/etcd-backup
           ExecStart=fstrim -v /var/lib/etcd
+          Nice=19
+          IOSchedulingClass=idle
+          IOSchedulingPriority=7
 
           [Install]
-          WantedBy=multi-user.target
+          WantedBy=timers.target
       - path: /etc/systemd/system/etcd-defrag.timer
         owner: "root:root"
         permissions: "0644"
@@ -115,7 +118,7 @@ spec:
           RandomizedDelaySec=15m
 
           [Install]
-          WantedBy=multi-user.target
+          WantedBy=timers.target
     postKubeadmCommands:
       - if test "${ETCD_UNSAFE_FS}" = "true"; then mount -o remount,barrier=0,commit=20 /; sed -i 's@errors=remount-ro@errors=remount-ro,barrier=0,commit=20@' /etc/fstab; fi
       - sync; systemctl restart kubelet    # We should no longer need this
