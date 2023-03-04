@@ -96,6 +96,7 @@ spec:
           ExecStart=etcdctl --cert /etc/kubernetes/pki/etcd/peer.crt --key /etc/kubernetes/pki/etcd/peer.key --cacert /etc/kubernetes/pki/etcd/ca.crt defrag
           ExecStart=sleep 3
           ExecStart=etcdctl --cert /etc/kubernetes/pki/etcd/peer.crt --key /etc/kubernetes/pki/etcd/peer.key --cacert /etc/kubernetes/pki/etcd/ca.crt snapshot save /root/etcd-backup
+          ExecStart=chmod 0600 /root/etcd-backup
           ExecStart=xz -f /root/etcd-backup
           ExecStart=fstrim -v /var/lib/etcd
 
