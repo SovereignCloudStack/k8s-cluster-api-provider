@@ -174,7 +174,7 @@ if test "$FULL" == "1"; then
 	#cleanup router ${CAPIPRE}-
 	cleanup_list router "" "" "$RTR"
 	cleanup "security group" ${CAPIPRE}-mgmt
-	cleanup "security group" allow-
+	cleanup "security group" ${CAPIPRE}-allow-
 	cleanup keypair ${CAPIPRE}-keypair
 	cleanup "application credential" ${CAPIPRE}-appcred
 	#cleanup volume pvc-

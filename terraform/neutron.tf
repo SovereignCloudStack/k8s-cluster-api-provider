@@ -1,7 +1,7 @@
 # generic security group allow ssh connection 
 # used for cluster-api-nodes
 resource "openstack_compute_secgroup_v2" "security_group_ssh" {
-  name        = "allow-ssh"
+  name        = "${var.prefix}-allow-ssh"
   description = "security group for ssh 22/tcp (managed by terraform)"
 
   rule {
@@ -15,7 +15,7 @@ resource "openstack_compute_secgroup_v2" "security_group_ssh" {
 # generic security group allow icmp connection
 # used for cluster-api-nodes
 resource "openstack_compute_secgroup_v2" "security_group_icmp" {
-  name        = "allow-icmp"
+  name        = "${var.prefix}-allow-icmp"
   description = "security group for ICMP"
 
   rule {

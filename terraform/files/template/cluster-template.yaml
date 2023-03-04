@@ -150,8 +150,8 @@ spec:
         name: ${CLUSTER_NAME}-cloud-config
         kind: Secret
       securityGroups:
-        - name: allow-ssh
-        - name: allow-icmp
+        - name: ${PREFIX}-allow-ssh
+        - name: ${PREFIX}-allow-icmp
         - name: ${PREFIX}-${CLUSTER_NAME}-cilium
 ---
 apiVersion: cluster.x-k8s.io/v1beta1
@@ -196,8 +196,8 @@ spec:
       image: ${OPENSTACK_IMAGE_NAME}
       sshKeyName: ${OPENSTACK_SSH_KEY_NAME}
       securityGroups:
-        - name: allow-ssh
-        - name: allow-icmp
+        - name: ${PREFIX}-allow-ssh
+        - name: ${PREFIX}-allow-icmp
         - name: ${PREFIX}-${CLUSTER_NAME}-cilium
 ---
 apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
