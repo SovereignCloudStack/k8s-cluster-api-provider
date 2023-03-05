@@ -152,7 +152,8 @@ if test "$USE_CILIUM" = "true"; then
   KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium install
   touch ~/$CLUSTER_NAME/deployed-manifests.d/.cilium
 else
-  sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" ~/kubernetes-manifests.d/calico.yaml > ~/$CLUSTER_NAME/deployed-manifests.d/calico.yaml
+  curl -L https://raw.githubusercontent.com/projectcalico/calico/$CALICO_VERSION/manifests/calico.yaml -o ~/$CLUSTER_NAME/deployed-manifests.d/calico.yaml
+  sed -i "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" ~/$CLUSTER_NAME/deployed-manifests.d/calico.yaml
   kubectl $KCONTEXT apply -f ~/$CLUSTER_NAME/deployed-manifests.d/calico.yaml
 fi
 
