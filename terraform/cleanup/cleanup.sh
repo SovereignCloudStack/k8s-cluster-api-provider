@@ -111,15 +111,15 @@ fi
 echo "Deleting cluster $CLUSTER"
 # cleanup loadbalancers
 if test -n "$NOCASCADE"; then
-POOLS=$(resourcelist "loadbalancer pool" "\(clusterapi\|kube_service_${CLUSTER}_ingress-nginx_ingress-nginx-controller\)")
+POOLS=$(resourcelist "loadbalancer pool" "\(clusterapi-.*-${CLUSTER}-kubeapi\|kube_service_${CLUSTER}_ingress-nginx_ingress-nginx-controller\)")
 for POOL in $POOLS; do
 	#MEMBERS=$(resourcelist "loadbalancer member" clusterapi $POOL)
-	cleanup "loadbalancer member" "\(clusterapi\|kube_service_${CLUSTER}_ingress-nginx_ingress-nginx-controller\)" $POOL
+	cleanup "loadbalancer member" "\(clusterapi-.*-${CLUSTER}-kubeapi\|kube_service_${CLUSTER}_ingress-nginx_ingress-nginx-controller\)" $POOL
 done
 cleanup_list "loadbalancer pool" "" "" "$POOLS"
-cleanup "loadbalancer listener" "\(clusterapi\|kube_service_${CLUSTER}_ingress-nginx_ingress-nginx-controller\)"
+cleanup "loadbalancer listener" "\(clusterapi-.*-${CLUSTER}-kubeapi\|kube_service_${CLUSTER}_ingress-nginx_ingress-nginx-controller\)"
 fi
-LBS=$(resourcelist loadbalancer "\(clusterapi\|kube_service_${CLUSTER}_ingress-nginx_ingress-nginx-controller\)" "" vip_address)
+LBS=$(resourcelist loadbalancer "\(clusterapi-.*-${CLUSTER}-kubeapi\|kube_service_${CLUSTER}_ingress-nginx_ingress-nginx-controller\)" "" vip_address)
 #cleanup_list "floating ip" 2 "" "$LBS"
 while read LB FIP; do
 	if test -z "$FIP"; then continue; fi
@@ -174,7 +174,7 @@ if test "$FULL" == "1"; then
 	#cleanup router ${CAPIPRE}-
 	cleanup_list router "" "" "$RTR"
 	cleanup "security group" ${CAPIPRE}-mgmt
-	cleanup "security group" allow-
+	cleanup "security group" ${CAPIPRE}-allow-
 	cleanup keypair ${CAPIPRE}-keypair
 	cleanup "application credential" ${CAPIPRE}-appcred
 	#cleanup volume pvc-

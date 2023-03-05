@@ -19,7 +19,7 @@ R4 was released on 2024-03-22.
 
 ## Updated software
 
-### capi v1.. and openstack capi provider 0..
+### capi v1.3.5 and openstack capi provider 0.7.1
 
 [Kubernetes Cluster API Provider](https://cluster-api.sigs.k8s.io/)
 [OpenStack Provider for CAPI](https://cluster-api-openstack.sigs.k8s.io/)
@@ -44,7 +44,7 @@ so we do allow the deployment using an override parameter.
 
 We regularly update to the latest stable versions.
 
-### cert-manager 1.11.x, nginx-ingress 1..0
+### cert-manager 1.11.x, nginx-ingress 1.6.x
 
 ## New features
 
