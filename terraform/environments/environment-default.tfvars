@@ -11,7 +11,7 @@ clusterapi_version   = "<1.x.y>"		  # defaults to "1.2.6"
 capi_openstack_version = "<0.x.y>"		  # defaults to "0.6.4"
 image                = "<glance_image>"		  # defaults to "Ubuntu 22.04"
 # Settings for testcluster
-kubernetes_version   = "<v1.XX.XX>"		  # defaults to "v1.23.x"
+kubernetes_version   = "<v1.XX.XX>"		  # defaults to "v1.25.x"
 kube_image_raw       = "<boolean>"      # defaults to "true"
 calico_version       = "<v3.xx.y>"	# defaults to "v3.24.1"
 controller_flavor    = "<flavor>"       # defaults to SCS-2C:4:20s (use etcd tweaks if you only have SCS-2V:4:20 in multi-controller setups)
