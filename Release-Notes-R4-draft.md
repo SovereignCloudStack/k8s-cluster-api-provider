@@ -65,9 +65,13 @@ The default value (an empty list `[ ]`) will result in the traditional setting t
 allows access from anywhere. Setting it to `[ "none" ]` will result in no access (beyond internal
 nodes and the management host). Note that filtering for IP ranges from the public internet is not
 a silver bullet against connection attempts from evil attackers, as IP spoofing might be used,
-so do not consider this the only line of defense to secure your cluster. A higher security
-setup might use a jumphost/bastion host to channel all API traffic through and the local IP
-address of it could be configured in this setting.
+so do not consider this the only line of defense to secure your cluster. Also be aware that in order
+to allow for internal access, the IP address used for outgoing IP connections (with SNAT) is always
+allowed, which means all VMs in this region of your cloud provider are allowed to connect.
+A higher security setup might use a jumphost/bastion host to channel all API traffic through and
+the local IP address of it could be configured in this setting. By changing the cluster-template,
+one can even completely disable assigning a floating IP to the loadbalancer in front of the kube-api
+server.
 
 When you use these controls and move your cluster-API objects to a new cluster, please ensure
 that the new management cluster can access the kube-api from the to-be-managed cluster.
