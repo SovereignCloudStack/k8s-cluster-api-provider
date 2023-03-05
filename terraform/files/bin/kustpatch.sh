@@ -62,16 +62,17 @@ if test ! -s $KTMPDIR/base/base.yaml; then
 	fi
 fi
 echo -e "resources:\n  - base.yaml" >> $KTMPDIR/base/kustomization.yaml
-echo -e "resources:\n - ../base\npatches:" >> $KTMPDIR/patch/kustomization.yaml
+echo -e "resources:\n  - ../base\npatches:" >> $KTMPDIR/patch/kustomization.yaml
 
 for patch in "$@"; do
        if test ! -s "$patch"; then echo "ERROR: Patch file $patch not readable" 1>&2; usage 5; fi
        cp -p "$patch" $KTMPDIR/patch/
-       echo " - path: ${patch##*/}" >> $KTMPDIR/patch/kustomization.yaml
+       echo "  - path: ${patch##*/}" >> $KTMPDIR/patch/kustomization.yaml
 done
 cd $KTMPDIR
 kustomize build patch
 RC=$?
+#if test $RC = 0; then cleanup; fi
 cleanup
 exit $RC
 
