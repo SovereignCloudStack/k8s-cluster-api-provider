@@ -19,7 +19,7 @@ R4 was released on 2024-03-22.
 
 ## Updated software
 
-### capi v1.. and openstack capi provider 0..
+### capi v1.3.5 and openstack capi provider 0.7.1
 
 [Kubernetes Cluster API Provider](https://cluster-api.sigs.k8s.io/)
 [OpenStack Provider for CAPI](https://cluster-api-openstack.sigs.k8s.io/)
