@@ -480,6 +480,7 @@ Parameters controlling the cluster creation:
 | `etcd_prio_boost`                | `ETCD_PRIO_BOOST`                         | SCS        | `true`                                   | Ignored: We always use longer heartbeat (250ms)/election-timeout(2.5s) and higher prio IO and CPUs now. (Legacy setting.)                                                                                |
 | `etcd_unsafe_fs`                 | `ETCD_UNSAFE_FS`                          | SCS        | `false`                                  | Use `barrier=0` for filesystem on control nodes to avoid storage latency. Use for multi-controller clusters on slow/networked storage, otherwise not recommended.                                        |
 | `testcluster_name`               | (cmd line)                                | SCS        | `testcluster`                            | Allows setting the default cluster name, created at bootstrap (if `controller_count` is larger than 0)                                                                                                   |
+| `restrict_kubeapi`               | `RESTRICT_KUBEAPI`                        | SCS        |  `[ ]`                                   | Allows restricting access to kubernetes API by list of CIDRs. Empty list (default) means public, `[ none ]` means internal access only.                                                                  |
 
 Optional services deployed to cluster:
 

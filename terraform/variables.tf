@@ -192,3 +192,9 @@ variable "testcluster_name" {
   type        = string
   default     = "testcluster"
 }
+
+variable "restrict_kubeapi" {
+  description = "array of IP ranges (CIDRs) that get exclusive access. Leave open for all, none for excusive internal access"
+  type        = list(string)
+  default     = []
+}

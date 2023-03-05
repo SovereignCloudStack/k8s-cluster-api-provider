@@ -31,3 +31,4 @@ deploy_cindercsi     = "<version>"      # defaults to "true", dito
 etcd_prio_boost      = "<boolean>"      # defaults to "true", is ignored and always enabled (legacy)
 etcd_unsafe_fs       = "<boolean>"      # defaults to "false", dangerous
 testcluster_name     = "NAME"           # defaults to "testcluster"
+restrict_kubeapi     = [ "IP/20", "IP/22" ]	# defaults to empty (fully open), use [ "none" ] for exclusive internal access
