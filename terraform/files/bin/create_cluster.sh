@@ -8,6 +8,8 @@ STARTTIME=$(date +%s)
 . ~/.capi-settings
 . ~/bin/cccfg.inc
 
+export PREFIX
+
 # Ensure directory for cluster exists
 if test ! -d ~/$CLUSTER_NAME; then 
 	mkdir -p ~/$CLUSTER_NAME
@@ -102,6 +104,9 @@ fi
 clusterctl $KCCCFG generate cluster "${CLUSTER_NAME}" --from ${CLUSTERAPI_TEMPLATE} > ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
 # Remove empty serverGroupID
 sed -i '/^ *serverGroupID: nonono$/d' ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
+
+# Apply kubeapi access restrictions
+apply_kubeapi_cidrs.sh "$CCCFG" ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
 
 # Test for CILIUM
 USE_CILIUM=$(yq eval '.USE_CILIUM' $CCCFG)
