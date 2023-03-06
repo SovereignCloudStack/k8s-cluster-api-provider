@@ -143,7 +143,7 @@ the same kubernetes version number.
 On the management host (login with ``make ssh``), create a directory (below the home of
 the standard ubuntu user) with the name of your cluster. Copy over ``clusterctl.yaml`` from
 ``~/cluster-defaults/`` and edit it according to your needs. You can also copy over other
-files from ``~/clluster-defaults/`` and adjust them, but this is only needed in exceptional
+files from ``~/cluster-defaults/`` and adjust them, but this is only needed in exceptional
 cases.
 Now run ``create_cluster.sh <CLUSTER_NAME>``
 
