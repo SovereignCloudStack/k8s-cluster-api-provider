@@ -218,7 +218,7 @@ Note that you can have additional projects or clouds listed in your
 in the ``OPENSTACK_CLOUD`` setting of your ``clusterctl.yaml``, so you can
 manage clusters in various projects and clouds from the same management host.
 
-## Cluster Management on the C-API management node
+## Cluster Management on the CAPI management node
 
 You can use ``make ssh`` to log in to the CAPI management node. There you can issue
 ``clusterctl`` and ``kubectl`` (aliased to ``k``) commands. The context ``kind-kind``
