@@ -173,8 +173,12 @@ fi
 
 # Flux2
 DEPLOY_FLUX=$(yq eval '.DEPLOY_FLUX' $CCCFG)
-if test "$DEPLOY_FLUX" = "true"; then
-  KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} flux install || exit $?
+if test "$DEPLOY_FLUX" = "true" -o "${DEPLOY_FLUX:0:1}" = "v"; then
+  FLUX_INSTALL_OPTS="--timeout 10m0s"
+  if test "${DEPLOY_FLUX:0:1}" = "v"; then
+    FLUX_INSTALL_OPTS+=" --version $DEPLOY_FLUX"
+  fi
+  KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} flux install $FLUX_INSTALL_OPTS || exit $?
   touch ~/$CLUSTER_NAME/deployed-manifests.d/.flux
 fi
 

@@ -128,9 +128,9 @@ variable "deploy_cert_manager" {
 }
 
 variable "deploy_flux" {
-  description = "install flux into k8s-capi created clusters"
-  type        = bool
-  default     = false
+  description = "install flux (version) into k8s-capi created clusters"
+  type        = string
+  default     = "false"
 }
 
 variable "deploy_occm" {
