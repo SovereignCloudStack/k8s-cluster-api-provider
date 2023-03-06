@@ -7,13 +7,13 @@ external             = "<external_network_name>"
 dns_nameservers      = [ "DNS_IP1", "DNS_IP2" ]	  # defaults to [ "5.1.66.255", "185.150.99.255" ] (FF MUC)
 kind_flavor          = "<flavor>"                 # defaults to SCS-1V:4:20  (larger does not hurt)
 ssh_username         = "<username_for_ssh>"	  # defaults to "ubuntu"
-clusterapi_version   = "<1.x.y>"		  # defaults to "1.2.6"
-capi_openstack_version = "<0.x.y>"		  # defaults to "0.6.4"
+clusterapi_version   = "<1.x.y>"		  # defaults to "1.3.5"
+capi_openstack_version = "<0.x.y>"		  # defaults to "0.7.1"
 image                = "<glance_image>"		  # defaults to "Ubuntu 22.04"
 # Settings for testcluster
 kubernetes_version   = "<v1.XX.XX>"		  # defaults to "v1.23.x"
 kube_image_raw       = "<boolean>"      # defaults to "true"
-calico_version       = "<v3.xx.y>"	# defaults to "v3.24.1"
+calico_version       = "<v3.xx.y>"	# defaults to "v3.25.0"
 controller_flavor    = "<flavor>"       # defaults to SCS-2C:4:20s (use etcd tweaks if you only have SCS-2V:4:20 in multi-controller setups)
 worker_flavor        = "<flavor>"       # defaults to SCS-2V:4:20  (larger helps)
 controller_count     = <number>         # defaults to 1 (0 skips testcluster creation)

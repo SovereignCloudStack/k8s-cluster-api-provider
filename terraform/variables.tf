@@ -52,19 +52,19 @@ variable "ssh_username" {
 variable "calico_version" {
   description = "desired version of calico"
   type        = string
-  default     = "v3.24.1"
+  default     = "v3.25.0"
 }
 
 variable "clusterapi_version" {
   description = "desired version of cluster-api"
   type        = string
-  default     = "1.2.6"
+  default     = "1.3.5"
 }
 
 variable "capi_openstack_version" {
   description = "desired version of the OpenStack cluster-api provider"
   type        = string
-  default     = "0.6.4"
+  default     = "0.7.1"
 }
 
 variable "kubernetes_version" {
