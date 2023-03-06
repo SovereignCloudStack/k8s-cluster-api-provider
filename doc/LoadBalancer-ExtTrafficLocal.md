@@ -1,7 +1,7 @@
 # Why `externalTrafficPolicy: local`?
 
 Setting up the nginx ingress controller from the upstream deployment templates
-usijnes the `externalTrafficPolicy: local` setting and -- without any special
+using the `externalTrafficPolicy: local` setting and -- without any special
 treatment -- results in a service that is only partially working: Only requests
 that the LoadBalancer happens to route at the node where the nginx container is
 running get a response.
