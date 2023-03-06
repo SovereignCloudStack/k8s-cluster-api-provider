@@ -44,6 +44,11 @@ $1=$2" $CLOUDCONF
 
 use_ovn()
 {
+	echo "Warning: use_ovn_lb_provider is a preview feature that does not fully work" 1>&2
+	if test "$ALLOW_PREVIEW_FEATURES" != "1"; then echo
+		echo "You need to pass --allow-preview-features to allow using it" 1>&2
+		exit 1
+	fi
 	CLOUDCONF="$HOME/$CLUSTER_NAME/cloud.conf"
 	set_cfg_octavia "lb-provider" "ovn"
 	set_cfg_octavia "lb-method" "SOURCE_IP_PORT"

@@ -78,6 +78,11 @@ There are unfortunately two problems with the health-monitoring on the OVN provi
   does not yet support HTTP health-monitors, only TCP. We'll have to wait for (and
   possibly help with) HTTP health-monitors to be implemented upstream.
 
+Due to the HTTP health-monitor not being supported, the created loadbalancer is not
+considered functional, so the reconciliation loop creates another loadbalancer until
+your project runs into quota limits (on the loadbalancer or on ports).
+So for now, the feature `use_ovn_lb_provider` should not be enabled.
+
 # Enabling health-monitor by default?
 
 We could enable a health-monitor by default for load-balancers created from OCCM
