@@ -30,7 +30,7 @@ annotation (OpenStack specific, sigh) that enables the health-monitor for the LB
 front of the ingress. This results in traffic to flow.
 
 This covers the nginx ingress controller that is deployed by setting`
- DEPLOY_NGINX_INGRESS: true` with the the `create_cluster.sh` or `apply_nginx_ingress.sh`.
+ DEPLOY_NGINX_INGRESS: true` with the `create_cluster.sh` or `apply_nginx_ingress.sh`.
 That the ingress we call the "managed ingress".
 
 For the ingress service to see the client IPs, more is needed. The Octavia LB
