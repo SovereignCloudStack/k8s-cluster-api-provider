@@ -13,7 +13,7 @@ the network packets. There are two reasons for nginx not to do that
    to have kube-proxy forward it to the active node does not make much sense.
    It creates an unecessary hop and makes the LoadBalancer pretty useless.
 
-2. Packets forwarded by kube-proxy do notcarry the original client IP, so any
+2. Packets forwarded by kube-proxy do not carry the original client IP, so any
    source IP dependant handling in nginx (filtering, QoS, ...) will not be
    possible.
 
