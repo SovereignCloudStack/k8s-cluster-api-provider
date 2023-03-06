@@ -19,7 +19,7 @@ echo "Deploy NGINX ingress $NGINX_VERSION controller to $CLUSTER_NAME"
 if test ! -s base/nginx-ingress-controller-${NGINX_VERSION}.yaml; then
 	curl -L https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-${NGINX_VERSION}/deploy/static/provider/cloud/deploy.yaml > base/nginx-ingress-controller-${NGINX_VERSION}.yaml || exit 2
 fi
-# Default to original (mey be overwritten by kustomize)
+# Default to original (may be overwritten by kustomize)
 cp -p base/nginx-ingress-controller-${NGINX_VERSION}.yaml ~/$CLUSTER_NAME/deployed-manifests.d/nginx-ingress.yaml
 ln -sf nginx-ingress-controller-${NGINX_VERSION}.yaml base/nginx-ingress-controller.yaml
 if test "$NGINX_INGRESS_PROXY" = "false"; then
