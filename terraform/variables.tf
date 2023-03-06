@@ -197,4 +197,8 @@ variable "use_ovn_lb_provider" {
   description = "usage of OVN octavia provider (false, auto, true)"
   type        = string
   default     = "false"
+  validation {
+    condition     = contains(["false", "auto", "true"], var.use_ovn_lb_provider)
+    error_message = "Invalid setting for use_ovn_lb_provider variable."
+  }
 }
