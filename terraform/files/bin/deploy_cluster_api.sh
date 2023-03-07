@@ -48,7 +48,10 @@ sudo mv calicoctl /usr/local/bin
 
 # Install cilium
 # TODO: Check signature
-CILIUM_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/master/stable.txt)
+CILIUM_VERSION="v0.13.1"
+if test "${USE_CILIUM:0:1}" = "v"; then
+  CILIUM_VERSION="${USE_CILIUM%%;*}"
+fi
 curl -L --remote-name-all https://github.com/cilium/cilium-cli/releases/download/$CILIUM_VERSION/cilium-linux-$ARCH.tar.gz{,.sha256sum}
 sha256sum --check cilium-linux-$ARCH.tar.gz.sha256sum || exit
 #https://github.com/cilium/cilium-cli/releases/download/v0.12.3/cilium-linux-amd64.tar.gz

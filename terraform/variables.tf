@@ -158,9 +158,9 @@ variable "dns_nameservers" {
 }
 
 variable "use_cilium" {
-  description = "use cilium rather than calico as CNI"
-  type        = bool
-  default     = false
+  description = "use cilium (versions) rather than calico as CNI"
+  type        = string
+  default     = "false"
 }
 
 variable "etcd_unsafe_fs" {

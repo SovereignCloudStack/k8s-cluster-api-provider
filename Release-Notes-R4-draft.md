@@ -40,7 +40,7 @@ k8s-v1.26 is not officially supported by capi yet; it has survived our
 testing with the CNCF testsuite, rolling upgrades and `clusterctl move`s though,
 so we do allow the deployment using an override parameter.
 
-### calico 3.25.x, cilium 1..x, helm 3.11.x, sonobuoy 0.56.x, k9s 0.26.x, kind 0.17.1
+### calico 3.25.x, cilium 1.13.x, helm 3.11.x, sonobuoy 0.56.x, k9s 0.26.x, kind 0.17.1
 
 We regularly update to the latest stable versions.
 
