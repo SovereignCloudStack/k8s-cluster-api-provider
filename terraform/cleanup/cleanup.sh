@@ -106,11 +106,14 @@ CAPIPRE3="k8s-cluster-default"
 # For full cleanup, delete CAPI mgmt server first
 if test "$FULL" == "1"; then
 	echo "Deleting management node with prefix $CAPIPRE"
-	# Note: Column "Networks" contains a map of server's network names and associated IPs as follows:
-	#  {'<network-name-1>': ['<IP>', '<IP>'], ..., '<network-name-n>': ['<IP>', '<IP>']}
-	#  Custom `sed` expression below returns the last IP from the last server network. We assumed
-	#  here that it is a floating IP associated with the capi mgmt server.
-	CAPI=$(resourcelist server ${CAPIPRE}-mgmtcluster "" Networks "s/^\([0-9a-f-]*\) .* '\(.*\)']}$/\1 \2/g")
+	# Note: Column "Networks" contains a map of server's network names and associated IPs.
+	#  OpenStack client =<5.4.0 returns network details as follows:
+	#    <network-name-1>=<IP>, <IP>, ..., <network-name-n>=<IP>, <IP>
+	#  OpenStack client =>5.5.0 returns network details as follows:
+	#    {'<network-name-1>': ['<IP>', '<IP>'], ..., '<network-name-n>': ['<IP>', '<IP>']}
+	#  Custom `sed` expression below filters the last IP from the last server network. It works with both formats.
+	#  We assumed here that it is a floating IP associated with the capi mgmt server.
+	CAPI=$(resourcelist server ${CAPIPRE}-mgmtcluster "" Networks "s/^\([0-9a-f-]*\) .*, [']\{0,1\}\(\([0-9]*\.\)\{3\}[0-9]*\).*\$/\1 \2/g")
 	cleanup_list server 1 "" "$CAPI"
 	cleanup_list "floating ip" 2 "" "$CAPI"
 fi
