@@ -4,9 +4,9 @@ This guide shows you how to get working Kubernetes clusters on a SCS cloud
 via [cluster-api](https://cluster-api.sigs.k8s.io/)(CAPI).
 
 Cluster API requires an existing Kubernetes cluster. It is built with [kind](https://kind.sigs.k8s.io/)
-on an OpenStack instance created via Terraform. This instance, called management server or management
+on an OpenStack instance created via Terraform. This instance, called capi management server or management
 cluster can be used later on for the management
-of the newly created cluster, or for creating additional clusters.
+of the newly created cluster, and for creating and managing additional clusters.
 
 Basically, this repository covers two topics:
 1. Automation (terraform, Makefile) to bootstrap a cluster-API management server by
@@ -53,10 +53,10 @@ DevOps teams that develop, test, deploy and operate services and applications.
 We expect the functionality to be mainly consumed in two scenarios:
 
 * Self-service: The DevOps team leverages the code provided from this repository
-  to create their own CAPI management server and use it then to manage a number
+  to create their own capi management server and use it then to manage a number
   of k8s clusters for their own needs.
 
-* Managed k8s: The Operator's service team creates the CAPI management server and
+* Managed k8s: The Operator's service team creates the capi management server and
   uses it to provide managed k8s clusters for their clients.
 
 Note that we have an intermediate model in mind -- a model where a one-click / one-API
@@ -119,7 +119,7 @@ default testcluster.)
 
 ## Teardown
 
-``make clean`` does ssh to the CAPI management server to clean up the created clusters prior
+``make clean`` does ssh to the capi management server to clean up the created clusters prior
 to terraform cleaning up the resources it has created. This is sometimes insufficient to clean up
 unfortunately, some error in the deployment may result in resources left around.
 ``make fullclean`` uses a custom script (using the openstack CLI) to clean up everything
@@ -219,9 +219,9 @@ Note that you can have additional projects or clouds listed in your
 in the ``OPENSTACK_CLOUD`` setting of your ``clusterctl.yaml``, so you can
 manage clusters in various projects and clouds from the same management server.
 
-## Cluster Management on the CAPI management node
+## Cluster Management on the capi management node
 
-You can use ``make ssh`` to log in to the CAPI management server. There you can issue
+You can use ``make ssh`` to log in to the capi management server. There you can issue
 ``clusterctl`` and ``kubectl`` (aliased to ``k``) commands. The context ``kind-kind``
 is used for the CAPI management while the context ``testcluster-admin@testcluster`` can
 be used to control the workload cluster ``testcluster``. You can of course create many
@@ -237,7 +237,7 @@ of them. There are management scripts on the management server:
   the settings from ``~/$CLUSTERNAME/clusterctl.yaml``. More precisely, it uses the template
   ``$CLUSTERNAME/cluster-template.yaml`` and fills in the the settings from 
   ``$CLUSTERNAME/clusterctl.yaml`` to render a config file ``$CLUSTERNAME/$CLUSTERNAME-config.yaml``
-  which will then be submitted to the CAPI server (``kind-kind`` context) for creating
+  which will then be submitted to the capi server (``kind-kind`` context) for creating
   the control plane nodes and worker nodes. The script will also apply openstack integration,
   cinder CSI, calico or cilium CNI, and optionally also metrics server, nginx ingress controller,
   flux, cert-manager. (These can be controlled by `DEPLOY_XXX` variables, see below.
@@ -291,7 +291,7 @@ of them. There are management scripts on the management server:
   exist. Use ``kubectl get all -A`` in the ``testcluster-admin@testcluster`` context
   to get an overview over the state of your workload cluster. You can access the logs
   from the capo controller in case you have trouble with cluster creation.
-* ``delete_cluster.sh [CLUSTERNAME]``: Tell the CAPI management server to remove
+* ``delete_cluster.sh [CLUSTERNAME]``: Tell the capi management server to remove
   the cluster $CLUSTERNAME. It will also remove persistent volume claims belonging
   to the cluster. The script will return once the removal is done.
 * ``cleanup.sh``: Remove all running clusters.
@@ -434,13 +434,13 @@ The provenance capo means that this setting comes from the templates used by
 the cluster-api-provider-openstack, while SCS denotes that this setting has
 been added by the SCS project..
 
-Parameters controlling the Cluster-API management server (CAPI management server) creation:
+Parameters controlling the Cluster-API management server (capi management server) creation:
 
 | environment              | clusterctl.yaml | provenance | default        | meaning                                                                       |
 |--------------------------|-----------------|------------|----------------|-------------------------------------------------------------------------------|
-| `prefix`                 |                 | SCS        | `capi`         | Prefix used for OpenStack resources for the CAPI mgmt server                  |
-| `kind_flavor`            |                 | SCS        | `SCS-1V:4:20`  | Flavor to be used for the k8s CAPI mgmt server                                |
-| `image`                  |                 | SCS        | `Ubuntu 22.04` | Image to be deployed for the CAPI mgmt server                                 |
+| `prefix`                 |                 | SCS        | `capi`         | Prefix used for OpenStack resources for the capi mgmt server                  |
+| `kind_flavor`            |                 | SCS        | `SCS-1V:4:20`  | Flavor to be used for the k8s capi mgmt server                                |
+| `image`                  |                 | SCS        | `Ubuntu 22.04` | Image to be deployed for the capi mgmt server                                 |
 | `ssh_username`           |                 | SCS        | `ubuntu`       | Name of the default user for the `image`                                      |
 | `clusterapi_version`     |                 | SCS        | `1.3.5`        | Version of the cluster-API incl. `clusterctl`                                 |
 | `capi_openstack_version` |                 | SCS        | `0.7.1`        | Version of the cluster-api-provider-openstack (needs to fit the CAPI version) |
@@ -451,7 +451,7 @@ Parameters controlling both management server creation and cluster creation:
 |---------------------|---------------------------------|------------|--------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
 | `cloud_provider`    | `OPENSTACK_CLOUD`               | capo       |                                      | `OS_CLOUD` name in clouds.yaml                                                                                               |
 | `external`          | `OPENSTACK_EXTERNAL_NETWORK_ID` | capo       |                                      | Name/ID of the external (public) OpenStack network                                                                           |
-| `dns_nameservers`   | `OPENSTACK_DNS_NAMESERVERS`     | capo       | `[ "5.1.66.255", "185.150.99.255" ]` | Array of nameservers for CAPI mgmt server and for cluster nodes, replace the FF MUC defaults with local servers if available |
+| `dns_nameservers`   | `OPENSTACK_DNS_NAMESERVERS`     | capo       | `[ "5.1.66.255", "185.150.99.255" ]` | Array of nameservers for capi mgmt server and for cluster nodes, replace the FF MUC defaults with local servers if available |
 | `availability_zone` | `OPENSTACK_FAILURE_DOMAIN`      | capo       |                                      | Availability Zone(s) for the mgmt node / workload clusters                                                                   |
 | `kind_mtu`          | `MTU_VALUE`                     | SCS        | `0`                                  | MTU for the mgmt server; Calico is set 50 bytes smaller; 0 means autodetection                                               |
 
@@ -466,7 +466,7 @@ Parameters controlling the cluster creation:
 | ` `                              | `OPENSTACK_IMAGE_NAME`                    | capo       | `ubuntu-capi-image-${KUBERNETES_VERION}` | Image name for k8s controller and worker nodes                                                                                                                                                           |
 | `kube_image_raw`                 | `OPENSTACK_IMAGE_RAW`                     | SCS        | `true`                                   | Register images in raw format (instead of qcow2), good for ceph COW                                                                                                                                      |
 | `image_registration_extra_flags` | `OPENSTACK_IMAGE_REGISTATION_EXTRA_FLAGS` | SCS        | `""`                                     | Extra flags passed during image registration                                                                                                                                                             |
-| ` `                              | `OPENSTACK_CONTROL_PLANE_IP`              | capo       | `127.0.0.1`                              | Use localhost to talk to CAPI cluster (don't change this!)                                                                                                                                               |
+| ` `                              | `OPENSTACK_CONTROL_PLANE_IP`              | capo       | `127.0.0.1`                              | Use localhost to talk to capi cluster (don't change this!)                                                                                                                                               |
 | ` `                              | `OPENSTACK_SSH_KEY_NAME`                  | capo       | `${prefix}-keypair`                      | SSH key name generated and used to connect to workload cluster nodes                                                                                                                                     |
 | `controller_flavor`              | `OPENSTACK_CONTROL_PLANE_MACHINE_FLAVOR`  | capo       | `SCS-2C:4:20s`                           | Flavor to be used for control plane nodes                                                                                                                                                                |
 | `worker_flavor`                  | `OPENSTACK_NODE_MACHINE_FLAVOR`           | capo       | `SCS-2V:4:20`                            | Flavor to be used for worker nodes                                                                                                                                                                       |
