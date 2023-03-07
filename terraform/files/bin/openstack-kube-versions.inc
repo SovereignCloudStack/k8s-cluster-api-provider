@@ -11,7 +11,7 @@ ccmr_versions=(""         ""        "v1.22.2"  "v1.22.2"  "v1.22.2"  "v1.23.4"  
 ccsi_versions=(""         ""        "v1.20.5"  "v1.21.1"  "v1.22.2"  "v1.23.4"  "v1.24.6" "v1.25.4" "v1.26.1")
 min_snapshot_master="v1.21.0"
 # Versions that require a --allow-preview-versions flag
-techprev_versions=("v1.26" "v1.27" "v2")
+techprev_versions=("v1.27" "v2")
 
 # Convert vxx.yy.zz to the number xxyyzz. Also works for z.y.z (0x0y0z).
 dotversion()
