@@ -48,6 +48,14 @@ We regularly update to the latest stable versions.
 
 ## New features
 
+### Enabling the proxy protocol for nginx ingress and preliminary support for OVN LB
+
+We have been able to address the issue that the proxy protocol breaks internal
+connections to nginx. So we enable it by default now, allowing the nginx
+service to see the real client IPs. We would like not to need this, but are
+not fully there. For users that deploy services with `externalTrafficPolicy:  local`,
+it's worth reading the document at (doc/LoadBalancer-ExtTrafficLocal.md).
+
 ### Completed upgrade guide (#293)
 
 See `doc/` directory.
