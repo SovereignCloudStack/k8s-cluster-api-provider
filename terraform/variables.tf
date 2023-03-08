@@ -128,9 +128,9 @@ variable "deploy_cert_manager" {
 }
 
 variable "deploy_flux" {
-  description = "install flux into k8s-capi created clusters"
-  type        = bool
-  default     = false
+  description = "install flux (version) into k8s-capi created clusters"
+  type        = string
+  default     = "false"
 }
 
 variable "deploy_occm" {
@@ -163,12 +163,6 @@ variable "use_cilium" {
   default     = false
 }
 
-variable "etcd_prio_boost" {
-  description = "boost etcd priority and lengthen heartbeat (ignored, always on)"
-  type        = bool
-  default     = true
-}
-
 variable "etcd_unsafe_fs" {
   description = "mount controller root fs with nobarrier"
   type        = bool
@@ -191,4 +185,14 @@ variable "testcluster_name" {
   description = "name of the testcluster optionally created during bootstrap"
   type        = string
   default     = "testcluster"
+}
+
+variable "use_ovn_lb_provider" {
+  description = "usage of OVN octavia provider (false, auto, true)"
+  type        = string
+  default     = "false"
+  validation {
+    condition     = contains(["false", "auto", "true"], var.use_ovn_lb_provider)
+    error_message = "Invalid setting for use_ovn_lb_provider variable."
+  }
 }
