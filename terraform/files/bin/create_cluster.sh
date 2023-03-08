@@ -28,6 +28,8 @@ CCCFG="$HOME/${CLUSTER_NAME}/clusterctl.yaml"
 fixup_k8s_version.sh $CCCFG || exit 1
 
 export PREFIX CLUSTER_NAME
+# Handle wanted OVN loadbalancer
+handle_ovn_lb.sh "$CLUSTER_NAME" || exit 1
 # Determine whether we need a new application credential
 create_appcred.sh || exit 1
 # Update OS_CLOUD
@@ -150,7 +152,8 @@ if test "$USE_CILIUM" = "true"; then
   KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium install
   touch ~/$CLUSTER_NAME/deployed-manifests.d/.cilium
 else
-  sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" ~/kubernetes-manifests.d/calico.yaml > ~/$CLUSTER_NAME/deployed-manifests.d/calico.yaml
+  curl -L https://raw.githubusercontent.com/projectcalico/calico/$CALICO_VERSION/manifests/calico.yaml -o ~/$CLUSTER_NAME/deployed-manifests.d/calico.yaml
+  sed -i "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" ~/$CLUSTER_NAME/deployed-manifests.d/calico.yaml
   kubectl $KCONTEXT apply -f ~/$CLUSTER_NAME/deployed-manifests.d/calico.yaml
 fi
 
@@ -172,8 +175,12 @@ fi
 
 # Flux2
 DEPLOY_FLUX=$(yq eval '.DEPLOY_FLUX' $CCCFG)
-if test "$DEPLOY_FLUX" = "true"; then
-  KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} flux install || exit $?
+if test "$DEPLOY_FLUX" = "true" -o "${DEPLOY_FLUX:0:1}" = "v"; then
+  FLUX_INSTALL_OPTS="--timeout 10m0s"
+  if test "${DEPLOY_FLUX:0:1}" = "v"; then
+    FLUX_INSTALL_OPTS+=" --version $DEPLOY_FLUX"
+  fi
+  KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} flux install $FLUX_INSTALL_OPTS || exit $?
   touch ~/$CLUSTER_NAME/deployed-manifests.d/.flux
 fi
 

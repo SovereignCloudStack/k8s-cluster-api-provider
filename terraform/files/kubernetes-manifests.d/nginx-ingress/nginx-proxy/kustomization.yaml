@@ -1,8 +1,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-bases:
+resources:
   - ../base
 patches:
-  - nginx-monitor.yaml
-  - nginx-proxy-cfgmap.yaml
-  - nginx-proxy-lb.yaml
+  - path: nginx-monitor.yaml
+  - path: nginx-proxy-cfgmap.yaml
+  - path: nginx-proxy-lb.yaml
