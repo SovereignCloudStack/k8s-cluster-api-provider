@@ -29,6 +29,5 @@ deploy_flux          = "version/true/false"       # defaults to "false", you can
 deploy_metrics       = "<boolean>"      # defaults to "true"
 deploy_occm          = "<version>"      # defaults to "true" (meaning matching k8s)
 deploy_cindercsi     = "<version>"      # defaults to "true", dito
-etcd_prio_boost      = "<boolean>"      # defaults to "true", is ignored and always enabled (legacy)
 etcd_unsafe_fs       = "<boolean>"      # defaults to "false", dangerous
 testcluster_name     = "NAME"           # defaults to "testcluster"

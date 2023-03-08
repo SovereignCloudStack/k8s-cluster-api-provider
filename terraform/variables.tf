@@ -163,12 +163,6 @@ variable "use_cilium" {
   default     = false
 }
 
-variable "etcd_prio_boost" {
-  description = "boost etcd priority and lengthen heartbeat (ignored, always on)"
-  type        = bool
-  default     = true
-}
-
 variable "etcd_unsafe_fs" {
   description = "mount controller root fs with nobarrier"
   type        = bool
