@@ -18,25 +18,25 @@ Basically, this repository covers two topics:
    [calico](https://www.tigera.io/tigera-products/calico/),
    [helm](https://helm.sh/),
    [flux](https://fluxcd.io/) ...) and deploying
-   [cluster-API]((https://cluster-api.sigs.k8s.io/) (clusterctl) and the
+   [cluster-API](https://cluster-api.sigs.k8s.io/) (clusterctl) and the
    [OpenStack cluster-api provider](https://github.com/kubernetes-sigs/cluster-api-provider-openstack)
    along with suitable credentials. The terraform automation is driven by a Makefile for
    convenience. The tooling also contains all the logic to clean up again.
    The newly deployed node clones this git repository early in the bootstrap
    process and uses the thus received files to set up the management
    cluster and scripts.
-1. This node can be connected to via ssh and the deployed scripts there can be
+2. This node can be connected to via ssh and the deployed scripts there can be
    used to manage workload clusters and then deploy various standardized tools (such
    as e.g. [OpenStack Cloud Controller Manager](https://github.com/kubernetes/cloud-provider-openstack)(OCCM),
    [cinder CSI](https://github.com/kubernetes/cloud-provider-openstack/blob/master/docs/cinder-csi-plugin/using-cinder-csi-plugin.md),
    calico or cilium CNI,
    [nginx ingress controller](https://kubernetes.github.io/ingress-nginx/),
    [cert-manager](https://cert-manager.io/), ...) and run tests (e.g. CNCF conformance
-   with [sonobuoy](https://sonobuoy.io/)). i
+   with [sonobuoy](https://sonobuoy.io/)).
    The tools and artifacts can be updated via `git pull` at any time and
    the updated settings rolled out to the workload clusters.
    Note that the script collection will
-   eventually be superceded by the
+   eventually be superseded by the
    [capi-helm-charts](https://github.com/stackhpc/capi-helm-charts). The
    medium-term goal is to actually create a reconciliation loop here that would
    perform life-cycle-management for clusters according to the cluster configuration
@@ -69,7 +69,7 @@ will become more convenient to use.
 
 ## Preparations
 
-The preparations are done on a deployment host, posssibly a tiny jumphost style VM,
+The preparations are done on a deployment host, possibly a tiny jumphost style VM,
 or some Linux/MacOS/WSL laptop.
 
 * Terraform must be installed (<https://learn.hashicorp.com/tutorials/terraform/install-cli>).
@@ -165,24 +165,23 @@ file will result in no changes to the cluster.
 
 ## Troubleshooting
 
-Please see the Maintenance and Troubleshooting Guide in the `doc/` directory.
-<https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/Maintenance_and_Troubleshooting.md>
+Please see the [Maintenance and Troubleshooting Guide](doc/Maintenance_and_Troubleshooting.md).
 
 ## Environments
 
- for the plusserver community environment it can choose here: 
+for the plusserver community environment it can choose here:
 ``export ENVIRONMENT=gx-scs``
 
- or insert inside of Makefile:
+or insert inside of Makefile:
 ``ENVIRONMENT=gx-scs``
 
- for the wavestack environment it can choose:
- ``export ENVIRONMENT=gx-wavestack``
+for the wavestack environment it can choose:
+``export ENVIRONMENT=gx-wavestack``
  
- or insert inside of Makefile:
- ``ENVIRONMENT=gx-wavestack``
+or insert inside of Makefile:
+``ENVIRONMENT=gx-wavestack``
 
- a cloud.yaml and secure.yaml will needed for the environments in side of terraform folder.
+a cloud.yaml and secure.yaml will be needed for the environments inside of terraform folder.
 
 ## Extensions (deprecated)
 
@@ -207,7 +206,7 @@ The AppCredential has a few advantages:
   deal with a mixture of project_id, project_name, project_domain_name,
   user_domain_name, only a subset of which is needed depending on the cloud.
 * We do not leak the user credentials into the cluster, making any security
-  breach more easy to contain.
+  breach easier to contain.
 * AppCreds are connected to one project and can be revoked.
 
 We are using an unrestricted AppCred for the management server which can then create
@@ -235,7 +234,7 @@ of them. There are management scripts on the management server:
   will do so for you and use all defaults settings.)
 * ``create_cluster.sh CLUSTERNAME``: Use this command to create a cluster with
   the settings from ``~/$CLUSTERNAME/clusterctl.yaml``. More precisely, it uses the template
-  ``$CLUSTERNAME/cluster-template.yaml`` and fills in the the settings from 
+  ``$CLUSTERNAME/cluster-template.yaml`` and fills in the settings from
   ``$CLUSTERNAME/clusterctl.yaml`` to render a config file ``$CLUSTERNAME/$CLUSTERNAME-config.yaml``
   which will then be submitted to the capi server (``kind-kind`` context) for creating
   the control plane nodes and worker nodes. The script will also apply openstack integration,
@@ -248,7 +247,7 @@ of them. There are management scripts on the management server:
   The script also makes sure that appropriate CAPI images are available (it grabs them
   from [OSISM](https://minio.services.osism.tech/openstack-k8s-capi-images)
   as needed and registers them with OpenStack, following the SCS image metadata
-  standard.
+  standard).
   The script returns once the control plane is fully working (the worker
   nodes might still be under construction). The kubectl file to talk to this
   cluster (as admin) can be found in ``~/$CLUSTERNAME/$CLUSTERNAME.yaml``. Expect the cluster
@@ -277,7 +276,7 @@ of them. There are management scripts on the management server:
   recreation of the management server (and thus also not the recreation of your
   managed workload clusters), but can be applied with calling `create_cluster.sh`
   again to the workload clusters.
-* The installaton of the openstack integration, cinder CSI, metrics server and
+* The installation of the openstack integration, cinder CSI, metrics server and
   nginx ingress controller is done via the ``bin/apply_*.sh`` scripts that are called
   from ``create_cluster.sh``. You can manually call them as well -- they take
   the cluster name as argument. (It's better to just call `create_cluster.sh`
@@ -360,8 +359,7 @@ All of them pass the sonobuoy CNCF conformance tests.
 
 ## Upgrading from earlier versions
 
-There is an upgrade guide in docs/Upgrade-Guide.md
-<https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/Upgrade-Guide.md>
+There is an upgrade guide in [doc/Upgrade-Guide.md](doc/Upgrade-Guide.md)
 
 ## etcd leader changes
 
@@ -396,13 +394,13 @@ If you don't have flavors that fulfill the requirements (low-latency
 storage attached), your choice is between a single-controller cluster
 (without `ETCD_UNSAFE_FS`) and a multi-controller cluster with
 `ETCD_UNSAFE_FS`. Neither option is perfect, but we deem the
-multi-controller cluster preferrable in such a scenario.
+multi-controller cluster preferable in such a scenario.
 
 ## Multi-AZ and multi-cloud environments
 
 The provided ``cluster-template.yaml`` assumes that all control nodes
 on one hand and all worker nodes on the other are equal. They are in the
-same cloud within the same availablity zone, using the same flavor.
+same cloud within the same availability zone, using the same flavor.
 cluster API allows k8s clusters to have varying flavors, span availability
 zones and even clouds. For this, you can create an advanced
 cluster-template with more different machine descriptions and potentially
@@ -432,7 +430,7 @@ technical preview.
 
 The provenance capo means that this setting comes from the templates used by
 the cluster-api-provider-openstack, while SCS denotes that this setting has
-been added by the SCS project..
+been added by the SCS project.
 
 Parameters controlling the Cluster-API management server (capi management server) creation:
 
@@ -457,40 +455,40 @@ Parameters controlling both management server creation and cluster creation:
 
 Parameters controlling the cluster creation:
 
-| environment                      | clusterctl.yaml                           | provenance | default                                  | meaning                                                                                                                                                                                                  |
-|----------------------------------|-------------------------------------------|------------|------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `node_cidr`                      | `NODE_CIDR`                               | SCS        | `10.8.0.0/20`                            | IPv4 address range (CIDR notation) for workload nodes                                                                                                                                                    |
-| `use_cilium`                     | `USE_CILIUM`                              | SCS        | `false`                                  | Use cilium as CNI instead of calico                                                                                                                                                                      |
-| `calico_version`                 |                                           | SCS        | `v3.25.0`                                | Version of the Calico CNI provider (ignored if `use_cilium` is set)                                                                                                                                      |
-| `kubernetes_version`             | `KUBERNETES_VERSION`                      | capo       | `v1.25.x`                                | Kubernetes version deployed into workload cluster (`.x` means latest patch release)                                                                                                                      |
-| ` `                              | `OPENSTACK_IMAGE_NAME`                    | capo       | `ubuntu-capi-image-${KUBERNETES_VERION}` | Image name for k8s controller and worker nodes                                                                                                                                                           |
-| `kube_image_raw`                 | `OPENSTACK_IMAGE_RAW`                     | SCS        | `true`                                   | Register images in raw format (instead of qcow2), good for ceph COW                                                                                                                                      |
-| `image_registration_extra_flags` | `OPENSTACK_IMAGE_REGISTATION_EXTRA_FLAGS` | SCS        | `""`                                     | Extra flags passed during image registration                                                                                                                                                             |
-| ` `                              | `OPENSTACK_CONTROL_PLANE_IP`              | capo       | `127.0.0.1`                              | Use localhost to talk to capi cluster (don't change this!)                                                                                                                                               |
-| ` `                              | `OPENSTACK_SSH_KEY_NAME`                  | capo       | `${prefix}-keypair`                      | SSH key name generated and used to connect to workload cluster nodes                                                                                                                                     |
-| `controller_flavor`              | `OPENSTACK_CONTROL_PLANE_MACHINE_FLAVOR`  | capo       | `SCS-2C:4:20s`                           | Flavor to be used for control plane nodes                                                                                                                                                                |
-| `worker_flavor`                  | `OPENSTACK_NODE_MACHINE_FLAVOR`           | capo       | `SCS-2V:4:20`                            | Flavor to be used for worker nodes                                                                                                                                                                       |
-| `controller_count`               | `CONTROL_PLANE_MACHINE_COUNT`             | capo       | `1`                                      | Number of control plane nodes in testcluster (0 skips testcluster creation)                                                                                                                              |
-| ``                               | `CONTROL_PLANE_MACHINE_GEN`               | SCS        | `genc01`                                 | Suffix for control plane node resources, to be changed for rolling upgrades                                                                                                                              |
-| `worker_count`                   | `WORKER_MACHINE_COUNT`                    | capo       | `3`                                      | Number of worker nodes in testcluster                                                                                                                                                                    |
-| ``                               | `WORKER_MACHINE_GEN`                      | SCS        | `genw01`                                 | Suffix for worker node resources, to be changed for rolling upgrades                                                                                                                                     |
-| `anti_affinity`                  | `OPENSTACK_ANTI_AFFINITY`                 | SCS        | `true`                                   | Use anti-affinity server groups to prevent k8s nodes on same host (soft for workers, hard for controllers)                                                                                               |
-| ` `                              | `OPENSTACK_SRVGRP_CONTROLLER`             | SCS        | `nonono`                                 | Autogenerated if `anti_affinity` is `true`, eliminated otherwise                                                                                                                                         |
-| ` `                              | `OPENSTACK_SRVGRP_WORKER`                 | SCS        | `nonono`                                 | Autogenerated if `anti_affinity` is `true`, eliminated otherwise                                                                                                                                         |
-| `deploy_occm`                    | `DEPLOY_OCCM`                             | SCS        | `true`                                   | Deploy the given version of OCCM into the cluter. `true` (default) choses the latest version matching the k8s version. You can specify `master` to chose the upstream master branch. Don't disable this. |
-| `deploy_cindercsi`               | `DEPLOY_CINDERCSI`                        | SCS        | `true`                                   | Deploy the given (or latest matching for the default true value) of cinder CSI.                                                                                                                          |
-| `etcd_unsafe_fs`                 | `ETCD_UNSAFE_FS`                          | SCS        | `false`                                  | Use `barrier=0` for filesystem on control nodes to avoid storage latency. Use for multi-controller clusters on slow/networked storage, otherwise not recommended.                                        |
-| `testcluster_name`               | (cmd line)                                | SCS        | `testcluster`                            | Allows setting the default cluster name, created at bootstrap (if `controller_count` is larger than 0)                                                                                                   |
+| environment                      | clusterctl.yaml                           | provenance | default                                  | meaning                                                                                                                                                                                                    |
+|----------------------------------|-------------------------------------------|------------|------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `node_cidr`                      | `NODE_CIDR`                               | SCS        | `10.8.0.0/20`                            | IPv4 address range (CIDR notation) for workload nodes                                                                                                                                                      |
+| `use_cilium`                     | `USE_CILIUM`                              | SCS        | `false`                                  | Use cilium as CNI instead of calico                                                                                                                                                                        |
+| `calico_version`                 |                                           | SCS        | `v3.25.0`                                | Version of the Calico CNI provider (ignored if `use_cilium` is set)                                                                                                                                        |
+| `kubernetes_version`             | `KUBERNETES_VERSION`                      | capo       | `v1.25.x`                                | Kubernetes version deployed into workload cluster (`.x` means latest patch release)                                                                                                                        |
+| ` `                              | `OPENSTACK_IMAGE_NAME`                    | capo       | `ubuntu-capi-image-${KUBERNETES_VERION}` | Image name for k8s controller and worker nodes                                                                                                                                                             |
+| `kube_image_raw`                 | `OPENSTACK_IMAGE_RAW`                     | SCS        | `true`                                   | Register images in raw format (instead of qcow2), good for ceph COW                                                                                                                                        |
+| `image_registration_extra_flags` | `OPENSTACK_IMAGE_REGISTATION_EXTRA_FLAGS` | SCS        | `""`                                     | Extra flags passed during image registration                                                                                                                                                               |
+| ` `                              | `OPENSTACK_CONTROL_PLANE_IP`              | capo       | `127.0.0.1`                              | Use localhost to talk to capi cluster (don't change this!)                                                                                                                                                 |
+| ` `                              | `OPENSTACK_SSH_KEY_NAME`                  | capo       | `${prefix}-keypair`                      | SSH key name generated and used to connect to workload cluster nodes                                                                                                                                       |
+| `controller_flavor`              | `OPENSTACK_CONTROL_PLANE_MACHINE_FLAVOR`  | capo       | `SCS-2C:4:20s`                           | Flavor to be used for control plane nodes                                                                                                                                                                  |
+| `worker_flavor`                  | `OPENSTACK_NODE_MACHINE_FLAVOR`           | capo       | `SCS-2V:4:20`                            | Flavor to be used for worker nodes                                                                                                                                                                         |
+| `controller_count`               | `CONTROL_PLANE_MACHINE_COUNT`             | capo       | `1`                                      | Number of control plane nodes in testcluster (0 skips testcluster creation)                                                                                                                                |
+| ` `                              | `CONTROL_PLANE_MACHINE_GEN`               | SCS        | `genc01`                                 | Suffix for control plane node resources, to be changed for rolling upgrades                                                                                                                                |
+| `worker_count`                   | `WORKER_MACHINE_COUNT`                    | capo       | `3`                                      | Number of worker nodes in testcluster                                                                                                                                                                      |
+| ` `                              | `WORKER_MACHINE_GEN`                      | SCS        | `genw01`                                 | Suffix for worker node resources, to be changed for rolling upgrades                                                                                                                                       |
+| `anti_affinity`                  | `OPENSTACK_ANTI_AFFINITY`                 | SCS        | `true`                                   | Use anti-affinity server groups to prevent k8s nodes on same host (soft for workers, hard for controllers)                                                                                                 |
+| ` `                              | `OPENSTACK_SRVGRP_CONTROLLER`             | SCS        | `nonono`                                 | Autogenerated if `anti_affinity` is `true`, eliminated otherwise                                                                                                                                           |
+| ` `                              | `OPENSTACK_SRVGRP_WORKER`                 | SCS        | `nonono`                                 | Autogenerated if `anti_affinity` is `true`, eliminated otherwise                                                                                                                                           |
+| `deploy_occm`                    | `DEPLOY_OCCM`                             | SCS        | `true`                                   | Deploy the given version of OCCM into the cluster. `true` (default) chooses the latest version matching the k8s version. You can specify `master` to chose the upstream master branch. Don't disable this. |
+| `deploy_cindercsi`               | `DEPLOY_CINDERCSI`                        | SCS        | `true`                                   | Deploy the given (or latest matching for the default true value) of cinder CSI.                                                                                                                            |
+| `etcd_unsafe_fs`                 | `ETCD_UNSAFE_FS`                          | SCS        | `false`                                  | Use `barrier=0` for filesystem on control nodes to avoid storage latency. Use for multi-controller clusters on slow/networked storage, otherwise not recommended.                                          |
+| `testcluster_name`               | (cmd line)                                | SCS        | `testcluster`                            | Allows setting the default cluster name, created at bootstrap (if `controller_count` is larger than 0)                                                                                                     |
 Optional services deployed to cluster:
 
-| environment            | clusterctl.yaml        | provenance | default | script                   | meaning                                                                                                                                                                       |
-|------------------------|------------------------|------------|---------|--------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `deploy_metrics`       | `DEPLOY_METRICS`       | SCS        | `true`  | `apply_metrics.sh`       | Deploy metrics service to nodes to make `kubectl top` work                                                                                                                    |
-| `deploy_nginx_ingress` | `DEPLOY_NGINX_INGRESS` | SCS        | `true`  | `apply_nginx_ingress.sh` | Deploy NGINX ingress controller (this spawns an OpenStack Loadbalancer), pass version to explicitly choose the version, `true` results in `v1.6.4` (`v1.0.2` for k8s <= 1.19) |
-| ` `                    | `NGINX_INGRESS_PROXY`  | SCS        | `false` | (dito)                   | Configure LB and nginx to get real IP via PROXY protocol; may cause trouble for pod to LB connections.                                                                        |
+| environment            | clusterctl.yaml        | provenance | default | script                   | meaning                                                                                                                                                                                                                             |
+|------------------------|------------------------|------------|---------|--------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `deploy_metrics`       | `DEPLOY_METRICS`       | SCS        | `true`  | `apply_metrics.sh`       | Deploy metrics service to nodes to make `kubectl top` work                                                                                                                                                                          |
+| `deploy_nginx_ingress` | `DEPLOY_NGINX_INGRESS` | SCS        | `true`  | `apply_nginx_ingress.sh` | Deploy NGINX ingress controller (this spawns an OpenStack Loadbalancer), pass version to explicitly choose the version, `true` results in `v1.6.4` (`v1.0.2` for k8s <= 1.19)                                                       |
+| ` `                    | `NGINX_INGRESS_PROXY`  | SCS        | `false` | (dito)                   | Configure LB and nginx to get real IP via PROXY protocol; may cause trouble for pod to LB connections.                                                                                                                              |
 | `use_ovn_lb_provider`  | `USE_OVN_LB_PROVIDER`  | SCS        | `false` | `apply_nginx_ingress.sh` | Clouds using OVN networking can deploy the OVN provider that has low overhead (L3) and makes real client IPs visible without proxy protocol hacks. Set to `auto` to enable; not yet ready for prime time, thus defaults to `false`. |
-| `deploy_cert_manager`  | `DEPLOY_CERT_MANAGER`  | SCS        | `false` | `apply_cert_manager.sh`  | Deploy cert-manager, pass version (e.g. `v1.11.0`) to explicitly choose a version                                                                                             |
-| `deploy_flux`          | `DEPLOY_FLUX`          | SCS        | `false` |                          | Deploy flux2 into the cluster                                                                                                                                                 |
+| `deploy_cert_manager`  | `DEPLOY_CERT_MANAGER`  | SCS        | `false` | `apply_cert_manager.sh`  | Deploy cert-manager, pass version (e.g. `v1.11.0`) to explicitly choose a version                                                                                                                                                   |
+| `deploy_flux`          | `DEPLOY_FLUX`          | SCS        | `false` |                          | Deploy flux2 into the cluster                                                                                                                                                                                                       |
 
 ## TODO (Highlights)
 
@@ -498,7 +496,7 @@ Optional services deployed to cluster:
 * Allow service deletion from `create_cluster.sh` ([#137](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/137), see also [#131](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/131))
 * More pre-flight checks in `create_cluster.sh` ([#111](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/111)).
 * Implement (optional) harbor deployment using k8s-harbor. ([#139](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/139))
-* Move towards gitops style cluster management. (Design Doc in [Docs repo PR #47](https://github.com/SovereignCloudStack/Docs/pull/47) - draft)
+* Move towards gitops style cluster management. (Design Doc in [Standards repo PR #47](https://github.com/SovereignCloudStack/standards/pull/47) - draft)
 
 See also the [issues](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues) and
-[PRs](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues) on github.
+[PRs](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pulls) on GitHub.
