@@ -16,7 +16,8 @@ empty_list()
 get_own_fip()
 {
 	NETS=$(openstack server list --name "${PREFIX}-mgmtcluster" -f value -c Networks)
-	FIP=${NETS##*, }
+	#FIP=${NETS##*, }
+	FIP=$(echo "$NETS" | sed "s/^.*, [']\{0,1\}\(\([0-9]*\.\)\{3\}[0-9]*\).*\$/\1/g")
 }
 
 # Add access restrictionrs
