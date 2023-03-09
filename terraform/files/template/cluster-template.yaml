@@ -124,7 +124,7 @@ spec:
       - sync; systemctl restart kubelet    # We should no longer need this
       - while test -z "$EPID"; do sleep 5; EPID=`pgrep etcd`; done; renice -10 $EPID; ionice -c2 -n0 -p $EPID
       - systemctl enable etcd-defrag.service
-      - systemctl enable etcd-defrag.timer
+      - systemctl enable --now etcd-defrag.timer
     preKubeadmCommands:
       - DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https curl
       - curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
