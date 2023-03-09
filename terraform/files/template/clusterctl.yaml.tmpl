@@ -7,8 +7,8 @@
 #   clusterctl generate cluster $CLUSTER_NAME --from cluster-template.yaml
 #   to generate $CLUSTER_NAME-config.yaml
 #
-# (c) Thorsten Schifferdecker, 2020, Malte Münch, 2021, Kurt Garloff, 2021
-# SPDX-License-Identifier: EPL-2.0
+# (c) Thorsten Schifferdecker, 2020, Malte Münch, 2021, Kurt Garloff, 2020-2023
+# SPDX-License-Identifier: Apache-2
 
 # Kubernetes version
 KUBERNETES_VERSION: ${kubernetes_version}
@@ -23,7 +23,9 @@ USE_CILIUM: ${use_cilium}
 # deploy nginx ingress controller
 DEPLOY_NGINX_INGRESS: ${deploy_nginx_ingress}
 # Use PROXY protocol to get real IPs
-NGINX_INGRESS_PROXY: false
+NGINX_INGRESS_PROXY: true
+# Use OVN LB provider (false, auto, true)
+USE_OVN_LB_PROVIDER: ${use_ovn_lb_provider}
 # deploy cert-manager
 DEPLOY_CERT_MANAGER: ${deploy_cert_manager}
 # deploy flux2
@@ -45,8 +47,6 @@ WORKER_MACHINE_GEN: genw01
 # Openstack Availablity Zone
 OPENSTACK_FAILURE_DOMAIN: ${availability_zone}
 
-# Work around non-dedicated CPU & non-SSD drives
-ETCD_PRIO_BOOST: ${etcd_prio_boost}
 ETCD_UNSAFE_FS: ${etcd_unsafe_fs}
 
 # Nodes CIDR

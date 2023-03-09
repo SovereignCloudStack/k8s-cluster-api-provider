@@ -18,9 +18,11 @@ declare -i DELETED=0
 # $2 => filter (optional)
 # $3 => argument (optional)
 # $4 => additional argument to return (optional)
+# $5 => custom `sed` expression to use (optional)
 # return value: 0 success, 1 error
 # outputs list of UUIDs, one per line
 # if $4 is passed, extra results are returned in second field per line
+# if $5 is passed, a custom `sed` expression is used
 
 resourcelist()
 {
@@ -40,6 +42,7 @@ resourcelist()
 	if test -n "$2"; then ANS=$(echo "$ANS" | grep "$2"); fi
 	if test "$VERBOSE" == "1"; then echo "$ANS" | sed 's/^/  /' 1>&2; fi
 	if test "$1" == "keypair"; then echo "$ANS";
+	elif test -n "$5"; then echo "$ANS" | sed "$5";
 	elif test -n "$4"; then echo "$ANS" | sed 's/^\([0-9a-f-]*\) .* \(.*\)$/\1 \2/g';
 	else echo "$ANS" | sed 's/^\([0-9a-f-]*\) .*$/\1/g'; fi
 	return 0
@@ -103,7 +106,14 @@ CAPIPRE3="k8s-cluster-default"
 # For full cleanup, delete CAPI mgmt server first
 if test "$FULL" == "1"; then
 	echo "Deleting management node with prefix $CAPIPRE"
-	CAPI=$(resourcelist server ${CAPIPRE}-mgmtcluster "" Networks)
+	# Note: Column "Networks" contains a map of server's network names and associated IPs.
+	#  OpenStack client =<5.4.0 returns network details as follows:
+	#    <network-name-1>=<IP>, <IP>, ..., <network-name-n>=<IP>, <IP>
+	#  OpenStack client =>5.5.0 returns network details as follows:
+	#    {'<network-name-1>': ['<IP>', '<IP>'], ..., '<network-name-n>': ['<IP>', '<IP>']}
+	#  Custom `sed` expression below filters the last IP from the last server network. It works with both formats.
+	#  We assumed here that it is a floating IP associated with the capi mgmt server.
+	CAPI=$(resourcelist server ${CAPIPRE}-mgmtcluster "" Networks "s/^\([0-9a-f-]*\) .*, [']\{0,1\}\(\([0-9]*\.\)\{3\}[0-9]*\).*\$/\1 \2/g")
 	cleanup_list server 1 "" "$CAPI"
 	cleanup_list "floating ip" 2 "" "$CAPI"
 fi
