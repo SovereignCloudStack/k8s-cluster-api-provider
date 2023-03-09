@@ -84,7 +84,9 @@ server.
 When you use these controls and move your cluster-API objects to a new cluster, please ensure
 that the new management cluster can access the kube-api from the to-be-managed cluster.
 Otherwise no reconciliation can happen. (We consider creating helper scripts that do this
-automatically if this turns out to be a popular things.)
+automatically if this turns out to be a popular things.) If you move to a cluster in the
+same cloud, this typically does not need any special care, as the outgoing SNAT address
+is already allowed.
 
 ## Changed defaults/settings
 
