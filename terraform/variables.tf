@@ -195,6 +195,7 @@ variable "use_ovn_lb_provider" {
     condition     = contains(["false", "auto", "true"], var.use_ovn_lb_provider)
     error_message = "Invalid setting for use_ovn_lb_provider variable."
   }
+}
 
 variable "restrict_kubeapi" {
   description = "array of IP ranges (CIDRs) that get exclusive access. Leave open for all, none for excusive internal access"
