@@ -1,5 +1,5 @@
 #!/bin/bash
-# fixup_kubeapi_cidrs.sh
+# apply_kubeapi_cidrs.sh
 # Patch $2 (${CLUSTER_NAME}-config.yaml) to enforce API access restrictions (if enabled)
 # Reference: https://cluster-api-openstack.sigs.k8s.io/clusteropenstack/configuration.html#restrict-access-to-the-api-server
 # (c) Kurt Garloff, 03/2023
