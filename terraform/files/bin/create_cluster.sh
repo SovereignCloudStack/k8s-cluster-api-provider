@@ -8,7 +8,7 @@ STARTTIME=$(date +%s)
 . ~/.capi-settings
 . ~/bin/cccfg.inc
 
-export PREFIX
+export PREFIX CLUSTER_NAME
 
 # Ensure directory for cluster exists
 if test ! -d ~/$CLUSTER_NAME; then 
@@ -29,7 +29,6 @@ fi
 CCCFG="$HOME/${CLUSTER_NAME}/clusterctl.yaml"
 fixup_k8s_version.sh $CCCFG || exit 1
 
-export PREFIX CLUSTER_NAME
 # Handle wanted OVN loadbalancer
 handle_ovn_lb.sh "$CLUSTER_NAME" || exit 1
 # Determine whether we need a new application credential
