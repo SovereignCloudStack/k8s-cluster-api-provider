@@ -205,7 +205,7 @@ fi
 # Output some information on the cluster ...
 kubectl $KCONTEXT get pods --all-namespaces
 kubectl get openstackclusters
-clusterctl $KCCCFG describe cluster ${CLUSTER_NAME}
+clusterctl $KCCCFG describe cluster ${CLUSTER_NAME} --grouping=false
 # Hints
 echo "INFO: Use kubectl $KCONTEXT wait --for=condition=Ready --timeout=10m -n kube-system pods --all to wait for all cluster components to be ready"
 echo "INFO: Pass $KCONTEXT parameter to kubectl or use KUBECONFIG=$KUBECONFIG_WORKLOADCLUSTER to control the workload cluster"
