@@ -70,7 +70,7 @@ variable "capi_openstack_version" {
 variable "kubernetes_version" {
   description = "desired kubernetes version for the workload cluster"
   type        = string
-  default     = "v1.23.x"
+  default     = "v1.25.x"
 }
 
 variable "kube_image_raw" {
@@ -128,9 +128,9 @@ variable "deploy_cert_manager" {
 }
 
 variable "deploy_flux" {
-  description = "install flux into k8s-capi created clusters"
-  type        = bool
-  default     = false
+  description = "install flux (version) into k8s-capi created clusters"
+  type        = string
+  default     = "false"
 }
 
 variable "deploy_occm" {
@@ -163,12 +163,6 @@ variable "use_cilium" {
   default     = false
 }
 
-variable "etcd_prio_boost" {
-  description = "boost etcd priority and lengthen heartbeat (ignored, always on)"
-  type        = bool
-  default     = true
-}
-
 variable "etcd_unsafe_fs" {
   description = "mount controller root fs with nobarrier"
   type        = bool
@@ -178,7 +172,7 @@ variable "etcd_unsafe_fs" {
 variable "git_branch" {
   description = "k8s-cluster-api-provider git branch to be checked out on mgmtserver"
   type        = string
-  default     = "master"
+  default     = "main"
 }
 
 variable "git_repo" {
@@ -191,4 +185,20 @@ variable "testcluster_name" {
   description = "name of the testcluster optionally created during bootstrap"
   type        = string
   default     = "testcluster"
+}
+
+variable "use_ovn_lb_provider" {
+  description = "usage of OVN octavia provider (false, auto, true)"
+  type        = string
+  default     = "false"
+  validation {
+    condition     = contains(["false", "auto", "true"], var.use_ovn_lb_provider)
+    error_message = "Invalid setting for use_ovn_lb_provider variable."
+  }
+}
+
+variable "restrict_kubeapi" {
+  description = "array of IP ranges (CIDRs) that get exclusive access. Leave open for all, none for excusive internal access"
+  type        = list(string)
+  default     = []
 }

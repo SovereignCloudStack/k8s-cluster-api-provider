@@ -8,6 +8,8 @@ STARTTIME=$(date +%s)
 . ~/.capi-settings
 . ~/bin/cccfg.inc
 
+export PREFIX CLUSTER_NAME
+
 # Ensure directory for cluster exists
 if test ! -d ~/$CLUSTER_NAME; then 
 	mkdir -p ~/$CLUSTER_NAME
@@ -27,7 +29,8 @@ fi
 CCCFG="$HOME/${CLUSTER_NAME}/clusterctl.yaml"
 fixup_k8s_version.sh $CCCFG || exit 1
 
-export PREFIX CLUSTER_NAME
+# Handle wanted OVN loadbalancer
+handle_ovn_lb.sh "$CLUSTER_NAME" || exit 1
 # Determine whether we need a new application credential
 create_appcred.sh || exit 1
 # Update OS_CLOUD
@@ -101,6 +104,9 @@ clusterctl $KCCCFG generate cluster "${CLUSTER_NAME}" --from ${CLUSTERAPI_TEMPLA
 # Remove empty serverGroupID
 sed -i '/^ *serverGroupID: nonono$/d' ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
 
+# Apply kubeapi access restrictions
+apply_kubeapi_cidrs.sh "$CCCFG" ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
+
 # Test for CILIUM
 USE_CILIUM=$(yq eval '.USE_CILIUM' $CCCFG)
 if test "$USE_CILIUM" = "true"; then
@@ -173,8 +179,12 @@ fi
 
 # Flux2
 DEPLOY_FLUX=$(yq eval '.DEPLOY_FLUX' $CCCFG)
-if test "$DEPLOY_FLUX" = "true"; then
-  KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} flux install || exit $?
+if test "$DEPLOY_FLUX" = "true" -o "${DEPLOY_FLUX:0:1}" = "v"; then
+  FLUX_INSTALL_OPTS="--timeout 10m0s"
+  if test "${DEPLOY_FLUX:0:1}" = "v"; then
+    FLUX_INSTALL_OPTS+=" --version $DEPLOY_FLUX"
+  fi
+  KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} flux install $FLUX_INSTALL_OPTS || exit $?
   touch ~/$CLUSTER_NAME/deployed-manifests.d/.flux
 fi
 
@@ -195,7 +205,7 @@ fi
 # Output some information on the cluster ...
 kubectl $KCONTEXT get pods --all-namespaces
 kubectl get openstackclusters
-clusterctl $KCCCFG describe cluster ${CLUSTER_NAME}
+clusterctl $KCCCFG describe cluster ${CLUSTER_NAME} --grouping=false
 # Hints
 echo "INFO: Use kubectl $KCONTEXT wait --for=condition=Ready --timeout=10m -n kube-system pods --all to wait for all cluster components to be ready"
 echo "INFO: Pass $KCONTEXT parameter to kubectl or use KUBECONFIG=$KUBECONFIG_WORKLOADCLUSTER to control the workload cluster"

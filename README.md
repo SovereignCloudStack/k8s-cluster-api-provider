@@ -1,14 +1,15 @@
 # k8s-cluster-api-provider
 
 This guide shows you how to get working Kubernetes clusters on a SCS cloud
-via [cluster-api](https://cluster-api.sigs.k8s.io/).
+via [cluster-api](https://cluster-api.sigs.k8s.io/)(CAPI).
 
 Cluster API requires an existing Kubernetes cluster. It is built with [kind](https://kind.sigs.k8s.io/)
-on an OpenStack instance created via Terraform. This instance can be used later on for the management
-of the newly created cluster, or for creating additional clusters.
+on an OpenStack instance created via Terraform. This instance, called capi management server or management
+cluster can be used later on for the management
+of the newly created cluster, and for creating and managing additional clusters.
 
 Basically, this repository covers two topics:
-1. Automation (terraform, Makefile) to bootstrap a cluster-API management node by 
+1. Automation (terraform, Makefile) to bootstrap a cluster-API management server by
    installing kind on a vanilla Ubuntu image and deploying some tools on this node (
    [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/),
    [openstack CLI tools](https://docs.openstack.org/newton/user-guide/common/cli-install-openstack-command-line-clients.html),
@@ -17,32 +18,32 @@ Basically, this repository covers two topics:
    [calico](https://www.tigera.io/tigera-products/calico/),
    [helm](https://helm.sh/),
    [flux](https://fluxcd.io/) ...) and deploying
-   [cluster-API]((https://cluster-api.sigs.k8s.io/) (clusterctl) and the
+   [cluster-API](https://cluster-api.sigs.k8s.io/) (clusterctl) and the
    [OpenStack cluster-api provider](https://github.com/kubernetes-sigs/cluster-api-provider-openstack)
    along with suitable credentials. The terraform automation is driven by a Makefile for
    convenience. The tooling also contains all the logic to clean up again.
    The newly deployed node clones this git repository early in the bootstrap
    process and uses the thus received files to set up the management
    cluster and scripts.
-1. This node can be connected to via ssh and the deployed scripts there can be
+2. This node can be connected to via ssh and the deployed scripts there can be
    used to manage workload clusters and then deploy various standardized tools (such
    as e.g. [OpenStack Cloud Controller Manager](https://github.com/kubernetes/cloud-provider-openstack)(OCCM),
    [cinder CSI](https://github.com/kubernetes/cloud-provider-openstack/blob/master/docs/cinder-csi-plugin/using-cinder-csi-plugin.md),
    calico or cilium CNI,
    [nginx ingress controller](https://kubernetes.github.io/ingress-nginx/),
    [cert-manager](https://cert-manager.io/), ...) and run tests (e.g. CNCF conformance
-   with [sonobuoy](https://sonobuoy.io/)). i
+   with [sonobuoy](https://sonobuoy.io/)).
    The tools and artifacts can be updated via `git pull` at any time and
    the updated settings rolled out to the workload clusters.
    Note that the script collection will
-   eventually be superceded by the
+   eventually be superseded by the
    [capi-helm-charts](https://github.com/stackhpc/capi-helm-charts). The
    medium-term goal is to actually create a reconciliation loop here that would
    perform life-cycle-management for clusters according to the cluster configuration
    stored in an enhanced [cluster-api style](https://cluster-api.sigs.k8s.io/clusterctl/configuration.html)
    clusterctl.yaml from git repositories
    and thus allow a pure [gitops](https://www.weave.works/technologies/gitops/) style
-   cluster management without ever ssh'ing to the management node.
+   cluster management without ever ssh'ing to the management server.
 
 ## Intended audience
 
@@ -52,15 +53,15 @@ DevOps teams that develop, test, deploy and operate services and applications.
 We expect the functionality to be mainly consumed in two scenarios:
 
 * Self-service: The DevOps team leverages the code provided from this repository
-  to create their own CAPI management server and use it then to manage a number
+  to create their own capi management server and use it then to manage a number
   of k8s clusters for their own needs.
 
-* Managed k8s: The Operator's service team creates the CAPI management server and
+* Managed k8s: The Operator's service team creates the capi management server and
   uses it to provide managed k8s clusters for their clients.
 
 Note that we have an intermediate model in mind -- a model where a one-click / one-API
 call interface would allow the management server to be created on behalf of a user
-and then serve as an API endpoint to that user's k8s capi needs. Ideally with some
+and then serve as an API endpoint to that user's k8s CAPI needs. Ideally with some
 dashboard or GUI that would shield less experienced users from all the YAML.
 
 Once we have the gitops style cluster control working, the self-service model
@@ -68,7 +69,7 @@ will become more convenient to use.
 
 ## Preparations
 
-The preparations are done on a deployment host, posssibly a tiny jumphost style VM,
+The preparations are done on a deployment host, possibly a tiny jumphost style VM,
 or some Linux/MacOS/WSL laptop.
 
 * Terraform must be installed (<https://learn.hashicorp.com/tutorials/terraform/install-cli>).
@@ -77,13 +78,6 @@ or some Linux/MacOS/WSL laptop.
   and `secure.yaml` in the current working directory, in `~/.config/openstack/`
   and `/etc/openstack` (in this order), just like the openstack client.
   (<https://docs.openstack.org/python-openstackclient/latest/configuration/index.html#clouds-yaml>)
-* As the `v3applicationcredential` `auth_type` plugin is being used, we hit a bug
-  in Ubuntu 20.04 which ships python3-keystoneauth < 4.2.0, which does fail with
-  unversioned `auth_url` endpoints.
-  (See OpenStack [bug 1876317](https://bugs.launchpad.net/keystoneauth/+bug/1876317).)
-  While we try to patch the bug away in the deployed instance, the patching mechanism
-  is not very robust, so we recommend you have a versioned `auth_url`
-  endpoint (with a trailing `/v3`).
 * Copy the environments sample file from environments/environment-default.tfvars to
   `environments/environment-<yourcloud>.tfvars` and provide the necessary information like
   machine flavor or machine image. You can comment out all lines where the defaults
@@ -98,7 +92,7 @@ or some Linux/MacOS/WSL laptop.
 
 * ``make create``
 
-This will create the management host.
+This will create the management server.
 It creates an application credential, networks, security groups and a virtual machine
 which gets bootstrapped with cloning this git repository, installation of some tool
 and a local kubernetes cluster (with kind), where the cluster API provider will be
@@ -107,28 +101,29 @@ API server for the k8s CAPI. If the number of control nodes ``controller_count``
 your config (``environment-<yourcloud>.tfvars``) is zero, then that's all that is done.
 Otherwise, a testcluster will be created using k8s CAPI.
 
-The subsequent management of the cluster can best be done from the management host VM,
+The subsequent management of the cluster can best be done from the management server VM,
 as it has all the tools deployed there and config files can be edited and resubmitted
-to the kubernetes kind cluster for reconciliation. To log in to this management machine
+to the kubernetes kind cluster for reconciliation. To log in to this management server
 via ssh, you can issue ``make ssh``.
 
-You can create and do life cycle management for many more clusters from this management node.
+You can create and do life cycle management for many more clusters from this management server.
 
 The kubeconfig with admin
 power for the created testcluster is named ``testcluster/testcluster.yaml`` (or
 ``$CLUSTER_NAME/$CLUSTER_NAME.yaml`` for all the other clusters) and can be handed out to
 users that should get full administrative control over the cluster. You can also retrieve
-them using ``make get-kubeconfig TESTCLUSTER=${CLUSTER_NAME}``, and possibly create an
+them using ``make get-kubeconfig TESTCLUSTER=${CLUSTER_NAME}`` from the machines where
+you created the management server from, and possibly create an
 encrypted .zip file for handing these out. (You can omit ``TESTCLUSTER=...`` for the
 default testcluster.)
 
 ## Teardown
 
-``make clean`` does ssh to the C-API management server to clean up the created clusters prior
+``make clean`` does ssh to the capi management server to clean up the created clusters prior
 to terraform cleaning up the resources it has created. This is sometimes insufficient to clean up
 unfortunately, some error in the deployment may result in resources left around.
-``make fullclean`` uses a custom script (using the
-openstack CLI) to clean up trying to not hit any resources not created by the capi or terraform.
+``make fullclean`` uses a custom script (using the openstack CLI) to clean up everything
+while trying to not hit any resources not created by the CAPI or terraform.
 It is the recommended way for doing cleanups if ``make clean`` fails. Watch out for leftover
 floating IP addresses and persistent volumes, as these can not be easily traced back to the
 cluster-API created resources and may thus be left.
@@ -146,10 +141,14 @@ the same kubernetes version number.
 
 ## Create a new cluster
 
-``make ssh``
-``create_cluster.sh <CLUSTER_NAME>``
+On the management server (login with ``make ssh``), create a directory (below the home of
+the standard ubuntu user) with the name of your cluster. Copy over ``clusterctl.yaml`` from
+``~/cluster-defaults/`` and edit it according to your needs. You can also copy over other
+files from ``~/cluster-defaults/`` and adjust them, but this is only needed in exceptional
+cases.
+Now run ``create_cluster.sh <CLUSTER_NAME>``
 
-This will copy the defaults from ``~/cluster-defaults/`` into a directory with your
+This will copy all missing defaults from ``~/cluster-defaults/`` into the directory with your
 cluster name and then ask cluster-api to create the cluster. The scripts also take
 care of security groups, anti-affinity, node image registration (if needed) and
 of deploying CCM, CNI, CSI as well as optional services such as metrics or nginx-ingress
@@ -160,36 +159,39 @@ or ``KUBECONFIG=~/clustername/clustername.yaml kubectl``.
 
 The management cluster is in context ``kind-kind``.
 
+Note that you can always change `clusterctl.yaml` and re-run `create_cluster.sh`.
+The script is idempotent and running it multiple times with the unchanged input
+file will result in no changes to the cluster.
+
 ## Troubleshooting
 
-Please see the Maintenance and Troubleshooting Guide in the `doc/` directory.
-<https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/Maintenance_and_Troubleshooting.md>
+Please see the [Maintenance and Troubleshooting Guide](doc/Maintenance_and_Troubleshooting.md).
 
 ## Environments
 
- for the plusserver community environment it can choose here: 
+for the plusserver community environment it can choose here:
 ``export ENVIRONMENT=gx-scs``
 
- or insert inside of Makefile:
+or insert inside of Makefile:
 ``ENVIRONMENT=gx-scs``
 
- for the wavestack environment it can choose:
- ``export ENVIRONMENT=gx-wavestack``
+for the wavestack environment it can choose:
+``export ENVIRONMENT=gx-wavestack``
  
- or insert inside of Makefile:
- ``ENVIRONMENT=gx-wavestack``
+or insert inside of Makefile:
+``ENVIRONMENT=gx-wavestack``
 
- a cloud.yaml and secure.yaml will needed for the environments in side of terraform folder.
+a cloud.yaml and secure.yaml will be needed for the environments inside of terraform folder.
 
-## Extensions
+## Extensions (deprecated)
 
 You can use this repository as a starting point for some automation e.g. adding
 kubernetes manifests to the cluster or to run custom shell scripts in the end.
 To do so place your files in the `terraform/extension` folder.  They will be
-uploaded to the management cluster. Files ending in ```*.sh``` will be executed
+uploaded to the management server. Files ending in ```*.sh``` will be executed
 in alphabetical order. All other files will just be uploaded. If you want to
-deploy resources in the new cluster-api-maintained cluster you can use `kubectl
-apply -f <your-manifest.yaml> --kubeconfig ~/$CLUSTER_NAME/$CLUSTER_NAME.yaml` to do so.
+deploy resources in the new cluster-api-maintained cluster you can use ``kubectl
+apply -f <your-manifest.yaml> --kubeconfig ~/$CLUSTER_NAME/$CLUSTER_NAME.yaml`` to do so.
 
 ## Application Credentials
 
@@ -204,26 +206,25 @@ The AppCredential has a few advantages:
   deal with a mixture of project_id, project_name, project_domain_name,
   user_domain_name, only a subset of which is needed depending on the cloud.
 * We do not leak the user credentials into the cluster, making any security
-  breach more easy to contain.
+  breach easier to contain.
 * AppCreds are connected to one project and can be revoked.
 
-We are using an inrestricted AppCred which can create further AppCreds, so
-we can each cluster its own (restricted) credentials. This is not yet
-implemented, but will soon be. Currently, all clusters created from the 
-management node will belong to the same OpenStack project and use the
-same credentials.
+We are using an unrestricted AppCred for the management server which can then create
+further AppCreds, so we can each cluster its own (restricted) credentials.
+In the case of breaches, these AppCreds can be revoked.
 
-The plan for the future is to create AppCreds per cluster 
-(see [#109](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/109)),
-so credentials for individual clusters can be revoked.
+Note that you can have additional projects or clouds listed in your
+``~/.config/openstack/clouds.yaml`` (and ``secure.yaml``) and reference them
+in the ``OPENSTACK_CLOUD`` setting of your ``clusterctl.yaml``, so you can
+manage clusters in various projects and clouds from the same management server.
 
-## Cluster Management on the C-API management node
+## Cluster Management on the capi management node
 
-You can use ``make ssh`` to log in to the C-API management node. There you can issue
+You can use ``make ssh`` to log in to the capi management server. There you can issue
 ``clusterctl`` and ``kubectl`` (aliased to ``k``) commands. The context ``kind-kind``
-is used for the C-API management while the context ``testcluster-admin@testcluster`` can
+is used for the CAPI management while the context ``testcluster-admin@testcluster`` can
 be used to control the workload cluster ``testcluster``. You can of course create many
-of them. There are management scripts on the management node:
+of them. There are management scripts on the management server:
 
 * In the user's (ubuntu) home directory, create a subdirectory with the CLUSTERNAME 
   to hold your cluster's configuration data. Copy over the `clusterctl.yaml` file
@@ -233,20 +234,20 @@ of them. There are management scripts on the management node:
   will do so for you and use all defaults settings.)
 * ``create_cluster.sh CLUSTERNAME``: Use this command to create a cluster with
   the settings from ``~/$CLUSTERNAME/clusterctl.yaml``. More precisely, it uses the template
-  ``$CLUSTERNAME/cluster-template.yaml`` and fills in the the settings from 
+  ``$CLUSTERNAME/cluster-template.yaml`` and fills in the settings from
   ``$CLUSTERNAME/clusterctl.yaml`` to render a config file ``$CLUSTERNAME/$CLUSTERNAME-config.yaml``
   which will then be submitted to the capi server (``kind-kind`` context) for creating
   the control plane nodes and worker nodes. The script will also apply openstack integration,
   cinder CSI, calico or cilium CNI, and optionally also metrics server, nginx ingress controller,
   flux, cert-manager. (These can be controlled by `DEPLOY_XXX` variables, see below.
-  Defaults can be preconfigured from the environment.tfvars file during management node
+  Defaults can be preconfigured from the environment.tfvars file during management server
   creation.)
   Note that ``CLUSTERNAME`` defaults to ``testcluster`` and must not contain
   whitespace. 
-  The script also makes sure that appropriate capi images are available (it grabs them
+  The script also makes sure that appropriate CAPI images are available (it grabs them
   from [OSISM](https://minio.services.osism.tech/openstack-k8s-capi-images)
   as needed and registers them with OpenStack, following the SCS image metadata
-  standard.
+  standard).
   The script returns once the control plane is fully working (the worker
   nodes might still be under construction). The kubectl file to talk to this
   cluster (as admin) can be found in ``~/$CLUSTERNAME/$CLUSTERNAME.yaml``. Expect the cluster
@@ -272,10 +273,10 @@ of them. There are management scripts on the management node:
 * The directory ``~/k8s-cluster-api-provider/`` contains a checked out git tree
   from the SCS project. It can be updated (``git pull``) to receive the latest
   fixes and improvements. This way, most incremental updates do not need the
-  recreation of the management node (and thus also not the recreation of your
+  recreation of the management server (and thus also not the recreation of your
   managed workload clusters), but can be applied with calling `create_cluster.sh`
   again to the workload clusters.
-* The installaton of the openstack integration, cinder CSI, metrics server and
+* The installation of the openstack integration, cinder CSI, metrics server and
   nginx ingress controller is done via the ``bin/apply_*.sh`` scripts that are called
   from ``create_cluster.sh``. You can manually call them as well -- they take
   the cluster name as argument. (It's better to just call `create_cluster.sh`
@@ -289,16 +290,16 @@ of them. There are management scripts on the management node:
   exist. Use ``kubectl get all -A`` in the ``testcluster-admin@testcluster`` context
   to get an overview over the state of your workload cluster. You can access the logs
   from the capo controller in case you have trouble with cluster creation.
-* ``delete_cluster.sh [CLUSTERNAME]``: Tell the capi mgmt server to remove
+* ``delete_cluster.sh [CLUSTERNAME]``: Tell the capi management server to remove
   the cluster $CLUSTERNAME. It will also remove persistent volume claims belonging
   to the cluster. The script will return once the removal is done.
 * ``cleanup.sh``: Remove all running clusters.
-* `add_cluster-network.sh CLUSTERNAME` adds the management node to the node network
+* `add_cluster-network.sh CLUSTERNAME` adds the management server to the node network
   of the cluster `CLUSTERNAME`, assuming that it runs on the same cloud (region).
   `remove_cluster-network.sh` undoes this again. This is useful for debugging
   purposes.
 
-For your convenience, ``k9s`` is installed on the management node as well
+For your convenience, ``k9s`` is installed on the management server as well
 as ``calicoctl``, ``cilium``, ``hubble``, ``cmctl``, ``helm`` and ``sonobuoy``.
 These binaries can all be found in ``/usr/local/bin`` while the helper scripts
 have been deployed to ``~/bin/``.
@@ -316,12 +317,12 @@ with the name ``MYCLUSTER``. You will find the kubeconfig file in
 Likewise, ``delete_cluster.sh`` and the ``apply_*.sh`` scripts take a
 cluster name as parameter.
 
-This way, dozens of clusters can be controlled from one management node.
+This way, dozens of clusters can be controlled from one management server.
 
 You can add credentials from different projects into
 ``~/.config/openstack/clouds.yaml`` and reference them in the ``OPENSTACK_CLOUD``
 setting in ``clusterctl.yaml``, this way managing clusters in many different
-projects and even clouds from one management host.
+projects and even clouds from one management server.
 
 ## Testing
 
@@ -358,8 +359,7 @@ All of them pass the sonobuoy CNCF conformance tests.
 
 ## Upgrading from earlier versions
 
-There is an upgrade guide in docs/Upgrade-Guide.md
-<https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/Upgrade-Guide.md>
+There is an upgrade guide in [doc/Upgrade-Guide.md](doc/Upgrade-Guide.md)
 
 ## etcd leader changes
 
@@ -394,13 +394,13 @@ If you don't have flavors that fulfill the requirements (low-latency
 storage attached), your choice is between a single-controller cluster
 (without `ETCD_UNSAFE_FS`) and a multi-controller cluster with
 `ETCD_UNSAFE_FS`. Neither option is perfect, but we deem the
-multi-controller cluster preferrable in such a scenario.
+multi-controller cluster preferable in such a scenario.
 
 ## Multi-AZ and multi-cloud environments
 
 The provided ``cluster-template.yaml`` assumes that all control nodes
 on one hand and all worker nodes on the other are equal. They are in the
-same cloud within the same availablity zone, using the same flavor.
+same cloud within the same availability zone, using the same flavor.
 cluster API allows k8s clusters to have varying flavors, span availability
 zones and even clouds. For this, you can create an advanced
 cluster-template with more different machine descriptions and potentially
@@ -413,7 +413,7 @@ beyond the simple use cases instead, see next chapter.
 
 ## Advanced cluster templating with helm (Technical Preview)
 
-On the management node, we have not only helm installed, but also the
+On the management server, we have not only helm installed, but also the
 repository [https://github.com/stackhpc/capi-helm-charts](https://github.com/stackhpc/capi-helm-charts)
 checked out. Amongst other things, it automates the creation of new machine
 templates when needed and doing rolling updates on your k8s cluster
@@ -430,28 +430,28 @@ technical preview.
 
 The provenance capo means that this setting comes from the templates used by
 the cluster-api-provider-openstack, while SCS denotes that this setting has
-been added by the SCS project..
+been added by the SCS project.
 
-Parameters controlling the Cluster-API management node (capi mgmt node) creation:
+Parameters controlling the Cluster-API management server (capi management server) creation:
 
 | environment              | clusterctl.yaml | provenance | default        | meaning                                                                       |
 |--------------------------|-----------------|------------|----------------|-------------------------------------------------------------------------------|
 | `prefix`                 |                 | SCS        | `capi`         | Prefix used for OpenStack resources for the capi mgmt node                    |
-| `kind_flavor`            |                 | SCS        | `SCS-1V-4-20`  | Flavor to be used for the k8s capi mgmt node                                  |
-| `image`                  |                 | SCS        | `Ubuntu 22.04` | Image to be deployed for the capi mgmt node                                   |
+| `kind_flavor`            |                 | SCS        | `SCS-1V-4-20`  | Flavor to be used for the k8s capi mgmt server                                |
+| `image`                  |                 | SCS        | `Ubuntu 22.04` | Image to be deployed for the capi mgmt server                                 |
 | `ssh_username`           |                 | SCS        | `ubuntu`       | Name of the default user for the `image`                                      |
 | `clusterapi_version`     |                 | SCS        | `1.3.5`        | Version of the cluster-API incl. `clusterctl`                                 |
-| `capi_openstack_version` |                 | SCS        | `0.7.1`        | Version of the cluster-api-provider-openstack (needs to fit the capi version) |
+| `capi_openstack_version` |                 | SCS        | `0.7.1`        | Version of the cluster-api-provider-openstack (needs to fit the CAPI version) |
 
-Parameters controlling both management node creation and cluster creation:
+Parameters controlling both management server creation and cluster creation:
 
-| environment         | clusterctl.yaml                 | provenance | default                              | meaning                                                                                                                     |
-|---------------------|---------------------------------|------------|--------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
-| `cloud_provider`    | `OPENSTACK_CLOUD`               | capo       |                                      | `OS_CLOUD` name in clouds.yaml                                                                                              |
-| `external`          | `OPENSTACK_EXTERNAL_NETWORK_ID` | capo       |                                      | Name/ID of the external (public) OpenStack network                                                                          |
-| `dns_nameservers`   | `OPENSTACK_DNS_NAMESERVERS`     | capo       | `[ "5.1.66.255", "185.150.99.255" ]` | Array of nameservers for capi mgmt nodes and for cluster nodes, replace the FF MUC defaults with local servers if available |
-| `availability_zone` | `OPENSTACK_FAILURE_DOMAIN`      | capo       |                                      | Availability Zone(s) for the mgmt node / workload clusters                                                                  |
-| `kind_mtu`          | `MTU_VALUE`                     | SCS        | `0`                                  | MTU for the mgmt node; Calico is set 50 bytes smaller; 0 means autodetection                                                |
+| environment         | clusterctl.yaml                 | provenance | default                              | meaning                                                                                                                      |
+|---------------------|---------------------------------|------------|--------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| `cloud_provider`    | `OPENSTACK_CLOUD`               | capo       |                                      | `OS_CLOUD` name in clouds.yaml                                                                                               |
+| `external`          | `OPENSTACK_EXTERNAL_NETWORK_ID` | capo       |                                      | Name/ID of the external (public) OpenStack network                                                                           |
+| `dns_nameservers`   | `OPENSTACK_DNS_NAMESERVERS`     | capo       | `[ "5.1.66.255", "185.150.99.255" ]` | Array of nameservers for capi mgmt server and for cluster nodes, replace the FF MUC defaults with local servers if available |
+| `availability_zone` | `OPENSTACK_FAILURE_DOMAIN`      | capo       |                                      | Availability Zone(s) for the mgmt node / workload clusters                                                                   |
+| `kind_mtu`          | `MTU_VALUE`                     | SCS        | `0`                                  | MTU for the mgmt server; Calico is set 50 bytes smaller; 0 means autodetection                                               |
 
 Parameters controlling the cluster creation:
 
@@ -460,11 +460,11 @@ Parameters controlling the cluster creation:
 | `node_cidr`                      | `NODE_CIDR`                               | SCS        | `10.8.0.0/20`                            | IPv4 address range (CIDR notation) for workload nodes                                                                                                                                                    |
 | `use_cilium`                     | `USE_CILIUM`                              | SCS        | `false`                                  | Use cilium as CNI instead of calico                                                                                                                                                                      |
 | `calico_version`                 |                                           | SCS        | `v3.25.0`                                | Version of the Calico CNI provider (ignored if `use_cilium` is set)                                                                                                                                      |
-| `kubernetes_version`             | `KUBERNETES_VERSION`                      | capo       | `v1.23.x`                                | Kubernetes version deployed into workload cluster (`.x` means latest patch release)                                                                                                                      |
+| `kubernetes_version`             | `KUBERNETES_VERSION`                      | capo       | `v1.25.x`                                | Kubernetes version deployed into workload cluster (`.x` means latest patch release)                                                                                                                      |
 | ` `                              | `OPENSTACK_IMAGE_NAME`                    | capo       | `ubuntu-capi-image-${KUBERNETES_VERION}` | Image name for k8s controller and worker nodes                                                                                                                                                           |
 | `kube_image_raw`                 | `OPENSTACK_IMAGE_RAW`                     | SCS        | `true`                                   | Register images in raw format (instead of qcow2), good for ceph COW                                                                                                                                      |
 | `image_registration_extra_flags` | `OPENSTACK_IMAGE_REGISTATION_EXTRA_FLAGS` | SCS        | `""`                                     | Extra flags passed during image registration                                                                                                                                                             |
-| ` `                              | `OPENSTACK_CONTROL_PLANE_IP`              | capo       | `127.0.0.1`                              | Use localhost to talk to capi cluster (don't change on capi mgmt node)                                                                                                                                   |
+| ` `                              | `OPENSTACK_CONTROL_PLANE_IP`              | capo       | `127.0.0.1`                              | Use localhost to talk to capi cluster (don't change this!)                                                                                                                                               |
 | ` `                              | `OPENSTACK_SSH_KEY_NAME`                  | capo       | `${prefix}-keypair`                      | SSH key name generated and used to connect to workload cluster nodes                                                                                                                                     |
 | `controller_flavor`              | `OPENSTACK_CONTROL_PLANE_MACHINE_FLAVOR`  | capo       | `SCS-2V-4-20s`                           | Flavor to be used for control plane nodes                                                                                                                                                                |
 | `worker_flavor`                  | `OPENSTACK_NODE_MACHINE_FLAVOR`           | capo       | `SCS-2V-4-20`                            | Flavor to be used for worker nodes                                                                                                                                                                       |
@@ -477,27 +477,28 @@ Parameters controlling the cluster creation:
 | ` `                              | `OPENSTACK_SRVGRP_WORKER`                 | SCS        | `nonono`                                 | Autogenerated if `anti_affinity` is `true`, eliminated otherwise                                                                                                                                         |
 | `deploy_occm`                    | `DEPLOY_OCCM`                             | SCS        | `true`                                   | Deploy the given version of OCCM into the cluter. `true` (default) choses the latest version matching the k8s version. You can specify `master` to chose the upstream master branch. Don't disable this. |
 | `deploy_cindercsi`               | `DEPLOY_CINDERCSI`                        | SCS        | `true`                                   | Deploy the given (or latest matching for the default true value) of cinder CSI.                                                                                                                          |
-| `etcd_prio_boost`                | `ETCD_PRIO_BOOST`                         | SCS        | `true`                                   | Ignored: We always use longer heartbeat (250ms)/election-timeout(2.5s) and higher prio IO and CPUs now. (Legacy setting.)                                                                                |
 | `etcd_unsafe_fs`                 | `ETCD_UNSAFE_FS`                          | SCS        | `false`                                  | Use `barrier=0` for filesystem on control nodes to avoid storage latency. Use for multi-controller clusters on slow/networked storage, otherwise not recommended.                                        |
 | `testcluster_name`               | (cmd line)                                | SCS        | `testcluster`                            | Allows setting the default cluster name, created at bootstrap (if `controller_count` is larger than 0)                                                                                                   |
+| `restrict_kubeapi`               | `RESTRICT_KUBEAPI`                        | SCS        |  `[ ]`                                   | Allows restricting access to kubernetes API by list of CIDRs. Empty list (default) means public, `[ "none" ]` means internal access only.                                                                |
 
 Optional services deployed to cluster:
 
-| environment            | clusterctl.yaml        | provenance | default | script                   | meaning                                                                                                                                                                       |
-|------------------------|------------------------|------------|---------|--------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `deploy_metrics`       | `DEPLOY_METRICS`       | SCS        | `true`  | `apply_metrics.sh`       | Deploy metrics service to nodes to make `kubectl top` work                                                                                                                    |
-| `deploy_nginx_ingress` | `DEPLOY_NGINX_INGRESS` | SCS        | `true`  | `apply_nginx_ingress.sh` | Deploy NGINX ingress controller (this spawns an OpenStack Loadbalancer), pass version to explicitly choose the version, `true` results in `v1.6.4` (`v1.0.2` for k8s <= 1.19) |
-| ` `                    | `NGINX_INGRESS_PROXY`  | SCS        | `false` | (dito)                   | Configure LB and nginx to get real IP via PROXY protocol; may cause trouble for pod to LB connections.                                                                        |
-| `deploy_cert_manager`  | `DEPLOY_CERT_MANAGER`  | SCS        | `false` | `apply_cert_manager.sh`  | Deploy cert-manager, pass version (e.g. `v1.11.0`) to explicitly choose a version                                                                                             |
-| `deploy_flux`          | `DEPLOY_FLUX`          | SCS        | `false` |                          | Deploy flux2 into the cluster                                                                                                                                                 |
+| environment            | clusterctl.yaml        | provenance | default | script                   | meaning                                                                                                                                                                                                                             |
+|------------------------|------------------------|------------|---------|--------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `deploy_metrics`       | `DEPLOY_METRICS`       | SCS        | `true`  | `apply_metrics.sh`       | Deploy metrics service to nodes to make `kubectl top` work                                                                                                                                                                          |
+| `deploy_nginx_ingress` | `DEPLOY_NGINX_INGRESS` | SCS        | `true`  | `apply_nginx_ingress.sh` | Deploy NGINX ingress controller (this spawns an OpenStack Loadbalancer), pass version to explicitly choose the version, `true` results in `v1.6.4` (`v1.0.2` for k8s <= 1.19)                                                       |
+| ` `                    | `NGINX_INGRESS_PROXY`  | SCS        | `true`  | (dito)                   | Configure LB and nginx to get real IP via PROXY protocol; trouble for pod to LB connections has been resolved by setting hostname                                                                                                   |
+| `use_ovn_lb_provider`  | `USE_OVN_LB_PROVIDER`  | SCS        | `false` | `apply_nginx_ingress.sh` | Clouds using OVN networking can deploy the OVN provider that has low overhead (L3) and makes real client IPs visible without proxy protocol hacks. Set to `auto` to enable; not yet ready for prime time, thus defaults to `false`. |
+| `deploy_cert_manager`  | `DEPLOY_CERT_MANAGER`  | SCS        | `false` | `apply_cert_manager.sh`  | Deploy cert-manager, pass version (e.g. `v1.11.0`) to explicitly choose a version                                                                                                                                                   |
+| `deploy_flux`          | `DEPLOY_FLUX`          | SCS        | `false` |                          | Deploy flux2 into the cluster                                                                                                                                                                                                       |
 
 ## TODO (Highlights)
 
 * Opt-in for per cluster project (extends [#109](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/109))
 * Allow service deletion from `create_cluster.sh` ([#137](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/137), see also [#131](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/131))
-* More pre-flight checks in `create_clster.sh` ([#111](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/111)).
+* More pre-flight checks in `create_cluster.sh` ([#111](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/111)).
 * Implement (optional) harbor deployment using k8s-harbor. ([#139](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/139))
-* Move towards gitops style cluster management. (Design Doc in [Docs repo PR #47](https://github.com/SovereignCloudStack/Docs/pull/47) - draft)
+* Move towards gitops style cluster management. (Design Doc in [Standards repo PR #47](https://github.com/SovereignCloudStack/standards/pull/47) - draft)
 
 See also the [issues](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues) and
-[PRs](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues) on github.
+[PRs](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pulls) on GitHub.

@@ -60,8 +60,16 @@ install_kind.sh
 install_helm.sh
 deploy_cluster_api.sh
 install_k9s.sh
-install_flux.sh
 get_capi_helm.sh
+
+# install Flux CLI always - regardless of deploy_flux variable(it can be used only for version change)
+DEPLOY_FLUX=`yq eval '.DEPLOY_FLUX' ~/cluster-defaults/clusterctl.yaml`
+if test "$DEPLOY_FLUX" = "true" -o "$DEPLOY_FLUX" = "false"; then
+  FLUX_VERSION="0.40.2"
+else
+  FLUX_VERSION="${DEPLOY_FLUX:1}"
+fi
+install_flux.sh $FLUX_VERSION
 
 #git clone https://github.com/Pharb/kubernetes-iperf3.git
 
