@@ -8,6 +8,8 @@ STARTTIME=$(date +%s)
 . ~/.capi-settings
 . ~/bin/cccfg.inc
 
+export PREFIX CLUSTER_NAME
+
 # Ensure directory for cluster exists
 if test ! -d ~/$CLUSTER_NAME; then 
 	mkdir -p ~/$CLUSTER_NAME
@@ -27,7 +29,6 @@ fi
 CCCFG="$HOME/${CLUSTER_NAME}/clusterctl.yaml"
 fixup_k8s_version.sh $CCCFG || exit 1
 
-export PREFIX CLUSTER_NAME
 # Handle wanted OVN loadbalancer
 handle_ovn_lb.sh "$CLUSTER_NAME" || exit 1
 # Determine whether we need a new application credential
@@ -102,6 +103,9 @@ fi
 clusterctl $KCCCFG generate cluster "${CLUSTER_NAME}" --from ${CLUSTERAPI_TEMPLATE} > ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
 # Remove empty serverGroupID
 sed -i '/^ *serverGroupID: nonono$/d' ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
+
+# Apply kubeapi access restrictions
+apply_kubeapi_cidrs.sh "$CCCFG" ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
 
 # Test for CILIUM
 USE_CILIUM=$(yq eval '.USE_CILIUM' $CCCFG)
