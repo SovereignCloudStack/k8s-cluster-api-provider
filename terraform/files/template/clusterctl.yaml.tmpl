@@ -55,6 +55,9 @@ NODE_CIDR: ${node_cidr}
 # Set MTU for k8s CNI network (50 smaller than cloud, 0 = auto)
 MTU_VALUE: 0
 
+# Restrict kube-api access
+RESTRICT_KUBEAPI: "[ %{ for cidr in restrict_kubeapi ~} ${cidr}, %{ endfor ~} ]"
+
 # Openstack external Network ID
 # hint: openstack network list --external -f value -c ID
 OPENSTACK_EXTERNAL_NETWORK_ID: ${external}

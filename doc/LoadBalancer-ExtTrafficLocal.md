@@ -83,6 +83,10 @@ considered functional, so the reconciliation loop creates another loadbalancer u
 your project runs into quota limits (on the loadbalancer or on ports).
 So for now, the feature `use_ovn_lb_provider` should not be enabled.
 
+Note that the `use_ovn_lb_provider` does not affect the LB in front of the kube API.
+That one is created by capo and requires other settings. Also note that it would
+not yet support the CIDR filtering with `restrict_kubeapi` setting.
+
 # Enabling health-monitor by default?
 
 We could enable a health-monitor by default for load-balancers created from OCCM
