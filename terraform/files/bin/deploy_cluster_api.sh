@@ -37,6 +37,8 @@ cp -p $HOME/cluster-defaults/clusterctl.yaml $HOME/.cluster-api/clusterctl.yaml
 echo "deploy cluster-api with openstack provider $CLUSTERAPI_OPENSTACK_PROVIDER_VERSION"
 clusterctl init --infrastructure openstack:v$CLUSTERAPI_OPENSTACK_PROVIDER_VERSION --core cluster-api:v$CLUSTERAPI_VERSION -b kubeadm:v$CLUSTERAPI_VERSION -c kubeadm:v$CLUSTERAPI_VERSION
 
+kubectl -n capo-system set env deployment/capo-controller-manager CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT=$CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT
+
 # Install calicoctl
 # TODO: Check signature
 curl -o calicoctl -O -L "https://github.com/projectcalico/calico/releases/download/$CALICO_VERSION/calicoctl-linux-$ARCH"

@@ -196,3 +196,9 @@ variable "use_ovn_lb_provider" {
     error_message = "Invalid setting for use_ovn_lb_provider variable."
   }
 }
+
+variable "capo_instance_create_timeout" {
+  description = "time to wait for an openstack machine to be created"
+  type        = number
+  default     = 10
+}
