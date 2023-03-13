@@ -18,19 +18,19 @@ variable "image" {
 variable "kind_flavor" {
   description = "openstack nova flavor for instance running kind (capi mgmt node)"
   type        = string
-  default     = "SCS-1V:4:20"
+  default     = "SCS-1V-4-20"
 }
 
 variable "controller_flavor" {
   description = "openstack nova flavor for instances running the k8s management nodes"
   type        = string
-  default     = "SCS-2C:4:20s"
+  default     = "SCS-2V-4-20s"
 }
 
 variable "worker_flavor" {
   description = "openstack nova flavor for instances running the k8s worker nodes"
   type        = string
-  default     = "SCS-2V:4:20"
+  default     = "SCS-2V-4-20"
 }
 
 variable "availability_zone" {
