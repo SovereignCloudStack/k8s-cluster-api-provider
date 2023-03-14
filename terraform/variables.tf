@@ -198,7 +198,7 @@ variable "use_ovn_lb_provider" {
 }
 
 variable "capo_instance_create_timeout" {
-  description = "time to wait for an openstack machine to be created"
+  description = "time to wait for an openstack machine to be created (in minutes)"
   type        = number
   default     = 10
 }
