@@ -118,7 +118,7 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/capi-settings.tmpl", { clusterapi_version = var.clusterapi_version, capi_openstack_version = var.capi_openstack_version, calico_version = var.calico_version, prefix = var.prefix, testcluster_name = var.testcluster_name })
+    content     = templatefile("files/template/capi-settings.tmpl", { clusterapi_version = var.clusterapi_version, capi_openstack_version = var.capi_openstack_version, calico_version = var.calico_version, prefix = var.prefix, testcluster_name = var.testcluster_name, capo_instance_create_timeout = var.capo_instance_create_timeout })
     destination = "/home/${var.ssh_username}/.capi-settings"
   }
 
