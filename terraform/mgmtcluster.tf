@@ -123,7 +123,7 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/clusterctl.yaml.tmpl", { kubernetes_version = var.kubernetes_version, availability_zone = var.availability_zone, external = var.external, image = var.image, controller_flavor = var.controller_flavor, worker_flavor = var.worker_flavor, cloud_provider = var.cloud_provider, worker_count = var.worker_count, controller_count = var.controller_count, kind_mtu = var.kind_mtu, prefix = var.prefix, deploy_nginx_ingress = var.deploy_nginx_ingress, deploy_cert_manager = var.deploy_cert_manager, deploy_flux = var.deploy_flux, deploy_metrics = var.deploy_metrics, deploy_occm = var.deploy_occm, deploy_cindercsi = var.deploy_cindercsi, use_cilium = var.use_cilium, node_cidr = var.node_cidr, dns_nameservers = var.dns_nameservers, anti_affinity = var.anti_affinity, kube_image_raw = var.kube_image_raw, image_registration_extra_flags = var.image_registration_extra_flags, etcd_unsafe_fs = var.etcd_unsafe_fs, use_ovn_lb_provider = var.use_ovn_lb_provider, restrict_kubeapi = var.restrict_kubeapi })
+    content     = templatefile("files/template/clusterctl.yaml.tmpl", { kubernetes_version = var.kubernetes_version, availability_zone = var.availability_zone, external = var.external, controller_flavor = var.controller_flavor, worker_flavor = var.worker_flavor, cloud_provider = var.cloud_provider, worker_count = var.worker_count, controller_count = var.controller_count, prefix = var.prefix, deploy_nginx_ingress = var.deploy_nginx_ingress, deploy_cert_manager = var.deploy_cert_manager, deploy_flux = var.deploy_flux, deploy_metrics = var.deploy_metrics, deploy_occm = var.deploy_occm, deploy_cindercsi = var.deploy_cindercsi, use_cilium = var.use_cilium, node_cidr = var.node_cidr, dns_nameservers = var.dns_nameservers, anti_affinity = var.anti_affinity, kube_image_raw = var.kube_image_raw, image_registration_extra_flags = var.image_registration_extra_flags, etcd_unsafe_fs = var.etcd_unsafe_fs, use_ovn_lb_provider = var.use_ovn_lb_provider, restrict_kubeapi = var.restrict_kubeapi })
     destination = "/home/${var.ssh_username}/cluster-defaults/clusterctl.yaml"
   }
 
@@ -133,7 +133,7 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/cloud.conf.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, appcredid = openstack_identity_application_credential_v3.appcred.id, appcredsecret = openstack_identity_application_credential_v3.appcred.secret })
+    content     = templatefile("files/template/cloud.conf.tmpl", { clouds = local.clouds, appcredid = openstack_identity_application_credential_v3.appcred.id, appcredsecret = openstack_identity_application_credential_v3.appcred.secret })
     destination = "/home/${var.ssh_username}/cluster-defaults/cloud.conf"
   }
 
