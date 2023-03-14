@@ -479,6 +479,8 @@ Parameters controlling the cluster creation:
 | `deploy_cindercsi`               | `DEPLOY_CINDERCSI`                        | SCS        | `true`                                   | Deploy the given (or latest matching for the default true value) of cinder CSI.                                                                                                                            |
 | `etcd_unsafe_fs`                 | `ETCD_UNSAFE_FS`                          | SCS        | `false`                                  | Use `barrier=0` for filesystem on control nodes to avoid storage latency. Use for multi-controller clusters on slow/networked storage, otherwise not recommended.                                          |
 | `testcluster_name`               | (cmd line)                                | SCS        | `testcluster`                            | Allows setting the default cluster name, created at bootstrap (if `controller_count` is larger than 0)                                                                                                     |
+| `capo_instance_create_timeout`   | `CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT`                                | SCS        | `10`                            | Time to wait for an OpenStack machine to be created (in minutes) |
+
 Optional services deployed to cluster:
 
 | environment            | clusterctl.yaml        | provenance | default | script                   | meaning                                                                                                                                                                                                                             |
