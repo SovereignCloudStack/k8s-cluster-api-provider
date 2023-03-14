@@ -45,7 +45,8 @@ export KUBECONFIG=$HOME/.kube/config
 kubectl config use-context kind-kind || exit 1
 # get the needed clusterapi-variables
 echo "# show used variables for clustertemplate ${CLUSTERAPI_TEMPLATE}"
-
+# set OpenStack Instance create timeout
+kubectl -n capo-system set env deployment/capo-controller-manager CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT=$CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT
 # TODO: Optional: Create own project for the cluster
 # If so, we need to share the image with the new project
 
