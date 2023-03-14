@@ -10,6 +10,7 @@ ssh_username         = "<username_for_ssh>"	  # defaults to "ubuntu"
 clusterapi_version   = "<1.x.y>"		  # defaults to "1.3.5"
 capi_openstack_version = "<0.x.y>"		  # defaults to "0.7.1"
 image                = "<glance_image>"		  # defaults to "Ubuntu 22.04"
+cilium_binaries      = "<v0.aa.bb;v0.xx.yy>"  # defaults to "v0.13.1;v0.11.2"
 # Settings for testcluster
 kubernetes_version   = "<v1.XX.XX>"		  # defaults to "v1.25.x"
 kube_image_raw       = "<boolean>"      # defaults to "true"
