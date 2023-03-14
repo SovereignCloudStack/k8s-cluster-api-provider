@@ -118,22 +118,65 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/capi-settings.tmpl", { clusterapi_version = var.clusterapi_version, capi_openstack_version = var.capi_openstack_version, calico_version = var.calico_version, prefix = var.prefix, testcluster_name = var.testcluster_name })
+    content     = templatefile("files/template/capi-settings.tmpl", {
+      calico_version         = var.calico_version,
+      capi_openstack_version = var.capi_openstack_version
+      clusterapi_version     = var.clusterapi_version,
+      prefix                 = var.prefix,
+      testcluster_name       = var.testcluster_name
+    })
     destination = "/home/${var.ssh_username}/.capi-settings"
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/clusterctl.yaml.tmpl", { kubernetes_version = var.kubernetes_version, availability_zone = var.availability_zone, external = var.external, image = var.image, controller_flavor = var.controller_flavor, worker_flavor = var.worker_flavor, cloud_provider = var.cloud_provider, worker_count = var.worker_count, controller_count = var.controller_count, kind_mtu = var.kind_mtu, prefix = var.prefix, deploy_nginx_ingress = var.deploy_nginx_ingress, deploy_cert_manager = var.deploy_cert_manager, deploy_flux = var.deploy_flux, deploy_metrics = var.deploy_metrics, deploy_occm = var.deploy_occm, deploy_cindercsi = var.deploy_cindercsi, use_cilium = var.use_cilium, node_cidr = var.node_cidr, dns_nameservers = var.dns_nameservers, anti_affinity = var.anti_affinity, kube_image_raw = var.kube_image_raw, image_registration_extra_flags = var.image_registration_extra_flags, etcd_unsafe_fs = var.etcd_unsafe_fs, use_ovn_lb_provider = var.use_ovn_lb_provider, capo_instance_create_timeout = var.capo_instance_create_timeout })
+    content     = templatefile("files/template/clusterctl.yaml.tmpl", { 
+      anti_affinity                  = var.anti_affinity,
+      availability_zone              = var.availability_zone,
+      capo_instance_create_timeout   = var.capo_instance_create_timeout
+      cloud_provider                 = var.cloud_provider,
+      controller_count               = var.controller_count,
+      controller_flavor              = var.controller_flavor,
+      deploy_cert_manager            = var.deploy_cert_manager,
+      deploy_cindercsi               = var.deploy_cindercsi,
+      deploy_flux                    = var.deploy_flux,
+      deploy_metrics                 = var.deploy_metrics,
+      deploy_nginx_ingress           = var.deploy_nginx_ingress,
+      deploy_occm                    = var.deploy_occm,
+      dns_nameservers                = var.dns_nameservers,
+      etcd_unsafe_fs                 = var.etcd_unsafe_fs,
+      external                       = var.external,
+      image                          = var.image,
+      image_registration_extra_flags = var.image_registration_extra_flags,
+      kind_mtu                       = var.kind_mtu,
+      prefix                         = var.prefix,
+      kube_image_raw                 = var.kube_image_raw,
+      kubernetes_version             = var.kubernetes_version,
+      node_cidr                      = var.node_cidr,
+      use_cilium                     = var.use_cilium,
+      use_ovn_lb_provider            = var.use_ovn_lb_provider,
+      worker_count                   = var.worker_count,
+      worker_flavor                  = var.worker_flavor,
+    })
     destination = "/home/${var.ssh_username}/cluster-defaults/clusterctl.yaml"
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/clouds.yaml.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, appcredid = openstack_identity_application_credential_v3.appcred.id, appcredsecret = openstack_identity_application_credential_v3.appcred.secret })
+    content     = templatefile("files/template/clouds.yaml.tmpl", { 
+      appcredid      = openstack_identity_application_credential_v3.appcred.id,
+      appcredsecret  = openstack_identity_application_credential_v3.appcred.secret
+      cloud_provider = var.cloud_provider,
+      clouds         = local.clouds,
+    })
     destination = "/home/${var.ssh_username}/.config/openstack/clouds.yaml"
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/cloud.conf.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, appcredid = openstack_identity_application_credential_v3.appcred.id, appcredsecret = openstack_identity_application_credential_v3.appcred.secret })
+    content     = templatefile("files/template/cloud.conf.tmpl", {
+      appcredid      = openstack_identity_application_credential_v3.appcred.id,
+      appcredsecret  = openstack_identity_application_credential_v3.appcred.secret
+      cloud_provider = var.cloud_provider,
+      clouds         = local.clouds,
+    })
     destination = "/home/${var.ssh_username}/cluster-defaults/cloud.conf"
   }
 
