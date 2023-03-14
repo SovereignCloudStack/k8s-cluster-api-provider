@@ -118,7 +118,7 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/capi-settings.tmpl", {
+    content = templatefile("files/template/capi-settings.tmpl", {
       calico_version         = var.calico_version,
       capi_openstack_version = var.capi_openstack_version
       clusterapi_version     = var.clusterapi_version,
@@ -129,7 +129,7 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/clusterctl.yaml.tmpl", { 
+    content = templatefile("files/template/clusterctl.yaml.tmpl", {
       anti_affinity                  = var.anti_affinity,
       availability_zone              = var.availability_zone,
       capo_instance_create_timeout   = var.capo_instance_create_timeout
@@ -162,7 +162,7 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/clouds.yaml.tmpl", { 
+    content = templatefile("files/template/clouds.yaml.tmpl", {
       appcredid      = openstack_identity_application_credential_v3.appcred.id,
       appcredsecret  = openstack_identity_application_credential_v3.appcred.secret
       cloud_provider = var.cloud_provider,
@@ -172,7 +172,7 @@ EOF
   }
 
   provisioner "file" {
-    content     = templatefile("files/template/cloud.conf.tmpl", {
+    content = templatefile("files/template/cloud.conf.tmpl", {
       appcredid      = openstack_identity_application_credential_v3.appcred.id,
       appcredsecret  = openstack_identity_application_credential_v3.appcred.secret
       cloud_provider = var.cloud_provider,
