@@ -36,10 +36,6 @@ Policies (PSPs) and brought
 [Pod Security Standards (PSS)](https://kubernetes.io/blog/2022/08/25/pod-security-admission-stable/) 
 instead.
 
-k8s-v1.26 is not officially supported by capi yet; it has survived our
-testing with the CNCF testsuite, rolling upgrades and `clusterctl move`s though,
-so we do allow the deployment using an override parameter.
-
 ### calico 3.25.x, cilium 1..x, helm 3.11.x, sonobuoy 0.56.x, k9s 0.26.x, kind 0.17.1
 
 We regularly update to the latest stable versions.
@@ -65,6 +61,32 @@ See `doc/` directory.
 
 Please check the doc directory.
 <https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/Maintenance_and_Troubleshooting.md>
+
+### Restrict access to the Kubernetes API (#246)
+
+By setting `RESTRICT_KUBEAPI` to a list of IP ranges (CIDRs) when creating or updating the cluster,
+access to the Kubernetes API will be restricted to the IP ranges listed in this parameter.
+Note that access from the management host and from internal nodes will always be allowed,
+as otherwise cluster operation would be seriously disrupted.
+
+The default value (an empty list `[ ]`) will result in the traditional setting that
+allows access from anywhere. Setting it to `[ "none" ]` will result in no access (beyond internal
+nodes and the management host). Note that filtering for IP ranges from the public internet is not
+a silver bullet against connection attempts from evil attackers, as IP spoofing might be used,
+so do not consider this the only line of defense to secure your cluster. Also be aware that in order
+to allow for internal access, the IP address used for outgoing IP connections (with SNAT) is always
+allowed, which means all VMs in this region of your cloud provider are allowed to connect.
+A higher security setup might use a jumphost/bastion host to channel all API traffic through and
+the local IP address of it could be configured in this setting. By changing the cluster-template,
+one can even completely disable assigning a floating IP to the loadbalancer in front of the kube-api
+server.
+
+When you use these controls and move your cluster-API objects to a new cluster, please ensure
+that the new management cluster can access the kube-api from the to-be-managed cluster.
+Otherwise no reconciliation can happen. (We consider creating helper scripts that do this
+automatically if this turns out to be a popular things.) If you move to a cluster in the
+same cloud, this typically does not need any special care, as the outgoing SNAT address
+is already allowed.
 
 ## Changed defaults/settings
 

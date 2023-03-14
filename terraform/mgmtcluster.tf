@@ -152,6 +152,7 @@ EOF
       kube_image_raw                 = var.kube_image_raw,
       kubernetes_version             = var.kubernetes_version,
       node_cidr                      = var.node_cidr,
+      restrict_kubeapi               = var.restrict_kubeapi
       use_cilium                     = var.use_cilium,
       use_ovn_lb_provider            = var.use_ovn_lb_provider,
       worker_count                   = var.worker_count,

@@ -18,19 +18,19 @@ variable "image" {
 variable "kind_flavor" {
   description = "openstack nova flavor for instance running kind (capi mgmt node)"
   type        = string
-  default     = "SCS-1V:4:20"
+  default     = "SCS-1V-4-20"
 }
 
 variable "controller_flavor" {
   description = "openstack nova flavor for instances running the k8s management nodes"
   type        = string
-  default     = "SCS-2C:4:20s"
+  default     = "SCS-2V-4-20s"
 }
 
 variable "worker_flavor" {
   description = "openstack nova flavor for instances running the k8s worker nodes"
   type        = string
-  default     = "SCS-2V:4:20"
+  default     = "SCS-2V-4-20"
 }
 
 variable "availability_zone" {
@@ -195,6 +195,12 @@ variable "use_ovn_lb_provider" {
     condition     = contains(["false", "auto", "true"], var.use_ovn_lb_provider)
     error_message = "Invalid setting for use_ovn_lb_provider variable."
   }
+}
+
+variable "restrict_kubeapi" {
+  description = "array of IP ranges (CIDRs) that get exclusive access. Leave open for all, none for excusive internal access"
+  type        = list(string)
+  default     = []
 }
 
 variable "capo_instance_create_timeout" {

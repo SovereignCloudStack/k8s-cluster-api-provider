@@ -436,8 +436,8 @@ Parameters controlling the Cluster-API management server (capi management server
 
 | environment              | clusterctl.yaml | provenance | default        | meaning                                                                       |
 |--------------------------|-----------------|------------|----------------|-------------------------------------------------------------------------------|
-| `prefix`                 |                 | SCS        | `capi`         | Prefix used for OpenStack resources for the capi mgmt server                  |
-| `kind_flavor`            |                 | SCS        | `SCS-1V:4:20`  | Flavor to be used for the k8s capi mgmt server                                |
+| `prefix`                 |                 | SCS        | `capi`         | Prefix used for OpenStack resources for the capi mgmt node                    |
+| `kind_flavor`            |                 | SCS        | `SCS-1V-4-20`  | Flavor to be used for the k8s capi mgmt server                                |
 | `image`                  |                 | SCS        | `Ubuntu 22.04` | Image to be deployed for the capi mgmt server                                 |
 | `ssh_username`           |                 | SCS        | `ubuntu`       | Name of the default user for the `image`                                      |
 | `clusterapi_version`     |                 | SCS        | `1.3.5`        | Version of the cluster-API incl. `clusterctl`                                 |
@@ -479,7 +479,9 @@ Parameters controlling the cluster creation:
 | `deploy_cindercsi`               | `DEPLOY_CINDERCSI`                        | SCS        | `true`                                   | Deploy the given (or latest matching for the default true value) of cinder CSI.                                                                                                                            |
 | `etcd_unsafe_fs`                 | `ETCD_UNSAFE_FS`                          | SCS        | `false`                                  | Use `barrier=0` for filesystem on control nodes to avoid storage latency. Use for multi-controller clusters on slow/networked storage, otherwise not recommended.                                          |
 | `testcluster_name`               | (cmd line)                                | SCS        | `testcluster`                            | Allows setting the default cluster name, created at bootstrap (if `controller_count` is larger than 0)                                                                                                     |
-| `capo_instance_create_timeout`   | `CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT`                                | SCS        | `10`                            | Time to wait for an OpenStack machine to be created (in minutes) |
+| `restrict_kubeapi`               | `RESTRICT_KUBEAPI`                        | SCS        |  `[ ]`        
+| `capo_instance_create_timeout`   | `CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT`                                | SCS        | `10`                            | Time to wait for an OpenStack machine to be created (in minutes) |                                                                                                             | 
+
 
 Optional services deployed to cluster:
 
@@ -487,7 +489,7 @@ Optional services deployed to cluster:
 |------------------------|------------------------|------------|---------|--------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `deploy_metrics`       | `DEPLOY_METRICS`       | SCS        | `true`  | `apply_metrics.sh`       | Deploy metrics service to nodes to make `kubectl top` work                                                                                                                                                                          |
 | `deploy_nginx_ingress` | `DEPLOY_NGINX_INGRESS` | SCS        | `true`  | `apply_nginx_ingress.sh` | Deploy NGINX ingress controller (this spawns an OpenStack Loadbalancer), pass version to explicitly choose the version, `true` results in `v1.6.4` (`v1.0.2` for k8s <= 1.19)                                                       |
-| ` `                    | `NGINX_INGRESS_PROXY`  | SCS        | `false` | (dito)                   | Configure LB and nginx to get real IP via PROXY protocol; may cause trouble for pod to LB connections.                                                                                                                              |
+| ` `                    | `NGINX_INGRESS_PROXY`  | SCS        | `true`  | (dito)                   | Configure LB and nginx to get real IP via PROXY protocol; trouble for pod to LB connections has been resolved by setting hostname                                                                                                   |
 | `use_ovn_lb_provider`  | `USE_OVN_LB_PROVIDER`  | SCS        | `false` | `apply_nginx_ingress.sh` | Clouds using OVN networking can deploy the OVN provider that has low overhead (L3) and makes real client IPs visible without proxy protocol hacks. Set to `auto` to enable; not yet ready for prime time, thus defaults to `false`. |
 | `deploy_cert_manager`  | `DEPLOY_CERT_MANAGER`  | SCS        | `false` | `apply_cert_manager.sh`  | Deploy cert-manager, pass version (e.g. `v1.11.0`) to explicitly choose a version                                                                                                                                                   |
 | `deploy_flux`          | `DEPLOY_FLUX`          | SCS        | `false` |                          | Deploy flux2 into the cluster                                                                                                                                                                                                       |
