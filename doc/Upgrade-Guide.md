@@ -1,27 +1,32 @@
 ---
 title: SCS k8s-cluster-api-provider update guide
-version: 2022-09-19
-authors: Kurt Garloff
-state: Draft (v0.5)
+version: 2023-03-15
+authors: Kurt Garloff, Roman Hros, Matej Feder
+state: Draft (v0.6)
 ---
 
 # SCS k8s-cluster-api-provider upgrade guide
 
 This document explains the steps to upgrade the SCS Kubernetes cluster-API
-based cluster management solution from the R2 (2022-03) to the R3 state,
-explaining how the management cluster and the workload clusters can be
-upgraded without disruption.
+based cluster management solution as follows:
+- from the R2 (2022-03) to the R3 (2022-09) state
+- from the R3 (2022-09) to the R4 state
+The document explains how the management cluster and the workload clusters can be
+upgraded without disruption. It is highly recommended to do a step-by-step upgrade 
+across major releases i.e. upgrade from R2 to R3 and then to R4 in the case of 
+upgrade from the R2 to the R4. Upgrades across major releases without step-by-step 
+process is not recommended and could lead to undocumented issues.
 
 The various steps are not very complicated, but there are numerous steps to
-take and it is advisable that cluster operators get some experience with
+take, and it is advisable that cluster operators get some experience with
 this kind of cluster management before applying this to customer clusters
 that carry important workloads.
 
-Note that while the detailed steps are tested and targeted to a R2 -> R3 move,
-many of the steps are a generic approach that will apply also for other
-upgrades, so expect a lot of similar steps when moving beyond R3.
+Note that while the detailed steps are tested and targeted to a R2 -> R3 move or 
+R3 -> R4 move, many of the steps are a generic approach that will apply also for other
+upgrades, so expect a lot of similar steps when moving beyond R4.
 Upgrades from cluster management prior to R2 is difficult; many changes before
-R2 assumed that you would redeploy the management cluster. Redploying the
+R2 assumed that you would redeploy the management cluster. Redeploying the
 management cluster can of course always be done, but it's typically disruptive
 to your workload clusters, unless you move your cluster management state into
 a new management cluster with `clusterctl move`.
@@ -29,7 +34,7 @@ a new management cluster with `clusterctl move`.
 ## Management host (cluster) vs. Workload clusters
 
 When you initially deployed the SCS k8s-cluster-api-provider, you create a
-VM with a kind(https://kind.sigs.k8s.io/) cluster inside and a number of
+VM with a [kind](https://kind.sigs.k8s.io/) cluster inside and a number of
 templates, scripts and binaries that are then used to do the cluster management.
 This is your management host (or more precisely you single-host management
 cluster). Currently, all cluster management including upgrading etc. is done
@@ -47,10 +52,10 @@ can manage it there. (The default name of this cluster is typically
 
 On the management host, you have the openstack and kubernetes tools
 installed and configured, so you can nicely manage all aspects of your
-CaaS setups as well as the underlaying IaaS. The kubectl configuration
+CaaS setups as well as the underlying IaaS. The kubectl configuration
 is in `~/.kube/config` while you will find the OpenStack configuration
 in `~/.config/openstack/clouds.yaml`. These files are automatically
-managed; you can add entries to the files though and they should
+managed; you can add entries to the files though, and they should
 persist.
 
 ## Updating the management host
@@ -74,7 +79,7 @@ snaps, so you may want to upgrade these as well: `sudo snap refresh`.
 #### k8s-cluster-api-provider git
 
 The automation is deployed on the management host by cloning [the relevant
-git repository](https://github.com:SovereignCloudStack/k8s-cluster-api-provider/).
+git repository](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/).
 into the `k8s-cluster-api-provider` directory. Note that the checked out
 branch will be the one that has been used when creating the management host
 and you might want to change branches from `maintained/v3.x` to `maintained/v4.x`.
@@ -127,7 +132,7 @@ You can then upgrade the components. You can do them one-by-one or simply do
 
 #### New templates
 
-The `cluster-template.yaml` template used for the the workload clusters is located in
+The `cluster-template.yaml` template used for the workload clusters is located in
 `~/k8s-cluster-api-provider/terraform/files/templates/` and copied from there into
 `~/cluster-defaults/`. Then workload clusters are created, they will also have a
 copy of it in `~/${CLUSTER_NAME}/`. If you have not changed it manually, you can
@@ -150,7 +155,7 @@ to tweak both `clusterctl.yaml` and `cluster-template.yaml` for the
 relevant cluster. (You can use `cluster-defaults` to change the templates
 in `~/cluster-defaults/` which get used when creating new clusters.)
 
-If you are curious: In R2, doing rolling upgrades of k8s versions reqiured
+If you are curious: In R2, doing rolling upgrades of k8s versions required
 edits in `cluster-template.yaml` -- this is no longer the case in R3. Just
 increase the generation counter for node and control plane nodes if you
 upgrade k8s versions -- or otherwise change the worker or control plane
@@ -160,7 +165,7 @@ node specs, such as e.g. using a different flavor.
 
 You deploy a CNI (calico or cilium), the OpenStack Cloud Controller
 Manager (OCCM), the cinder CSI driver to clusters; optionally also a
-metrics server (default is true), an nginx ingress controller (also
+metrics server (default is true), a nginx ingress controller (also
 defaulting to true), the flux2 controller, the cert-manager.
 Some of these tools come with binaries that you can use for management
 purposes and which get installed on the management host in `/usr/local/bin/`.
@@ -189,12 +194,12 @@ TODO: calico und cilium tooling note
 
 To be written
 1. Create new management host in same project -- avoid name conflicts
-   with different prefix, to be tweaked later. Avoid testcluster creation.
-2. Ensure it's up an running ...
+   with different prefix, to be tweaked later. Avoid testcluster creation
+2. Ensure it's up and running ...
 3. Tweak prefix
 4. Copy over configs (and a bit of state though that's uncritical) by using
    the directories
-5. Copy over the openstack credentials clouds.yaml and the kubectl config.
+5. Copy over the openstack credentials clouds.yaml and the kubectl config
 6. clusterctl move 
 
 ## Updating workload clusters
