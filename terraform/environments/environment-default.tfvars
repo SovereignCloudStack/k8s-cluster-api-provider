@@ -10,6 +10,7 @@ ssh_username         = "<username_for_ssh>"	  # defaults to "ubuntu"
 clusterapi_version   = "<1.x.y>"		  # defaults to "1.3.5"
 capi_openstack_version = "<0.x.y>"		  # defaults to "0.7.1"
 image                = "<glance_image>"		  # defaults to "Ubuntu 22.04"
+cilium_binaries      = "<v0.aa.bb;v0.xx.yy>"  # defaults to "v0.13.1;v0.11.2"
 # Settings for testcluster
 kubernetes_version   = "<v1.XX.XX>"		  # defaults to "v1.25.x"
 kube_image_raw       = "<boolean>"      # defaults to "true"
@@ -21,7 +22,7 @@ worker_count         = <number>	        # defaults to 3
 kind_mtu             = <number>         # defaults to 0 (autodetection)
 node_cidr            = "<CIDR>"         # defaults to "10.8.0.0/20"
 anti_affinity        = "<boolean>"      # defaults to "true"
-use_cilium           = "<boolean>"      # defaults to "false"
+use_cilium           = "version/true/false"       # defaults to "false", you can also set vX.Y.Z if you want
 use_ovn_lb_provider  = "auto/true/false"	# use OVN LB if available (auto) or force (true) or never (false), not yet recommended
 deploy_nginx_ingress = "version/true/false"       # defaults to "true", you can also set vX.Y.Z if you want
 deploy_cert_manager  = "version/true/false"       # defaults to "false", you can also set to vX.Y.Z if you want

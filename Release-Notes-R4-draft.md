@@ -36,7 +36,7 @@ Policies (PSPs) and brought
 [Pod Security Standards (PSS)](https://kubernetes.io/blog/2022/08/25/pod-security-admission-stable/) 
 instead.
 
-### calico 3.25.x, cilium 1..x, helm 3.11.x, sonobuoy 0.56.x, k9s 0.26.x, kind 0.17.1
+### calico 3.25.x, cilium 1.13.x, helm 3.11.x, sonobuoy 0.56.x, k9s 0.26.x, kind 0.17.1
 
 We regularly update to the latest stable versions.
 

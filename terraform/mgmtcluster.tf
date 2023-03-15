@@ -120,6 +120,7 @@ EOF
   provisioner "file" {
     content = templatefile("files/template/capi-settings.tmpl", {
       calico_version         = var.calico_version,
+      cilium_binaries        = var.cilium_binaries,
       capi_openstack_version = var.capi_openstack_version,
       clusterapi_version     = var.clusterapi_version,
       prefix                 = var.prefix,
