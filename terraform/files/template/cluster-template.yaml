@@ -78,6 +78,25 @@ spec:
         kubeletExtraArgs:
           cloud-provider: external
     files:
+      - path: /root/etcd-defrag.sh
+        owner: "root:root"
+        permissions: "0755"
+        content: |
+          #!/bin/bash
+          export LOG_DIR=/var/log
+          export ETCDCTL_API=3
+          if test "$(etcdctl --cert /etc/kubernetes/pki/etcd/peer.crt --key /etc/kubernetes/pki/etcd/peer.key --cacert /etc/kubernetes/pki/etcd/ca.crt endpoint status | cut -d ',' -f 5)" != " false"; then
+              echo "Exit on leader"
+              exit 0
+          fi
+          sync
+          sleep 2
+          etcdctl --cert /etc/kubernetes/pki/etcd/peer.crt --key /etc/kubernetes/pki/etcd/peer.key --cacert /etc/kubernetes/pki/etcd/ca.crt defrag
+          sleep 3
+          etcdctl --cert /etc/kubernetes/pki/etcd/peer.crt --key /etc/kubernetes/pki/etcd/peer.key --cacert /etc/kubernetes/pki/etcd/ca.crt snapshot save /root/etcd-backup
+          chmod 0600 /root/etcd-backup
+          xz -f /root/etcd-backup
+          fstrim -v /var/lib/etcd
       - path: /etc/systemd/system/etcd-defrag.service
         owner: "root:root"
         permissions: "0644"
@@ -89,16 +108,9 @@ spec:
 
           [Service]
           Type=oneshot
-          Environment="LOG_DIR=/var/log"
-          Environment="ETCDCTL_API=3"
-          ExecStart=sync
-          ExecStart=sleep 2
-          ExecStart=etcdctl --cert /etc/kubernetes/pki/etcd/peer.crt --key /etc/kubernetes/pki/etcd/peer.key --cacert /etc/kubernetes/pki/etcd/ca.crt defrag
-          ExecStart=sleep 3
-          ExecStart=etcdctl --cert /etc/kubernetes/pki/etcd/peer.crt --key /etc/kubernetes/pki/etcd/peer.key --cacert /etc/kubernetes/pki/etcd/ca.crt snapshot save /root/etcd-backup
-          ExecStart=chmod 0600 /root/etcd-backup
-          ExecStart=xz -f /root/etcd-backup
-          ExecStart=fstrim -v /var/lib/etcd
+          #Environment="LOG_DIR=/var/log"
+          #Environment="ETCDCTL_API=3"
+          ExecStart=/root/etcd-defrag.sh
           Nice=19
           IOSchedulingClass=idle
           IOSchedulingPriority=7

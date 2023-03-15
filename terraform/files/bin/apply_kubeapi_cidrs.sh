@@ -20,7 +20,7 @@ get_own_fip()
 	FIP=$(echo "$NETS" | sed "s/^.*, [']\{0,1\}\(\([0-9]*\.\)\{3\}[0-9]*\).*\$/\1/g")
 }
 
-# Add access restrictionrs
+# Add access restrictions
 # Input is a list in brackets.
 # Ignore none, always add own FIP
 kustomize_cluster_cidrs()
