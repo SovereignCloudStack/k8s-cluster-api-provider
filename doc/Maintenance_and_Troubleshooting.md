@@ -59,6 +59,10 @@ $ kubectl describe openstackcluster <CLUSTER_NAME> | yq .Status.Ready
 true
 ```
 
+Note that you can instead execute `kubectl get cluster <CLUSTER_NAME> -ojsonpath='{ .status.phase }'`
+and `kubectl get openstackcluster <CLUSTER_NAME> -ojsonpath='{ .status.ready }'` 
+if you don't have `yq` at hand.
+
 A handy command for cluster health investigation is `clusterctl describe cluster <CLUSTER_NAME>`.
 This prints infrastructure/control plane/workers readiness status and other relevant 
 information like a failure reason. The healthy cluster output is similar to this:
