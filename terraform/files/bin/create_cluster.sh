@@ -109,7 +109,7 @@ apply_kubeapi_cidrs.sh "$CCCFG" ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
 
 # Test for CILIUM
 USE_CILIUM=$(yq eval '.USE_CILIUM' $CCCFG)
-if test "$USE_CILIUM" = "true"; then
+if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
 	echo "# Security groups for cilium"
 	enable-cilium-sg.sh "$CLUSTER_NAME"
 else
@@ -151,13 +151,20 @@ done
 # CNI
 echo "# Deploy services (CNI, OCCM, CSI, Metrics, Cert-Manager, Flux2, Ingress)"
 MTU_VALUE=$(yq eval '.MTU_VALUE' $CCCFG)
-if test "$USE_CILIUM" = "true"; then
+if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
   # FIXME: Do we need to allow overriding MTU here as well?
-  KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium install
+  CILIUM_VERSION="v1.13.0"
+  if test "${USE_CILIUM:0:1}" = "v"; then
+    CILIUM_VERSION="${USE_CILIUM}"
+  fi
+  KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium install --version $CILIUM_VERSION
   touch ~/$CLUSTER_NAME/deployed-manifests.d/.cilium
 else
-  curl -L https://raw.githubusercontent.com/projectcalico/calico/$CALICO_VERSION/manifests/calico.yaml -o ~/$CLUSTER_NAME/deployed-manifests.d/calico.yaml
-  sed -i "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" ~/$CLUSTER_NAME/deployed-manifests.d/calico.yaml
+  CALICO_VERSION=$(yq eval '.CALICO_VERSION' $CCCFG)
+  if test ! -s ~/kubernetes-manifests.d/calico-${CALICO_VERSION}.yaml; then
+    curl -L https://raw.githubusercontent.com/projectcalico/calico/$CALICO_VERSION/manifests/calico.yaml -o ~/kubernetes-manifests.d/calico-${CALICO_VERSION}.yaml
+  fi
+  sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" ~/kubernetes-manifests.d/calico-${CALICO_VERSION}.yaml > ~/$CLUSTER_NAME/deployed-manifests.d/calico.yaml
   kubectl $KCONTEXT apply -f ~/$CLUSTER_NAME/deployed-manifests.d/calico.yaml
 fi
 
@@ -198,7 +205,7 @@ echo "# Wait for control plane of ${CLUSTER_NAME}"
 kubectl config use-context kind-kind
 kubectl wait --timeout=20m cluster "${CLUSTER_NAME}" --for=condition=Ready || exit 10
 #kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
-if test "$USE_CILIUM" = "true"; then
+if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
   KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium status --wait
   echo "INFO: Use KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium connectivity test for testing CNI"
 fi
