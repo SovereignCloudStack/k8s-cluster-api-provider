@@ -183,7 +183,7 @@ add this line to your `cloud.conf`, e.g.:
 echo "enable-ingress-hostname=true" >> ~/cluster-defaults/cloud.conf
 echo "enable-ingress-hostname=true" >> ~/testcluster/cloud.conf
 ```
-Then, before upgrading workload cluster by `create.sh`,
+Then, before upgrading workload cluster by `create_cluster.sh`,
 you should delete cloud-config secret in the kube-system namespace, so it can be recreated. E.g.:
 `kubectl delete secret cloud-config -n kube-system --kubeconfig=testcluster/testcluster.yaml`
 
