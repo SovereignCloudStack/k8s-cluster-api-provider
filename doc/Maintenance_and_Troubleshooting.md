@@ -1,8 +1,8 @@
 ---
 title: Maintenance and Troubleshooting Guide for SCS k8s-cluster-api-provider
-version: 2022-09-20
-authors: Kurt Garloff, Mathias Fechner, Andrej Friesen
-state: Draft (v0.2)
+version: 2023-03-16
+authors: Kurt Garloff, Mathias Fechner, Andrej Friesen, Matej Feder
+state: Draft (v0.3)
 ---
 
 # Maintenance and Troubleshooting Guide for SCS k8s-cluster-api-provider
@@ -35,29 +35,70 @@ Another problem is that the CA might expire as well (normally after 10 years)
 
 ## Failed cluster deployment debugging
 
-Ask kubernetes what went wrong, e.g. `kubectl describe cluster <CLUSTER_NAME>`.
-The status and the events may give you a clue what happened. You can also look
-at the `openstackcluster` object.
+NOTE: The following `kubectl` and `clusterctl` commands should be executed against 
+the management Kubernetes cluster API. Keep in mind that these tools and the 
+`kubeconfig` to access the management Kubernetes cluster are available in the management
+host, hence it is convenient to execute the following commands from the management host.
 
-You can check at the openstack layer. A cluster deployment should result in a router,
-a network, a subnet, a loadbalancer (in front of kubeapi) and a number of servers (VMs)
-for the control-plane and worker nodes. Have you run out of quota?
+Ask Kubernetes what went wrong:
+```bash
+kubectl describe cluster <CLUSTER_NAME>
+```
+
+The status and the events may give you a clue what happened. The healthy cluster should
+be in the phase: `Provisioned`
+```bash
+$ kubectl describe cluster <CLUSTER_NAME> | yq .Status.Phase
+Provisioned
+```
+
+You can also have a look at the `openstackcluster` object and see OpenStack related
+statuses and events. The healthy cluster should be ready:
+```bash
+$ kubectl describe openstackcluster <CLUSTER_NAME> | yq .Status.Ready
+true
+```
+
+A handy command for cluster health investigation is `clusterctl describe cluster <CLUSTER_NAME>`.
+This prints infrastructure/control plane/workers readiness status and other relevant 
+information like a failure reason. The healthy cluster output is similar to this:
+```bash
+$ clusterctl describe cluster <CLUSTER_NAME>
+NAME                                                            READY  SEVERITY  REASON  SINCE  MESSAGE
+Cluster/testcluster                                             True                     21m
+├─ClusterInfrastructure - OpenStackCluster/testcluster
+├─ControlPlane - KubeadmControlPlane/testcluster-control-plane  True                     23m
+│ └─3 Machines...                                               True                     21m    See testcluster-control-plane-5ftjs, testcluster-control-plane-62cdj, ...
+
+└─Workers
+  └─MachineDeployment/capi-testcluster-md-0-no1                 True                     22m
+    └─3 Machines...                                             True                     21m    See capi-testcluster-md-0-no1-84dd86f598-bhxfd, capi-testcluster-md-0-no1-84dd86f598-f6pnl, ...
+```
 
 The logs of the capi pod and especially the capo pod are a good source of information.
 To find out in which condition the deployment status is, you can use the following way:
 
-``kubectl logs -n capo-system capo-manager-[TAB]``
+```bash
+kubectl logs -n capo-system -l control-plane=capo-controller-manager -c manager
+```
+Successful cluster creation will log `Reconciled Machine create successfully` for 
+successfully created nodes.
 
-Successful cluster creation will have these important steps:
+```bash
+kubectl logs -n capi-system -l control-plane=controller-manager -c manager
+```
 
-``Successfulcreateloadbalancer``
+In some cases could be a good idea to go through the official [capi]
+(https://cluster-api.sigs.k8s.io/user/troubleshooting.html) and [capo](https://cluster-api-openstack.sigs.k8s.io/topics/troubleshooting.html)
+troubleshooting guides or check whether you hit some known bug already reported in
+[capi](https://github.com/kubernetes-sigs/cluster-api/issues?q=is%3Aissue+is%3Aopen+label%3Akind%2Fbug)
+or [capo](https://github.com/kubernetes-sigs/cluster-api-provider-openstack/issues?q=is%3Aissue+is%3Aopen+label%3Akind%2Fbug) projects.
 
-``Reconciled Cluster create successful``
+You can also check the OpenStack layer. A cluster deployment should result in a 
+router,a network, a subnet, a loadbalancer (in front of kubeapi) and a number of servers (VMs)
+for the control-plane and worker nodes. Have you run out of quota?
 
 ## Cluster state
-
-You can ask cluster-api for an overview of the cluster state:
-``clusterctl describe cluster <CLUSTER_NAME>``.
 
 Have a look at the pods that run:
 ``kubectl --context=<CLUSTER_NAME>-admin@<CLUSTER_NAME> get pods -A``
@@ -65,4 +106,6 @@ Have a look at the pods that run:
 or have a look at the nodes:
 ``kubectl --context=<CLUSTER_NAME>-admin@<CLUSTER_NAME> get nodes -o wide``
 
-
+If you fall into some Kubernetes specific issues after a successful cluster
+creation, go through the official [Kubernetes](https://kubernetes.io/docs/tasks/debug/debug-cluster/)
+troubleshooting guide.
