@@ -5,7 +5,7 @@ authors: Kurt Garloff
 state: Draft (v0.5)
 ---
 
-# SCS k8s-cluster-api-provider upgrade guide
+## SCS k8s-cluster-api-provider upgrade guide
 
 This document explains the steps to upgrade the SCS Kubernetes cluster-API
 based cluster management solution from the R2 (2022-03) to the R3 state,
@@ -29,7 +29,7 @@ a new management cluster with `clusterctl move`.
 ## Management host (cluster) vs. Workload clusters
 
 When you initially deployed the SCS k8s-cluster-api-provider, you create a
-VM with a kind(https://kind.sigs.k8s.io/) cluster inside and a number of
+VM with a kind(<https://kind.sigs.k8s.io/>) cluster inside and a number of
 templates, scripts and binaries that are then used to do the cluster management.
 This is your management host (or more precisely you single-host management
 cluster). Currently, all cluster management including upgrading etc. is done
@@ -56,6 +56,7 @@ persist.
 ## Updating the management host
 
 There are two different possibilities to upgrade the management host.
+
 1. You do a component-wise in-place upgrade of it.
 2. You deploy a new management host and `clusterctl move` the resources
    over to it from the old one. (Note: Config state in `~/CLUSTER_NAME/`)
@@ -102,7 +103,8 @@ display the current version number (v1.2.2 at the time of this writing).
 You can now issue the command `clusterctl upgrade plan` and clusterctl will
 list the components in your (kind) management cluster that can be upgraded.
 Here's an example output:
-```
+
+```bash
 ubuntu@capi-old-mgmtcluster:~ [0]$ clusterctl upgrade plan
 Checking cert-manager version...
 Cert-Manager is already up to date
@@ -123,7 +125,7 @@ clusterctl upgrade apply --contract v1beta1
 ```
 
 You can then upgrade the components. You can do them one-by-one or simply do
-``clusterctl upgrade apply --contract v1beta1``
+`clusterctl upgrade apply --contract v1beta1`
 
 #### New templates
 
@@ -173,11 +175,11 @@ already existing versions will not be re-downloaded.
 Most binaries in `/usr/local/bin/` are not stored under a version-specific
 name. You need to rename them to case a re-download of a newer version.
 (The reason for not having version specific names is that this would
- break scripts from users that assume the unversioned names; the good
- news is that most of these binaries have no trouble managing somewhat
- older deployments, so you can typically work with the latest binary
- tool even if you have a variety of versions deployed into various
- clusters.)
+break scripts from users that assume the unversioned names; the good
+news is that most of these binaries have no trouble managing somewhat
+older deployments, so you can typically work with the latest binary
+tool even if you have a variety of versions deployed into various
+clusters.)
 
 The defaults have changed as follows
 
@@ -188,6 +190,7 @@ TODO: calico und cilium tooling note
 ### The clusterctl move approach
 
 To be written
+
 1. Create new management host in same project -- avoid name conflicts
    with different prefix, to be tweaked later. Avoid testcluster creation.
 2. Ensure it's up an running ...
@@ -195,7 +198,7 @@ To be written
 4. Copy over configs (and a bit of state though that's uncritical) by using
    the directories
 5. Copy over the openstack credentials clouds.yaml and the kubectl config.
-6. clusterctl move 
+6. clusterctl move
 
 ## Updating workload clusters
 
@@ -223,7 +226,7 @@ to watch the progress of this.
 
 #### On R2 clusters
 
-The old way: Editing cluster-template.yaml. Or better use the 
+The old way: Editing cluster-template.yaml. Or better use the
 `update-cluster-template-to-generation-counted.sh` script to convert first.
 
 ### New versions for mandatory components
@@ -234,3 +237,24 @@ OCCM, CNI (calico/cilium), CSI
 
 nginx, metrics (nothing to do), cert-manager, flux
 
+### etcd leader changes
+
+While testing clusters with >= 3 control nodes, we have observed occasional transient error messages that reported an etcd leader change preventing a command from succeeding. This could result in a dozen of random failed tests in a sonobuoy conformance run. (Retrying the commands would let them succeed.)
+
+Too frequent etcd leader changes are detrimental to your control plane performance and can lead to transient failures. They are a sign that the infrastructure supporting your cluster is introducing too high latencies (>100ms in the default configuration which we don't change by default, see below).
+
+We recommend to deploy the control nodes (which run etcd) on instances with local SSD storage (which we reflect in the default flavor name) and recommend using flavors with dedicated cores and that your network does not introduce latencies by significant packet drop.
+
+We now always use slower heartbeat (250ms) and increase CPU and IO priority which used to be controlled by `ETCD_PRIO_BOOST`. This is safe.
+
+If you build multi-controller clusters and can not use a flavor with low latency local storage (ideally SSD), you can also work around this with
+`ETCD_UNSAFE_FS`. `ETCD_UNSAFE_FS` is using
+`barrier=0` mount option, which violates filesystem ordering guarantees.
+This works around storage latencies, but introduces the risk of inconsistent
+filesystem state and inconsistent etcd data in case of an unclean shutdown.
+You may be able to live with this risk in a multi-controller etcd setup.
+If you don't have flavors that fulfill the requirements (low-latency
+storage attached), your choice is between a single-controller cluster
+(without `ETCD_UNSAFE_FS`) and a multi-controller cluster with
+`ETCD_UNSAFE_FS`. Neither option is perfect, but we deem the
+multi-controller cluster preferable in such a scenario.
