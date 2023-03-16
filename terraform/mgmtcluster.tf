@@ -119,7 +119,6 @@ EOF
 
   provisioner "file" {
     content = templatefile("files/template/capi-settings.tmpl", {
-      calico_version         = var.calico_version,
       cilium_binaries        = var.cilium_binaries,
       capi_openstack_version = var.capi_openstack_version,
       clusterapi_version     = var.clusterapi_version,
@@ -152,6 +151,7 @@ EOF
       prefix                         = var.prefix,
       restrict_kubeapi               = var.restrict_kubeapi
       use_cilium                     = var.use_cilium,
+      calico_version                 = var.calico_version,
       use_ovn_lb_provider            = var.use_ovn_lb_provider,
       worker_count                   = var.worker_count,
       worker_flavor                  = var.worker_flavor,
