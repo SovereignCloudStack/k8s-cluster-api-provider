@@ -69,7 +69,7 @@ it's worth reading the document at (doc/LoadBalancer-ExtTrafficLocal.md).
 See `doc/` directory.
 <https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/Upgrade-Guide.md>
 
-### Improved the maintenance and troubleshooting guide (#292) (#)
+### Improved the maintenance and troubleshooting guide (#292) (#395)
 
 Please check the doc directory.
 <https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/Maintenance_and_Troubleshooting.md>
