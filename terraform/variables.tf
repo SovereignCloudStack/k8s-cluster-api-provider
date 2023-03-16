@@ -158,9 +158,15 @@ variable "dns_nameservers" {
 }
 
 variable "use_cilium" {
-  description = "use cilium rather than calico as CNI"
-  type        = bool
-  default     = false
+  description = "use cilium (version) rather than calico as CNI"
+  type        = string
+  default     = "false"
+}
+
+variable "cilium_binaries" {
+  description = "cilium and hubble CLI versions in the vA.B.C;vX.Y.Z format"
+  type        = string
+  default     = "v0.13.1;v0.11.2"
 }
 
 variable "etcd_unsafe_fs" {

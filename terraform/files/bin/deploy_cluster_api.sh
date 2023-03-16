@@ -39,6 +39,7 @@ clusterctl init --infrastructure openstack:v$CLUSTERAPI_OPENSTACK_PROVIDER_VERSI
 
 # Install calicoctl
 # TODO: Check signature
+CALICO_VERSION=`yq eval '.CALICO_VERSION' ~/cluster-defaults/clusterctl.yaml`
 curl -o calicoctl -O -L "https://github.com/projectcalico/calico/releases/download/$CALICO_VERSION/calicoctl-linux-$ARCH"
 if test $? != 0 -o $(stat -c "%s" calicoctl) -lt 1000; then
   curl -o calicoctl -O -L  "https://github.com/projectcalico/calicoctl/releases/download/$CALICO_VERSION/calicoctl"
@@ -48,13 +49,15 @@ sudo mv calicoctl /usr/local/bin
 
 # Install cilium
 # TODO: Check signature
-CILIUM_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/master/stable.txt)
+#CILIUM_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/master/stable.txt)
+CILIUM_VERSION="${CILIUM_BINARIES%%;*}"
 curl -L --remote-name-all https://github.com/cilium/cilium-cli/releases/download/$CILIUM_VERSION/cilium-linux-$ARCH.tar.gz{,.sha256sum}
 sha256sum --check cilium-linux-$ARCH.tar.gz.sha256sum || exit
 #https://github.com/cilium/cilium-cli/releases/download/v0.12.3/cilium-linux-amd64.tar.gz
 sudo tar xzvfC cilium-linux-$ARCH.tar.gz /usr/local/bin
 rm cilium-linux-$ARCH.tar.gz{,.sha256sum}
-HUBBLE_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/hubble/master/stable.txt)
+#HUBBLE_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/hubble/master/stable.txt)
+HUBBLE_VERSION="${CILIUM_BINARIES##*;}"
 curl -L --remote-name-all https://github.com/cilium/hubble/releases/download/$HUBBLE_VERSION/hubble-linux-$ARCH.tar.gz{,.sha256sum}
 sha256sum --check hubble-linux-$ARCH.tar.gz.sha256sum || exit
 sudo tar xzvfC hubble-linux-$ARCH.tar.gz /usr/local/bin

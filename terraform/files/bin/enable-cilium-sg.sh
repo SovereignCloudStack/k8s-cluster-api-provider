@@ -4,7 +4,7 @@ COLUMNS=${COLUMNS:-80}
 SGS=$(openstack security group list -f value -c ID -c Name | grep "${PREFIX}-${CLUSTER_NAME}-cilium")
 if test -z "$SGS"; then
     SGS=$(openstack security group create ${PREFIX}-${CLUSTER_NAME}-cilium -f value -c id -c name)
-    # Note: Silium connectivity test will requires tcp/3xxxx/EchoOther tcp/3xxxx/EchoSame
+    # Note: Cilium connectivity test will requires tcp/3xxxx/EchoOther tcp/3xxxx/EchoSame
     # See ports with k get svc -A
     # Should this really be required?
     #SG=${SGS%% *}
