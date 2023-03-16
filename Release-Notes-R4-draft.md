@@ -14,6 +14,9 @@ Open Source Software nicely combines with
 [Sovereign Cloud Stack](https://scs.community/) to form a
 rather complete set of tools that can be used to provide
 Gaia-X conforming services on top of sovereign infrastructure.
+In addition, we have knowledge of deployments were > 100 clusters
+are being managed using the capi-based SCS reference implementation
+for k8s cluster management.
 
 R4 was released on 2024-03-22.
 
@@ -26,7 +29,7 @@ R4 was released on 2024-03-22.
 
 ### k8s versions (1.22 -- 1.26)
 
-We test the Kubernetes versions 1.22 -- 1.26 with the R4 Cluster API
+We test Kubernetes versions 1.22 -- 1.26 with the R4 Cluster API
 solution. We had tested earlier versions (down to 1.18) successfully before,
 and we don't expect them to break, but these are no longer supported
 upstream and no fresh node images are provided by us.
@@ -36,28 +39,37 @@ Policies (PSPs) and brought
 [Pod Security Standards (PSS)](https://kubernetes.io/blog/2022/08/25/pod-security-admission-stable/) 
 instead.
 
-### calico 3.25.x, cilium 1.13.x, helm 3.11.x, sonobuoy 0.56.x, k9s 0.26.x, kind 0.17.1
+### calico 3.25.x, cilium 1.13.x, helm 3.11.x, sonobuoy 0.56.x, k9s 0.26.x, kind 0.17.1, cert-manager 1.11.x, nginx-ingress 1.6.x
 
 We regularly update to the latest stable versions.
 
-### cert-manager 1.11.x, nginx-ingress 1.6.x
+In particular, cilium 1.13 has beta functionality implementing the upcoming k8s
+gateway API; this can be tested for clusters that have `USE_CILIUM` set to `true`.
+
+The latest nginx versions are also an option to test the upcoming gateway API.
+
+For calico, cilium and flux2, we improved the version control; like for
+cert-manager, nginx-ingress before, we pin a well-tested version for users
+that chose `true`, but allow overriding with a specific version by setting
+the config parameter to `vX.Y.Z`.
 
 ## New features
 
-### Enabling the proxy protocol for nginx ingress and preliminary support for OVN LB
+### Enabling the proxy protocol for nginx ingress and preliminary support for OVN LB (#325)
 
 We have been able to address the issue that the proxy protocol breaks internal
-connections to nginx. So we enable it by default now, allowing the nginx
+connections to nginx. So we enable it by default now, when the nginx-ingress
+service is deployed, allowing the nginx
 service to see the real client IPs. We would like not to need this, but are
-not fully there. For users that deploy services with `externalTrafficPolicy:  local`,
+not fully there. For users that deploy services with `externalTrafficPolicy: local`,
 it's worth reading the document at (doc/LoadBalancer-ExtTrafficLocal.md).
 
-### Completed upgrade guide (#293)
+### Upgrade guide enhancements (#293) (#388)
 
 See `doc/` directory.
 <https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/Upgrade-Guide.md>
 
-### Completed maintenance and troubleshooting guide (#292)
+### Improved the maintenance and troubleshooting guide (#292) (#)
 
 Please check the doc directory.
 <https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/Maintenance_and_Troubleshooting.md>
@@ -88,12 +100,21 @@ automatically if this turns out to be a popular things.) If you move to a cluste
 same cloud, this typically does not need any special care, as the outgoing SNAT address
 is already allowed.
 
+### Capo instance create timeout (#383)
+
+...
+
 ## Changed defaults/settings
+
+`USE_PROXY`
 
 ## Important Bugfixes
 
 ### containers moved from k8s.gcr.io to registry.k8s.io (#321)
 ....
+
+### etcd maintenance (#355, #384)
+defragmentation
 
 ## Upgrade/Migration notes
 
@@ -110,6 +131,9 @@ No breakage.
 Please read [Known issues and limitations](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/Release-Notes-R3.md#known-issues-and-limitations) from the R3 release notes; they still
 apply.
 
+### OpenStack API without properly TLS certificates (#372)
+troublesome ...
+
 ## Future roadmap
 
 ### Rate limiting 
@@ -119,16 +143,6 @@ It is still possible to overwhelm etcd by firing k8s API calls at crazy rates.
 It is best practice to enable rate-limiting at the kubeapi level, which we intend
 to do after R3 (as opt-in feature -- it might become default in R4).
 
-### Access controls
-
-By default, the kubeapi server exposes the k8s API to the public internet via a
-load balancer. While this interface is well protected, it is still a level of
-exposure that security-aware people tend to dislike. So we plan to allow limiting
-the access to be only available internally (i.e. from the cluster itself,
-the management host and an optional bastion host) plus selected IP ranges that
-the user specifies. This will be an opt-in feature and we plan to deliver it
-prior to R4.
-
 ### harbor (#139)
 
 We have a harbor registry for hosting (and scanning) image artifacts
@@ -136,6 +150,8 @@ for the SCS community. This has been built using the
 [SCS k8s-harbor](https://github.com/SovereignCloudStack/k8s-harbor) repository.
 We intend to provide an easy way to create ow harbor instances along with
 SCS cluster management.
+
+### Support for custom CA (#372)
 
 ### Cluster standardization
 
