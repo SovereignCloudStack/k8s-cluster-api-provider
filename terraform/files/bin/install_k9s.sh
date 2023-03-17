@@ -5,7 +5,7 @@
 
 # install k9s
 echo "# install latest k9s"
-ARCH=$(uname -m)
+ARCH=$(uname -m | sed 's/x86_64/amd64/')
 # TODO: Check signature
 REDIR=$(curl --silent https://api.github.com/repos/derailed/k9s/releases/latest | grep tag_name)
 VERSION=$(echo $REDIR | sed -E 's/.*"([^"]+)".*/\1/')
