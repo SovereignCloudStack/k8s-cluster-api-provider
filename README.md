@@ -6,7 +6,7 @@ project.
 
 The documentation was here previously, it has all been moved into the `doc/`
 subdirectory and is most conveniently accessible via the docusaurus rendering
-on <https://docs.scs.community/>.
+on <https://docs.scs.community/docs/category/k8s-cluster-api-provider>.
 
 <!-- Remove this soon! -->
 Until the rendering is fully proofread, the [old README.md](OLD_README.md)
