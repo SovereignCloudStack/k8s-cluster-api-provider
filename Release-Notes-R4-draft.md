@@ -58,6 +58,23 @@ that choose `true`, but allow them overriding with a specific version by setting
 the config parameter to `vX.Y.Z`. While these typically work, we do only validate
 the default version.
 
+## Ubuntu 22.04 (#318)
+
+In the SCS project, some container images are built with Alpine Linux, but
+the majority of images for containers and VMs use Ubuntu. We have largely
+upgraded from the 20.04 LTS release to the 22.04 LTS release. This upgrade
+has been performed for the capi management server and the fallout been
+addressed (#326).
+
+The node images that are used to build the k8s control nodes and worker nodes
+however are still using Ubuntu 20.04. The tests with 22.04 have uncovered a
+bug with the subiquity installer used for image building and has been 
+[reported upstream](https://github.com/kubernetes-sigs/image-builder/issues/1080).
+A [fix](https://github.com/kubernetes-sigs/image-builder/pull/1105) is meanwhile
+available, but we did not want to invalidate
+all the testing that was done a few days ahead of R4. We expect to switch
+to 22.04 for the node images well ahead of R5.
+
 ## New features
 
 ### Restructuring our documentation
