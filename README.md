@@ -9,6 +9,6 @@ subdirectory and is most conveniently accessible via the docusaurus rendering
 on <https://docs.scs.community/>.
 
 <!-- Remove this soon! -->
-Until the rendering is fully proof read, the [old README.md](OLD_README.md)
+Until the rendering is fully proofread, the [old README.md](OLD_README.md)
 remains accessible.
 
