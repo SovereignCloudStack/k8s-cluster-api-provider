@@ -41,7 +41,7 @@ Release notes for upstream Kubernetes can be found [here](https://github.com/kub
 Please read the [API deprecation notes](https://kubernetes.io/docs/reference/using-api/deprecation-guide/#v1-26)
 when you move your workloads to the latest k8s versions.
 
-### calico 3.25.x, cilium 1.13.x, helm 3.11.x, sonobuoy 0.56.x, k9s 0.26.x, kind 0.17.1, cert-manager 1.11.x, nginx-ingress 1.6.x
+### calico 3.25.x, cilium 1.13.x, helm 3.11.x, sonobuoy 0.56.x, k9s 0.27.x, kind 0.17.1, cert-manager 1.11.x, nginx-ingress 1.6.x
 
 We regularly update to the latest stable versions and validate them.
 
