@@ -60,6 +60,7 @@ Parameters controlling the cluster creation:
 | `etcd_unsafe_fs`                 | `ETCD_UNSAFE_FS`                          | SCS        | `false`                                  | Use `barrier=0` for filesystem on control nodes to avoid storage latency. Use for multi-controller clusters on slow/networked storage, otherwise not recommended.                                          |
 | `testcluster_name`               | (cmd line)                                | SCS        | `testcluster`                            | Allows setting the default cluster name, created at bootstrap (if `controller_count` is larger than 0)                                                                                                     |
 | `restrict_kubeapi`               | `RESTRICT_KUBEAPI`                        | SCS        | `[ ]`                                    | Allows restricting access to kubernetes API by list of CIDRs. Empty list (default) means public, `[ "none" ]` means internal access only.                                                                  |
+| `etcdctl_version`                | `ETCDCTL_VERSION`                         | SCS        | `v3.5.7`                                 | Version of the etcdctl client that is used for etcd DB maintenance tasks                                                                                                                                   |
 
 Optional services deployed to cluster:
 

@@ -83,17 +83,65 @@ spec:
         permissions: "0755"
         content: |
           #!/bin/bash
+          # Defragment & backup & trim script for SCS k8s-cluster-api-provider etcd cluster
+          # Script exits without any defrag/backup/trim action if:
+          #  - It is executed on non leader etcd member
+          #  - It is executed on single member etcd cluster
+          # Script defragment the etcd cluster as follows:
+          #  - Defrag the non leader etcd members first
+          #  - Change the leadership to the randomly selected and defragmentation completed etcd member
+          #  - Defrag the local (ex-leader) etcd member
+          # Script then backup & trim local (ex-leader) etcd member
+          #
+          # Usage: etcd-defrag.sh
+
           export LOG_DIR=/var/log
           export ETCDCTL_API=3
-          if test "$(etcdctl --cert /etc/kubernetes/pki/etcd/peer.crt --key /etc/kubernetes/pki/etcd/peer.key --cacert /etc/kubernetes/pki/etcd/ca.crt endpoint status | cut -d ',' -f 5)" != " false"; then
-              echo "Exit on leader"
-              exit 0
+          ETCDCTL="etcdctl --cert /etc/kubernetes/pki/etcd/peer.crt --key /etc/kubernetes/pki/etcd/peer.key --cacert /etc/kubernetes/pki/etcd/ca.crt"
+
+          if test "$($ETCDCTL endpoint status | cut -d ',' -f 5 | tr -d [:blank:])" = "false"; then
+            echo "Exit on non leader"
+            exit 0
           fi
+
+          # Get all etcd members with their endpoints, IDs, and leader status
+          declare -a MEMBERS
+          while read MEMBER; do
+            MEMBERS+=( "$MEMBER" )
+          done < <($ETCDCTL endpoint status --cluster)
+
+          if test $${#MEMBERS[@]} = 1; then
+            echo "Exit on single member etcd"
+            exit 0
+          fi
+
+          declare -a NON_LEADER_IDS
+          for MEMBER in "$${MEMBERS[@]}"; do
+            # Get member ID, endpoint, and leader status
+            MEMBER_ENDPOINT=$(echo "$MEMBER" | cut -d ',' -f 1 | tr -d [:blank:])
+            MEMBER_ID=$(echo "$MEMBER" | cut -d ',' -f 2 | tr -d [:blank:])
+            MEMBER_IS_LEADER=$(echo "$MEMBER" | cut -d ',' -f 5 | tr -d [:blank:])
+            # Defragment if $MEMBER is not the leader
+            if test "$MEMBER_IS_LEADER" == "false"; then
+              echo "Etcd member $${MEMBER_ENDPOINT} is not the leader, let's defrag it!"
+              $ETCDCTL --endpoints="$MEMBER_ENDPOINT" defrag
+              NON_LEADER_IDS+=( "$MEMBER_ID" )
+            fi
+          done
+
+          # Randomly pick an ID from non-leader IDs and make it a leader
+          RANDOM_NON_LEADER_ID=$${NON_LEADER_IDS[ $(($RANDOM % $${#NON_LEADER_IDS[@]})) ]}
+          echo "Member $${RANDOM_NON_LEADER_ID} is becoming the leader"
+          $ETCDCTL move-leader $RANDOM_NON_LEADER_ID
+
+          # Defrag this ex-leader etcd member
           sync
           sleep 2
-          etcdctl --cert /etc/kubernetes/pki/etcd/peer.crt --key /etc/kubernetes/pki/etcd/peer.key --cacert /etc/kubernetes/pki/etcd/ca.crt defrag
+          $ETCDCTL defrag
+
+          # Backup&trim this ex-leader etcd member
           sleep 3
-          etcdctl --cert /etc/kubernetes/pki/etcd/peer.crt --key /etc/kubernetes/pki/etcd/peer.key --cacert /etc/kubernetes/pki/etcd/ca.crt snapshot save /root/etcd-backup
+          $ETCDCTL snapshot save /root/etcd-backup
           chmod 0600 /root/etcd-backup
           xz -f /root/etcd-backup
           fstrim -v /var/lib/etcd
@@ -127,7 +175,6 @@ spec:
 
           [Timer]
           OnCalendar=*-*-* 02:30:00
-          RandomizedDelaySec=15m
 
           [Install]
           WantedBy=timers.target
@@ -144,8 +191,13 @@ spec:
       - apt-get update -y
       - TRIMMED_KUBERNETES_VERSION=$(echo ${KUBERNETES_VERSION} | sed 's/\./\./g' | sed 's/^v//')
       - RESOLVED_KUBERNETES_VERSION=$(apt-cache policy kubelet | sed 's/\*\*\*//' | awk -v VERSION=$${TRIMMED_KUBERNETES_VERSION} '$1~ VERSION { print $1 }' | head -n1)
-      - apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips containerd etcd-client kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
+      - apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips containerd kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
       - systemctl daemon-reload
+      # Install etcdctl
+      - curl -L https://github.com/coreos/etcd/releases/download/${ETCDCTL_VERSION}/etcd-${ETCDCTL_VERSION}-linux-amd64.tar.gz -o /tmp/etcd-${ETCDCTL_VERSION}-linux-amd64.tar.gz
+      - tar xzvf /tmp/etcd-${ETCDCTL_VERSION}-linux-amd64.tar.gz
+      - sudo cp /tmp/etcd-${ETCDCTL_VERSION}-linux-amd64/etcdctl /usr/local/bin/
+      - rm -rf /tmp/etcd-${ETCDCTL_VERSION}-linux-amd64 /tmp/etcd-${ETCDCTL_VERSION}-linux-amd64.tar.gz
       # TODO: Detect local SSD and mkfs/mount /var/lib/etcd
   version: "${KUBERNETES_VERSION}"
 ---
