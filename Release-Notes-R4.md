@@ -1,7 +1,5 @@
 # Release Notes of SCS k8s-capi-provider for R4
 
-** NOTE: THIS IS A DRAFT DOCUMENT TO COLLECT INPUT UNTIL THE RELEASE DATE **
-
 k8s-cluster-api-provider was provided with Release 1 (R1) of Sovereign
 Cloud Stack and has since seen major updates in R2, was
 hardened for production use during the R3 development phase
