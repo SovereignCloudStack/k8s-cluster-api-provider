@@ -54,7 +54,12 @@ For calico, cilium and flux2, we improved the version control; like for
 cert-manager, nginx-ingress before, we pin a well-tested version for users
 that choose `true`, but allow them overriding with a specific version by setting
 the config parameter to `vX.Y.Z`. While these typically work, we do only validate
-the default version.
+the default version. With this change, the variable `calico_version` is not
+a global but cluster scoped from now.
+
+Moreover, we introduced a new variable `cilium_binaries`, which can be used for
+setting desired versions for cilium and hubble CLI for the management host
+in the `vA.B.C;vX.Y.Z` format.
 
 ## Ubuntu 22.04 (#318)
 
@@ -147,7 +152,7 @@ As explained above, `NGINX_INGRESS_PROXY` now defaults to `true`.
 
 The move of the k8s registry from k8s.gcr.io to registry.k8s.io depending
 on the exact version was not very well managed upstream and has caused a bit of
-trouble to our users; we have mwanwhile adjusted all code to use the locations
+trouble to our users; we have meanwhile adjusted all code to use the locations
 depending on the version; for Mar 20, [yet another change](https://kubernetes.io/blog/2023/03/10/image-registry-redirect/)
 has been announced that we may have to reflect in the code again. (If we are
 lucky, there is a true redirect, so we don't need to adjust again.)
@@ -213,9 +218,14 @@ image artifacts for the SCS community. This has been built using the
 We have evaluated registry options by evaluating requirements and we intend to
 provide an easy way to create registry instances along with SCS cluster management.
 
+Registry standardization was done through [ADR](https://github.com/SovereignCloudStack/standards/pull/212)
+where we compared many registry options not only by required and desirable features
+but also by OSS health check and after many discussions, we decided to use Harbor
+registry for the reference implementation.
+
 ### Support for custom CA (#372)
 
-Abovementioned limitation for OpenStack IaaS with custom CAs will be worked
+Above mentioned limitation for OpenStack IaaS with custom CAs will be worked
 upon to make this a scenario that works out-of-the-box.
 
 ### Cluster standardization
@@ -279,6 +289,6 @@ These branches will receive updates until the end of October 2023.
 
 ## Contribution
 
-We appreciate contribution to strategy and implemention, please join
+We appreciate contribution to strategy and implementation, please join
 our community -- or just leave input on the github issues and PRs.
 Have a look at our [contribution invitation](https://scs.community/contribute/).
