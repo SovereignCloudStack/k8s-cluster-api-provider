@@ -16,7 +16,7 @@ In addition, we have knowledge of deployments were > 100 clusters
 are being managed using the capi-based SCS reference implementation
 for k8s cluster management.
 
-R4 was released on 2024-03-22.
+R4 was released on 2023-03-22.
 
 ## Updated software
 
@@ -140,6 +140,13 @@ allow users to further tweak it by setting `CAPO_INSTANCE_CREATE_TIMEOUT`.
 ## Changed defaults/settings
 
 As explained above, `NGINX_INGRESS_PROXY` now defaults to `true`.
+
+The default flavors used for control plane and for worker nodes have been changed to use
+the new [v2 flavor names](https://github.com/SovereignCloudStack/standards/blob/main/Standards/scs-0100-v2-flavor-naming.md)
+(v2 `SCS-2V-4-20` instead of v1 `SCS-2V:4:20`, `SCS-2V-4-20s` with SSD
+storage for the control nodes planes), so clusters where this is not set explicitly will
+work on SCS IaaS deployments that implement the new naming, but no long on the ones with
+the old naming.
 
 ## Important Bugfixes
 
