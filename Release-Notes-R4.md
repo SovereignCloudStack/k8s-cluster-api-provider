@@ -16,7 +16,7 @@ In addition, we have knowledge of deployments were > 100 clusters
 are being managed using the capi-based SCS reference implementation
 for k8s cluster management.
 
-R4 was released on 2024-03-22.
+R4 was released on 2023-03-22.
 
 ## Updated software
 
