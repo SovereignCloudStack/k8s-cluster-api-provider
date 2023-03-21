@@ -5,7 +5,7 @@
 - make
 - kubectl
 - terraform
-- yq v2
+- yq v2 or v4 (see note below)
 
 ## Prepare the environment
 
@@ -38,10 +38,27 @@ make get-kubeconfig
 kubectl --kubeconfig testcluster.yaml.<YOURCLOUD> get nodes
 ```
 
+Note: If `make create` fails with a `yq` related error message, the detection of the
+`yq` variant in the Makefile may have gone wrong. You can force the usage of the other
+variant by editing the Makefile -- we plan to improve this.
+
 ## Teardown
 
 ```
 make clean
 ```
 
-This guide shows you how to get working Kubernetes clusters on a SCS cloud via [cluster-api](https://cluster-api.sigs.k8s.io/)(CAPI).
+If `make clean` fails to clean up completely, you can also use the `fullclean` target.
+Review the [teardown.md](teardown.md) document for more details.
+
+## Beyond quickstart
+
+This guide assume you just create one test cluster directly when creating the
+management server. In a productive setting, you would not use this machine
+(the one that runs the `make` commands invoking terraform), but create a
+long-lived capi management server (which can be updated without recreation)
+to which you connect via ssh and where you can mange many k8s cluster.
+Please read on in the [Getting started guide](getting-started.md).
+
+This guide shows you how to get working Kubernetes clusters on a SCS cloud
+via [cluster-api](https://cluster-api.sigs.k8s.io/)(CAPI).
