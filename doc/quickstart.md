@@ -35,7 +35,7 @@ make create
 make get-kubeconfig
 
 # Interact with the testcluster
-kubectl --kubeconfig testcluster.kubeconfig get nodes
+kubectl --kubeconfig testcluster.yaml.<YOURCLOUD> get nodes
 ```
 
 ## Teardown
