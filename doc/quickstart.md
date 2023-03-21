@@ -9,7 +9,7 @@
 
 ## Prepare the environment
 
-You need access to an OpenStack cluster.
+You need access to an OpenStack project.
 Copy the default environment and adjust the options according to your cloud.
 
 ```
