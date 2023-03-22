@@ -303,8 +303,8 @@ v5.1.0 tag and a v5.1.x branch.
 These branches will receive updates until the end of October 2023.
 
 Note that we keep our `main` branch usable by carefully testing and
-reviewing pull request prior to merging into main. So even using the
-main branch should not result in a fairly stable situation.
+reviewing pull requests prior to merging into main. So even using the
+main branch should result in a fairly stable situation.
 
 ## Contribution
 
