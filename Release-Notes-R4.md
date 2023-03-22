@@ -178,6 +178,8 @@ scale up to three control-plane nodes over night from time to time.
 
 ### Incompatible changes
 
+None have been observed in our testing.
+
 ## Removals and deprecations
 
 Please note that the `ETCD_PRIO_BOOST` setting has been removed;
@@ -200,6 +202,14 @@ such that the CA certificates would be automatically propagated and trusted.
 While it is possible to get things working, it is manual work and we have not
 yet documented it. We plan to improve this in the future. For now take our
 advice to take care of properly signed certificates.
+
+### Timeout tweaks
+
+We've had reports from users that ran into timeouts in the capi management
+server creation with terraform ([#389](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/389))
+and node creation with capo ([#382](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/382)).
+Tweaks that allow users to extend those timeouts will be incorporated soon and
+also be backported to the maintained branches.
 
 ## Future roadmap
 
@@ -276,9 +286,14 @@ With the gitops approach, we intend to standardize the
 `clusterctl.yaml` settings to allow a straightforward approach to
 declarative cluster management. This is intended for R4 (3/2023).
 
+We have created first SCS standards for keeping k8s up-to-date
+([scs-0210](https://github.com/SovereignCloudStack/standards/blob/main/Standards/scs-0210-v1-k8s-new-version-policy.md))
+and for a default storage class ([scs-0211](https://github.com/SovereignCloudStack/standards/blob/main/Standards/scs-0211-v1-kaas-default-storage-class.md)).
+Tests for conformance and more standards will follow.
+
 ## Branching
 
-We tag the R4 branch with the `v5.0.0` tag and create a 
+We tag the R4 release with the `v5.0.0` tag and create a
 `maintained/v5.0.x` branch for users that want to exclusively see bug
 and security fixes. We will also create a `maintained/v5.x` branch for
 minor releases (which however might never see anything beyond what
@@ -286,6 +301,10 @@ we put into v5.0.x if we don't create a minor release).
 If we decide to create a minor release, we would also create a 
 v5.1.0 tag and a v5.1.x branch.
 These branches will receive updates until the end of October 2023.
+
+Note that we keep our `main` branch usable by carefully testing and
+reviewing pull request prior to merging into main. So even using the
+main branch should not result in a fairly stable situation.
 
 ## Contribution
 
