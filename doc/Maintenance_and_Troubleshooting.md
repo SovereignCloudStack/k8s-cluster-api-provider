@@ -125,12 +125,11 @@ and/or [Kubernetes etcd operating guide](https://kubernetes.io/docs/tasks/admini
 
 ### Defragmentation and backup
 
-Etcd storage can become fragmented over time, which causes the performance to decrease
-and may even cause premature out-of-space conditions. For this we had included a
-maintenance script that regularly defragments and backups the database. The script, called
-`etcd-defrag.sh` is located in the `/root` directory of each control plane node.
-It is executed through the systemd service unit file `etcd-defrag.service` and scheduled
-to run each day at 02:30:00 using the `etcd-defrag.timer` systemd timer.
+Etcd storage can become fragmented over time, for this, we have included a
+maintenance script that regularly defragments and then also backups the database.
+The script, called `etcd-defrag.sh` is located in each control plane node's  `/root`
+directory . It is executed through the systemd service unit file `etcd-defrag.service`
+and scheduled to run each day at 02:30:00 using the `etcd-defrag.timer` systemd timer.
 
 The defragmentation strategy is inspired by the [etcd-defrag-cronjob](https://github.com/ugur99/etcd-defrag-cronjob/) and
 [practices recommended](https://docs.openshift.com/container-platform/4.9/scalability_and_performance/recommended-host-practices.html#automatic-defrag-etcd-data_recommended-host-practices) by the OpenShift project.
