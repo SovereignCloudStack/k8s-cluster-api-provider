@@ -113,3 +113,67 @@ or have a look at the nodes:
 If you fall into some Kubernetes specific issues after a successful cluster
 creation, go through the official [Kubernetes](https://kubernetes.io/docs/tasks/debug/debug-cluster/)
 troubleshooting guide.
+
+## Etcd maintenance
+
+[Etcd](https://etcd.io/) is a highly-available key value store used as Kubernetes'
+backing store for all cluster data. This section contains etcd related maintenance
+notes from SCS k8s-cluster-api-provider project perspective.
+
+For further information about etcd maintenance visit an official [etcd maintenance guide](https://etcd.io/docs/v3.5/op-guide/maintenance/)
+and/or [Kubernetes etcd operating guide](https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/).
+
+### Defragmentation and backup
+
+Etcd storage can become fragmented over time, for this, we have included a
+maintenance script that regularly defragments and then also backups the database.
+The script, called `etcd-defrag.sh` is located in each control plane node's  `/root`
+directory . It is executed through the systemd service unit file `etcd-defrag.service`
+and scheduled to run each day at 02:30:00 using the `etcd-defrag.timer` systemd timer.
+
+The defragmentation strategy is inspired by the [etcd-defrag-cronjob](https://github.com/ugur99/etcd-defrag-cronjob/) and
+[practices recommended](https://docs.openshift.com/container-platform/4.9/scalability_and_performance/recommended-host-practices.html#automatic-defrag-etcd-data_recommended-host-practices) by the OpenShift project.
+Note that the proposed strategy could be changed in a future version based on results from
+related [upstream issue #15477](https://github.com/etcd-io/etcd/issues/15477) which wants to define
+an official solution on how to defragment etcd cluster.
+
+The `etcd-defrag.sh` script checks multiple conditions before the actual defragmentation as
+follows:
+- The script should not be executed on non leader etcd member
+- The script should not be executed on etcd cluster with some unhealthy member
+- The script should not be executed on single member etcd cluster
+
+These pre-flight checks should ensure, that the defragmentation does not cause temporary
+etcd cluster failures and/or unwanted etcd leader changes. They also prevent executing
+the script on a single control-plane node cluster. Single-node etcd clusters are not
+made for long-term operation. As a workaround, however, you can scale up to three
+control-plane nodes overnight from time to time.
+
+After all pre-flight checks passed the etcd cluster defragmentation is performed as follows:
+- Defragment the non leader etcd members first
+- Change the leadership to the randomly selected and defragmentation completed etcd member
+- Defragment the local (ex-leader) etcd member
+
+At the end of the defragmentation script, the local (ex-leader) etcd member is backed up
+and trimmed. Backup is saved and then compressed in the control plane `/root` directory.
+You can find it here: `/root/etcd-backup.xz`. File system trim is performed by the `fstrim`
+command that discards unused blocks on a filesystem which could increase write performance
+on the long run and also release unused storage. Cluster admins are not supposed to log
+in to the cluster nodes (neither control plane nor workers) and thus won't access or use
+these backup files. The local backups on these nodes however can prove useful however
+in a disaster recovery scenario.
+
+All mentioned pre-flight checks could be skipped by the optional arguments that force
+defragmentation despite potential failures. Optional arguments are:
+- `--force-single` (allows to execute defragmentation on single member etcd cluster)
+- `--force-unhealthy` (allows to execute defragmentation on unhealthy etcd member)
+- `--force-nonleader` (allows to execute defragmentation on non leader etcd member)
+
+**We do not recommend to log in to the cluster nodes let alone executing manual
+defragmentation** using the optional arguments above. If you are aware of potential
+issues, you can access the control plane node and execute the defragmentation script
+manually as follows:
+
+```bash
+/root/etcd-defrag.sh [--force-single] [--force-unhealthy] [--force-nonleader]
+```
