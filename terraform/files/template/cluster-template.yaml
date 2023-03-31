@@ -242,10 +242,11 @@ spec:
       - apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips containerd kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
       - systemctl daemon-reload
       # Install etcdctl
-      - curl -L https://github.com/coreos/etcd/releases/download/${ETCDCTL_VERSION}/etcd-${ETCDCTL_VERSION}-linux-amd64.tar.gz -o /tmp/etcd-${ETCDCTL_VERSION}-linux-amd64.tar.gz
-      - tar xzvf /tmp/etcd-${ETCDCTL_VERSION}-linux-amd64.tar.gz -C /tmp/
-      - sudo cp /tmp/etcd-${ETCDCTL_VERSION}-linux-amd64/etcdctl /usr/local/bin/
-      - rm -rf /tmp/etcd-${ETCDCTL_VERSION}-linux-amd64 /tmp/etcd-${ETCDCTL_VERSION}-linux-amd64.tar.gz
+      - ETCDCTL_VERSION=v3.5.7
+      - curl -L https://github.com/coreos/etcd/releases/download/$${ETCDCTL_VERSION}/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz -o /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz
+      - tar xzvf /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz -C /tmp/
+      - sudo cp /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64/etcdctl /usr/local/bin/
+      - rm -rf /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64 /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz
       # TODO: Detect local SSD and mkfs/mount /var/lib/etcd
   version: "${KUBERNETES_VERSION}"
 ---

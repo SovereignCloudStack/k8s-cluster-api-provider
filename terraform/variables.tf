@@ -169,12 +169,6 @@ variable "cilium_binaries" {
   default     = "v0.13.1;v0.11.2"
 }
 
-variable "etcdctl_version" {
-  description = "desired version of etcdctl client that is used for etcd DB maintenance tasks"
-  type        = string
-  default     = "v3.5.7"
-}
-
 variable "etcd_unsafe_fs" {
   description = "mount controller root fs with nobarrier"
   type        = bool

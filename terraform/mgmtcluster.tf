@@ -142,7 +142,6 @@ EOF
       deploy_nginx_ingress           = var.deploy_nginx_ingress,
       deploy_occm                    = var.deploy_occm,
       dns_nameservers                = var.dns_nameservers,
-      etcdctl_version                = var.etcdctl_version,
       etcd_unsafe_fs                 = var.etcd_unsafe_fs,
       external                       = var.external,
       image_registration_extra_flags = var.image_registration_extra_flags,
