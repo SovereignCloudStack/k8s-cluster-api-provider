@@ -158,7 +158,10 @@ At the end of the defragmentation script, the local (ex-leader) etcd member is b
 and trimmed. Backup is saved and then compressed in the control plane `/root` directory.
 You can find it here: `/root/etcd-backup.xz`. File system trim is performed by the `fstrim`
 command that discards unused blocks on a filesystem which could increase write performance
-on the long run and also release unused storage.
+on the long run and also release unused storage. Cluster admins are not supposed to log
+in to the cluster nodes (neither control plane nor workers) and thus won't access or use
+these backup files. The local backups on these nodes however can prove useful however
+in a disaster recovery scenario.
 
 All mentioned pre-flight checks could be skipped by the optional arguments that force
 defragmentation despite potential failures. Optional arguments are:
@@ -166,9 +169,10 @@ defragmentation despite potential failures. Optional arguments are:
 - `--force-unhealthy` (allows to execute defragmentation on unhealthy etcd member)
 - `--force-nonleader` (allows to execute defragmentation on non leader etcd member)
 
-**We do not recommend executing the manual defragmentation** using the optional arguments above.
-If you are aware of potential issues, you can access the control plane node and
-execute the defragmentation script manually as follows:
+**We do not recommend to log in to the cluster nodes let alone executing manual
+defragmentation** using the optional arguments above. If you are aware of potential
+issues, you can access the control plane node and execute the defragmentation script
+manually as follows:
 
 ```bash
 /root/etcd-defrag.sh [--force-single] [--force-unhealthy] [--force-nonleader]
