@@ -27,7 +27,7 @@ endif
 
 YQVERSION=$(shell yq --version | $(SED) -e 's/^yq //' -e 's/^.*version //')
 YQMAJOR=$(shell YQV="$(YQVERSION)"; echo "$${YQV%%.*}")
-ifeq ($(YQMAJOR),4)
+ifeq ($(YQMAJOR),v4)
   YQ=yq eval
   YQIN=-
 else
