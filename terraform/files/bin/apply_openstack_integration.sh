@@ -24,14 +24,26 @@ else
 fi
 echo "# Install external OpenStack cloud provider $OCCM_VERSION to $CLUSTER_NAME"
 
+OCCM_RAW=$OCCM_VERSION
+OCCM_OVN=v1.26.202
+if grep '^lb\-provider=ovn' ~/$CLUSTER_NAME/cloud.conf >/dev/null 2>&1; then
+  OCCM_VERSION=$OCCM_OVN
+  OCCM_RAW=v1.26.2
+fi
+
 if test -n "$OCCM_VERSION"; then
   for name in openstack-cloud-controller-manager-ds.yaml openstack-cloud-controller-manager-pod.yaml; do
     NAME=${name%.yaml}-$OCCM_VERSION.yaml
     if test ! -s $NAME; then
-      curl -L https://github.com/kubernetes/cloud-provider-openstack/raw/$OCCM_VERSION/manifests/controller-manager/$name -o $NAME
+      curl -L https://github.com/kubernetes/cloud-provider-openstack/raw/$OCCM_RAW/manifests/controller-manager/$name -o $NAME
       echo -e "\n---" >> $NAME
-      # correct occm image version - workaround for the https://github.com/kubernetes/cloud-provider-openstack/issues/2094
-      sed -i "s|\(docker.io/k8scloudprovider/openstack-cloud-controller-manager:\).*|\1$OCCM_VERSION|g" $NAME
+      if test "$OCCM_VERSION" != "$OCCM_OVN"; then
+        # correct occm image version - workaround for the https://github.com/kubernetes/cloud-provider-openstack/issues/2094
+        sed -i "s|\(docker.io/k8scloudprovider/openstack-cloud-controller-manager:\).*|\1$OCCM_VERSION|g" $NAME
+      else
+	# Use patched OCCM that falls back to TCP health mon
+        sed -i "s|docker.io/k8scloudprovider/openstack-cloud-controller-manager:.*\$|registry.scs.community/occm-kg/garloff/openstack-cloud-controller-manager:$OCCM_OVN|g" $NAME
+      fi
     fi
   done
   OCCM=openstack-cloud-controller-manager-ds-$OCCM_VERSION.yaml
