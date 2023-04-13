@@ -73,15 +73,26 @@ There are unfortunately two problems with the health-monitoring on the OVN provi
   traffic that comes in from the floating IP associated with the VIP is not treated
   the same, but is still distributed to the inactive members, resulting in a good
   fraction of the requests to go unanswered. This is tracked in bug
-  https://bugs.launchpad.net/neutron/+bug/1956035
+  https://bugs.launchpad.net/neutron/+bug/1956035.
+  A fix for this has been merged upstream and also been backport to OpenStack Zed
+  at the end of Feb 2023.
 * The OCCM always tries to create an HTTP health-monitor. The OVN provider however
   does not yet support HTTP health-monitors, only TCP. We'll have to wait for (and
   possibly help with) HTTP health-monitors to be implemented upstream.
+  The other option is to evolve OCCM to be configured or to fall-back to use TCP
+  health-monitors. A PoC patch for this is in
+  [issues/#298](https://github.com/SovereignCloudStack/issues/issues/298).
+  So this can be worked around with a custom OCCM container, obviously the patch
+  should be discussed and merged upstream.
 
 Due to the HTTP health-monitor not being supported, the created loadbalancer is not
 considered functional, so the reconciliation loop creates another loadbalancer until
 your project runs into quota limits (on the loadbalancer or on ports).
-So for now, the feature `use_ovn_lb_provider` should not be enabled.
+The feature `use_ovn_lb_provider` is thus currently protected by a
+`--allow-preview-features` guard. Note that we have wired up the custom OCCM
+build (based on OCCM v1.26.2) and successfully tested the setup with OVN
+load-balancers with k8s v1.25 and v1.26 on SCS IaaS R4 (OSISM v5.0.0 or better
+v5.1.0). Other versions of k8s or older SCS will likely not work well.
 
 Note that the `use_ovn_lb_provider` does not affect the LB in front of the kube API.
 That one is created by capo and requires other settings. Also note that it would
