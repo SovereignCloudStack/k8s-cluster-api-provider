@@ -25,7 +25,7 @@ fi
 echo "# Install external OpenStack cloud provider $OCCM_VERSION to $CLUSTER_NAME"
 
 OCCM_RAW=$OCCM_VERSION
-OCCM_OVN=v1.26.202
+OCCM_OVN=v1.26.203
 if grep '^lb\-provider=ovn' ~/$CLUSTER_NAME/cloud.conf >/dev/null 2>&1; then
   OCCM_VERSION=$OCCM_OVN
   OCCM_RAW=v1.26.2
