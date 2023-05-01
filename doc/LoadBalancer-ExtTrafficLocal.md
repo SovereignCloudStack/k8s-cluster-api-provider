@@ -82,20 +82,21 @@ There are unfortunately two problems with the health-monitoring on the OVN provi
   The other option is to evolve OCCM to be configured or to fall-back to use TCP
   health-monitors. A PoC patch for this is in
   [issues/#298](https://github.com/SovereignCloudStack/issues/issues/298).
-  So this can be worked around with a custom OCCM container, obviously the patch
-  should be discussed and merged upstream.
+  So this can be worked around with a custom OCCM container; it has been put up for
+  [upstream discussion](https://github.com/kubernetes/cloud-provider-openstack/issues/2225).
 
-Due to the HTTP health-monitor not being supported, the created loadbalancer is not
-considered functional, so the reconciliation loop creates another loadbalancer until
-your project runs into quota limits (on the loadbalancer or on ports).
-The feature `use_ovn_lb_provider` is thus currently protected by a
-`--allow-preview-features` guard. Note that we have wired up the custom OCCM
-build (based on OCCM v1.26.2) and successfully tested the setup with OVN
-load-balancers with k8s v1.25 and v1.26 on SCS IaaS R4 (OSISM v5.0.0 or better
-v5.1.0). Other versions of k8s or older SCS will likely not work well.
+Due to the HTTP health-monitor not being supported, the created loadbalancer is
+not considered functional, so without the custom container image the
+reconciliation loop creates another loadbalancer until your project runs into
+quota limits (on the loadbalancer or on ports).  The feature `use_ovn_lb_provider`
+is thus currently protected by a `--allow-preview-features` guard. Note that
+we have wired up the custom OCCM build (based on OCCM v1.26.2) and successfully
+tested the setup with OVN load-balancers with k8s v1.25 and v1.26 on SCS IaaS
+R4 (OSISM v5.0.0 or better v5.1.0). Other versions of k8s or older SCS will
+likely not work well.
 
 Note that the `use_ovn_lb_provider` does not affect the LB in front of the kube API.
-That one is created by capo and requires other settings. Also note that it would
+That one is created by capo and requires changes elsewhere. Also note that it would
 not yet support the CIDR filtering with `restrict_kubeapi` setting.
 
 # Enabling health-monitor by default?
