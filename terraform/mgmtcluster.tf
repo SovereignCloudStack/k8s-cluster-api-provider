@@ -132,6 +132,7 @@ EOF
     content = templatefile("files/template/clusterctl.yaml.tmpl", {
       anti_affinity                  = var.anti_affinity,
       availability_zone              = var.availability_zone,
+      capo_instance_create_timeout   = var.capo_instance_create_timeout
       cloud_provider                 = var.cloud_provider,
       controller_count               = var.controller_count,
       controller_flavor              = var.controller_flavor,
