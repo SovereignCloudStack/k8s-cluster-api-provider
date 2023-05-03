@@ -53,6 +53,10 @@ echo "# show used variables for clustertemplate ${CLUSTERAPI_TEMPLATE}"
 # TODO: Create pre-cluster app-creds:
 # (1) For CAPO
 # (2) For OCCM, CSI
+#
+# set OpenStack instance create timeout before the operator starts to create instances
+CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT=$(yq eval '.CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT' $CCCFG)
+kubectl -n capo-system set env deployment/capo-controller-manager CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT=$CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT
 
 CONTROL_PLANE_MACHINE_COUNT=$(yq eval '.CONTROL_PLANE_MACHINE_COUNT' $CCCFG)
 # Implement anti-affinity with server groups
