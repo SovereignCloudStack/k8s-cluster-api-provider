@@ -75,7 +75,7 @@ show: init
 
 clean: init
 	@if test -e ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); then source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
-	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS timeout 200 bin/cleanup.sh || true; fi
+	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS timeout 200 ~/bin/cleanup.sh || true; fi
 	terraform destroy -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" $(PARAMS)
 	@terraform workspace select default
 	terraform workspace delete $(ENVIRONMENT)
@@ -125,7 +125,7 @@ get-kubeconfig: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVI
 
 deploy: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
-	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "bin/deploy_cluster_api.sh"
+	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "~/bin/deploy_cluster_api.sh"
 
 log:    .deploy.$(ENVIRONMENT)
 	@$(OPENSTACK) console log show $(CONSOLE)
@@ -148,7 +148,7 @@ console:   .deploy.$(ENVIRONMENT)
 
 check: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
-	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "bin/sonobuoy.sh $(TESTCLUSTER) $(SONOMODE)"
+	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "~/bin/sonobuoy.sh $(TESTCLUSTER) $(SONOMODE)"
 
 # Pass SONOMODE="--mode light" for a quick check
 check-quick:
