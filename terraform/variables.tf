@@ -208,3 +208,10 @@ variable "restrict_kubeapi" {
   type        = list(string)
   default     = []
 }
+
+
+variable "capo_instance_create_timeout" {
+  description = "time to wait for an openstack machine to be created (in minutes)"
+  type        = number
+  default     = 5
+}

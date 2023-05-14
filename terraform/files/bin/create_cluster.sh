@@ -53,6 +53,10 @@ echo "# show used variables for clustertemplate ${CLUSTERAPI_TEMPLATE}"
 # TODO: Create pre-cluster app-creds:
 # (1) For CAPO
 # (2) For OCCM, CSI
+#
+# set OpenStack instance create timeout before the operator starts to create instances
+CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT=$(yq eval '.CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT' $CCCFG)
+kubectl -n capo-system set env deployment/capo-controller-manager CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT=$CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT
 
 CONTROL_PLANE_MACHINE_COUNT=$(yq eval '.CONTROL_PLANE_MACHINE_COUNT' $CCCFG)
 # Implement anti-affinity with server groups
@@ -160,8 +164,11 @@ if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
   KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium install --version $CILIUM_VERSION
   touch ~/$CLUSTER_NAME/deployed-manifests.d/.cilium
 else
-  curl -L https://raw.githubusercontent.com/projectcalico/calico/$CALICO_VERSION/manifests/calico.yaml -o ~/$CLUSTER_NAME/deployed-manifests.d/calico.yaml
-  sed -i "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" ~/$CLUSTER_NAME/deployed-manifests.d/calico.yaml
+  CALICO_VERSION=$(yq eval '.CALICO_VERSION' $CCCFG)
+  if test ! -s ~/kubernetes-manifests.d/calico-${CALICO_VERSION}.yaml; then
+    curl -L https://raw.githubusercontent.com/projectcalico/calico/$CALICO_VERSION/manifests/calico.yaml -o ~/kubernetes-manifests.d/calico-${CALICO_VERSION}.yaml
+  fi
+  sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" ~/kubernetes-manifests.d/calico-${CALICO_VERSION}.yaml > ~/$CLUSTER_NAME/deployed-manifests.d/calico.yaml
   kubectl $KCONTEXT apply -f ~/$CLUSTER_NAME/deployed-manifests.d/calico.yaml
 fi
 

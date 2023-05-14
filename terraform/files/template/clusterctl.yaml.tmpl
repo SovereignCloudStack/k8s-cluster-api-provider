@@ -20,6 +20,8 @@ DEPLOY_CINDERCSI: ${deploy_cindercsi}
 
 # cilium
 USE_CILIUM: ${use_cilium}
+# calico
+CALICO_VERSION: ${calico_version}
 # deploy nginx ingress controller
 DEPLOY_NGINX_INGRESS: ${deploy_nginx_ingress}
 # Use PROXY protocol to get real IPs
@@ -95,4 +97,5 @@ OPENSTACK_CLOUD_PROVIDER_CONF_B64:
 # hint: base64 -w0 < cacert.pam
 OPENSTACK_CLOUD_CACERT_B64:
 
-
+# set OpenStack Instance create timeout (in minutes)
+CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT: ${capo_instance_create_timeout}
