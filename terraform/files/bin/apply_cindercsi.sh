@@ -29,6 +29,17 @@ if test -n "$SNAP_VERSION"; then
   done
   # FIXME: Should we ignore non-working snapshots?
   cat snapshot.storage.k8s.io_volumesnapshot* > cindercsi-snapshot-$SNAP_VERSION.yaml
+
+  # deploy snapshot controller
+  for name in rbac-snapshot-controller.yaml setup-snapshot-controller.yaml; do
+    NAME=${name%.yaml}-$SNAP_VERSION.yaml
+    if ! test -s $NAME; then
+      curl -L https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/$SNAP_VERSION/deploy/kubernetes/snapshot-controller/$name -o $NAME
+      echo -e "\n---" >> $NAME
+    fi
+    cat $NAME >> cindercsi-snapshot-$SNAP_VERSION.yaml
+  done
+
   cp -p cindercsi-snapshot-$SNAP_VERSION.yaml ~/${CLUSTER_NAME}/deployed-manifests.d/cindercsi-snapshot.yaml
 else
   cp -p external-snapshot-crds.yaml ~/$CLUSTER_NAME/deployed-manifests.d/cindercsi-snapshot.yaml
