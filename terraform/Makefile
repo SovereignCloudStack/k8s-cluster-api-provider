@@ -27,12 +27,12 @@ endif
 
 YQVERSION=$(shell yq --version | $(SED) -e 's/^yq //' -e 's/^.*version //')
 YQMAJOR=$(shell YQV="$(YQVERSION)"; echo "$${YQV%%.*}")
-ifeq ($(YQMAJOR),2)
-  YQ=yq --yaml-output
-  YQIN=
-else
+ifeq ($(YQMAJOR),v4)
   YQ=yq eval
   YQIN=-
+else
+  YQ=yq --yaml-output
+  YQIN=
 endif
 
 CLOUD=$(shell ( grep '^cloud_provider' environments/environment-$(ENVIRONMENT).tfvars || echo $(ENVIRONMENT) ) | $(SED) 's@^cloud_provider[^=]*= *"*\([^"]*\).*$$@\1@' )
