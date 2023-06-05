@@ -215,3 +215,27 @@ variable "capo_instance_create_timeout" {
   type        = number
   default     = 5
 }
+
+variable "containerd_registry_files" {
+  type = object({
+    hosts = set(string),
+    certs = set(string)
+  })
+  description = <<EOF
+    containerd registry host config files referenced by attributes `hosts` and `certs`.
+    Attributes:
+      hosts (set): Additional registry host config files for containerd. The filename should
+        reference the registry host namespace. Files defined in this set will be copied into the `/etc/containerd/certs.d`
+        directory on each cluster node. The default `docker.io` registry host file instructs containerd to use
+        `registry.scs.community` container registry instance as a public mirror of DockerHub container registry.
+      certs (set): Additional client and/or CA certificate files needed for containerd authentication against
+        registries defined in `hosts`. Files defined in this set will be copied into the `/etc/containerd/certs`
+        directory on each cluster node.
+
+    visit containerd docs for further details on how to configure registry hosts https://github.com/containerd/containerd/blob/main/docs/hosts.md
+    EOF
+  default = {
+    hosts = ["./files/containerd/docker.io"],
+    certs = []
+  }
+}

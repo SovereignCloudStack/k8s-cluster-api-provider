@@ -33,3 +33,4 @@ deploy_cindercsi     = "<version>"      # defaults to "true", dito
 etcd_unsafe_fs       = "<boolean>"      # defaults to "false", dangerous
 testcluster_name     = "NAME"           # defaults to "testcluster"
 restrict_kubeapi     = [ "IP/20", "IP/22" ]	# defaults to empty (fully open), use [ "none" ] for exclusive internal access
+containerd_registry_files = {"hosts":["<list of registry host config files>"], "certs":["<list of custom cert files>"]} # defaults to '{"hosts":["./files/containerd/docker.io"], "certs":[]}'

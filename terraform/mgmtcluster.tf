@@ -84,16 +84,88 @@ runcmd:
   - apt -y install docker.io yamllint qemu-utils
 EOF
 
+}
+
+resource "null_resource" "mgmtcluster_containerd_registry_host_files" {
+  depends_on = [
+    openstack_compute_instance_v2.mgmtcluster_server
+  ]
+
+  for_each = toset(var.containerd_registry_files["hosts"])
+
+  triggers = {
+    ip_address = openstack_networking_floatingip_v2.mgmtcluster_floatingip.address,
+    content    = file(each.key)
+  }
+
   connection {
-    host        = openstack_networking_floatingip_v2.mgmtcluster_floatingip.address
+    host        = self.triggers.ip_address
     private_key = openstack_compute_keypair_v2.keypair.private_key
     user        = var.ssh_username
   }
 
   provisioner "remote-exec" {
     inline = [
-      "mkdir -p /home/${var.ssh_username}/.config/openstack",
-      "mkdir -p /home/${var.ssh_username}/cluster-defaults",
+      "mkdir -p /home/${var.ssh_username}/cluster-defaults/containerd/hosts"
+    ]
+  }
+
+  provisioner "file" {
+    content     = self.triggers.content
+    destination = "/home/${var.ssh_username}/cluster-defaults/containerd/hosts/${basename(each.key)}"
+  }
+}
+
+resource "null_resource" "mgmtcluster_containerd_registry_cert_files" {
+  depends_on = [
+    openstack_compute_instance_v2.mgmtcluster_server
+  ]
+
+  for_each = toset(var.containerd_registry_files["certs"])
+
+  triggers = {
+    ip_address = openstack_networking_floatingip_v2.mgmtcluster_floatingip.address,
+    content    = file(each.key)
+  }
+
+  connection {
+    host        = self.triggers.ip_address
+    private_key = openstack_compute_keypair_v2.keypair.private_key
+    user        = var.ssh_username
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir -p /home/${var.ssh_username}/cluster-defaults/containerd/certs"
+    ]
+  }
+
+  provisioner "file" {
+    content     = self.triggers.content
+    destination = "/home/${var.ssh_username}/cluster-defaults/containerd/certs/${basename(each.key)}"
+  }
+}
+
+resource "null_resource" "mgmtcluster_bootstrap_files" {
+  depends_on = [
+    openstack_compute_instance_v2.mgmtcluster_server,
+    null_resource.mgmtcluster_containerd_registry_host_files,
+    null_resource.mgmtcluster_containerd_registry_cert_files
+  ]
+
+  triggers = {
+    ip_address = openstack_networking_floatingip_v2.mgmtcluster_floatingip.address
+  }
+
+  connection {
+    host        = self.triggers.ip_address
+    private_key = openstack_compute_keypair_v2.keypair.private_key
+    user        = var.ssh_username
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir -p /home/${var.ssh_username}/.config/openstack"
     ]
   }
 
