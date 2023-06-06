@@ -215,3 +215,15 @@ variable "capo_instance_create_timeout" {
   type        = number
   default     = 5
 }
+
+variable "harbor_domain_name" {
+  description = "harbor domain name. If set, harbor will be deployed"
+  type        = string
+  default     = ""
+}
+
+variable "harbor_issuer_email" {
+  description = "optional email for the cert-manager issuer used for issuing harbor cert"
+  type        = string
+  default     = ""
+}

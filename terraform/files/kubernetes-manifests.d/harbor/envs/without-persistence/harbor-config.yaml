@@ -1,0 +1,42 @@
+apiVersion: v1
+data:
+  config.yaml: |
+    trivy:
+      enabled: true
+      replicas: 2
+    portal:
+      replicas: 2
+    core:
+      replicas: 2
+    jobservice:
+      replicas: 2
+      jobLoggers:
+      - database
+    registry:
+      replicas: 2
+    metrics:
+      enabled: true
+    cache:
+      enabled: true
+    expose:
+      type: ingress
+      tls:
+        enabled: true
+        certSource: secret
+        secret:
+          secretName: harbor-crt
+      ingress:
+        hosts:
+          core: ${HARBOR_DOMAIN_NAME}
+        className: nginx
+        harbor:
+          annotations:
+            cert-manager.io/issuer: letsencrypt
+    externalURL: https://${HARBOR_DOMAIN_NAME}
+    database:
+      type: internal
+    redis:
+      type: internal
+kind: ConfigMap
+metadata:
+  name: harbor-config

@@ -180,6 +180,14 @@ EOF
   }
 
   provisioner "file" {
+    content = templatefile("files/template/harbor-settings.tmpl", {
+      harbor_domain_name  = var.harbor_domain_name,
+      harbor_issuer_email = var.harbor_issuer_email
+    })
+    destination = "/home/${var.ssh_username}/.harbor-settings"
+  }
+
+  provisioner "file" {
     source      = "files/template/cluster-template.yaml"
     destination = "/home/${var.ssh_username}/cluster-defaults/cluster-template.yaml"
   }

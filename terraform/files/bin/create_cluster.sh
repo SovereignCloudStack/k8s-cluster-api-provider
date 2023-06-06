@@ -202,6 +202,15 @@ if test "$DEPLOY_NGINX_INGRESS" = "true" -o "${DEPLOY_NGINX_INGRESS:0:1}" = "v";
   apply_nginx_ingress.sh "$CLUSTER_NAME" || exit $?
 fi
 
+# Harbor
+set -a
+. ~/.harbor-settings
+set +a
+if test -n "$HARBOR_DOMAIN_NAME"; then
+  kubectl kustomize ~/kubernetes-manifests.d/harbor/envs/without-persistence | envsubst > ~/$CLUSTER_NAME/deployed-manifests.d/harbor.yaml
+  kubectl $KCONTEXT apply -f ~/$CLUSTER_NAME/deployed-manifests.d/harbor.yaml
+fi
+
 echo "# Wait for control plane of ${CLUSTER_NAME}"
 kubectl config use-context kind-kind
 kubectl wait --timeout=20m cluster "${CLUSTER_NAME}" --for=condition=Ready || exit 10
