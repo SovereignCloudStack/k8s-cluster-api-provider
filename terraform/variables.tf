@@ -18,7 +18,7 @@ variable "image" {
 variable "kind_flavor" {
   description = "openstack nova flavor for instance running kind (capi mgmt node)"
   type        = string
-  default     = "SCS-1V-4-20"
+  default     = "SCS-2V-4"
 }
 
 variable "controller_flavor" {
@@ -30,7 +30,7 @@ variable "controller_flavor" {
 variable "worker_flavor" {
   description = "openstack nova flavor for instances running the k8s worker nodes"
   type        = string
-  default     = "SCS-2V-4-20"
+  default     = "SCS-2V-4-20s"
 }
 
 variable "availability_zone" {
@@ -39,8 +39,10 @@ variable "availability_zone" {
 }
 
 variable "external" {
-  description = "external network for access"
+  description = "external/public network for access"
   type        = string
+  #default    = data.openstack_networking_network_v2.extnet.name
+  default     = ""
 }
 
 variable "ssh_username" {

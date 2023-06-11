@@ -10,9 +10,13 @@ resource "openstack_identity_application_credential_v3" "appcred" {
   unrestricted = true
 }
 
+data "openstack_networking_network_v2" "extnet" {
+  external = true
+}
+
 # - management cluster -
 resource "openstack_networking_floatingip_v2" "mgmtcluster_floatingip" {
-  pool       = var.external
+  pool       = var.external != "" ? var.external : data.openstack_networking_network_v2.extnet.name
   depends_on = [openstack_networking_router_interface_v2.router_interface]
 }
 
@@ -36,14 +40,27 @@ locals {
   clouds = yamldecode(file("mycloud.${var.cloud_provider}.yaml"))
 }
 
+data "openstack_images_image_ids_v2" "images" {
+  name = var.image
+  sort = "updated_at:desc"
+}
+
 resource "openstack_compute_instance_v2" "mgmtcluster_server" {
   name              = "${var.prefix}-mgmtcluster"
-  image_name        = var.image
+  # image_name        = var.image
   flavor_name       = var.kind_flavor
   availability_zone = var.availability_zone
   key_pair          = openstack_compute_keypair_v2.keypair.name
 
   network { port = openstack_networking_port_v2.mgmtcluster_port.id }
+  block_device {
+    uuid                  = data.openstack_images_image_ids_v2.images.ids[0]
+    source_type           = "image"
+    volume_size           = 30 
+    boot_index            = 0
+    destination_type      = "volume"
+    delete_on_termination = true
+  }
 
   user_data = <<-EOF
 
@@ -144,7 +161,7 @@ EOF
       deploy_occm                    = var.deploy_occm,
       dns_nameservers                = var.dns_nameservers,
       etcd_unsafe_fs                 = var.etcd_unsafe_fs,
-      external                       = var.external,
+      external                       = var.external != "" ? var.external : data.openstack_networking_network_v2.extnet.name,
       image_registration_extra_flags = var.image_registration_extra_flags,
       kube_image_raw                 = var.kube_image_raw,
       kubernetes_version             = var.kubernetes_version,
@@ -163,7 +180,7 @@ EOF
   provisioner "file" {
     content = templatefile("files/template/clouds.yaml.tmpl", {
       appcredid      = openstack_identity_application_credential_v3.appcred.id,
-      appcredsecret  = openstack_identity_application_credential_v3.appcred.secret
+      appcredsecret  = openstack_identity_application_credential_v3.appcred.secret,
       cloud_provider = var.cloud_provider,
       clouds         = local.clouds,
     })
