@@ -182,9 +182,10 @@ EOF
   provisioner "file" {
     content = templatefile("files/template/harbor-settings.tmpl", {
       harbor_domain_name  = var.harbor_domain_name,
-      harbor_issuer_email = var.harbor_issuer_email
+      harbor_issuer_email = var.harbor_issuer_email,
+      harbor_pvc_sizes    = var.harbor_pvc_sizes
     })
-    destination = "/home/${var.ssh_username}/.harbor-settings"
+    destination = "/home/${var.ssh_username}/cluster-defaults/harbor-settings"
   }
 
   provisioner "file" {

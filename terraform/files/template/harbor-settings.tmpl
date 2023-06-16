@@ -1,2 +1,5 @@
 HARBOR_DOMAIN_NAME=${harbor_domain_name}
 HARBOR_ISSUER_EMAIL=${harbor_issuer_email}
+HARBOR_DATABASE_SIZE=${ coalesce(harbor_pvc_sizes["database"], "1Gi") }
+HARBOR_REDIS_SIZE=${ coalesce(harbor_pvc_sizes["redis"], "1Gi") }
+HARBOR_TRIVY_SIZE=${ coalesce(harbor_pvc_sizes["trivy"], "5Gi") }

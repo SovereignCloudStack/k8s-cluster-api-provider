@@ -203,7 +203,10 @@ if test "$DEPLOY_NGINX_INGRESS" = "true" -o "${DEPLOY_NGINX_INGRESS:0:1}" = "v";
 fi
 
 # Harbor
-. ~/.harbor-settings
+if test ! -s ~/$CLUSTER_NAME/harbor-settings; then
+	cp -p ~/cluster-defaults/harbor-settings ~/$CLUSTER_NAME/
+fi
+. ~/$CLUSTER_NAME/harbor-settings
 if test -n "$HARBOR_DOMAIN_NAME"; then
   deploy_harbor.sh "$CLUSTER_NAME" || exit $?
 fi

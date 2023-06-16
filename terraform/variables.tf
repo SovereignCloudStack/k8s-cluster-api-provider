@@ -227,3 +227,13 @@ variable "harbor_issuer_email" {
   type        = string
   default     = ""
 }
+
+variable "harbor_pvc_sizes" {
+  description = "pvc sizes for database, redis and trivy"
+  type        = map(string)
+  default = {
+    database = "1Gi",
+    redis    = "1Gi",
+    trivy    = "5Gi" # x 2 replicas
+  }
+}
