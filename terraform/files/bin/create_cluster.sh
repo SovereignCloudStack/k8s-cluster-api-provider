@@ -83,6 +83,9 @@ if test "$CONTROL_PLANE_MACHINE_COUNT" -gt 0 &&  grep '^ *OPENSTACK_ANTI_AFFINIT
 	fi
 fi
 
+# Check that the flavors exist and allocate volumes if needed
+fixup_flavor_volumes.sh "$CCCFG" "${CLUSTERAPI_TEMPLATE}" || exit 2
+
 # Patch registry location for k8s (~newer than Nov 2022)
 fixup_k8sregistry.sh "$CCCFG" "${CLUSTERAPI_TEMPLATE}"
 

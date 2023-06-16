@@ -37,18 +37,20 @@ if test $? != 0; then exit -1; fi
 if test -n "$2"; then
 	IMAGE=`openstack image show $2 -f json`
 	if test $? != 0; then exit -3; fi
-	ISIZE=`echo "$IMAGE" | jq '.min_disk' | tr -d '"'`
+	ISIZE=`echo "$IMAGE" | jq '.min_disk'`
 else
 	ISIZE=20
 fi
-RAM=`echo "$FLAVOR" | jq '.ram' | tr -d '"'`
+CPU=`echo "$FLAVOR" | jq '.vcpus'` #  | tr -d '"'
+RAM=`echo "$FLAVOR" | jq '.ram'`
 RAM=$(((RAM+64)/1024))
-DISK=`echo "$FLAVOR" | jq '.disk' | tr -d '"'`
+DISK=`echo "$FLAVOR" | jq '.disk'`
+#FIXME: Should we prevent single CPU here?
 if test $DISK != 0; then
 	if test $DISK -lt $ISIZE; then exit -2; else exit 0; fi
 else
 	WANT=$(((ISIZE+2+$RAM/2)/5*5))
 	if test $WANT -gt 125; then WANT=125; fi
-	if test $WANT -lt $ISIZE then WANT=$ISIZE; fi
+	if test $WANT -lt $ISIZE; then WANT=$ISIZE; fi
 	exit $WANT
 fi
