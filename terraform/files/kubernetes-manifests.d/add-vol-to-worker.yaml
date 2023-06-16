@@ -8,4 +8,3 @@ spec:
     spec:
       rootVolume:
         diskSize: ${WORKER_ROOT_DISKSIZE}
-
