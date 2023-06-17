@@ -26,12 +26,15 @@ DISKCTRL=$?
 flavor_disk.sh "$WORKFLAVOR" "$UBU_IMG_NM"
 DISKWORK=$?
 
-if test $DISKCTRL -ge 128; then echo "ERROR $((DISKCTRL-256)) using flavor $CTRLFLAVOR for image $UBU_IMG_NM"; exit 1; fi
-if test $DISKWORK -ge 128; then echo "ERROR $((DISKWORK-256)) using flavor $WORKFLAVOR for image $UBU_IMG_NM"; exit 1; fi
+if test $DISKCTRL -ge 128; then echo "ERROR $((DISKCTRL-256)) using ctrlplane flavor $CTRLFLAVOR for image $UBU_IMG_NM"; exit 1; fi
+if test $DISKWORK -ge 128; then echo "ERROR $((DISKWORK-256)) using worker flavor $WORKFLAVOR for image $UBU_IMG_NM"; exit 1; fi
 if test $DISKCTRL != 0; then
 	if grep 'CONTROL_PLANE_ROOT_DISKSIZE' $1 >/dev/null 2>&1; then
 		if ! grep '^CONTROL_PLANE_ROOT_DISKIZE' $1 >/dev/null 2>&1; then
 			sed -i 's/^.*\(CONTROL_PLANE_ROOT_DISKSIZE\)/\1/' $1
+		fi
+		if grep '^CONTROL_PLANE_ROOT_DISKIZE: 0 *$' $1 >/dev/null 2>&1; then
+			sed -i "s/^\(CONTROL_PLANE_ROOT_DISKIZE: \)0/\1$DISKCTRL/" $1
 		fi
 	else
 		echo -e "# Volume for control plane disk\nCONTROL_PLANE_ROOT_DISKSIZE: $DISKCTRL" >> $1
@@ -47,6 +50,9 @@ if test $DISKWORK != 0; then
 	if grep 'WORKER_ROOT_DISKSIZE' $1 >/dev/null 2>&1; then
 		if ! grep '^WORKER_ROOT_DISKIZE' $1 >/dev/null 2>&1; then
 			sed -i 's/^.*\(WORKER_ROOT_DISKSIZE\)/\1/' $1
+		fi
+		if grep '^WORKER_ROOT_DISKIZE: 0 *$' $1 >/dev/null 2>&1; then
+			sed -i "s/^\(WORKER_ROOT_DISKIZE: \)0/\1$DISKWORK/" $1
 		fi
 	else
 		echo -e "# Volume for worker node disk\nWORKER_ROOT_DISKSIZE: $DISKWORK" >> $1
