@@ -19,8 +19,8 @@ Parameters controlling the Cluster-API management server (capi management server
 | `kind_flavor`            |                 | SCS        | `SCS-1V-4-20`     | Flavor to be used for the k8s capi mgmt server                                |
 | `image`                  |                 | SCS        | `Ubuntu 22.04`    | Image to be deployed for the capi mgmt server                                 |
 | `ssh_username`           |                 | SCS        | `ubuntu`          | Name of the default user for the `image`                                      |
-| `clusterapi_version`     |                 | SCS        | `1.3.5`           | Version of the cluster-API incl. `clusterctl`                                 |
-| `capi_openstack_version` |                 | SCS        | `0.7.1`           | Version of the cluster-api-provider-openstack (needs to fit the CAPI version) |
+| `clusterapi_version`     |                 | SCS        | `1.3.8`           | Version of the cluster-API incl. `clusterctl`                                 |
+| `capi_openstack_version` |                 | SCS        | `0.7.3`           | Version of the cluster-api-provider-openstack (needs to fit the CAPI version) |
 | `cilium_binaries`        |                 | SCS        | `v0.13.1;v0.11.2` | Versions of the cilium and hubble CLI in the vA.B.C;vX.Y.Z format             |
 
 Parameters controlling both management server creation and cluster creation:
