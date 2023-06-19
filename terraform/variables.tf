@@ -160,7 +160,7 @@ variable "dns_nameservers" {
 variable "use_cilium" {
   description = "use cilium (version) rather than calico as CNI"
   type        = string
-  default     = "false"
+  default     = "true"
 }
 
 variable "cilium_binaries" {

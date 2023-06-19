@@ -9,3 +9,6 @@ deployed while it already did deploy the needed snapshot CRDs.
 The missing container has been added now ([#415](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/415))
 and snapshot functionality is validated using the check-csi CNCF/sonobuoy test.
 
+### Cilium is the default CNI now
+We have decided to use cilium as default CNI.
+You can still override this and set `USE_CILIUM="false"` if you prefer Calico.
