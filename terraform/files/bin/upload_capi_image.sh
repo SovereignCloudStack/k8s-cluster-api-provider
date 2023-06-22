@@ -11,8 +11,9 @@ IMG_RAW=$(yq eval '.OPENSTACK_IMAGE_RAW' $CCCFG)
 IMGREG_EXTRA=$(yq eval '.OPENSTACK_IMAGE_REGISTRATION_EXTRA_FLAGS' $CCCFG)
 
 VERSION_CAPI_IMAGE=$(echo $KUBERNETES_VERSION | sed 's/\.[[:digit:]]*$//g')
-if test $K8SVER -ge 12600 ||
-   test $K8SVER -lt 12600 -a $K8SVER -ge 12506; then
+if test "$K8SVER" -ge 12703 ||
+   test "$K8SVER" -lt 12700 -a "$K8SVER" -ge 12606 ||
+   test "$K8SVER" -lt 12600 -a "$K8SVER" -ge 12511; then
   UBUVER=2204
   UBUVERS="22.04"
 else
