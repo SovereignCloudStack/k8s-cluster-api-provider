@@ -7,7 +7,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 if test -z "$2"; then echo "ERROR: Need clusterctl.yaml cluster-template args" 1>&2; exit 1; fi
-. ~/bin/source/parse_k8s_version.inc
+. ~/bin/parse_k8s_version.inc
 if grep 'k8s\.gcr\.io' "$2" >/dev/null 2>&1; then
     if test "$K8SVER" -ge 12409 \
 	|| test "$K8SVER" -lt 12400 -a "$K8SVER" -ge 12315 \
