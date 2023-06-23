@@ -2,6 +2,7 @@
 
 ## Updated software
 
+### flux2 0.41.x
 ### sonobuoy 0.56.x
 
 - Sonobuoy v0.56.17 adds support for the latest k8s versions even for k8s 1.27.
