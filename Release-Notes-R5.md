@@ -3,6 +3,7 @@
 ## Updated software
 
 ### kind 0.18.0
+### helm 3.12.x
 
 ## New features
 
