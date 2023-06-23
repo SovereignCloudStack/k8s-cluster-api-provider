@@ -1,0 +1,21 @@
+---
+loki:
+  commonConfig:
+    replication_factor: 1
+  storage:
+    type: 'filesystem'
+  auth_enabled: false
+  limits_config:
+    ingestion_rate_mb: 10
+    ingestion_burst_size_mb: 10
+singleBinary:
+  replicas: 1
+test:
+  enabled: false
+monitoring:
+  selfMonitoring:
+    enabled: false
+    grafanaAgent:
+      installOperator: false
+    lokiCanary:
+      enabled: false

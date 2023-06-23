@@ -1,0 +1,29 @@
+---
+apiVersion: jaegertracing.io/v1
+kind: Jaeger
+metadata:
+  name: jaeger-poc
+spec:
+  ingress:
+    enabled: false
+  allInOne:
+    options:
+      query:
+        base-path: /traces
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jaeger-poc
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /traces
+        pathType: Prefix
+        backend:
+          service:
+            name: jaeger-poc-query
+            port:
+              number: 16686

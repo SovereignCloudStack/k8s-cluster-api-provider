@@ -1,0 +1,247 @@
+---
+apiVersion: opentelemetry.io/v1alpha1
+kind: OpenTelemetryCollector
+metadata:
+  name: otel-poc
+spec:
+  mode: daemonset
+#  hostNetwork: true
+  image: otel/opentelemetry-collector-contrib
+  serviceAccount: otelcontribcol
+  tolerations:
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/control-plane
+  ports:
+    - name: prometheus
+      port: 9090
+      targetPort: 9090
+  env:
+  - name: K8S_NODE_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: spec.nodeName
+  volumeMounts:
+  - mountPath: /var/log
+    name: varlog
+    readOnly: true
+  volumes:
+  - name: varlog
+    hostPath:
+      path: /var/log
+  config: |
+    receivers:
+      filelog:
+        # source https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/examples/kubernetes/otel-collector-config.yml
+        include:
+          - /var/log/pods/*/*/*.log
+        exclude:
+          # Exclude logs from all otel/loki containers (may contain the same logs as system/workload containers which could be disruptive)
+          - /var/log/pods/*/otel-collector/*.log
+          - /var/log/pods/*/otc-container/*.log
+          - /var/log/pods/*/loki-canary/*.log
+          - /var/log/pods/*/loki/*.log
+        start_at: beginning
+        include_file_path: true
+        include_file_name: false
+        operators:
+          # Find out which format is used by kubernetes
+          - type: router
+            id: get-format
+            routes:
+              - output: parser-containerd
+                expr: 'body matches "^[^ Z]+Z"'
+          # Parse CRI-Containerd format
+          - type: regex_parser
+            id: parser-containerd
+            regex: '^(?P<time>[^ ^Z]+Z) (?P<stream>stdout|stderr) (?P<logtag>[^ ]*) ?(?P<log>.*)$'
+            output: extract_metadata_from_filepath
+            timestamp:
+              parse_from: attributes.time
+              layout: '%Y-%m-%dT%H:%M:%S.%LZ'
+          - type: move
+            from: attributes.log
+            to: body
+          # Extract metadata from file path
+          - type: regex_parser
+            id: extract_metadata_from_filepath
+            regex: '^.*\/(?P<namespace>[^_]+)_(?P<pod_name>[^_]+)_(?P<uid>[a-f0-9\-]{36})\/(?P<container_name>[^\._]+)\/(?P<restart_count>\d+)\.log$'
+            parse_from: attributes["log.file.path"]
+            cache:
+              size: 128  # default maximum amount of Pods per Node is 110
+
+      #k8s_events:
+      #  auth_type : serviceAccount
+      k8s_cluster:
+        collection_interval: 10s
+        node_conditions_to_report: [Ready, MemoryPressure,DiskPressure,NetworkUnavailable]
+        allocatable_types_to_report: [cpu, memory,storage]
+      otlp:
+        protocols:
+          grpc:
+            # Make sure to add the otlp receiver.
+            # This will open up the receiver on port 4317
+            endpoint: "0.0.0.0:4317"
+            # Hotfix for grpc: received message larger than max (122167732 vs. 4194304) taken from https://github.com/grafana/tempo/issues/860
+            max_recv_msg_size_mib: 150
+          http:
+            # Make sure to add the http receiver.
+            # This will open up the receiver on port 4318
+            endpoint: "0.0.0.0:4318"
+    processors:
+      memory_limiter:
+         check_interval: 5s
+         limit_percentage: 70
+         spike_limit_percentage: 30
+      batch:
+        send_batch_max_size: 1000
+        timeout: 30s
+        send_batch_size : 800
+      k8sattributes:
+        auth_type: serviceAccount
+        passthrough: false
+        filter:
+          node_from_env_var: K8S_NODE_NAME
+        extract:
+          metadata:
+            - k8s.pod.name
+            - k8s.pod.uid
+            - k8s.deployment.name
+            - k8s.namespace.name
+            - k8s.node.name
+            - k8s.pod.start_time
+    extensions:
+      health_check: {}
+    exporters:
+      logging:
+        loglevel: debug
+      jaeger:
+        endpoint: "jaeger-poc-collector.default.svc.cluster.local:14250"
+        tls:
+          insecure: true
+      prometheus:
+        endpoint: "0.0.0.0:9090"
+        metric_expiration: 180m
+        resource_to_telemetry_conversion:
+          enabled: true
+      loki:
+         endpoint: http://loki-gateway.default.svc.cluster.local/loki/api/v1/push
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [memory_limiter, k8sattributes, batch]
+          exporters: [jaeger, logging]
+        metrics:
+          receivers: [k8s_cluster]
+          processors: [memory_limiter, k8sattributes, batch]
+          exporters: [prometheus]
+        logs:
+          receivers: [filelog]
+          processors: [memory_limiter, k8sattributes, batch]
+          exporters: [loki]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-poc-collector-node
+spec:
+  ports:
+    - appProtocol: grpc
+      name: otlp-grpc
+      port: 4317
+      protocol: TCP
+      targetPort: 4317
+      nodePort: 32317
+  selector:
+    app.kubernetes.io/component: opentelemetry-collector
+    app.kubernetes.io/instance: default.otel-poc
+    app.kubernetes.io/managed-by: opentelemetry-operator
+    app.kubernetes.io/part-of: opentelemetry
+  type: NodePort
+---
+# k8sclusterreceiver needs permission to gather K8s info
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: otelcontribcol
+  name: otelcontribcol
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: otelcontribcol
+  labels:
+    app: otelcontribcol
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - events
+  - namespaces
+  - namespaces/status
+  - nodes
+  - nodes/spec
+  - pods
+  - pods/status
+  - replicationcontrollers
+  - replicationcontrollers/status
+  - resourcequotas
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - daemonsets
+  - deployments
+  - replicasets
+  - statefulsets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - extensions
+  resources:
+  - daemonsets
+  - deployments
+  - replicasets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  - cronjobs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+    - autoscaling
+  resources:
+    - horizontalpodautoscalers
+  verbs:
+    - get
+    - list
+    - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: otelcontribcol
+  labels:
+    app: otelcontribcol
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: otelcontribcol
+subjects:
+- kind: ServiceAccount
+  name: otelcontribcol
+  namespace: default

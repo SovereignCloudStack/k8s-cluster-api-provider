@@ -62,6 +62,13 @@ spec:
       apiServer:
         extraArgs:
           cloud-provider: external
+          feature-gates: APIServerTracing=true
+          tracing-config-file: /etc/kubernetes/otel/apiserver-tracing.yaml
+        extraVolumes:
+          - name: otel
+            hostPath: /etc/kubernetes/otel
+            mountPath: /etc/kubernetes/otel
+            pathType: DirectoryOrCreate
       controllerManager:
         extraArgs:
           cloud-provider: external
@@ -80,6 +87,14 @@ spec:
         kubeletExtraArgs:
           cloud-provider: external
     files:
+      - path: /etc/kubernetes/otel/apiserver-tracing.yaml
+        owner: "root:root"
+        permissions: "0644"
+        content: |
+          apiVersion: apiserver.config.k8s.io/v1alpha1
+          kind: TracingConfiguration
+          endpoint: localhost:32317
+          samplingRatePerMillion: 1000000 # 100%
       - path: /root/etcd-defrag.sh
         owner: "root:root"
         permissions: "0755"
@@ -234,6 +249,17 @@ spec:
       - while test -z "$EPID"; do sleep 5; EPID=`pgrep etcd`; done; renice -10 $EPID; ionice -c2 -n0 -p $EPID
       - systemctl enable etcd-defrag.service
       - systemctl enable --now etcd-defrag.timer
+      # configure kubelet traces
+      - |
+        cat <<EOT >> /var/lib/kubelet/config.yaml
+        featureGates:
+          KubeletTracing: true
+        tracing:
+          endpoint: localhost:32317
+          samplingRatePerMillion: 1000000 # 100%
+        EOT
+      - systemctl daemon-reload
+      - systemctl restart kubelet.service
     preKubeadmCommands:
       - DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https curl
       - curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
@@ -247,6 +273,18 @@ spec:
         cat <<EOT >> /etc/containerd/config.toml
           [plugins."io.containerd.grpc.v1.cri".registry]
             config_path = "/etc/containerd/certs.d"
+        EOT
+      # configure containerd traces
+      - |
+        cat <<EOT >> /etc/containerd/config.toml
+        [plugins."io.containerd.tracing.processor.v1.otlp"]
+          endpoint = "localhost:32317"
+          protocol = "grpc"
+          insecure = true
+
+        [plugins."io.containerd.internal.v1.tracing"]
+          sampling_ratio = 1.0
+          service_name = "containerd"
         EOT
       - systemctl daemon-reload
       - systemctl restart containerd.service
@@ -338,6 +376,18 @@ spec:
           name: '{{ local_hostname }}'
           kubeletExtraArgs:
             cloud-provider: external
+      postKubeadmCommands:
+        # configure kubelet traces
+        - |
+          cat <<EOT >> /var/lib/kubelet/config.yaml
+          featureGates:
+            KubeletTracing: true
+          tracing:
+            endpoint: localhost:32317
+            samplingRatePerMillion: 1000000 # 100%
+          EOT
+        - systemctl daemon-reload
+        - systemctl restart kubelet.service
       preKubeadmCommands:
         - DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https curl
         - curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
@@ -352,6 +402,19 @@ spec:
             [plugins."io.containerd.grpc.v1.cri".registry]
               config_path = "/etc/containerd/certs.d"
           EOT
+        # containerd traces
+        - |
+          cat <<EOT >> /etc/containerd/config.toml
+          [plugins."io.containerd.tracing.processor.v1.otlp"]
+            endpoint = "localhost:32317"
+            protocol = "grpc"
+            insecure = true
+
+          [plugins."io.containerd.internal.v1.tracing"]
+            sampling_ratio = 1.0
+            service_name = "containerd"
+          EOT
+
         - systemctl daemon-reload
         - systemctl restart containerd.service
 ---
