@@ -1,5 +1,12 @@
 # Release Notes of SCS k8s-capi-provider for R5
 
+## Updated software
+
+### terraform v1.4.6
+
+Terraform used for creation of capi management server, security groups for cluster,
+executing of bootstrap script, etc. has been updated and validated.
+
 ## New features
 
 ### Storage snapshots
