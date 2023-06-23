@@ -1,5 +1,9 @@
 # Release Notes of SCS k8s-capi-provider for R5
 
+## Updated software
+
+### helm 3.12.x
+
 ## New features
 
 ### Storage snapshots
