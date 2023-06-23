@@ -2,6 +2,7 @@
 
 ## Updated software
 
+### cert-manager 1.12.x
 ### kind 0.18.0
 ### helm 3.12.x
 
