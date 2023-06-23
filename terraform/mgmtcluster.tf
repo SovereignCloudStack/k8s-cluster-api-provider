@@ -47,16 +47,16 @@ data "openstack_images_image_ids_v2" "images" {
 
 resource "openstack_compute_instance_v2" "mgmtcluster_server" {
   name              = "${var.prefix}-mgmtcluster"
-  # image_name        = var.image
   flavor_name       = var.kind_flavor
   availability_zone = var.availability_zone
   key_pair          = openstack_compute_keypair_v2.keypair.name
+  # image_name      = var.image
 
   network { port = openstack_networking_port_v2.mgmtcluster_port.id }
   block_device {
     uuid                  = data.openstack_images_image_ids_v2.images.ids[0]
     source_type           = "image"
-    volume_size           = 30 
+    volume_size           = 30
     boot_index            = 0
     destination_type      = "volume"
     delete_on_termination = true

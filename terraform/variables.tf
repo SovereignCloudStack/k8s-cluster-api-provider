@@ -41,8 +41,8 @@ variable "availability_zone" {
 variable "external" {
   description = "external/public network for access"
   type        = string
-  #default    = data.openstack_networking_network_v2.extnet.name
   default     = ""
+  # default   = data.openstack_networking_network_v2.extnet.name
 }
 
 variable "ssh_username" {
