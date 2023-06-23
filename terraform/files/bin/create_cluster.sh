@@ -83,9 +83,6 @@ if test "$CONTROL_PLANE_MACHINE_COUNT" -gt 0 &&  grep '^ *OPENSTACK_ANTI_AFFINIT
 	fi
 fi
 
-# Patch registry location for k8s (~newer than Nov 2022)
-fixup_k8sregistry.sh "$CCCFG" "${CLUSTERAPI_TEMPLATE}"
-
 cp -p "$CCCFG" $HOME/.cluster-api/clusterctl.yaml
 KCCCFG="--config $CCCFG"
 #clusterctl $KCCCFG config cluster ${CLUSTER_NAME} --list-variables --from ${CLUSTERAPI_TEMPLATE}
@@ -157,7 +154,7 @@ echo "# Deploy services (CNI, OCCM, CSI, Metrics, Cert-Manager, Flux2, Ingress)"
 MTU_VALUE=$(yq eval '.MTU_VALUE' $CCCFG)
 if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
   # FIXME: Do we need to allow overriding MTU here as well?
-  CILIUM_VERSION="v1.13.0"
+  CILIUM_VERSION="v1.13.3"
   if test "${USE_CILIUM:0:1}" = "v"; then
     CILIUM_VERSION="${USE_CILIUM}"
   fi
