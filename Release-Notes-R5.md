@@ -1,5 +1,9 @@
 # Release Notes of SCS k8s-capi-provider for R5
 
+## Updated software
+
+### kind 0.18.0
+
 ## New features
 
 ### Storage snapshots
