@@ -56,7 +56,9 @@ spec:
         kubeletExtraArgs:
           cloud-provider: external
     clusterConfiguration:
-      imageRepository: k8s.gcr.io
+      imageRepository: registry.k8s.io
+      dns:
+        imageRepository: registry.k8s.io/coredns
       apiServer:
         extraArgs:
           cloud-provider: external

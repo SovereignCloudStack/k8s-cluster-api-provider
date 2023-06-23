@@ -1,5 +1,21 @@
 # Release Notes of SCS k8s-capi-provider for R5
 
+## Updated software
+
+### terraform v1.4.6
+
+Terraform used for creation of capi management server, security groups for cluster,
+executing of bootstrap script, etc. has been updated and validated.
+
+### flux2 0.41.x
+### sonobuoy 0.56.x
+
+- Sonobuoy v0.56.17 adds support for the latest k8s versions even for k8s 1.27.
+
+### cert-manager 1.12.x
+### kind 0.18.0
+### helm 3.12.x
+
 ## New features
 
 ### Storage snapshots
