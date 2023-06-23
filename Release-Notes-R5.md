@@ -2,6 +2,11 @@
 
 ## Updated software
 
+### terraform v1.4.6
+
+Terraform used for creation of capi management server, security groups for cluster,
+executing of bootstrap script, etc. has been updated and validated.
+
 ### flux2 0.41.x
 ### sonobuoy 0.56.x
 
