@@ -2,6 +2,11 @@
 
 ## Updated software
 
+### terraform v1.4.6
+
+Terraform used for creation of capi management server, security groups for cluster,
+executing of bootstrap script, etc. has been updated and validated.
+
 ### flux2 0.41.x
 ### sonobuoy 0.56.x
 
@@ -10,6 +15,7 @@
 ### cert-manager 1.12.x
 ### kind 0.18.0
 ### helm 3.12.x
+### metrics-server 0.6.3
 
 ## New features
 
