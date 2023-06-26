@@ -25,9 +25,9 @@ jobs:
         run: cp secure.yaml.sample secure.yaml
         working-directory: ./terraform
       - name: Setup terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: 1.0.5  # renovate: datasource=github-releases depName=hashicorp/terraform
+          terraform_version: 1.4.6  # renovate: datasource=github-releases depName=hashicorp/terraform
       - name: Terraform init
         run: terraform init
         working-directory: ./terraform
