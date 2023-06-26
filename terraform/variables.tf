@@ -218,8 +218,8 @@ variable "capo_instance_create_timeout" {
 
 variable "containerd_registry_files" {
   type = object({
-    hosts = set(string),
-    certs = set(string)
+    hosts = optional(set(string), ["./files/containerd/docker.io"]),
+    certs = optional(set(string), [])
   })
   description = <<EOF
     containerd registry host config files referenced by attributes `hosts` and `certs`.
@@ -234,8 +234,5 @@ variable "containerd_registry_files" {
 
     visit containerd docs for further details on how to configure registry hosts https://github.com/containerd/containerd/blob/main/docs/hosts.md
     EOF
-  default = {
-    hosts = ["./files/containerd/docker.io"],
-    certs = []
-  }
+  default     = {}
 }

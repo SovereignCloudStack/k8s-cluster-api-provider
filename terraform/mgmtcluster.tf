@@ -86,20 +86,20 @@ EOF
 
 }
 
-resource "null_resource" "mgmtcluster_containerd_registry_host_files" {
+resource "terraform_data" "mgmtcluster_containerd_registry_host_files" {
   depends_on = [
     openstack_compute_instance_v2.mgmtcluster_server
   ]
 
   for_each = toset(var.containerd_registry_files["hosts"])
 
-  triggers = {
-    ip_address = openstack_networking_floatingip_v2.mgmtcluster_floatingip.address,
-    content    = file(each.key)
-  }
+  triggers_replace = [
+    openstack_networking_floatingip_v2.mgmtcluster_floatingip.address,
+    file(each.key)
+  ]
 
   connection {
-    host        = self.triggers.ip_address
+    host        = openstack_networking_floatingip_v2.mgmtcluster_floatingip.address
     private_key = openstack_compute_keypair_v2.keypair.private_key
     user        = var.ssh_username
   }
@@ -111,25 +111,25 @@ resource "null_resource" "mgmtcluster_containerd_registry_host_files" {
   }
 
   provisioner "file" {
-    content     = self.triggers.content
+    source      = each.key
     destination = "/home/${var.ssh_username}/cluster-defaults/containerd/hosts/${basename(each.key)}"
   }
 }
 
-resource "null_resource" "mgmtcluster_containerd_registry_cert_files" {
+resource "terraform_data" "mgmtcluster_containerd_registry_cert_files" {
   depends_on = [
     openstack_compute_instance_v2.mgmtcluster_server
   ]
 
   for_each = toset(var.containerd_registry_files["certs"])
 
-  triggers = {
-    ip_address = openstack_networking_floatingip_v2.mgmtcluster_floatingip.address,
-    content    = file(each.key)
-  }
+  triggers_replace = [
+    openstack_networking_floatingip_v2.mgmtcluster_floatingip.address,
+    file(each.key)
+  ]
 
   connection {
-    host        = self.triggers.ip_address
+    host        = openstack_networking_floatingip_v2.mgmtcluster_floatingip.address
     private_key = openstack_compute_keypair_v2.keypair.private_key
     user        = var.ssh_username
   }
@@ -141,24 +141,24 @@ resource "null_resource" "mgmtcluster_containerd_registry_cert_files" {
   }
 
   provisioner "file" {
-    content     = self.triggers.content
+    source      = each.key
     destination = "/home/${var.ssh_username}/cluster-defaults/containerd/certs/${basename(each.key)}"
   }
 }
 
-resource "null_resource" "mgmtcluster_bootstrap_files" {
+resource "terraform_data" "mgmtcluster_bootstrap_files" {
   depends_on = [
     openstack_compute_instance_v2.mgmtcluster_server,
-    null_resource.mgmtcluster_containerd_registry_host_files,
-    null_resource.mgmtcluster_containerd_registry_cert_files
+    terraform_data.mgmtcluster_containerd_registry_host_files,
+    terraform_data.mgmtcluster_containerd_registry_cert_files
   ]
 
-  triggers = {
-    ip_address = openstack_networking_floatingip_v2.mgmtcluster_floatingip.address
-  }
+  triggers_replace = [
+    openstack_networking_floatingip_v2.mgmtcluster_floatingip.address
+  ]
 
   connection {
-    host        = self.triggers.ip_address
+    host        = openstack_networking_floatingip_v2.mgmtcluster_floatingip.address
     private_key = openstack_compute_keypair_v2.keypair.private_key
     user        = var.ssh_username
   }

@@ -11,9 +11,6 @@ terraform {
       source  = "terraform-provider-openstack/openstack"
       version = "1.43.0"
     }
-    null = {
-      source = "hashicorp/null"
-    }
     local = {
       source = "hashicorp/local"
     }
