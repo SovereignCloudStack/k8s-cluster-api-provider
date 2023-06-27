@@ -217,7 +217,7 @@ variable "capo_instance_create_timeout" {
 }
 
 variable "harbor_domain_name" {
-  description = "harbor domain name. If set, harbor will be deployed"
+  description = "harbor domain name. If set, harbor will be deployed. It also deploys flux, cert-manager and ingress-nginx"
   type        = string
   default     = ""
 }

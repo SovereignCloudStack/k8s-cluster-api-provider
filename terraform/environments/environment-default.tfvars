@@ -33,6 +33,6 @@ deploy_cindercsi     = "<version>"      # defaults to "true", dito
 etcd_unsafe_fs       = "<boolean>"      # defaults to "false", dangerous
 testcluster_name     = "NAME"           # defaults to "testcluster"
 restrict_kubeapi     = [ "IP/20", "IP/22" ]	# defaults to empty (fully open), use [ "none" ] for exclusive internal access
-harbor_domain_name   = "core.harbor.domain" # defaults to empty (no harbor deployment), if set(e.g. registry.scs.community) harbor will be deployed
+harbor_domain_name   = "core.harbor.domain" # defaults to empty (no harbor deployment), if set harbor will be deployed with flux, cert-manager and ingress-nginx
 harbor_issuer_email  = "harbor@example.com" # defaults to empty, it is optional email for cert-manager issuer issuing harbor cert
 harbor_pvc_sizes     = { database = "1Gi", redis = "1Gi", trivy = "5Gi" } # storage for harbor components, database and redis have 1 replica trivy has 2 replicas

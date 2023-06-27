@@ -179,14 +179,22 @@ if test "$DEPLOY_METRICS" = "true"; then
   apply_metrics.sh "$CLUSTER_NAME" || exit $?
 fi
 
+# Harbor settings
+if test ! -s ~/$CLUSTER_NAME/harbor-settings; then
+	cp -p ~/cluster-defaults/harbor-settings ~/$CLUSTER_NAME/
+fi
+. ~/$CLUSTER_NAME/harbor-settings
+
 # Cert-Manager
 DEPLOY_CERT_MANAGER=$(yq eval '.DEPLOY_CERT_MANAGER' $CCCFG)
+if test "$DEPLOY_CERT_MANAGER" = "false" -a -n "$HARBOR_DOMAIN_NAME"; then DEPLOY_CERT_MANAGER="true"; fi
 if test "$DEPLOY_CERT_MANAGER" = "true" -o "${DEPLOY_CERT_MANAGER:0:1}" = "v"; then
   apply_cert_manager.sh "$CLUSTER_NAME" || exit $?
 fi
 
 # Flux2
 DEPLOY_FLUX=$(yq eval '.DEPLOY_FLUX' $CCCFG)
+if test "$DEPLOY_FLUX" = "false" -a -n "$HARBOR_DOMAIN_NAME"; then DEPLOY_FLUX="true"; fi
 if test "$DEPLOY_FLUX" = "true" -o "${DEPLOY_FLUX:0:1}" = "v"; then
   FLUX_INSTALL_OPTS="--timeout 10m0s"
   if test "${DEPLOY_FLUX:0:1}" = "v"; then
@@ -198,17 +206,18 @@ fi
 
 # NGINX ingress
 DEPLOY_NGINX_INGRESS=$(yq eval '.DEPLOY_NGINX_INGRESS' $CCCFG)
+if test "$DEPLOY_NGINX_INGRESS" = "false" -a -n "$HARBOR_DOMAIN_NAME"; then DEPLOY_NGINX_INGRESS="true"; fi
 if test "$DEPLOY_NGINX_INGRESS" = "true" -o "${DEPLOY_NGINX_INGRESS:0:1}" = "v"; then
   apply_nginx_ingress.sh "$CLUSTER_NAME" || exit $?
 fi
 
 # Harbor
-if test ! -s ~/$CLUSTER_NAME/harbor-settings; then
-	cp -p ~/cluster-defaults/harbor-settings ~/$CLUSTER_NAME/
-fi
-. ~/$CLUSTER_NAME/harbor-settings
 if test -n "$HARBOR_DOMAIN_NAME"; then
   deploy_harbor.sh "$CLUSTER_NAME" || exit $?
+  if test $? = 0; then
+    echo "SUCCESS: Harbor deployed in cluster ${CLUSTER_NAME}"
+    echo "INFO: You can access it at https://$HARBOR_DOMAIN_NAME"
+  fi
 fi
 
 echo "# Wait for control plane of ${CLUSTER_NAME}"
