@@ -17,6 +17,9 @@ executing of bootstrap script, etc. has been updated and validated.
 ### helm 3.12.x
 ### metrics-server 0.6.3
 ### nginx-ingress 1.8.x
+### k9s 0.27.x
+
+- In the previous releases, the latest version was used. Now, it is pinned.
 
 ## New features
 
