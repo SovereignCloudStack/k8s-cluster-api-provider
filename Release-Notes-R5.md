@@ -15,6 +15,7 @@ executing of bootstrap script, etc. has been updated and validated.
 ### cert-manager 1.12.x
 ### kind 0.18.0
 ### helm 3.12.x
+### metrics-server 0.6.3
 
 ## New features
 
