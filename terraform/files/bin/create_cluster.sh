@@ -29,6 +29,8 @@ fi
 CCCFG="$HOME/${CLUSTER_NAME}/clusterctl.yaml"
 fixup_k8s_version.sh $CCCFG || exit 1
 
+# Add containerd registry host and cert files
+configure_containerd.sh $CLUSTERAPI_TEMPLATE || exit 1
 # Handle wanted OVN loadbalancer
 handle_ovn_lb.sh "$CLUSTER_NAME" || exit 1
 # Determine whether we need a new application credential
