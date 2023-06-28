@@ -1,10 +1,12 @@
 #!/bin/bash
 . ~/bin/cccfg.inc
 export KUBECONFIG=~/.kube/config
+. ~/$CLUSTER_NAME/harbor-settings
 
 echo "Deploy cert-manager to $CLUSTER_NAME"
 # cert-manager
 DEPLOY_CERT_MANAGER=$(yq eval '.DEPLOY_CERT_MANAGER' $CCCFG)
+if test "$DEPLOY_CERT_MANAGER" = "false" -a -n "$HARBOR_DOMAIN_NAME"; then DEPLOY_CERT_MANAGER="true"; fi
 if test "$DEPLOY_CERT_MANAGER" = "true"; then
 	CERTMGR_VERSION="v1.12.2"
 elif test "$DEPLOY_CERT_MANAGER" = "false"; then
