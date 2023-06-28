@@ -218,7 +218,8 @@ if test -n "$HARBOR_DOMAIN_NAME"; then
     echo "SUCCESS: Harbor deployed in cluster ${CLUSTER_NAME}"
     echo "INFO: Use kubectl $KCONTEXT -n ingress-nginx get svc ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress}'"
     echo "INFO: and take LoadBalancer IP address and create DNS record for Harbor so certificate can be issued."
-    echo "INFO: Then you can access it at https://$HARBOR_DOMAIN_NAME"
+    echo "INFO: Then you can access it at https://$HARBOR_DOMAIN_NAME. For admin password use"
+    echo "INFO: kubectl $KCONTEXT get secret harbor-secrets -o jsonpath='{.data.values\.yaml}' | base64 -d | yq .harborAdminPassword"
   fi
 fi
 
