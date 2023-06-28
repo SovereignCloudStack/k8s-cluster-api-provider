@@ -17,6 +17,10 @@ executing of bootstrap script, etc. has been updated and validated.
 ### helm 3.12.x
 ### metrics-server 0.6.3
 ### nginx-ingress 1.8.x
+
+- We removed support for older k8s versions <= 1.19. Ingress-nginx 1.8.0 supports k8s version >= 1.24.
+  See also ingress-nginx [supported versions table](https://github.com/kubernetes/ingress-nginx#supported-versions-table).
+
 ### k9s 0.27.x
 
 - In the previous releases, the latest version was used. Now, it is pinned.
