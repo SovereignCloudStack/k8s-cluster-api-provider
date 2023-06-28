@@ -16,6 +16,9 @@ executing of bootstrap script, etc. has been updated and validated.
 ### kind 0.18.0
 ### helm 3.12.x
 ### metrics-server 0.6.3
+### k9s 0.27.x
+
+- In the previous releases, the latest version was used. Now, it is pinned.
 
 ## New features
 
