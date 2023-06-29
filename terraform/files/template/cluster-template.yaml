@@ -56,7 +56,9 @@ spec:
         kubeletExtraArgs:
           cloud-provider: external
     clusterConfiguration:
-      imageRepository: k8s.gcr.io
+      imageRepository: registry.k8s.io
+      dns:
+        imageRepository: registry.k8s.io/coredns
       apiServer:
         extraArgs:
           cloud-provider: external
@@ -240,7 +242,14 @@ spec:
       - TRIMMED_KUBERNETES_VERSION=$(echo ${KUBERNETES_VERSION} | sed 's/\./\./g' | sed 's/^v//')
       - RESOLVED_KUBERNETES_VERSION=$(apt-cache policy kubelet | sed 's/\*\*\*//' | awk -v VERSION=$${TRIMMED_KUBERNETES_VERSION} '$1~ VERSION { print $1 }' | head -n1)
       - apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips containerd kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
+      # Allow to configure registry hosts in containerd
+      - |
+        cat <<EOT >> /etc/containerd/config.toml
+          [plugins."io.containerd.grpc.v1.cri".registry]
+            config_path = "/etc/containerd/certs.d"
+        EOT
       - systemctl daemon-reload
+      - systemctl restart containerd.service
       # Install etcdctl
       - ETCDCTL_VERSION=v3.5.7
       - curl -L https://github.com/coreos/etcd/releases/download/$${ETCDCTL_VERSION}/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz -o /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz
@@ -337,7 +346,14 @@ spec:
         - TRIMMED_KUBERNETES_VERSION=$(echo ${KUBERNETES_VERSION} | sed 's/\./\./g' | sed 's/^v//')
         - RESOLVED_KUBERNETES_VERSION=$(apt-cache policy kubelet | sed 's/\*\*\*//' | awk -v VERSION=$${TRIMMED_KUBERNETES_VERSION} '$1~ VERSION { print $1 }' | head -n1)
         - apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips containerd kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
+        # Allow to configure registry hosts in containerd
+        - |
+          cat <<EOT >> /etc/containerd/config.toml
+            [plugins."io.containerd.grpc.v1.cri".registry]
+              config_path = "/etc/containerd/certs.d"
+          EOT
         - systemctl daemon-reload
+        - systemctl restart containerd.service
 ---
 apiVersion: v1
 kind: Secret

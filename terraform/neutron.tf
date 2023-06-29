@@ -73,7 +73,7 @@ resource "openstack_networking_router_v2" "router_mgmt" {
   name                    = "${var.prefix}-rtr"
   description             = "router for mgmtcluster (managed by terraform)"
   external_network_id     = data.openstack_networking_network_v2.external.id
-  availability_zone_hints = [var.availability_zone]
+  availability_zone_hints = [var.availability_zone] # comment this out if your cloud does not have network AZs
 }
 
 resource "openstack_networking_router_interface_v2" "router_interface" {

@@ -29,6 +29,8 @@ fi
 CCCFG="$HOME/${CLUSTER_NAME}/clusterctl.yaml"
 fixup_k8s_version.sh $CCCFG || exit 1
 
+# Add containerd registry host and cert files
+configure_containerd.sh $CLUSTERAPI_TEMPLATE || exit 1
 # Handle wanted OVN loadbalancer
 handle_ovn_lb.sh "$CLUSTER_NAME" || exit 1
 # Determine whether we need a new application credential
@@ -53,6 +55,10 @@ echo "# show used variables for clustertemplate ${CLUSTERAPI_TEMPLATE}"
 # TODO: Create pre-cluster app-creds:
 # (1) For CAPO
 # (2) For OCCM, CSI
+#
+# set OpenStack instance create timeout before the operator starts to create instances
+CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT=$(yq eval '.CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT' $CCCFG)
+kubectl -n capo-system set env deployment/capo-controller-manager CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT=$CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT
 
 CONTROL_PLANE_MACHINE_COUNT=$(yq eval '.CONTROL_PLANE_MACHINE_COUNT' $CCCFG)
 # Implement anti-affinity with server groups
@@ -78,9 +84,6 @@ if test "$CONTROL_PLANE_MACHINE_COUNT" -gt 0 &&  grep '^ *OPENSTACK_ANTI_AFFINIT
 		sed -i "s/^\(OPENSTACK_SRVGRP_WORKER:\).*\$/\1 nonono/" "$CCCFG"
 	fi
 fi
-
-# Patch registry location for k8s (~newer than Nov 2022)
-fixup_k8sregistry.sh "$CCCFG" "${CLUSTERAPI_TEMPLATE}"
 
 cp -p "$CCCFG" $HOME/.cluster-api/clusterctl.yaml
 KCCCFG="--config $CCCFG"
@@ -153,7 +156,7 @@ echo "# Deploy services (CNI, OCCM, CSI, Metrics, Cert-Manager, Flux2, Ingress)"
 MTU_VALUE=$(yq eval '.MTU_VALUE' $CCCFG)
 if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
   # FIXME: Do we need to allow overriding MTU here as well?
-  CILIUM_VERSION="v1.13.0"
+  CILIUM_VERSION="v1.13.3"
   if test "${USE_CILIUM:0:1}" = "v"; then
     CILIUM_VERSION="${USE_CILIUM}"
   fi

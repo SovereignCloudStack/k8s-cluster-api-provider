@@ -52,19 +52,19 @@ variable "ssh_username" {
 variable "calico_version" {
   description = "desired version of calico"
   type        = string
-  default     = "v3.25.0"
+  default     = "v3.25.1"
 }
 
 variable "clusterapi_version" {
   description = "desired version of cluster-api"
   type        = string
-  default     = "1.3.5"
+  default     = "1.3.8"
 }
 
 variable "capi_openstack_version" {
   description = "desired version of the OpenStack cluster-api provider"
   type        = string
-  default     = "0.7.1"
+  default     = "0.7.3"
 }
 
 variable "kubernetes_version" {
@@ -166,7 +166,7 @@ variable "use_cilium" {
 variable "cilium_binaries" {
   description = "cilium and hubble CLI versions in the vA.B.C;vX.Y.Z format"
   type        = string
-  default     = "v0.13.1;v0.11.2"
+  default     = "v0.13.2;v0.11.6"
 }
 
 variable "etcd_unsafe_fs" {
@@ -207,4 +207,32 @@ variable "restrict_kubeapi" {
   description = "array of IP ranges (CIDRs) that get exclusive access. Leave open for all, none for exclusive internal access"
   type        = list(string)
   default     = []
+}
+
+
+variable "capo_instance_create_timeout" {
+  description = "time to wait for an openstack machine to be created (in minutes)"
+  type        = number
+  default     = 5
+}
+
+variable "containerd_registry_files" {
+  type = object({
+    hosts = optional(set(string), ["./files/containerd/docker.io"]),
+    certs = optional(set(string), [])
+  })
+  description = <<EOF
+    containerd registry host config files referenced by attributes `hosts` and `certs`.
+    Attributes:
+      hosts (set): Additional registry host config files for containerd. The filename should
+        reference the registry host namespace. Files defined in this set will be copied into the `/etc/containerd/certs.d`
+        directory on each cluster node. The default `docker.io` registry host file instructs containerd to use
+        `registry.scs.community` container registry instance as a public mirror of DockerHub container registry.
+      certs (set): Additional client and/or CA certificate files needed for containerd authentication against
+        registries defined in `hosts`. Files defined in this set will be copied into the `/etc/containerd/certs`
+        directory on each cluster node.
+
+    visit containerd docs for further details on how to configure registry hosts https://github.com/containerd/containerd/blob/main/docs/hosts.md
+    EOF
+  default     = {}
 }

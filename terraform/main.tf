@@ -4,14 +4,13 @@ provider "openstack" {
 }
 
 terraform {
-  required_version = ">= 0.13"
+  required_version = ">= 1.4.6"
 
   required_providers {
     openstack = {
       source  = "terraform-provider-openstack/openstack"
       version = "1.43.0"
     }
-
     local = {
       source = "hashicorp/local"
     }
