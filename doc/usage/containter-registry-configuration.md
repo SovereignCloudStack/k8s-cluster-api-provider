@@ -49,7 +49,7 @@ Currently, SCS container registry is set up to "proxy-cache" the following publi
 - registry.gitlab.com
 - registry.k8s.io
 
-Find also a corresponding `containerd` registry host config files in [./terraform/files/containerd](../../terraform/files/containerd)
+Find also a corresponding `containerd` registry host config files in [./terraform/files/containerd](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/tree/4dce164044a13b35a83690540088db2cd8457a8a/terraform/files/containerd)
 directory. If you want to configure `containerd` to use mentioned pre-configured [SCS container registry](https://registry.scs.community)
 "proxy cache" projects, feel free to do that e.g. as follows (path is relative to the `terraform` directory):
 
