@@ -51,8 +51,10 @@ OPENSTACK_FAILURE_DOMAIN: ${availability_zone}
 
 ETCD_UNSAFE_FS: ${etcd_unsafe_fs}
 
-# Nodes CIDR
+# CIDRs
 NODE_CIDR: ${node_cidr}
+SERVICE_CIDR: ${service_cidr}
+POD_CIDR: ${pod_cidr}
 
 # Set MTU for k8s CNI network (50 smaller than cloud, 0 = auto)
 MTU_VALUE: 0
