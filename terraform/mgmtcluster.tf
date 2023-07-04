@@ -86,6 +86,43 @@ EOF
 
 }
 
+#data "tls_certificate" "cacert" {
+#  count = contains(keys(local.clouds), "cacert") ? 1 : 0
+#  content = file(local.clouds["cacert"])
+#}
+
+resource "terraform_data" "cacert" {
+  depends_on = [
+    openstack_compute_instance_v2.mgmtcluster_server,
+    #    data.tls_certificate.cacert
+  ]
+
+  count = contains(keys(local.clouds), "cacert") ? 1 : 0
+
+  triggers_replace = [
+    openstack_networking_floatingip_v2.mgmtcluster_floatingip.address,
+    file(local.clouds["cacert"])
+  ]
+
+  connection {
+    host        = openstack_networking_floatingip_v2.mgmtcluster_floatingip.address
+    private_key = openstack_compute_keypair_v2.keypair.private_key
+    user        = var.ssh_username
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir -p /home/${var.ssh_username}/cluster-defaults"
+    ]
+  }
+
+  provisioner "file" {
+    #    content     = trimspace(data.tls_certificate.cacert[count.index].certificates[0]["cert_pem"])
+    source      = local.clouds["cacert"]
+    destination = "/home/${var.ssh_username}/cluster-defaults/cacert"
+  }
+}
+
 resource "terraform_data" "mgmtcluster_containerd_registry_host_files" {
   depends_on = [
     openstack_compute_instance_v2.mgmtcluster_server
@@ -238,6 +275,7 @@ resource "terraform_data" "mgmtcluster_bootstrap_files" {
       appcredsecret  = openstack_identity_application_credential_v3.appcred.secret
       cloud_provider = var.cloud_provider,
       clouds         = local.clouds,
+      ssh_username   = var.ssh_username
     })
     destination = "/home/${var.ssh_username}/.config/openstack/clouds.yaml"
   }
