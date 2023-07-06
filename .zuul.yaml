@@ -1,0 +1,13 @@
+---
+- job:
+    name: testjobk8s
+    parent: base
+    run: playbooks/testjobk8s.yaml
+
+- project:
+    check:
+      jobs:
+        - testjobk8s
+    gate:
+      jobs:
+        - testjobk8s
