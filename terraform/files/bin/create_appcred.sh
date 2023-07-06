@@ -38,7 +38,7 @@ if test -z "$APPCRED_ID"; then
 	# Generate a fresh section rather than relying on cleanliness of existing setup
 	AUTH_URL=$(print-cloud.py | yq eval .clouds.${OS_CLOUD}.auth.auth_url -)
 	REGION=$(print-cloud.py | yq eval .clouds.${OS_CLOUD}.region_name -)
-	CACERT=$(print-cloud.py | yq eval .clouds.${OS_CLOUD}.cacert -)
+	CACERT=$(print-cloud.py | yq eval '.clouds."'"$OS_CLOUD"'".cacert // "null"' -)
 	# In theory we could also make interface and id_api_vers variable,
 	# but let's do that once we find the necessity. Error handling makes
 	# it slightly complex, so it's not an obvious win.
