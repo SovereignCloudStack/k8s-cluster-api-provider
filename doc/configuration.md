@@ -11,6 +11,8 @@ The provenance capo means that this setting comes from the templates used by
 the cluster-api-provider-openstack, while SCS denotes that this setting has
 been added by the SCS project.
 
+### Parameters CAPI management server
+
 Parameters controlling the Cluster-API management server (capi management server) creation:
 
 | environment              | clusterctl.yaml | provenance | default           | meaning                                                                       |
@@ -23,6 +25,8 @@ Parameters controlling the Cluster-API management server (capi management server
 | `capi_openstack_version` |                 | SCS        | `0.7.3`           | Version of the cluster-api-provider-openstack (needs to fit the CAPI version) |
 | `cilium_binaries`        |                 | SCS        | `v0.13.2;v0.11.6` | Versions of the cilium and hubble CLI in the vA.B.C;vX.Y.Z format             |
 
+### Common parameters management server and clusters
+
 Parameters controlling both management server creation and cluster creation:
 
 | environment         | clusterctl.yaml                 | provenance | default                              | meaning                                                                                                                      |
@@ -32,6 +36,8 @@ Parameters controlling both management server creation and cluster creation:
 | `dns_nameservers`   | `OPENSTACK_DNS_NAMESERVERS`     | capo       | `[ "5.1.66.255", "185.150.99.255" ]` | Array of nameservers for capi mgmt server and for cluster nodes, replace the FF MUC defaults with local servers if available |
 | `availability_zone` | `OPENSTACK_FAILURE_DOMAIN`      | capo       |                                      | Availability Zone(s) for the mgmt node / workload clusters                                                                   |
 | `kind_mtu`          | `MTU_VALUE`                     | SCS        | `0`                                  | MTU for the mgmt server; Calico is set 50 bytes smaller; 0 means autodetection                                               |
+
+### Parameters clusters
 
 Parameters controlling the cluster creation:
 
