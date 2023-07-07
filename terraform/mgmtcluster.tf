@@ -119,7 +119,7 @@ resource "terraform_data" "cacert" {
   provisioner "file" {
     #    content     = trimspace(data.tls_certificate.cacert[count.index].certificates[0]["cert_pem"])
     source      = local.clouds["cacert"]
-    destination = "/home/${var.ssh_username}/cluster-defaults/cacert"
+    destination = "/home/${var.ssh_username}/cluster-defaults/${var.prefix}-cacert"
   }
 }
 
@@ -275,7 +275,8 @@ resource "terraform_data" "mgmtcluster_bootstrap_files" {
       appcredsecret  = openstack_identity_application_credential_v3.appcred.secret
       cloud_provider = var.cloud_provider,
       clouds         = local.clouds,
-      ssh_username   = var.ssh_username
+      ssh_username   = var.ssh_username,
+      prefix         = var.prefix
     })
     destination = "/home/${var.ssh_username}/.config/openstack/clouds.yaml"
   }
