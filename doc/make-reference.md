@@ -16,9 +16,9 @@ security groups, and a virtual machine. An application credential is also genera
 the virtual machine is up and running, it is bootstrapped by cloning the specified git repository. Additionally,
 specific tools are installed to facilitate the process.
 
-Next, a local Kubernetes cluster is deployed using kind. The cluster acts as a foundation for further operations. During
-the setup, the Cluster API provider is installed within the local cluster. This provider serves as the API server for
-Kubernetes CAPI, enabling management and interaction with the clusters.
+Next, a local Kubernetes cluster is deployed using [kind](https://github.com/kubernetes-sigs/kind). The cluster acts as a foundation for further operations. During
+the setup, the [Cluster API](https://github.com/kubernetes-sigs/cluster-api), as well as the Cluster API Provider (e.g. [CAPO](https://github.com/kubernetes-sigs/cluster-api-provider-openstack)), are installed within the local cluster. This provider serves as the API server for
+Kubernetes CAPI, enabling management and interaction with the cloud backends (e.g. OpenStack).
 
 Finally, a test cluster is created utilizing Kubernetes CAPI. This test cluster allows for experimentation, validation,
 and development within the CAPI environment.
@@ -88,14 +88,14 @@ unfortunately, some error in the deployment may result in resources left around.
 while trying to not hit any resources not created by the CAPI or terraform.
 It is the recommended way for doing cleanups if ``make clean`` fails. Watch out for leftover
 floating IP addresses and persistent volumes, as these can not be easily traced back to the
-cluster-API created resources and may thus be left.
+Cluster API created resources and may thus be left.
 
 ### Make purge
 
 You can purge the whole project via ``make purge``. Be careful with that command as it will purge
 *all resources in the OpenStack project* even those that have not been created through this
-Terraform script or the cluster API.
-It requires the [``ospurge``](https://opendev.org/x/ospurge) script.
+Terraform script or the Cluster API.
+It requires the [``ospurge``](https://opendev.org/x/ospurge) tool.
 Install it with ``python3 -m pip install git+https://git.openstack.org/openstack/ospurge``.
 
 ## Testing commands
@@ -104,10 +104,10 @@ Install it with ``python3 -m pip install git+https://git.openstack.org/openstack
 
 ``make check``
 
-This will run tests of the configuration on testcluster using sonobuoy. It will also download the results and
+This will run tests of the configuration on testcluster using [sonobuoy](https://sonobuoy.io/). It will also download the results and
 print them to the console.
 
-> Note: This runs over 5000 tests and takes a long time to complete (2 hours).
+> Note: This runs over 5000 tests and takes a long time to complete (~ 2 hours).
 
 ### make check-quick
 

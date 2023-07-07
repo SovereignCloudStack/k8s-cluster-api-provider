@@ -18,7 +18,7 @@ Requirements for the deployment host:
     - openstack (python3-openstackclient) and plugin for octavia (python3-octaviaclient) Via pip or your distribution.
       *Needed only in case you want to clean the management server or interact with openstack directly.*
 - You must have credentials to access the cloud. Terraform will look for `clouds.yaml` and optionally `secure.yaml` in
-  the current working directory(`terraform`), in `~/.config/openstack/` or `/etc/openstack` (in this order), just like
+  the current working directory (`terraform`), in `~/.config/openstack/` or `/etc/openstack` (in this order), just like
   the [openstack client](https://docs.openstack.org/python-openstackclient/latest/configuration/index.html#clouds-yaml).
 - The API endpoints of the OpenStack cloud should have a certificate signed by a trusted CA. (Self-signed or custom CAs
   need significant manual work -- this will be improved after R4.)
@@ -31,7 +31,7 @@ to the `make` command by
 using `make <command> ENVIRONMENT=<yourcloud>`. The name of the environment is derived from the name of the file
 `environments/environment-<yourcloud>.tfvars`.
 
-The name of the environment should equal the name of the cloud(`cloud_provider`) as specified in your `clouds.yaml`.
+The name of the environment should equal the name of the cloud (`cloud_provider`) as specified in your `clouds.yaml`.
 Otherwise, you have to set `OS_CLOUD` in your shell's environment. (You can also edit the default in the Makefile,
 though we don't recommend
 this.)

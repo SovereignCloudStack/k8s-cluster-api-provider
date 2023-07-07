@@ -59,7 +59,7 @@ make clean
 ```
 
 If `make clean` fails to clean up completely, you can also use the `fullclean` target.
-Review the [Teardown section of the Makefile reference](make-reference.md) document for more details.
+Review the [Teardown section of the Makefile reference](make-reference.md#teardown) document for more details.
 
 ## Beyond quickstart
 
