@@ -60,7 +60,16 @@ dry-run: init
 	terraform plan -var-file="environments/environment-$(ENVIRONMENT).tfvars" -var "git_branch=$(GITBRANCH)" $(PARAMS)
 
 mycloud: environments/environment-$(ENVIRONMENT).tfvars
-	@$(YQ) '.clouds."$(CLOUD)"' $(YQIN) < <(cat ./clouds.yaml ~/.config/openstack/clouds.yaml /etc/openstack/clouds.yaml 2>/dev/null) > mycloud.$(CLOUD).yaml
+	@if [ -f "clouds.yaml" ]; then \
+        $(YQ) '.clouds."$(CLOUD)"' $(YQIN) < clouds.yaml > mycloud.$(CLOUD).yaml; \
+    elif [ -f "~/.config/openstack/clouds.yaml" ]; then \
+        $(YQ) '.clouds."$(CLOUD)"' $(YQIN) < ~/.config/openstack/clouds.yaml > mycloud.$(CLOUD).yaml; \
+    elif [ -f "/etc/openstack/clouds.yaml" ]; then \
+        $(YQ) '.clouds."$(CLOUD)"' $(YQIN) < /etc/openstack/clouds.yaml > mycloud.$(CLOUD).yaml; \
+    else \
+        echo "Error: clouds.yaml file not found in any location."; \
+        exit 1; \
+    fi
 
 gitchk:
 	@git diff -r origin/$(GITBRANCH) > git.diff
