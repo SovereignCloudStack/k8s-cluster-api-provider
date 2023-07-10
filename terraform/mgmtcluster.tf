@@ -86,15 +86,9 @@ EOF
 
 }
 
-#data "tls_certificate" "cacert" {
-#  count = contains(keys(local.clouds), "cacert") ? 1 : 0
-#  content = file(local.clouds["cacert"])
-#}
-
 resource "terraform_data" "cacert" {
   depends_on = [
-    openstack_compute_instance_v2.mgmtcluster_server,
-    #    data.tls_certificate.cacert
+    openstack_compute_instance_v2.mgmtcluster_server
   ]
 
   count = contains(keys(local.clouds), "cacert") ? 1 : 0
@@ -117,7 +111,6 @@ resource "terraform_data" "cacert" {
   }
 
   provisioner "file" {
-    #    content     = trimspace(data.tls_certificate.cacert[count.index].certificates[0]["cert_pem"])
     source      = local.clouds["cacert"]
     destination = "/home/${var.ssh_username}/cluster-defaults/${var.cloud_provider}-cacert"
   }
