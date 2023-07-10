@@ -64,6 +64,12 @@ else
   CCSI=cinder.yaml
 fi
 kubectl $KCONTEXT apply -f ~/$CLUSTER_NAME/deployed-manifests.d/cindercsi-snapshot.yaml || exit 8
+CACERT=$(print-cloud.py | yq eval '.clouds."'"$OS_CLOUD"'".cacert // "null"' -)
+if test "$CACERT" != "null"; then
+  CAMOUNT="/etc/ssl/certs" # see prepare_openstack.sh, CACERT is already injected in the k8s nodes
+  yq 'select(.metadata.name == "csi-cinder-*plugin").spec.template.spec.volumes += {"name": "cacert", "hostPath": {"path": "'"$CAMOUNT"'"}}' -i $CCSI
+  yq '(select(.metadata.name == "csi-cinder-*plugin").spec.template.spec.containers[] | select(.name == "cinder-csi-plugin").volumeMounts) += {"name": "cacert", "mountPath": "'"$CAMOUNT"'", "readOnly": true}' -i $CCSI
+fi
 sed "/ *\- name: CLUSTER_NAME/{n
 s/value: .*\$/value: ${CLUSTER_NAME}/
 }" $CCSI > ~/$CLUSTER_NAME/deployed-manifests.d/cindercsi.yaml
