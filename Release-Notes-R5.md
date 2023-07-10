@@ -45,3 +45,19 @@ deployed while it already did deploy the needed snapshot CRDs.
 The missing container has been added now ([#415](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/415))
 and snapshot functionality is validated using the check-csi CNCF/sonobuoy test.
 
+### Service and Pod CIDR
+
+The service and pod CIDR can now be configured in the environment / clusterctl.yaml file.
+The default values are:
+
+| environment    | clusterctl.yaml | default          | meaning                                         |
+|----------------|-----------------|------------------|-------------------------------------------------|
+| `pod_cidr`     | `POD_CIDR`      | `192.168.0.0/16` | IPv4 address range (CIDR notation) for pods     |
+| `service_cidr` | `SERVICE_CIDR`  | `10.96.0.0/12`   | IPv4 address range (CIDR notation) for services |
+
+This change is not backwards compatible. Template and cluster defaults have to be updated.
+
+As CAPO (CAPI OpenStack provider) does not support IPv6 yet, the IPv6 CIDR is not configurable.
+The PR
+[cluster-api-provider-openstack/#1557](https://github.com/kubernetes-sigs/cluster-api-provider-openstack/pull/1577)
+aims to add first parts needed for IPv6 support you can check the current progress there.

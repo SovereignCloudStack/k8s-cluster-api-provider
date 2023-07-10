@@ -7,7 +7,7 @@ metadata:
 spec:
   clusterNetwork:
     pods:
-      cidrBlocks: ["${POD_CIDR}"]    # CIDR block used by Calico.
+      cidrBlocks: ["${POD_CIDR}"]
     services:
       cidrBlocks: ["${SERVICE_CIDR}"]
     serviceDomain: "cluster.local"
