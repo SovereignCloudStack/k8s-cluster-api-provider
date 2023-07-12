@@ -1,0 +1,24 @@
+---
+- job:
+    name: testjob
+    run: playbooks/testjob.yaml
+    nodeset:
+      nodes:
+        - name: ubuntu-jammy
+          label: ubuntu-jammy
+- project:
+    name: SovereignCloudStack/k8s-cluster-api-provider
+    default-branch: main
+    merge-mode: "squash-merge"
+    check:
+      jobs:
+        - testjob
+    gate:
+      jobs:
+        - testjob
+    post:
+      jobs:
+        - testjob
+    tag:
+      jobs:
+        - testjob
