@@ -62,12 +62,12 @@ dry-run: init
 mycloud: environments/environment-$(ENVIRONMENT).tfvars
 	@if [ -f "clouds.yaml" ]; then \
         $(YQ) '.clouds."$(CLOUD)"' $(YQIN) < clouds.yaml > mycloud.$(CLOUD).yaml; \
-    elif [ -f "~/.config/openstack/clouds.yaml" ]; then \
-        $(YQ) '.clouds."$(CLOUD)"' $(YQIN) < ~/.config/openstack/clouds.yaml > mycloud.$(CLOUD).yaml; \
+    elif [ -f "${HOME}/.config/openstack/clouds.yaml" ]; then \
+        $(YQ) '.clouds."$(CLOUD)"' $(YQIN) < ${HOME}/.config/openstack/clouds.yaml > mycloud.$(CLOUD).yaml; \
     elif [ -f "/etc/openstack/clouds.yaml" ]; then \
         $(YQ) '.clouds."$(CLOUD)"' $(YQIN) < /etc/openstack/clouds.yaml > mycloud.$(CLOUD).yaml; \
     else \
-        echo "Error: clouds.yaml file not found in any location."; \
+        echo "Error clouds.yaml file not found in any location."; \
         exit 1; \
     fi
 
