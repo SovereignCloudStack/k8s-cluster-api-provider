@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# ./configure_containerd.sh cluster-template.yaml
+# ./configure_containerd.sh cluster-template.yaml $CLUSTER_NAME
 #
 # Script injects containerd registry host and cert files into $1 (cluster-template.yaml).
-# Script reads files located in directories $HOME/cluster-defaults/containerd/hosts and
-# $HOME/cluster-defaults/containerd/certs and then executes the following on each:
+# Script reads files located in directories $HOME/$CLUSTER_NAME/containerd/hosts and
+# $HOME/$CLUSTER_NAME/containerd/certs and then executes the following on each:
 #
 # - Composes full destination path of the file (i.e. path on cluster node). The full path is composed as follows:
 #   - Host file (file is stored in the `hosts.toml` file in the subdirectory created based on its filename):
@@ -25,16 +25,17 @@
 #   that specifies extra files to be passed to user_data upon creation of worker nodes.
 # - Removes temporary YAML file
 #
-# (c) Matej Feder, 06/2022
+# (c) Matej Feder, 06/2023
 # SPDX-License-Identifier: Apache-2.0
 
 if test -z "$1"; then echo "ERROR: Need cluster-template.yaml arg" 1>&2; exit 1; fi
+if test -z "$2"; then echo "ERROR: Need CLUSTER_NAME arg" 1>&2; exit 1; fi
 
 declare -a paths
 paths=("hosts" "certs")
 
 for path in "${paths[@]}"; do
-  for file in "$HOME"/cluster-defaults/containerd/"$path"/*; do
+  for file in "$HOME"/"$2"/containerd/"$path"/*; do
     export file
     if [ -f "$file" ]; then
 
