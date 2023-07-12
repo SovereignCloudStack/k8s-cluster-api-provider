@@ -1,0 +1,4 @@
+- hosts: all
+  tasks:
+    - debug:
+        msg: Hello world!777111222312312312
