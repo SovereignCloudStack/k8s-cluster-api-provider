@@ -24,12 +24,6 @@ Requirements for the deployment host:
   need significant manual work -- this will be improved after R4.)
 - An Environment file for the cloud you want to use. See [Environments](#environments) below for more details.
 
-> WARNING: The management server uses for access to the OpenStack API the same credentials as the Terraform script
-> uses to create the management server (As specified in `clouds.yml`).
-> This means that the management server can delete itself.
-> This also means that you should not use your personal credentials for the management server, but create a dedicated
-> service account for it.
-
 ## Environments
 
 To use a specific environment, you have to set the `ENVIRONMENT` variable (`export ENVIRONMENT=<yourcloud>`) or pass it
