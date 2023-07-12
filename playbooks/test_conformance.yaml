@@ -1,0 +1,38 @@
+---
+- name: Ensure project dependencies
+  hosts: all
+  roles:
+  - role: ensure-pip  # https://zuul-ci.org/docs/zuul-jobs/latest/python-roles.html#role-ensure-pip
+  - role: ensure-terraform  # https://zuul-ci.org/docs/zuul-jobs/latest/hashicorp-roles.html#role-ensure-terraform
+    vars:
+      terraform_version: "1.4.6"
+      terraform_install_dir: "/usr/bin/"
+  tasks:
+    - name: Install dependencies
+      pip:
+        name:
+          - python-openstackclient
+          - python-octaviaclient
+          - yq
+
+- name: Conformance test
+  hosts: all
+  vars:
+    project_src_dir: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}"
+    install_dir: "{{ ansible_user_dir }}/.local/bin"
+    terraform: "{{ install_dir }}/terraform"
+  tasks:
+    - debug:
+        msg: Hello world!
+    - debug:
+        msg: "{{ project_src_dir }}"
+    - name: Check TF
+      command: "terraform version"
+    - name: Check OS
+      command: "openstack --version"
+#    - name: Write clouds.yaml
+#      template:
+#        src: "templates/clouds.yaml.j2"
+#        dest: "{{ project_src_dir }}/terraform/cloud.yaml"
+#    - name: Cat clouds.yaml
+#      command: "cat {{ project_src_dir }}/terraform/cloud.yaml"
