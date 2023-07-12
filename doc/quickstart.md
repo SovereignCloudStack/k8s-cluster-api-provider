@@ -27,7 +27,7 @@ a [clouds.yaml](https://docs.openstack.org/python-openstackclient/latest/configu
 inside the `terraform` dir, in `~/.config/openstack` or `/etc/openstack`.
 
 It is recommended to set the name of the cloud in the `clouds.yml` to the same value as the `cloud_provider` in
-the `environment-<YOURCLOUD>.tfvars`, then you only have to specify the `ENVIRONMENT` variable.
+the `environment-<YOURCLOUD>.tfvars`, then you only have to specify the `ENVIRONMENT` or `OS_CLOUDS` variable.
 
 ## Create a test cluster
 
