@@ -3,14 +3,13 @@
 # This script is used to update to a new cluster template for a new cluster generation.
 # It will update a cluster-template.yaml and clusterctl.yaml file in the default cluster directory.
 
-CLUSTER_NAME="$1"
-if test -z "$CLUSTER_NAME"; then
+CLUSTER_PATH=$HOME/${1:-"cluster-defaults"}
+
+if test -z "$1"; then
   echo "Upgrading default configuration to R5..."
-  echo "Note: For update of existing clusters, please use: upgrade_to_r5.sh CLUSTER_PATH"
-  CLUSTER_PATH=$HOME/cluster-defaults/
+  echo "Note: For an update of existing clusters, please use: upgrade_to_r5.sh CLUSTER_PATH"
 else
-  echo "Upgrading $CLUSTER_NAME to R5..."
-  CLUSTER_PATH=$HOME/$CLUSTER_NAME
+  echo "Upgrading $1 to R5..."
 
   if [ -d "$CLUSTER_PATH" ]; then
     echo "Cluster found, continuing..."
