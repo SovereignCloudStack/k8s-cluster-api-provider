@@ -7,7 +7,7 @@ CLUSTER_PATH=$HOME/${1:-"cluster-defaults"}
 
 if test -z "$1"; then
   echo "Upgrading default configuration to R5..."
-  echo "Note: For an update of existing clusters, please use: upgrade_to_r5.sh CLUSTER_PATH"
+  echo "Note: For an update of existing clusters, please use: upgrade_to_r5.sh CLUSTER_NAME"
 else
   echo "Upgrading $1 to R5..."
 
