@@ -26,8 +26,8 @@ and development within the CAPI environment.
 > Note that ``make create`` will not create a testcluster if you have set ``controller_count`` to zero in your
 > environment file (``environment-<yourcloud>.tfvars``).
 
-> Note that ``make create`` does not copy local files to the management server. If you want to change any of the scripts
-> being copied to the management server, you need to commit and push your changes and run ``make create`` again.
+> Note that ``make create`` does not copy local files to the management server, only some files are templated there from the `terraform/files/template` directory. If you want to change any of the scripts
+> being copied to the management server, you need to commit, push your changes, and run ``make create`` again.
 > ``make create`` will pull the latest changes from the git repository.
 
 ### make get-kubeconfig
@@ -41,7 +41,9 @@ This will get the kubeconfig of the testcluster and store it in the file ``testc
 ``make ssh``
 
 This will ssh into the management server. You may need to set the ``USERNAME`` variable to the username you set
-in your ``environment-<yourcloud>.tfvars`` file. The default is ``ubuntu``.
+in your ``environment-<yourcloud>.tfvars`` file. The default in the environment file is ``ubuntu``.
+
+> Note: there is also an alias to this `make login`
 
 ### make openstack
 
@@ -102,10 +104,10 @@ Install it with ``python3 -m pip install git+https://git.openstack.org/openstack
 
 ### make check
 
-``make check``
+``make check SONOMODE=...``
 
 This will run tests of the configuration on testcluster using [sonobuoy](https://sonobuoy.io/). It will also download the results and
-print them to the console.
+print them to the console. Optionally you can also specify a mode by using for example `SONOMODE="--mode quick"`
 
 > Note: This runs over 5000 tests and takes a long time to complete (~ 2 hours).
 
@@ -153,7 +155,7 @@ and want to manage it with terraform.
 
 ### make detach
 
-``make detachRESOURCE=<resource-id> PARAMS=...``
+``make detach RESOURCE=<resource-id> PARAMS=...``
 
 This will detach a resource from the terraform state. This is useful if you have changed a resource outside of terraform
 or you no longer want to manage it with terraform.
