@@ -62,14 +62,14 @@ for path in "${paths[@]}"; do
       # see related YQ docs: https://mikefarah.gitbook.io/yq/operators/alternative-default-value#update-or-create-entity-does-not-exist
       file_cp_exist=$(yq 'select(.kind == "KubeadmControlPlane").spec.kubeadmConfigSpec | (.files // (.files = []))[] | select(.path == env(destination_path) + env(file_name))' "$1")
       if test -z "$file_cp_exist"; then
-        echo "Adding $file_name to the in KubeadmControlPlane files"
+        echo "Adding $file_name to the KubeadmControlPlane files"
         yq 'select(.kind == "KubeadmControlPlane").spec.kubeadmConfigSpec.files += [load("file_tmp")]' -i "$1"
       else
         echo "$file_name is already defined in KubeadmControlPlane files"
       fi
       file_ct_exist=$(yq 'select(.kind == "KubeadmConfigTemplate").spec.template.spec | (.files // (.files = []))[] | select(.path == env(destination_path) + env(file_name))' "$1")
       if test -z "$file_ct_exist"; then
-        echo "Adding $file_name to the in KubeadmConfigTemplate files"
+        echo "Adding $file_name to the KubeadmConfigTemplate files"
         yq 'select(.kind == "KubeadmConfigTemplate").spec.template.spec.files += [load("file_tmp")]' -i "$1"
       else
         echo "$file_name is already defined in KubeadmConfigTemplate files"
