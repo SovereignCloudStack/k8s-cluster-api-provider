@@ -30,9 +30,9 @@
       command: "terraform version"
     - name: Check OS
       command: "openstack --version"
-#    - name: Write clouds.yaml
-#      template:
-#        src: "templates/clouds.yaml.j2"
-#        dest: "{{ project_src_dir }}/terraform/cloud.yaml"
-#    - name: Cat clouds.yaml
-#      command: "cat {{ project_src_dir }}/terraform/cloud.yaml"
+    - name: Write clouds.yaml
+      template:
+        src: "templates/clouds.yaml.j2"
+        dest: "{{ project_src_dir }}/terraform/cloud.yaml"
+    - name: Cat clouds.yaml
+      command: "cat {{ project_src_dir }}/terraform/cloud.yaml"

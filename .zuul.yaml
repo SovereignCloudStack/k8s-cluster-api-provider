@@ -25,13 +25,6 @@
           Nsl5AnSR1dZD4lrPQC+oYlEbP/y16sMhG0b6QhzRZXG8P49cWgxQS8oUu8khd/dIA3obA
           nkIOjss8BWpLMCjDxulgbl8TXKua7Gzl1b/ryX2M8PJPMWTqEutri8oyTbv4wE=
 
-#+--------------+----------------------------------------------------------------------------------------+
-#| Field        | Value                                                                                  |
-#+--------------+----------------------------------------------------------------------------------------+
-#| id           | 8519293be0ea4f8aa16e199140af9425                                                       |
-#| roles        | reader creator load-balancer_member member heat_stack_owner                            |
-#| secret       | 5QCy6Ar-NSfpJJnuqssVzmupZfJRmJre7tbiEQ-H8mz3HNIVhOVD3bC-bGUX_n945DbZESbUBefCB22LNIbsmQ |
-#+--------------+----------------------------------------------------------------------------------------+
 # {{ openstack_appcred.id }} {{ openstack_appcred.secret }}
 #echo -n "super-secret" | \
 #  zuul-client --zuul-url https://zuul.scs.community encrypt \
@@ -51,6 +44,6 @@
         name: openstack_appcred
 
 - project:
-    gatek8scapi:
+    k8scapi:
       jobs:
         - test_conformance
