@@ -45,3 +45,9 @@ deployed while it already did deploy the needed snapshot CRDs.
 The missing container has been added now ([#415](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/415))
 and snapshot functionality is validated using the check-csi CNCF/sonobuoy test.
 
+### Custom CA
+From [#460](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/460), the k8s-cluster-api-provider supports situation
+when communication with OpenStack API is protected by the certificate issued by custom or private CA.
+All you have to do is provide `cacert` option in your clouds.yaml configuration file. Cacert will be copied
+to the management and workload cluster so provide only necessary certificates in that file.
+You can see an example and a more detailed explanation in the [docs](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/usage/custom-ca.md).
