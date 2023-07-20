@@ -166,7 +166,8 @@ if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
   if test "${USE_CILIUM:0:1}" = "v"; then
     CILIUM_VERSION="${USE_CILIUM}"
   fi
-  KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium install --version $CILIUM_VERSION
+  POD_CIDR=$(yq eval '.POD_CIDR' $CCCFG)
+  KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium install --version $CILIUM_VERSION --helm-set-string "ipam.operator.clusterPoolIPv4PodCIDRList={${POD_CIDR}}"
   touch ~/$CLUSTER_NAME/deployed-manifests.d/.cilium
 else
   CALICO_VERSION=$(yq eval '.CALICO_VERSION' $CCCFG)
