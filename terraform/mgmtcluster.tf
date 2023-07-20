@@ -221,6 +221,8 @@ resource "terraform_data" "mgmtcluster_bootstrap_files" {
       kube_image_raw                 = var.kube_image_raw,
       kubernetes_version             = var.kubernetes_version,
       node_cidr                      = var.node_cidr,
+      pod_cidr                       = var.pod_cidr,
+      service_cidr                   = var.service_cidr,
       prefix                         = var.prefix,
       restrict_kubeapi               = var.restrict_kubeapi
       use_cilium                     = var.use_cilium,

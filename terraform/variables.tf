@@ -109,6 +109,18 @@ variable "node_cidr" {
   default     = "10.8.0.0/20"
 }
 
+variable "pod_cidr" {
+  description = "network addresses (CIDR) for the k8s pods"
+  type        = string
+  default     = "192.168.0.0/16"
+}
+
+variable "service_cidr" {
+  description = "network addresses (CIDR) for the k8s services"
+  type        = string
+  default     = "10.96.0.0/12"
+}
+
 variable "deploy_metrics" {
   description = "deploy metrics service into k8s-capi created clusters"
   type        = bool
