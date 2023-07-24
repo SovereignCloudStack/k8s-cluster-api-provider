@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# ./configure_containerd.sh cluster-template.yaml
+# ./configure_containerd.sh cluster-template.yaml $CLUSTER_NAME
 #
 # Script injects containerd registry host and cert files into $1 (cluster-template.yaml).
-# Script reads files located in directories $HOME/cluster-defaults/containerd/hosts and
-# $HOME/cluster-defaults/containerd/certs and then executes the following on each:
+# Script reads files located in directories $HOME/$CLUSTER_NAME/containerd/hosts and
+# $HOME/$CLUSTER_NAME/containerd/certs and then executes the following on each:
 #
 # - Composes full destination path of the file (i.e. path on cluster node). The full path is composed as follows:
 #   - Host file (file is stored in the `hosts.toml` file in the subdirectory created based on its filename):
@@ -25,16 +25,17 @@
 #   that specifies extra files to be passed to user_data upon creation of worker nodes.
 # - Removes temporary YAML file
 #
-# (c) Matej Feder, 06/2022
+# (c) Matej Feder, 06/2023
 # SPDX-License-Identifier: Apache-2.0
 
 if test -z "$1"; then echo "ERROR: Need cluster-template.yaml arg" 1>&2; exit 1; fi
+if test -z "$2"; then echo "ERROR: Need CLUSTER_NAME arg" 1>&2; exit 1; fi
 
 declare -a paths
 paths=("hosts" "certs")
 
 for path in "${paths[@]}"; do
-  for file in "$HOME"/cluster-defaults/containerd/"$path"/*; do
+  for file in "$HOME"/"$2"/containerd/"$path"/*; do
     export file
     if [ -f "$file" ]; then
 
@@ -56,10 +57,23 @@ for path in "${paths[@]}"; do
         .permissions = "0644" |
         .content = loadstr(env(file))
         ' > file_tmp
-
-      yq 'select(.kind == "KubeadmControlPlane").spec.kubeadmConfigSpec.files += [load("file_tmp")]' -i "$1"
-      yq 'select(.kind == "KubeadmConfigTemplate").spec.template.spec.files += [load("file_tmp")]' -i "$1"
-
+      # Evaluate whether the file is already present in the cluster-template.yaml.
+      # YAML key `files` is not mandatory therefore it should be added as an empty array to ensure that the whole evaluation will work as expected,
+      # see related YQ docs: https://mikefarah.gitbook.io/yq/operators/alternative-default-value#update-or-create-entity-does-not-exist
+      file_cp_exist=$(yq 'select(.kind == "KubeadmControlPlane").spec.kubeadmConfigSpec | (.files // (.files = []))[] | select(.path == env(destination_path) + env(file_name))' "$1")
+      if test -z "$file_cp_exist"; then
+        echo "Adding $file_name to the KubeadmControlPlane files"
+        yq 'select(.kind == "KubeadmControlPlane").spec.kubeadmConfigSpec.files += [load("file_tmp")]' -i "$1"
+      else
+        echo "$file_name is already defined in KubeadmControlPlane files"
+      fi
+      file_ct_exist=$(yq 'select(.kind == "KubeadmConfigTemplate").spec.template.spec | (.files // (.files = []))[] | select(.path == env(destination_path) + env(file_name))' "$1")
+      if test -z "$file_ct_exist"; then
+        echo "Adding $file_name to the KubeadmConfigTemplate files"
+        yq 'select(.kind == "KubeadmConfigTemplate").spec.template.spec.files += [load("file_tmp")]' -i "$1"
+      else
+        echo "$file_name is already defined in KubeadmConfigTemplate files"
+      fi
       rm file_tmp
     fi
   done
