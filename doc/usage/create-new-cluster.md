@@ -18,4 +18,5 @@ or `KUBECONFIG=~/clustername/clustername.yaml kubectl`.
 
 The management cluster is in context `kind-kind`.
 
-Note that you can always change `clusterctl.yaml` and re-run `create_cluster.sh`. The script is idempotent and running it multiple times with the unchanged input file will result in no changes to the cluster.
+Note that you can always change `clusterctl.yaml` and re-run `create_cluster.sh`. The script is idempotent and running
+it multiple times with the unchanged input file will result in no changes to the cluster.

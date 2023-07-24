@@ -27,6 +27,17 @@ executing of bootstrap script, etc. has been updated and validated.
 
 ## New features
 
+### Ubuntu 22.04
+We upgraded capi management server to the 22.04 LTS release in the R4.
+Now [#434](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/434),
+we upgraded also images which are used for the k8s control plane and worker nodes.
+Before the upgrade, testing [#409](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/409)
+was done and revealed two additional problems.
+Both problems were investigated, fixes were introduced to the upstream
+and were successfully merged [kubernetes-sigs/image-builder/#1146](https://github.com/kubernetes-sigs/image-builder/pull/1146),
+[kubernetes-sigs/image-builder/#1182](https://github.com/kubernetes-sigs/image-builder/pull/1182).
+The Ubuntu 22.04 LTS node images are available starting from k8s version 1.25.11, 1.26.6 and 1.27.3.
+
 ### Storage snapshots
 The CSI driver deployed with SCS (in R4) did not have the needed snapshot-controller
 container ([#408](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/408))
@@ -34,3 +45,19 @@ deployed while it already did deploy the needed snapshot CRDs.
 The missing container has been added now ([#415](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/415))
 and snapshot functionality is validated using the check-csi CNCF/sonobuoy test.
 
+### Service and Pod CIDR
+
+The service and pod CIDR can now be configured in the environment / clusterctl.yaml file.
+The default values are:
+
+| environment    | clusterctl.yaml | default          | meaning                                         |
+|----------------|-----------------|------------------|-------------------------------------------------|
+| `pod_cidr`     | `POD_CIDR`      | `192.168.0.0/16` | IPv4 address range (CIDR notation) for pods     |
+| `service_cidr` | `SERVICE_CIDR`  | `10.96.0.0/12`   | IPv4 address range (CIDR notation) for services |
+
+This change is not backwards compatible. Template and cluster defaults have to be updated.
+
+As CAPO (CAPI OpenStack provider) does not support IPv6 yet, the IPv6 CIDR is not configurable.
+The PR
+[cluster-api-provider-openstack/#1557](https://github.com/kubernetes-sigs/cluster-api-provider-openstack/pull/1577)
+aims to add first parts needed for IPv6 support you can check the current progress there.

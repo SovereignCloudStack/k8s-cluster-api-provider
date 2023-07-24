@@ -3,7 +3,7 @@
 # (c) Kurt Garloff <kurt@garloff.de>, 3/2022
 # SPDX-License-Identifier: Apache-2.0
 # Images from https://minio.services.osism.tech/openstack-k8s-capi-images
-k8s_versions=("v1.18.20" "v1.19.16" "v1.20.15" "v1.21.14" "v1.22.17" "v1.23.16" "v1.24.15" "v1.25.11" "v1.26.6" "v1.27.2")
+k8s_versions=("v1.18.20" "v1.19.16" "v1.20.15" "v1.21.14" "v1.22.17" "v1.23.16" "v1.24.15" "v1.25.11" "v1.26.6" "v1.27.3")
 # OCCM, CCM-RBAC, Cinder CSI, Cinder-Snapshot (TODO: Manila CSI)
 occm_versions=(""         ""       "v1.21.1"   "v1.21.1"  "v1.22.2"  "v1.23.4"  "v1.24.6" "v1.25.6" "v1.26.3" "v1.27.1")
 #ccmr_versions=(""         ""        ""         ""         "v1.22.2"  "v1.23.4"  "v1.24.6" "v1.25.6" "v1.26.3" "v1.27.1")
@@ -11,7 +11,7 @@ ccmr_versions=(""         ""        "v1.22.2"  "v1.22.2"  "v1.22.2"  "v1.23.4"  
 ccsi_versions=(""         ""        "v1.20.5"  "v1.21.1"  "v1.22.2"  "v1.23.4"  "v1.24.6" "v1.25.6" "v1.26.3" "v1.27.1")
 min_snapshot_master="v1.21.0"
 # Versions that require a --allow-preview-versions flag
-techprev_versions=("v1.27" "v2")
+techprev_versions=("v2")
 
 # Convert vxx.yy.zz to the number xxyyzz. Also works for z.y.z (0x0y0z).
 dotversion()
