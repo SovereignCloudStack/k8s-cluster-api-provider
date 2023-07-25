@@ -1,0 +1,7 @@
+---
+jq_version: "1.6"
+yq_version: "4.34.2"
+openstackclient_version: "6.2.0"
+octaviaclient_version: "3.4.0"
+tf_version: "1.4.6"
+tf_install_dir: "/usr/bin/"

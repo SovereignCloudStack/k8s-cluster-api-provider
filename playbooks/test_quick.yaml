@@ -11,7 +11,7 @@
   environment:
     ENVIRONMENT: "{{ cloud_provider }}"
   tasks:
-   - name: Create k8s cluster and run check-conformance
+   - name: Create k8s cluster and run check-quick
      block:
      - name: Create environment file
        template:
@@ -21,8 +21,8 @@
        command: "make create"
        args:
          chdir: "{{ project_tf_dir }}"
-     - name: Execute sonobouy conformance conformance
-       command: "make check-conformance"
+     - name: Execute sonobouy quick check
+       command: "make check-quick"
        args:
          chdir: "{{ project_tf_dir }}"
      always:

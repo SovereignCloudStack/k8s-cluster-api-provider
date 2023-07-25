@@ -1,49 +1,25 @@
 ---
-- secret:
-    name: openstack-application-credential
-    data:
-      id: !encrypted/pkcs1-oaep
-        - PXCgb9d3a5rJUd8zlA/JlIpVDEvwolpLSweEj4Rdwg/wTFO6am+DtyeVbTWYdPx7qWI1M
-          Tu5jxUI21QE9XrLEyDpSisbFQGbHL3ZPL8OrqL4eFPrQPRY+9jA2/kpJrdM2wmiRubc0V
-          HoBBs3mwN4Tnkwj/L6q+8FLOxMcR51TFbWLAqGmhJ8clS7fzgpls8ftRrLAKybA/fmrca
-          7o8nd5oXFANsRi4ZOIWbnT6JPNIg0ao9s337MBHoXWBzqLVY6BfDkVUIY2qLbmcspnHYs
-          HfvPdPBKlXgnxf0honFFDPpFHQ4+/bKUjeQph1Q7Mo4nzoRO+BwWvsdcQPOoi9FV2q1oF
-          QqahcHduy79h9lC2pkjzeMNn61mXo9dny6TmahOUxvFacXYmOQuXeWyr9pnZ/oVLpzHwj
-          ManGhpwY6fovtNwAQIdypEqnnEZlcOJEwsEhaAtvtOE8q42Yj1JY+mxPk7P52O2GROkar
-          qJBTX+ooEMM8KloL+O3hlv3oPotu+Dw/zu8h1b7Gi+HfmxQc1C+EmAELlseLl/YaeaDWo
-          6F7GTjPkNjXjXU7HezYp1ECvOSCcN7+pl5M+zlVv8Gzwr0N8Wo6C0dImsa/12gXjNIXbT
-          n8T3Bsdy4nDAER4HjBgHcbcT9Km4BjwPyYAXgSR8CkYW2s1466TBuGqmjNX2g8=
-      secret: !encrypted/pkcs1-oaep
-        - HqHj10VK4APlhGw5/IKJkgkmR/PPb1breU6mIpmDpSWBNEwI9ReiwWv3iXxLElT0Ri+wq
-          zwp5w4cy64T7g92fZJXFWjwWBuhHmilatK2djfLopJaN52HWVhUzkvKebNbF7Y8l5hgVc
-          yPxPwn9Z0xGxdGOLFY+06USlrqS3XIZqGcBuY9BGAFOQwIotp3USUV9VgN4N9S1L9jUFc
-          H4Jddlyz/pS17iPve4TiNJQbaiZql/jPjxjojpaejKjnGF1R81onuCbsuOQR1B2BQBPx2
-          TZGUTqQEahr/EOeujw05YGpJmCp3mvYaazv113owC27dW044pLS6niILaaG6uf36sw6oT
-          OXHiuyPKkeE6/uNkZ58h5KRWQTAKEChAmEUpSlfdR2G2uY6ngABywaCR8IUjwg1oGi02x
-          gFSwh0ECUoGs5hfQmQ2vaobWSAcCSeehKM7ti8tce/PKcV76XCzj6SIp50sWXwBZNtldR
-          pXbLx1xCygfUacyUtl3IwP9CEnhLgPF5aR09SFVuHociS/CiJOGKzqNn0x4gen8qvAuJ4
-          Nsl5AnSR1dZD4lrPQC+oYlEbP/y16sMhG0b6QhzRZXG8P49cWgxQS8oUu8khd/dIA3obA
-          nkIOjss8BWpLMCjDxulgbl8TXKua7Gzl1b/ryX2M8PJPMWTqEutri8oyTbv4wE=
-
-# {{ openstack_appcred.id }} {{ openstack_appcred.secret }}
-#echo -n "super-secret" | \
-#  zuul-client --zuul-url https://zuul.scs.community encrypt \
-#  --tenant SCS \
-#  --project github.com/SovereignCloudStack/k8s-cluster-api-provider
-
 - job:
     name: test_conformance
-    parent: base
+    parent: openstack-access-base
     description: |
       Run tests of the configuration on test Kubernetes cluster using 
       [sonobuoy](https://sonobuoy.io/) with mode conformance meaning 
       it will test if the Kubernetes cluster is conformant to the CNCF.
     run: playbooks/test_conformance.yaml
-    secrets:
-      - secret: openstack-application-credential
-        name: openstack_appcred
+
+- job:
+    name: test_quick
+    parent: openstack-access-base
+    description: |
+      Run tests of the configuration on test Kubernetes cluster using 
+      [sonobuoy](https://sonobuoy.io/) with mode quick.
+    run: playbooks/test_quick.yaml
 
 - project:
-    k8scapi:
+    e2e-conformance:
       jobs:
         - test_conformance
+    e2e-quick:
+      jobs:
+        - test_quick
