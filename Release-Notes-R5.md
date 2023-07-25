@@ -51,3 +51,19 @@ when communication with OpenStack API is protected by the certificate issued by 
 All you have to do is provide `cacert` option in your clouds.yaml configuration file. Cacert will be copied
 to the management and workload cluster so provide only necessary certificates in that file.
 You can see an example and a more detailed explanation in the [docs](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/usage/custom-ca.md).
+
+### Service and Pod CIDR
+The service and pod CIDR can now be configured in the environment / clusterctl.yaml file.
+The default values are:
+
+| environment    | clusterctl.yaml | default          | meaning                                         |
+|----------------|-----------------|------------------|-------------------------------------------------|
+| `pod_cidr`     | `POD_CIDR`      | `192.168.0.0/16` | IPv4 address range (CIDR notation) for pods     |
+| `service_cidr` | `SERVICE_CIDR`  | `10.96.0.0/12`   | IPv4 address range (CIDR notation) for services |
+
+This change is not backwards compatible. Template and cluster defaults have to be updated.
+
+As CAPO (CAPI OpenStack provider) does not support IPv6 yet, the IPv6 CIDR is not configurable.
+The PR
+[cluster-api-provider-openstack/#1557](https://github.com/kubernetes-sigs/cluster-api-provider-openstack/pull/1577)
+aims to add first parts needed for IPv6 support you can check the current progress there.

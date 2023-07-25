@@ -11,10 +11,12 @@ The provenance capo means that this setting comes from the templates used by
 the cluster-api-provider-openstack, while SCS denotes that this setting has
 been added by the SCS project.
 
+### Parameters CAPI management server
+
 Parameters controlling the Cluster-API management server (capi management server) creation:
 
 | environment              | clusterctl.yaml | provenance | default           | meaning                                                                       |
-| ------------------------ | --------------- | ---------- | ----------------- | ----------------------------------------------------------------------------- |
+|--------------------------|-----------------|------------|-------------------|-------------------------------------------------------------------------------|
 | `prefix`                 |                 | SCS        | `capi`            | Prefix used for OpenStack resources for the capi mgmt node                    |
 | `kind_flavor`            |                 | SCS        | `SCS-1V-4-20`     | Flavor to be used for the k8s capi mgmt server                                |
 | `image`                  |                 | SCS        | `Ubuntu 22.04`    | Image to be deployed for the capi mgmt server                                 |
@@ -23,21 +25,27 @@ Parameters controlling the Cluster-API management server (capi management server
 | `capi_openstack_version` |                 | SCS        | `0.7.3`           | Version of the cluster-api-provider-openstack (needs to fit the CAPI version) |
 | `cilium_binaries`        |                 | SCS        | `v0.13.2;v0.11.6` | Versions of the cilium and hubble CLI in the vA.B.C;vX.Y.Z format             |
 
+### Common parameters management server and clusters
+
 Parameters controlling both management server creation and cluster creation:
 
 | environment         | clusterctl.yaml                 | provenance | default                              | meaning                                                                                                                      |
-| ------------------- | ------------------------------- | ---------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+|---------------------|---------------------------------|------------|--------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
 | `cloud_provider`    | `OPENSTACK_CLOUD`               | capo       |                                      | `OS_CLOUD` name in clouds.yaml                                                                                               |
 | `external`          | `OPENSTACK_EXTERNAL_NETWORK_ID` | capo       |                                      | Name/ID of the external (public) OpenStack network                                                                           |
 | `dns_nameservers`   | `OPENSTACK_DNS_NAMESERVERS`     | capo       | `[ "5.1.66.255", "185.150.99.255" ]` | Array of nameservers for capi mgmt server and for cluster nodes, replace the FF MUC defaults with local servers if available |
 | `availability_zone` | `OPENSTACK_FAILURE_DOMAIN`      | capo       |                                      | Availability Zone(s) for the mgmt node / workload clusters                                                                   |
 | `kind_mtu`          | `MTU_VALUE`                     | SCS        | `0`                                  | MTU for the mgmt server; Calico is set 50 bytes smaller; 0 means autodetection                                               |
 
+### Parameters clusters
+
 Parameters controlling the cluster creation:
 
 | environment                      | clusterctl.yaml                                 | provenance | default                                                  | meaning                                                                                                                                                                                                    |
 |----------------------------------|-------------------------------------------------|------------|----------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `node_cidr`                      | `NODE_CIDR`                                     | SCS        | `10.8.0.0/20`                                            | IPv4 address range (CIDR notation) for workload nodes                                                                                                                                                      |
+| `pod_cidr`                       | `POD_CIDR`                                      | SCS        | `192.168.0.0/16`                                         | IPv4 address range (CIDR notation) for pods                                                                                                                                                                |
+| `service_cidr`                   | `SERVICE_CIDR`                                  | SCS        | `10.96.0.0/12`                                           | IPv4 address range (CIDR notation) for services                                                                                                                                                            |
 | `use_cilium`                     | `USE_CILIUM`                                    | SCS        | `false`                                                  | Use cilium as CNI instead of calico, it can be set to vX.Y.Z and `true` results in `v1.13.3`                                                                                                               |
 | `calico_version`                 | `CALICO_VERSION`                                | SCS        | `v3.25.1`                                                | Version of the Calico CNI provider (ignored if `use_cilium` is set)                                                                                                                                        |
 | `kubernetes_version`             | `KUBERNETES_VERSION`                            | capo       | `v1.25.x`                                                | Kubernetes version deployed into workload cluster (`.x` means latest patch release)                                                                                                                        |
