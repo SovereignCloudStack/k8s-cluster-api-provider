@@ -60,7 +60,16 @@ dry-run: init
 	terraform plan -var-file="environments/environment-$(ENVIRONMENT).tfvars" -var "git_branch=$(GITBRANCH)" $(PARAMS)
 
 mycloud: environments/environment-$(ENVIRONMENT).tfvars
-	@$(YQ) '.clouds."$(CLOUD)"' $(YQIN) < <(cat ./clouds.yaml ~/.config/openstack/clouds.yaml /etc/openstack/clouds.yaml 2>/dev/null) > mycloud.$(CLOUD).yaml
+	@if [ -f "clouds.yaml" ]; then \
+        $(YQ) '.clouds."$(CLOUD)"' $(YQIN) < clouds.yaml > mycloud.$(CLOUD).yaml; \
+    elif [ -f "${HOME}/.config/openstack/clouds.yaml" ]; then \
+        $(YQ) '.clouds."$(CLOUD)"' $(YQIN) < ${HOME}/.config/openstack/clouds.yaml > mycloud.$(CLOUD).yaml; \
+    elif [ -f "/etc/openstack/clouds.yaml" ]; then \
+        $(YQ) '.clouds."$(CLOUD)"' $(YQIN) < /etc/openstack/clouds.yaml > mycloud.$(CLOUD).yaml; \
+    else \
+        echo "Error clouds.yaml file not found in any location."; \
+        exit 1; \
+    fi
 
 gitchk:
 	@git diff -r origin/$(GITBRANCH) > git.diff
@@ -81,7 +90,7 @@ clean: init
 	terraform workspace delete $(ENVIRONMENT)
 	@if test -e ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); then source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); ssh-keygen -R $$MGMTCLUSTER_ADDRESS -f ~/.ssh/known_hosts; fi
 	@rm -f .deploy.$(ENVIRONMENT) .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT) mycloud.$(ENVIRONMENT).yaml
-	@rm -f .kubeconfig.$(ENVIRONMENT) $(TESTCLUSTER).yaml.$(ENVINRONMENT) clusterctl.$(TESTCLUSTER).yaml.$(ENVIRONMENT) .yaml.$(ENVIRONMENT) $(TESTCLUSTER)-config.yaml.$(ENVIRONMENT)
+	@rm -f .kubeconfig.$(ENVIRONMENT) $(TESTCLUSTER).yaml.$(ENVIRONMENT) clusterctl.$(TESTCLUSTER).yaml.$(ENVIRONMENT) $(TESTCLUSTER)-config.yaml.$(ENVIRONMENT)
 
 fullclean:
 	prefix=$$(grep '^prefix *=' environments/environment-${ENVIRONMENT}.tfvars | $(SED) -e 's/^[^=]*= *//' -e 's/"//g'); \
@@ -199,6 +208,6 @@ openstack: init
 k9s: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
 	ssh -t -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS \
-	"KUBECONFIG=/home/ubuntu/.kube/config.yaml:/home/ubuntu/$(TESTCLUSTER)/$(TESTCLUSTER).yaml k9s --all-namespaces"
+	"KUBECONFIG=/home/$(USERNAME)/.kube/config:/home/$(USERNAME)/$(TESTCLUSTER)/$(TESTCLUSTER).yaml k9s --all-namespaces"
 
-PHONY: clean console attach detach ssh dry-run list deploy watch openstack create log console login k9s mycloud gitchk
+PHONY: clean attach detach ssh dry-run list deploy watch openstack create log console login k9s mycloud gitchk
