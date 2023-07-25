@@ -36,3 +36,5 @@
         dest: "{{ project_src_dir }}/terraform/cloud.yaml"
     - name: Cat clouds.yaml
       command: "cat {{ project_src_dir }}/terraform/cloud.yaml"
+    - debug:
+        msg: Hello another commit!
