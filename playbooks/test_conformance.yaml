@@ -38,3 +38,5 @@
       command: "cat {{ project_src_dir }}/terraform/cloud.yaml"
     - debug:
         msg: Hello another commit!
+    - debug:
+        msg: Hello another commit!
