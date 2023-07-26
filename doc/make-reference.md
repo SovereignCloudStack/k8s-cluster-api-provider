@@ -40,8 +40,7 @@ This will get the kubeconfig of the testcluster and store it in the file ``testc
 
 ``make ssh``
 
-This will ssh into the management server. You may need to set the ``USERNAME`` variable to the username you set
-in your ``environment-<yourcloud>.tfvars`` file. The default in the environment file is ``ubuntu``.
+This will ssh into the management server, using the username that was set in your ``environment-<yourcloud>.tfvars``file. The default in the environment file is ``ubuntu``.
 
 > Note: there is also an alias to this `make login`
 
