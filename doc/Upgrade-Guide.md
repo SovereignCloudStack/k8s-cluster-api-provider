@@ -201,6 +201,12 @@ Just increase the generation counter for node and control plane nodes if you
 upgrade k8s versions -- or otherwise change the worker or control plane
 node specs, such as e.g. using a different flavor.
 
+##### R4 to R5
+
+In R4 to R5, the `cluster-template.yaml` and `clusterctl.yaml` changed (see release notes).
+
+You can use script `update_to_r5.sh` to update the default `cluster-template.yaml` and `clusterctl.yaml`.
+
 #### New defaults
 
 You deploy a CNI (calico or cilium), the OpenStack Cloud Controller

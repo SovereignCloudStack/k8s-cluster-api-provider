@@ -101,6 +101,20 @@ runcmd:
   - apt -y install docker.io yamllint qemu-utils
 EOF
 
+}
+
+resource "terraform_data" "mgmtcluster_containerd_registry_host_files" {
+  depends_on = [
+    openstack_compute_instance_v2.mgmtcluster_server
+  ]
+
+  for_each = toset(var.containerd_registry_files["hosts"])
+
+  triggers_replace = [
+    openstack_networking_floatingip_v2.mgmtcluster_floatingip.address,
+    file(each.key)
+  ]
+
   connection {
     host        = openstack_networking_floatingip_v2.mgmtcluster_floatingip.address
     private_key = openstack_compute_keypair_v2.keypair.private_key
@@ -109,8 +123,66 @@ EOF
 
   provisioner "remote-exec" {
     inline = [
-      "mkdir -p /home/${var.ssh_username}/.config/openstack",
-      "mkdir -p /home/${var.ssh_username}/cluster-defaults",
+      "mkdir -p /home/${var.ssh_username}/cluster-defaults/containerd/hosts"
+    ]
+  }
+
+  provisioner "file" {
+    source      = each.key
+    destination = "/home/${var.ssh_username}/cluster-defaults/containerd/hosts/${basename(each.key)}"
+  }
+}
+
+resource "terraform_data" "mgmtcluster_containerd_registry_cert_files" {
+  depends_on = [
+    openstack_compute_instance_v2.mgmtcluster_server
+  ]
+
+  for_each = toset(var.containerd_registry_files["certs"])
+
+  triggers_replace = [
+    openstack_networking_floatingip_v2.mgmtcluster_floatingip.address,
+    file(each.key)
+  ]
+
+  connection {
+    host        = openstack_networking_floatingip_v2.mgmtcluster_floatingip.address
+    private_key = openstack_compute_keypair_v2.keypair.private_key
+    user        = var.ssh_username
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir -p /home/${var.ssh_username}/cluster-defaults/containerd/certs"
+    ]
+  }
+
+  provisioner "file" {
+    source      = each.key
+    destination = "/home/${var.ssh_username}/cluster-defaults/containerd/certs/${basename(each.key)}"
+  }
+}
+
+resource "terraform_data" "mgmtcluster_bootstrap_files" {
+  depends_on = [
+    openstack_compute_instance_v2.mgmtcluster_server,
+    terraform_data.mgmtcluster_containerd_registry_host_files,
+    terraform_data.mgmtcluster_containerd_registry_cert_files
+  ]
+
+  triggers_replace = [
+    openstack_networking_floatingip_v2.mgmtcluster_floatingip.address
+  ]
+
+  connection {
+    host        = openstack_networking_floatingip_v2.mgmtcluster_floatingip.address
+    private_key = openstack_compute_keypair_v2.keypair.private_key
+    user        = var.ssh_username
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir -p /home/${var.ssh_username}/.config/openstack"
     ]
   }
 
@@ -166,6 +238,8 @@ EOF
       kube_image_raw                 = var.kube_image_raw,
       kubernetes_version             = var.kubernetes_version,
       node_cidr                      = var.node_cidr,
+      pod_cidr                       = var.pod_cidr,
+      service_cidr                   = var.service_cidr,
       prefix                         = var.prefix,
       restrict_kubeapi               = var.restrict_kubeapi
       use_cilium                     = var.use_cilium,

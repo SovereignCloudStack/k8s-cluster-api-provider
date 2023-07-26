@@ -111,6 +111,18 @@ variable "node_cidr" {
   default     = "10.8.0.0/20"
 }
 
+variable "pod_cidr" {
+  description = "network addresses (CIDR) for the k8s pods"
+  type        = string
+  default     = "192.168.0.0/16"
+}
+
+variable "service_cidr" {
+  description = "network addresses (CIDR) for the k8s services"
+  type        = string
+  default     = "10.96.0.0/12"
+}
+
 variable "deploy_metrics" {
   description = "deploy metrics service into k8s-capi created clusters"
   type        = bool
@@ -216,4 +228,25 @@ variable "capo_instance_create_timeout" {
   description = "time to wait for an openstack machine to be created (in minutes)"
   type        = number
   default     = 5
+}
+
+variable "containerd_registry_files" {
+  type = object({
+    hosts = optional(set(string), ["./files/containerd/docker.io"]),
+    certs = optional(set(string), [])
+  })
+  description = <<EOF
+    containerd registry host config files referenced by attributes `hosts` and `certs`.
+    Attributes:
+      hosts (set): Additional registry host config files for containerd. The filename should
+        reference the registry host namespace. Files defined in this set will be copied into the `/etc/containerd/certs.d`
+        directory on each cluster node. The default `docker.io` registry host file instructs containerd to use
+        `registry.scs.community` container registry instance as a public mirror of DockerHub container registry.
+      certs (set): Additional client and/or CA certificate files needed for containerd authentication against
+        registries defined in `hosts`. Files defined in this set will be copied into the `/etc/containerd/certs`
+        directory on each cluster node.
+
+    visit containerd docs for further details on how to configure registry hosts https://github.com/containerd/containerd/blob/main/docs/hosts.md
+    EOF
+  default     = {}
 }
