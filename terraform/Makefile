@@ -8,7 +8,6 @@ SHELL=/bin/bash
 SED ?= sed
 #ENVIRONMENT = gx-bc
 OPENSTACK ?= openstack
-USERNAME ?= ubuntu
 CONSOLE = capi-mgmtcluster
 #TESTCLUSTER ?= testcluster
 
@@ -19,6 +18,7 @@ ifeq ($(NEED_OSCLOUD),1)
 else
   ENVIRONMENT ?= $(OS_CLOUD)
 endif
+USERNAME=$(shell ( grep '^ssh_username' environments/environment-$(ENVIRONMENT).tfvars || echo ubuntu ) | $(SED) 's@^ssh_username[^=]*= *"*\([^"]*\).*$$@\1@' )
 
 # if enabled, use s3 for remote terraform state
 ifneq (,$(wildcard ./minio.env))
