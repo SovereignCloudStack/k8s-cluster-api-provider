@@ -66,7 +66,7 @@ resource "openstack_networking_subnet_v2" "subnet_mgmt" {
 }
 
 data "openstack_networking_network_v2" "external" {
-  name = var.external
+  name = var.external != "" ? var.external : data.openstack_networking_network_v2.extnet.name
 }
 
 resource "openstack_networking_router_v2" "router_mgmt" {
