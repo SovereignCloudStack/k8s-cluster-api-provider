@@ -1,4 +1,4 @@
-# a working set for OpenStack
+# a working set for regiocloud
 #
 cloud_provider       = "regio"
 availability_zone    = "nova"
