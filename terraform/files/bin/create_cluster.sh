@@ -91,6 +91,9 @@ if test "$CONTROL_PLANE_MACHINE_COUNT" -gt 0 &&  grep '^ *OPENSTACK_ANTI_AFFINIT
 	fi
 fi
 
+# Check that the flavors exist and allocate volumes if needed
+fixup_flavor_volumes.sh "$CCCFG" "${CLUSTERAPI_TEMPLATE}" || exit 2
+
 cp -p "$CCCFG" $HOME/.cluster-api/clusterctl.yaml
 KCCCFG="--config $CCCFG"
 #clusterctl $KCCCFG config cluster ${CLUSTER_NAME} --list-variables --from ${CLUSTERAPI_TEMPLATE}
