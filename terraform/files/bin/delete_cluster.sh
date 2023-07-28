@@ -7,7 +7,8 @@ export KUBECONFIG=~/.kube/config
 . ~/.capi-settings
 . ~/bin/cccfg.inc
 
-kubectl config use-context kind-kind
+kubectl config set-context kind-kind --namespace $CLUSTER_NAME || exit 1
+kubectl config use-context kind-kind || exit 1
 echo "Deleting cluster $CLUSTER_NAME"
 # Delete workload pods (default namespace)
 PODS=$(kubectl $KCONTEXT get pods | grep -v '^NAME' | awk '{ print $1; }')
@@ -66,6 +67,7 @@ if test $RC != 0; then
 	# Non existent cluster means success
 	if ! kubectl get cluster "$CLUSTER_NAME"; then RC=0; fi
 fi
+kubectl delete namespace "$CLUSTER_NAME"
 # TODO: Clean up machine templates etc.
 # Clean up appcred stuff (for new style appcred mgmt)
 if grep '^OLD_OPENSTACK_CLOUD:' $CCCFG >/dev/null 2>&1; then

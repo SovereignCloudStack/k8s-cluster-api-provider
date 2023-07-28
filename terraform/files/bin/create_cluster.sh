@@ -35,6 +35,9 @@ fi
 CCCFG="$HOME/${CLUSTER_NAME}/clusterctl.yaml"
 fixup_k8s_version.sh $CCCFG || exit 1
 
+kubectl config use-context kind-kind || exit 1
+kubectl create namespace $CLUSTER_NAME || exit 1
+
 # Add containerd registry host and cert files
 configure_containerd.sh $CLUSTERAPI_TEMPLATE $CLUSTER_NAME || exit 1
 # Handle wanted OVN loadbalancer
@@ -51,6 +54,7 @@ wait_capi_image.sh "$1" || exit 1
 
 # Switch to capi mgmt cluster
 export KUBECONFIG=$HOME/.kube/config
+kubectl config set-context kind-kind --namespace $CLUSTER_NAME || exit 1
 kubectl config use-context kind-kind || exit 1
 # get the needed clusterapi-variables
 echo "# show used variables for clustertemplate ${CLUSTERAPI_TEMPLATE}"
@@ -104,7 +108,7 @@ echo "# rendering clusterconfig from template"
 unset CLUSTER_EXISTS
 if test -e ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml; then
 	echo " Overwriting config for ${CLUSTER_NAME}"
-	CLUSTERS=$(kubectl get clusters | grep -v '^NAME' | grep "^$CLUSTER_NAME " | awk '{ print $1; }')
+	CLUSTERS=$(kubectl get clusters --all-namespace | grep -v '^NAME' | grep "^$CLUSTER_NAME " | awk '{ print $1; }')
 	if test -n "$CLUSTERS"; then
 		export CLUSTER_EXISTS=1
 		echo -e " Warning: Cluster exists\n Hit ^C to interrupt"
@@ -215,7 +219,8 @@ if test "$DEPLOY_NGINX_INGRESS" = "true" -o "${DEPLOY_NGINX_INGRESS:0:1}" = "v";
 fi
 
 echo "# Wait for control plane of ${CLUSTER_NAME}"
-kubectl config use-context kind-kind
+kubectl config set-context kind-kind --namespace $CLUSTER_NAME || exit 1
+kubectl config use-context kind-kind || exit 1
 kubectl wait --timeout=20m cluster "${CLUSTER_NAME}" --for=condition=Ready || exit 10
 #kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
 if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then

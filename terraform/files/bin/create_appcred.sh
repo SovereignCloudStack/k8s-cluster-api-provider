@@ -9,6 +9,7 @@
 # 
 #Determine whether we need a new application credential
 export KUBECONFIG=$HOME/.kube/config
+kubectl config set-context kind-kind --namespace $CLUSTER_NAME || exit 1
 kubectl config use-context kind-kind || exit 1
 # If the cluster exists already and we don't have a private appcred, leave it alone
 if kubectl get cluster $CLUSTER_NAME >/dev/null 2>&1 && ! grep '^OLD_OPENSTACK_CLOUD' ~/$CLUSTER_NAME/clusterctl.yaml >/dev/null 2>&1; then
