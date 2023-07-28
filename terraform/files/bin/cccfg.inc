@@ -5,7 +5,7 @@ if test "$1" == "--allow-preview-versions"; then export ALLOW_PREVIEW_VERSIONS=1
 if test "$1" == "--allow-preview-features"; then export ALLOW_PREVIEW_FEATURES=1; shift; fi
 if test "$1" == "--allow-preview-versions"; then export ALLOW_PREVIEW_VERSIONS=1; shift; fi
 if test -n "$1"; then CLUSTER_NAME="${1%/}"; else CLUSTER_NAME="$TESTCLUSTER"; fi
-export CLUSTER_NAME
+export PREFIX CLUSTER_NAME
 KUBECONFIG_WORKLOADCLUSTER="${HOME}/${CLUSTER_NAME}/${CLUSTER_NAME}.yaml"
 if test -e "$HOME/${CLUSTER_NAME}/clusterctl.yaml"; then
 	CCCFG="$HOME/${CLUSTER_NAME}/clusterctl.yaml"
