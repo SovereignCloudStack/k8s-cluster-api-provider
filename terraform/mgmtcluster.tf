@@ -272,9 +272,8 @@ resource "terraform_data" "mgmtcluster_bootstrap_files" {
 
   provisioner "file" {
     content = templatefile("files/template/harbor-settings.tmpl", {
-      harbor_domain_name  = var.harbor_domain_name,
-      harbor_issuer_email = var.harbor_issuer_email,
-      harbor_pvc_sizes    = var.harbor_pvc_sizes
+      deploy_harbor = var.deploy_harbor,
+      harbor_config = var.harbor_config
     })
     destination = "/home/${var.ssh_username}/cluster-defaults/harbor-settings"
   }

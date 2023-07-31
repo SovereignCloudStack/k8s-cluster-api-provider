@@ -36,6 +36,5 @@ etcd_unsafe_fs       = "<boolean>"      # defaults to "false", dangerous
 testcluster_name     = "NAME"           # defaults to "testcluster"
 restrict_kubeapi     = [ "IP/20", "IP/22" ]	# defaults to empty (fully open), use [ "none" ] for exclusive internal access
 containerd_registry_files = {"hosts":["<list of registry host config files>"], "certs":["<list of custom cert files>"]} # defaults to '{"hosts":["./files/containerd/docker.io"], "certs":[]}'
-harbor_domain_name   = "core.harbor.domain" # defaults to empty (no harbor deployment), if set harbor will be deployed with flux, cert-manager and ingress-nginx
-harbor_issuer_email  = "harbor@example.com" # defaults to empty, it is optional email for cert-manager issuer issuing harbor cert
-harbor_pvc_sizes     = { database = "1Gi", redis = "1Gi", trivy = "5Gi" } # storage for harbor components, database and redis have 1 replica trivy has 2 replicas
+deploy_harbor        = "<boolean>"      # defaults to "false"
+harbor_config        = {"domain_name":"<name>", "issuer_email":"<email>", "persistence":"<boolean>", "database_size":"size", "redis_size":"size", "trivy_size":"size"} # for defaults see ../variables.tf

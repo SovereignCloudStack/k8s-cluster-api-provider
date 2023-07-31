@@ -197,16 +197,19 @@ if test ! -s ~/$CLUSTER_NAME/harbor-settings; then
 fi
 . ~/$CLUSTER_NAME/harbor-settings
 
+
 # Cert-Manager
 DEPLOY_CERT_MANAGER=$(yq eval '.DEPLOY_CERT_MANAGER' $CCCFG)
-if test "$DEPLOY_CERT_MANAGER" = "false" -a -n "$HARBOR_DOMAIN_NAME"; then DEPLOY_CERT_MANAGER="true"; fi
+if test "$DEPLOY_CERT_MANAGER" = "false" -a "$DEPLOY_HARBOR" = "true" -a -n "$HARBOR_DOMAIN_NAME"; then
+  DEPLOY_CERT_MANAGER="true"
+fi
 if test "$DEPLOY_CERT_MANAGER" = "true" -o "${DEPLOY_CERT_MANAGER:0:1}" = "v"; then
   apply_cert_manager.sh "$CLUSTER_NAME" || exit $?
 fi
 
 # Flux2
 DEPLOY_FLUX=$(yq eval '.DEPLOY_FLUX' $CCCFG)
-if test "$DEPLOY_FLUX" = "false" -a -n "$HARBOR_DOMAIN_NAME"; then DEPLOY_FLUX="true"; fi
+if test "$DEPLOY_FLUX" = "false" -a "$DEPLOY_HARBOR" = "true"; then DEPLOY_FLUX="true"; fi
 if test "$DEPLOY_FLUX" = "true" -o "${DEPLOY_FLUX:0:1}" = "v"; then
   FLUX_INSTALL_OPTS="--timeout 10m0s"
   if test "${DEPLOY_FLUX:0:1}" = "v"; then
@@ -218,21 +221,23 @@ fi
 
 # NGINX ingress
 DEPLOY_NGINX_INGRESS=$(yq eval '.DEPLOY_NGINX_INGRESS' $CCCFG)
-if test "$DEPLOY_NGINX_INGRESS" = "false" -a -n "$HARBOR_DOMAIN_NAME"; then DEPLOY_NGINX_INGRESS="true"; fi
+if test "$DEPLOY_NGINX_INGRESS" = "false" -a "$DEPLOY_HARBOR" = "true" -a -n "$HARBOR_DOMAIN_NAME"; then
+  DEPLOY_NGINX_INGRESS="true"
+fi
 if test "$DEPLOY_NGINX_INGRESS" = "true" -o "${DEPLOY_NGINX_INGRESS:0:1}" = "v"; then
   apply_nginx_ingress.sh "$CLUSTER_NAME" || exit $?
 fi
 
 # Harbor
-if test -n "$HARBOR_DOMAIN_NAME"; then
+if test "$DEPLOY_HARBOR" = "true"; then
   deploy_harbor.sh "$CLUSTER_NAME" || exit $?
-  if test $? = 0; then
-    echo "SUCCESS: Harbor deployed in cluster ${CLUSTER_NAME}"
-    echo "INFO: Use kubectl $KCONTEXT -n ingress-nginx get svc ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress}'"
-    echo "INFO: and take LoadBalancer IP address and create DNS record for Harbor so certificate can be issued."
-    echo "INFO: Then you can access it at https://$HARBOR_DOMAIN_NAME. For admin password use"
-    echo "INFO: kubectl $KCONTEXT get secret harbor-secrets -o jsonpath='{.data.values\.yaml}' | base64 -d | yq .harborAdminPassword"
-  fi
+  echo "SUCCESS: Harbor deployed in cluster ${CLUSTER_NAME}"
+  echo "INFO: For admin password use kubectl $KCONTEXT get secret harbor-secrets -o jsonpath='{.data.values\.yaml}' | base64 -d | yq .harborAdminPassword"
+  echo "INFO: You can access it via k8s service 'harbor', e.g. http://harbor."
+  echo "INFO: If you deployed Harbor with domain name and ingress"
+  echo "INFO: use kubectl $KCONTEXT -n ingress-nginx get svc ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress}'"
+  echo "INFO: and take LoadBalancer IP address and create DNS record for Harbor so certificate can be issued."
+  echo "INFO: Then you can access it at https://${HARBOR_DOMAIN_NAME:-domain_name}"
 fi
 
 echo "# Wait for control plane of ${CLUSTER_NAME}"

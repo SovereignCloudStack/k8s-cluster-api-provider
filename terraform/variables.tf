@@ -251,24 +251,39 @@ variable "containerd_registry_files" {
   default     = {}
 }
 
-variable "harbor_domain_name" {
-  description = "harbor domain name. If set, harbor will be deployed. It also deploys flux, cert-manager and ingress-nginx"
-  type        = string
-  default     = ""
+variable "deploy_harbor" {
+  description = <<EOF
+  Deploy harbor in the registry.scs.community way. It also deploys flux as mandatory dependency.
+  S3 credentials and bucket for storing container images will be automatically created in the openstack object-store.
+  EOF
+  type        = bool
+  default     = false
 }
 
-variable "harbor_issuer_email" {
-  description = "optional email for the cert-manager issuer used for issuing harbor cert"
-  type        = string
-  default     = ""
-}
-
-variable "harbor_pvc_sizes" {
-  description = "pvc sizes for database, redis and trivy"
-  type        = map(string)
-  default = {
-    database = "1Gi",
-    redis    = "1Gi",
-    trivy    = "5Gi" # x 2 replicas
-  }
+variable "harbor_config" {
+  type = object({
+    domain_name   = optional(string, ""),
+    issuer_email  = optional(string, ""),
+    persistence   = optional(bool, false),
+    database_size = optional(string, "1Gi"),
+    redis_size    = optional(string, "1Gi"),
+    trivy_size    = optional(string, "5Gi") # x 2 replicas
+  })
+  description = <<-EOF
+  Harbor config options for deploying harbor in the registry.scs.community way.
+  Attributes:
+    domain_name (string): Optional harbor domain name. If set, harbor will be deployed with ingress.
+      See also ingress [environment](files/kubernetes-manifests.d/harbor/envs/ingress/) for more.
+      It also deploys cert-manager and ingress-nginx. If not set, harbor will be deployed as clusterIP.
+    issuer_email (string): Optional email for the cert-manager issuer used for issuing harbor cert. Relevant only
+      when domain_name is set.
+    persistence (bool): Enable persistence for the harbor components.
+    database_size (string): Set pvc size for the harbor database. Relevant only when persistence is true.
+      By default it is 1Gi.
+    redis_size (string): Set pvc size for the harbor redis. Relevant only when persistence is true.
+      By default it is 1Gi.
+    trivy_size (string): Set pvc size for the harbor trivy. Relevant only when persistence is true.
+      By default it is 5Gi for each trivy replica.
+  EOF
+  default     = {}
 }
