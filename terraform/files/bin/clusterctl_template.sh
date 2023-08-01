@@ -41,6 +41,8 @@ fi
 AUTH_URL=$(print-cloud.py | yq eval .clouds.${OS_CLOUD}.auth.auth_url -)
 #AUTH_URL=$(grep -A12 "${cloud_provider}" ~/.config/openstack/clouds.yaml | grep auth_url | head -n1 | sed -e 's/^ *auth_url: //' -e 's/"//g')
 AUTH_URL_SHORT=$(echo "$AUTH_URL" | sed s'/https:\/\///' | sed s'/\/.*$//')
+# Check whether AUTH_URL_SHORT includes port, otherwise append ":443"
+if ! [[ "$AUTH_URL_SHORT" =~ .*":".* ]]; then AUTH_URL_SHORT="$AUTH_URL_SHORT:443"; fi
 CERT_CERT=$(openssl s_client -connect "$AUTH_URL_SHORT" </dev/null 2>&1 | head -n 1 | sed s'/.*CN\ =\ //' | sed s'/\ /_/g' | sed s'/$/.pem/')
 CLOUD_CA_ENC=$(base64 -w 0 /etc/ssl/certs/"$CERT_CERT")
 
