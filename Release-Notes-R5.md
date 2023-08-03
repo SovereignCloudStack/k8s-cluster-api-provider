@@ -6,9 +6,6 @@
 
 - Sonobuoy v0.56.17 adds support for the latest k8s versions even for k8s 1.27.
 
-### cert-manager 1.12.x
-### kind 0.18.0
-### helm 3.12.x
 ### metrics-server 0.6.3
 ### k9s 0.27.x
 
