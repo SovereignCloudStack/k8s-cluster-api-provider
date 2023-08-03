@@ -253,8 +253,12 @@ variable "containerd_registry_files" {
 
 variable "deploy_harbor" {
   description = <<EOF
-  Deploy harbor in the registry.scs.community way. It also deploys flux as mandatory dependency.
-  S3 credentials and bucket for storing container images will be automatically created in the openstack object-store.
+  Deploy Harbor container registry. If enabled, the SCS container registry instance of the Harbor will be deployed
+  as defined in the k8s-harbor [project](https://github.com/SovereignCloudStack/k8s-harbor), which is used
+  also for the SCS community Harbor instance available at https://registry.scs.community/. It deploys `flux2` as a
+  mandatory dependency and may deploy also `cert-manager`, `ingress-nginx` and `Cinder CSI` dependencies,
+  see the `harbor_config` variable. It also expects that the Swift object store is available in the targeting
+  OpenStack project. A Swift bucket and ec2 credentials will be created and used for storing container image blobs.
   EOF
   type        = bool
   default     = false
@@ -270,20 +274,25 @@ variable "harbor_config" {
     trivy_size    = optional(string, "5Gi") # x 2 replicas
   })
   description = <<-EOF
-  Harbor config options for deploying harbor in the registry.scs.community way.
+  Harbor container registry configuration options.
+
   Attributes:
-    domain_name (string): Optional harbor domain name. If set, harbor will be deployed with ingress.
-      See also ingress [environment](files/kubernetes-manifests.d/harbor/envs/ingress/) for more.
-      It also deploys cert-manager and ingress-nginx. If not set, harbor will be deployed as clusterIP.
-    issuer_email (string): Optional email for the cert-manager issuer used for issuing harbor cert. Relevant only
-      when domain_name is set.
-    persistence (bool): Enable persistence for the harbor components.
-    database_size (string): Set pvc size for the harbor database. Relevant only when persistence is true.
-      By default it is 1Gi.
-    redis_size (string): Set pvc size for the harbor redis. Relevant only when persistence is true.
-      By default it is 1Gi.
-    trivy_size (string): Set pvc size for the harbor trivy. Relevant only when persistence is true.
-      By default it is 5Gi for each trivy replica.
+    domain_name (string, optional): Harbor domain name. If set, Harbor services will be exposed via the `Ingress`
+      resource and secured by SSL/TLS certificate. The certificate will be issued from Let’s Encrypt using the
+      standard ACME HTTP-01 challenge. This will also force the deployment of dependent services such as
+      `cert-manager` and `ingress-nginx`. If not set, Harbor services will be exposed via the `ClusterIP` service type.
+      See ingress [environment](files/kubernetes-manifests.d/harbor/envs/ingress/) for further details.
+    issuer_email (string, optional): Email address for the cert-manager issuer ACME account used for issuing Harbor
+      certificate. It will be used to contact you in case of issues with your account or certificates,
+      including expiry notification emails. Relevant only when `domain_name` is set.
+    persistence (bool, optional): Enable persistence for the Harbor components.
+      This will force the deployment of `Cinder CSI`.
+    database_size (string, optional): PV size of the Harbor database. Relevant only when `persistence` is true.
+      Defaults to `1Gi`.
+    redis_size (string, optional): PV size of the Harbor k-v database (Redis). Relevant only when `persistence` is true.
+      Defaults to `1Gi`.
+    trivy_size (string, optional): PV size of the Trivy. Relevant only when `persistence` is true.
+      Defaults to `5Gi` for each of 2 Trivy replicas.
   EOF
   default     = {}
 }

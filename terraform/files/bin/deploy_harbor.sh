@@ -1,7 +1,13 @@
 #!/bin/bash
+# ./deploy_harbor.sh CLUSTER_NAME
+#
+# Script deploys Harbor to cluster "CLUSTER_NAME"
+# It also creates Swift container and ec2 credentials in the OpenStack project
+#
+# (c) Roman Hros, 07/2023
+# SPDX-License-Identifier: Apache-2.0
+
 . ~/bin/cccfg.inc
-export KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER}
-export OS_CLOUD=$PREFIX-$CLUSTER_NAME
 
 # export harbor variables as env for envsubst
 set -a
@@ -14,16 +20,16 @@ mkdir -p ~/$CLUSTER_NAME/deployed-manifests.d/harbor
 cd ~/$CLUSTER_NAME/deployed-manifests.d/harbor
 
 # download scripts
-if test ! -s ~/kubernetes-manifests.d/harbor/harbor-secrets.bash; then
-  curl -L https://raw.githubusercontent.com/SovereignCloudStack/k8s-harbor/main/base/harbor-secrets.bash -o ~/kubernetes-manifests.d/harbor/harbor-secrets.bash || exit 2
+if test ! -s ~/bin/harbor-secrets.bash; then
+  curl -L https://raw.githubusercontent.com/SovereignCloudStack/k8s-harbor/main/base/harbor-secrets.bash -o ~/bin/harbor-secrets.bash || exit 2
 fi
-if test ! -s ~/kubernetes-manifests.d/harbor/s3-credentials.bash; then
-  curl -L https://raw.githubusercontent.com/SovereignCloudStack/k8s-harbor/main/envs/public/s3-credentials.bash -o ~/kubernetes-manifests.d/harbor/s3-credentials.bash || exit 2
+if test ! -s ~/bin/s3-credentials.bash; then
+  curl -L https://raw.githubusercontent.com/SovereignCloudStack/k8s-harbor/main/envs/public/s3-credentials.bash -o ~/bin/s3-credentials.bash || exit 2
 fi
 sudo apt install -y pwgen apache2-utils
 
 # generate harbor secrets
-bash ~/kubernetes-manifests.d/harbor/harbor-secrets.bash
+bash ~/bin/harbor-secrets.bash
 
 # create ec2 credentials if they don't already exist
 if test ! -s .ec2; then
@@ -38,7 +44,7 @@ fi
 
 # create s3 secret
 . .ec2
-bash ~/kubernetes-manifests.d/harbor/s3-credentials.bash "$REGISTRY_STORAGE_S3_ACCESSKEY" "$REGISTRY_STORAGE_S3_SECRETKEY"
+bash ~/bin/s3-credentials.bash "$REGISTRY_STORAGE_S3_ACCESSKEY" "$REGISTRY_STORAGE_S3_SECRETKEY"
 
 # create/update bucket, should be idempotent
 BUCKET_NAME=$PREFIX-$CLUSTER_NAME-harbor-registry
@@ -60,4 +66,4 @@ if test -n "$HARBOR_DOMAIN_NAME"; then
 else
   kubectl kustomize ~/kubernetes-manifests.d/harbor/envs/clusterIP | envsubst > harbor.yaml
 fi
-kubectl apply -f harbor.yaml
+kubectl $KCONTEXT apply -f harbor.yaml
