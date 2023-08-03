@@ -63,10 +63,10 @@ of them. There are management scripts on the management server:
   again, though.) The applied yaml files are collected in
   `~/$CLUSTERNAME/deployed-manifests.d/`. You can `kubectl delete -f` them
   to remove the functionality again.
-- You can of course also delete the cluster and create a new one if that
+- You can, of course, also delete the cluster and create a new one if that
   level of disruption is fine for you. (See below in Advanced cluster templating
   with helm to get an idea how we want to make this more convenient in the future.)
-- Use `kubectl get clusters` in the `kind-kind` context to see what clusters
+- Use `kubectl get clusters -A` in the `kind-kind` context to see what clusters
   exist. Use `kubectl get all -A` in the `testcluster-admin@testcluster` context
   to get an overview over the state of your workload cluster. You can access the logs
   from the capo controller in case you have trouble with cluster creation.

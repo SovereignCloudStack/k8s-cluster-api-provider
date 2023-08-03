@@ -16,6 +16,10 @@ if kubectl get cluster $CLUSTER_NAME >/dev/null 2>&1 && ! grep '^OLD_OPENSTACK_C
 	echo "#Warn: Old style cluster, disable new appcred handling"
 	exit 0
 fi
+if kubectl get cluster $CLUSTER_NAME --namespace default >/dev/null 2>&1 && ! grep '^OLD_OPENSTACK_CLOUD' ~/$CLUSTER_NAME/clusterctl.yaml >/dev/null 2>&1; then
+	echo "#Warn: Old style cluster, disable new appcred handling"
+	exit 0
+fi
 APPCREDS=$(openstack application credential list -f value -c ID -c Name -c "Project ID")
 while read id nm prjid; do
 	#echo "\"$nm\" \"$prjid\" \"$id\""
