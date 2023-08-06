@@ -7,7 +7,6 @@ if [ -n "$existing_cluster" ]; then
   echo "> Cluster $CLUSTER_NAME already exists in namespace $existing_cluster"
   echo "> Changing namespace to $existing_cluster"
   kubectl config set-context --current --namespace=$existing_cluster
-  kubectl config use-context $existing_cluster
 else
   if [ -z "$CREATE_NEW_NAMESPACE" ] || [ "$CREATE_NEW_NAMESPACE" = true ]; then
     echo "> Cluster $CLUSTER_NAME does not exist. Creating a new cluster namespace..."

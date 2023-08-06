@@ -105,7 +105,7 @@ echo "# rendering clusterconfig from template"
 unset CLUSTER_EXISTS
 if test -e ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml; then
   echo " Overwriting config for ${CLUSTER_NAME}"
-  CLUSTERS=$(kubectl get clusters --all-namespaces | grep -v '^NAME' | grep "$CLUSTER_NAME " | awk '{ print $2; }')
+  CLUSTERS=$(kubectl get cluster --all-namespaces -o jsonpath='{range .items[?(@.metadata.name == "'$CLUSTER_NAME'")]}{.metadata.name}{end}')
   if test -n "$CLUSTERS"; then
     export CLUSTER_EXISTS=1
     echo -e " Warning: Cluster exists\n Hit ^C to interrupt"
