@@ -34,9 +34,7 @@ if test ! -d ~/$CLUSTER_NAME/containerd/; then
 fi
 CCCFG="$HOME/${CLUSTER_NAME}/clusterctl.yaml"
 fixup_k8s_version.sh $CCCFG || exit 1
-
-kubectl config use-context kind-kind || exit 1
-kubectl create namespace $CLUSTER_NAME || exit 1
+~/bin/mng_cluster_ns.inc
 
 # Add containerd registry host and cert files
 configure_containerd.sh $CLUSTERAPI_TEMPLATE $CLUSTER_NAME || exit 1
@@ -54,8 +52,7 @@ wait_capi_image.sh "$1" || exit 1
 
 # Switch to capi mgmt cluster
 export KUBECONFIG=$HOME/.kube/config
-kubectl config set-context kind-kind --namespace $CLUSTER_NAME || exit 1
-kubectl config use-context kind-kind || exit 1
+~/bin/mng_cluster_ns.inc
 # get the needed clusterapi-variables
 echo "# show used variables for clustertemplate ${CLUSTERAPI_TEMPLATE}"
 
@@ -113,14 +110,6 @@ if test -e ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml; then
     export CLUSTER_EXISTS=1
     echo -e " Warning: Cluster exists\n Hit ^C to interrupt"
     sleep 6
-    # If the cluster already exists check if it is in a separate namespace if so we change to default namespace
-    if test -n "$CLUSTER_EXISTS"; then
-      CLUSTER_NAMESPACE=$(kubectl get clusters --all-namespaces | grep -v '^NAME' | grep "$CLUSTER_NAME " | awk '{ print $1; }')
-      if test -n "$CLUSTER_NAMESPACE" -a "$CLUSTER_NAMESPACE" != "default"; then
-        echo "Switching to default namespace as cluster is in $CLUSTER_NAMESPACE"
-        kubectl config set-context --current --namespace default
-      fi
-    fi
   fi
 fi
 #clusterctl $KCCCFG config cluster ${CLUSTER_NAME} --from ${CLUSTERAPI_TEMPLATE} > rendered-${CLUSTERAPI_TEMPLATE}
@@ -227,8 +216,7 @@ if test "$DEPLOY_NGINX_INGRESS" = "true" -o "${DEPLOY_NGINX_INGRESS:0:1}" = "v";
 fi
 
 echo "# Wait for control plane of ${CLUSTER_NAME}"
-kubectl config set-context kind-kind --namespace $CLUSTER_NAME || exit 1
-kubectl config use-context kind-kind || exit 1
+~/bin/mng_cluster_ns.sh
 kubectl wait --timeout=20m cluster "${CLUSTER_NAME}" --for=condition=Ready || exit 10
 #kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
 if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then

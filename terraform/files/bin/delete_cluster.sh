@@ -7,14 +7,8 @@ export KUBECONFIG=~/.kube/config
 . ~/.capi-settings
 . ~/bin/cccfg.inc
 
-kubectl config use-context kind-kind || exit 1
-# check if namespace exists
-if ! kubectl get namespace $CLUSTER_NAME >/dev/null 2>&1; then
-  echo "Namespace $CLUSTER_NAME does not exist using default namespace."
-  kubectl config set-context kind-kind --namespace default || exit 1
-else
-  kubectl config set-context kind-kind --namespace $CLUSTER_NAME || exit 1
-fi
+CREATE_NEW_NAMESPACE=false ~/bin/mng_cluster_ns.inc
+
 echo "Deleting cluster $CLUSTER_NAME"
 # Delete workload pods (default namespace)
 PODS=$(kubectl $KCONTEXT get pods | grep -v '^NAME' | awk '{ print $1; }')
