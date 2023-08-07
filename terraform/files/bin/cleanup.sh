@@ -14,4 +14,4 @@ sleep 3
 for cluster in $CLUSTERS; do
 	~/bin/delete_cluster.sh "$cluster"
 done
-kubectl get clusters
+kubectl get clusters --all-namespaces

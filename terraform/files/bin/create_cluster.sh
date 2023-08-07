@@ -52,7 +52,7 @@ wait_capi_image.sh "$1" || exit 1
 
 # Switch to capi mgmt cluster
 export KUBECONFIG=$HOME/.kube/config
-~/bin/mng_cluster_ns.inc
+CREATE_NEW_NAMESPACE=false ~/bin/mng_cluster_ns.inc
 # get the needed clusterapi-variables
 echo "# show used variables for clustertemplate ${CLUSTERAPI_TEMPLATE}"
 
@@ -216,7 +216,7 @@ if test "$DEPLOY_NGINX_INGRESS" = "true" -o "${DEPLOY_NGINX_INGRESS:0:1}" = "v";
 fi
 
 echo "# Wait for control plane of ${CLUSTER_NAME}"
-~/bin/mng_cluster_ns.sh
+~/bin/mng_cluster_ns.inc
 kubectl wait --timeout=20m cluster "${CLUSTER_NAME}" --for=condition=Ready || exit 10
 #kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
 if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then

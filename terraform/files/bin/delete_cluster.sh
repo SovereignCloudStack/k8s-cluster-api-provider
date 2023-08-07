@@ -67,6 +67,7 @@ if test $RC != 0; then
 	# Non existent cluster means success
 	if ! kubectl get cluster "$CLUSTER_NAME"; then RC=0; fi
 fi
+kubectl set-context --current --namespace=default
 kubectl delete namespace "$CLUSTER_NAME"
 # TODO: Clean up machine templates etc.
 # Clean up appcred stuff (for new style appcred mgmt)
