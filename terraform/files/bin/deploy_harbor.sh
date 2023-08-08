@@ -8,6 +8,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 . ~/bin/cccfg.inc
+export KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER}
 
 # export harbor variables as env for envsubst
 set -a
@@ -68,4 +69,4 @@ if test -n "$HARBOR_DOMAIN_NAME"; then
 else
   kubectl kustomize ~/kubernetes-manifests.d/harbor/envs/clusterIP | envsubst > harbor.yaml
 fi
-kubectl $KCONTEXT apply -f harbor.yaml
+kubectl apply -f harbor.yaml

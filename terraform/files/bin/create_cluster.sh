@@ -233,6 +233,15 @@ if test "$DEPLOY_NGINX_INGRESS" = "true" -o "${DEPLOY_NGINX_INGRESS:0:1}" = "v";
   apply_nginx_ingress.sh "$CLUSTER_NAME" || exit $?
 fi
 
+echo "# Wait for control plane of ${CLUSTER_NAME}"
+kubectl config use-context kind-kind
+kubectl wait --timeout=20m cluster "${CLUSTER_NAME}" --for=condition=Ready || exit 10
+#kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
+if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
+  KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium status --wait
+  echo "INFO: Use KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium connectivity test for testing CNI"
+fi
+
 # Harbor
 if test "$DEPLOY_HARBOR" = "true"; then
   deploy_harbor.sh "$CLUSTER_NAME" || exit $?
@@ -245,14 +254,6 @@ if test "$DEPLOY_HARBOR" = "true"; then
   echo "INFO: Then you can access it at https://${HARBOR_DOMAIN_NAME:-domain_name}"
 fi
 
-echo "# Wait for control plane of ${CLUSTER_NAME}"
-kubectl config use-context kind-kind
-kubectl wait --timeout=20m cluster "${CLUSTER_NAME}" --for=condition=Ready || exit 10
-#kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
-if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
-  KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium status --wait
-  echo "INFO: Use KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium connectivity test for testing CNI"
-fi
 # Output some information on the cluster ...
 kubectl $KCONTEXT get pods --all-namespaces
 kubectl get openstackclusters
