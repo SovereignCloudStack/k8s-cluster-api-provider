@@ -11,7 +11,7 @@ STARTTIME=$(date +%s)
 export PREFIX CLUSTER_NAME
 
 # Ensure directory for cluster exists
-if test ! -d ~/$CLUSTER_NAME; then 
+if test ! -d ~/$CLUSTER_NAME; then
 	mkdir -p ~/$CLUSTER_NAME
 	cp -p ~/cluster-defaults/* ~/$CLUSTER_NAME/
 fi
@@ -157,7 +157,10 @@ if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
   if test "${USE_CILIUM:0:1}" = "v"; then
     CILIUM_VERSION="${USE_CILIUM}"
   fi
-  KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium install --version $CILIUM_VERSION
+  KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium install --version $CILIUM_VERSION \
+    --helm-set kubeProxyReplacement=disabled \
+    --helm-set cni.chainingMode=portmap \
+    --helm-set sessionAffinity=true
   touch ~/$CLUSTER_NAME/deployed-manifests.d/.cilium
 else
   CALICO_VERSION=$(yq eval '.CALICO_VERSION' $CCCFG)
