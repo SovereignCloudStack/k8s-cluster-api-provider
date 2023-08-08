@@ -72,6 +72,21 @@ else
   CCSI=cinder.yaml
 fi
 kubectl $KCONTEXT apply -f ~/$CLUSTER_NAME/deployed-manifests.d/cindercsi-snapshot.yaml || exit 8
+CACERT=$(print-cloud.py | yq eval '.clouds."'"$OS_CLOUD"'".cacert // "null"' -)
+if test "$CACERT" != "null"; then
+  CAMOUNT="/etc/ssl/certs" # see prepare_openstack.sh, CACERT is already injected in the k8s nodes
+  CAVOLUME="cacert"
+  declare -a plugins=("csi-cinder-controllerplugin" "csi-cinder-nodeplugin")
+  for plugin in "${plugins[@]}"; do
+    # test if volume exists - also need to provide default value(// empty array) in expression in case of missing volumes(array)
+    volume=$(yq 'select(.metadata.name == "'"$plugin"'").spec.template.spec | (.volumes // (.volumes = []))[] | select(.name == "'"$CAVOLUME"'")' $CCSI)
+    # if volume does not exist, inject CACERT volume
+    if test -z "$volume"; then
+      yq 'select(.metadata.name == "'"$plugin"'").spec.template.spec.volumes += [{"name": "'"$CAVOLUME"'", "hostPath": {"path": "'"$CAMOUNT"'"}}]' -i $CCSI
+      yq '(select(.metadata.name == "'"$plugin"'").spec.template.spec.containers[] | select(.name == "cinder-csi-plugin").volumeMounts) += [{"name": "'"$CAVOLUME"'", "mountPath": "'"$CAMOUNT"'", "readOnly": true}]' -i $CCSI
+    fi
+  done
+fi
 sed "/ *\- name: CLUSTER_NAME/{n
 s/value: .*\$/value: ${CLUSTER_NAME}/
 }" $CCSI > ~/$CLUSTER_NAME/deployed-manifests.d/cindercsi.yaml
