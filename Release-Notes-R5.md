@@ -55,6 +55,13 @@ as needed when diskless flavors are being used.
 
 (This fix is backported to the maintained R4 branch v5.x.)
 
+### Custom CA
+From [#460](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/460), the k8s-cluster-api-provider supports situation
+when communication with OpenStack API is protected by the certificate issued by custom or private CA.
+All you have to do is provide `cacert` option in your clouds.yaml configuration file. Cacert will be copied
+to the management and workload cluster so provide only necessary certificates in that file.
+You can see an example and a more detailed explanation in the [docs](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/usage/custom-ca.md).
+
 ### Service and Pod CIDR
 
 The service and pod CIDR can now be configured in the environment / clusterctl.yaml file.
@@ -71,4 +78,3 @@ As CAPO (CAPI OpenStack provider) does not support IPv6 yet, the IPv6 CIDR is no
 The PR
 [cluster-api-provider-openstack/#1557](https://github.com/kubernetes-sigs/cluster-api-provider-openstack/pull/1577)
 aims to add first parts needed for IPv6 support you can check the current progress there.
-
