@@ -57,10 +57,13 @@ and snapshot functionality is validated using the check-csi CNCF/sonobuoy test.
 
 (This fix was also backported to the maintained R4 (v5.x and v5.0.x) branches.)
 
+### Cilium is the default CNI now
+We have decided to use cilium as default CNI.
+You can still override this and set `USE_CILIUM="false"` if you prefer Calico.
+
 ### Support for diskless flavors
 
-The
-SCS [flavor spec v3](https://github.com/SovereignCloudStack/standards/blob/main/Standards/scs-0100-v3-flavor-naming.md)
+The SCS [flavor spec v3](https://github.com/SovereignCloudStack/standards/blob/main/Standards/scs-0100-v3-flavor-naming.md)
 makes the flavors with root disks only recommended (except for the two new SSD flavors).
 The used `cluster-template.yaml` now is dynamically patched to allocate a root disk
 as needed when diskless flavors are being used.
@@ -75,7 +78,6 @@ to the management and workload cluster so provide only necessary certificates in
 You can see an example and a more detailed explanation in the [docs](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/usage/custom-ca.md).
 
 ### Service and Pod CIDR
-
 The service and pod CIDR can now be configured in the environment / clusterctl.yaml file.
 The default values are:
 
