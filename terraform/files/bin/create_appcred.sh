@@ -9,11 +9,15 @@
 # 
 #Determine whether we need a new application credential
 export KUBECONFIG=$HOME/.kube/config
-kubectl config use-context kind-kind || exit 1
+CREATE_NEW_NAMESPACE=false ~/bin/mng_cluster_ns.inc
 # If the cluster exists already and we don't have a private appcred, leave it alone
 if kubectl get cluster $CLUSTER_NAME >/dev/null 2>&1 && ! grep '^OLD_OPENSTACK_CLOUD' ~/$CLUSTER_NAME/clusterctl.yaml >/dev/null 2>&1; then
-  echo "#Warn: Old style cluster, disable new appcred handling"
-  exit 0
+	echo "#Warn: Old style cluster, disable new appcred handling"
+	exit 0
+fi
+if kubectl get cluster $CLUSTER_NAME --namespace default >/dev/null 2>&1 && ! grep '^OLD_OPENSTACK_CLOUD' ~/$CLUSTER_NAME/clusterctl.yaml >/dev/null 2>&1; then
+	echo "#Warn: Old style cluster, disable new appcred handling"
+	exit 0
 fi
 APPCREDS=$(openstack application credential list -f value -c ID -c Name -c "Project ID")
 while read id nm prjid; do
@@ -38,6 +42,7 @@ if test -z "$APPCRED_ID"; then
 	# Generate a fresh section rather than relying on cleanliness of existing setup
 	AUTH_URL=$(print-cloud.py | yq eval .clouds.${OS_CLOUD}.auth.auth_url -)
 	REGION=$(print-cloud.py | yq eval .clouds.${OS_CLOUD}.region_name -)
+	CACERT=$(print-cloud.py | yq eval '.clouds."'"$OS_CLOUD"'".cacert // "null"' -)
 	# In theory we could also make interface and id_api_vers variable,
 	# but let's do that once we find the necessity. Error handling makes
 	# it slightly complex, so it's not an obvious win.
@@ -47,6 +52,7 @@ if test -z "$APPCRED_ID"; then
     identity_api_version: 3
     region_name: $REGION
     auth_type: "v3applicationcredential"
+    cacert: $CACERT
     auth:
       auth_url: $AUTH_URL
       #project_id: $APPCRED_PRJ
@@ -55,6 +61,11 @@ if test -z "$APPCRED_ID"; then
 EOT
 	# And remove secret from env
 	unset APPCRED_SECRET NEWCRED
+else
+	if ! grep "^  $PREFIX-$CLUSTER_NAME:" ~/.config/openstack/clouds.yaml >/dev/null 2>&1; then
+		echo "ERROR: Application credential $PREFIX-$CLUSTER_NAME-appcred exists but unknown to us. Please clean up."
+		exit 1
+	fi
 fi
 export OS_CLOUD=$PREFIX-$CLUSTER_NAME
 export PROJECTID=$APPCRED_PRJ

@@ -12,7 +12,7 @@ spec:
       cidrBlocks: ["${SERVICE_CIDR}"]
     serviceDomain: "cluster.local"
   infrastructureRef:
-    #apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    # apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
     apiVersion: infrastructure.cluster.x-k8s.io/v1alpha6
     kind: OpenStackCluster
     name: ${CLUSTER_NAME}
@@ -21,7 +21,7 @@ spec:
     apiVersion: controlplane.cluster.x-k8s.io/v1beta1
     name: ${CLUSTER_NAME}-control-plane
 ---
-#apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+# apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha6
 kind: OpenStackCluster
 metadata:
@@ -31,7 +31,7 @@ spec:
   identityRef:
     name: ${CLUSTER_NAME}-cloud-config
     kind: Secret
-  #managedAPIServerLoadBalancer: true
+  # managedAPIServerLoadBalancer: true
   apiServerLoadBalancer:
     enabled: true
   managedSecurityGroups: true
@@ -48,7 +48,7 @@ spec:
   machineTemplate:
     infrastructureRef:
       kind: OpenStackMachineTemplate
-      #apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      # apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
       apiVersion: infrastructure.cluster.x-k8s.io/v1alpha6
       name: "${PREFIX}-${CLUSTER_NAME}-control-plane-${CONTROL_PLANE_MACHINE_GEN}"
   kubeadmConfigSpec:
@@ -261,7 +261,7 @@ spec:
       # TODO: Detect local SSD and mkfs/mount /var/lib/etcd
   version: "${KUBERNETES_VERSION}"
 ---
-#apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+# apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha6
 kind: OpenStackMachineTemplate
 metadata:
@@ -303,11 +303,11 @@ spec:
           kind: KubeadmConfigTemplate
       infrastructureRef:
         name: "${PREFIX}-${CLUSTER_NAME}-md-0-${WORKER_MACHINE_GEN}"
-        #apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        # apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
         apiVersion: infrastructure.cluster.x-k8s.io/v1alpha6
         kind: OpenStackMachineTemplate
 ---
-#apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+# apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha6
 kind: OpenStackMachineTemplate
 metadata:

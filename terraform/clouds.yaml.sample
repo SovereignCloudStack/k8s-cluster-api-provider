@@ -11,3 +11,5 @@ clouds:
       # not required if you dont use make purge, can usually be set to the same value as user_domain_name
       project_domain_name:
     region_name:
+    # custom CA
+    cacert:

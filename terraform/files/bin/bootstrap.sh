@@ -21,7 +21,7 @@ upload_capi_image.sh
 
 # install kubectl
 sudo snap install kubectl --classic
-sudo apt install -y binutils
+sudo apt install -y binutils jq
 sudo snap install kustomize
 
 # setup aliases and environment
