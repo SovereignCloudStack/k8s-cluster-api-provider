@@ -9,4 +9,4 @@ data:
   use-proxy-protocol: "true"
   # FIXME: Could set exact LB VIP address here, NODE_CIDR is a good start
   proxy-real-ip-cidr: "0.0.0.0/0"
-  #enable-real-ip: "true"
+  # enable-real-ip: "true"
