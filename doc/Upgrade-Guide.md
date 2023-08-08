@@ -153,7 +153,7 @@ Instead for going from R2 to R3, there is just one real change that you want
 to apply: Add the variables `CONTROL_PLANE_MACHINE_GEN: genc01` and
 `WORKER_MACHINE_GEN: genw01` to it. If you have copied over the new
 `cluster-template.yaml` as described above, then you're done. Otherwise
-you can use the script `update-cluster-template-to-generation-counted.sh <CLUSTER_NAME>`
+you can use the script `update-R2-R3.sh <CLUSTER_NAME>`
 to tweak both `clusterctl.yaml` and `cluster-template.yaml` for the
 relevant cluster. (You can use `cluster-defaults` to change the templates
 in `~/cluster-defaults/` which get used when creating new clusters.)
@@ -205,7 +205,13 @@ node specs, such as e.g. using a different flavor.
 
 In R4 to R5, the `cluster-template.yaml` and `clusterctl.yaml` changed (see release notes).
 
-You can use script `update_to_r5.sh` to update the default `cluster-template.yaml` and `clusterctl.yaml`.
+You can use script `update_R4_to_R5.sh` to update the default `cluster-template.yaml` and `clusterctl.yaml`.
+
+Note: !This script is under development and will be stabilized within the release R5!
+
+```bash
+update_R4_to_R5.sh <CLUSTER_NAME>
+```
 
 #### New defaults
 
@@ -288,7 +294,7 @@ to watch the progress of this.
 #### On R2 clusters
 
 The old way: Editing cluster-template.yaml. Or better use the
-`update-cluster-template-to-generation-counted.sh` script to convert first.
+`update-R2-to-R3.sh` script to convert first.
 
 ### New versions for mandatory components
 
