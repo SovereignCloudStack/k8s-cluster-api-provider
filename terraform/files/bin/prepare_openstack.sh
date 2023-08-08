@@ -17,3 +17,11 @@ if ! grep '^tenant.id' ~/cluster-defaults/cloud.conf >/dev/null; then
   sed -i "/^application.credential.secret/atenant-id=$PROJECTID"  ~/cluster-defaults/cloud.conf
 fi
 
+# Determine cacert and inject into cloud.conf and cluster-template.yaml
+CACERT=$(print-cloud.py | yq eval '.clouds."'"$OS_CLOUD"'".cacert // "null"' -)
+if test "$CACERT" != "null"; then
+  CADEST="/etc/ssl/certs/$(basename "$CACERT")" # path for OCCM
+  echo "Set ca-file to $CADEST for $OS_CLOUD"
+  sed -i "/^application.credential.secret/aca-file=$CADEST" ~/cluster-defaults/cloud.conf
+  inject_custom_ca.sh ~/cluster-defaults/cluster-template.yaml "$CACERT" "$CADEST"
+fi
