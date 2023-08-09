@@ -287,7 +287,7 @@ resource "terraform_data" "mgmtcluster_bootstrap_files" {
       appcredsecret  = openstack_identity_application_credential_v3.appcred.secret,
       cloud_provider = var.cloud_provider,
       clouds         = local.clouds,
-      ssh_username   = var.ssh_username
+      cacert         = contains(keys(local.clouds), "cacert") ? "/home/${var.ssh_username}/cluster-defaults/${var.cloud_provider}-cacert" : "null"
     })
     destination = "/home/${var.ssh_username}/.config/openstack/clouds.yaml"
   }
