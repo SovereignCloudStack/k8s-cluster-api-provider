@@ -81,7 +81,7 @@ clean: init
 	terraform workspace delete $(ENVIRONMENT)
 	@if test -e ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); then source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); ssh-keygen -R $$MGMTCLUSTER_ADDRESS -f ~/.ssh/known_hosts; fi
 	@rm -f .deploy.$(ENVIRONMENT) .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT) mycloud.$(ENVIRONMENT).yaml
-	@rm -f .kubeconfig.$(ENVIRONMENT) $(TESTCLUSTER).yaml.$(ENVINRONMENT) clusterctl.$(TESTCLUSTER).yaml.$(ENVIRONMENT) .yaml.$(ENVIRONMENT) $(TESTCLUSTER)-config.yaml.$(ENVIRONMENT)
+	@rm -f .kubeconfig.$(ENVIRONMENT) $(TESTCLUSTER).yaml.$(ENVIRONMENT) clusterctl.$(TESTCLUSTER).yaml.$(ENVIRONMENT) $(TESTCLUSTER)-config.yaml.$(ENVIRONMENT)
 
 fullclean:
 	prefix=$$(grep '^prefix *=' environments/environment-${ENVIRONMENT}.tfvars | $(SED) -e 's/^[^=]*= *//' -e 's/"//g'); \
@@ -199,6 +199,6 @@ openstack: init
 k9s: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
 	ssh -t -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS \
-	"KUBECONFIG=/home/ubuntu/.kube/config.yaml:/home/ubuntu/$(TESTCLUSTER)/$(TESTCLUSTER).yaml k9s --all-namespaces"
+	"KUBECONFIG=/home/$(USERNAME)/.kube/config:/home/$(USERNAME)/$(TESTCLUSTER)/$(TESTCLUSTER).yaml k9s --all-namespaces"
 
-PHONY: clean console attach detach ssh dry-run list deploy watch openstack create log console login k9s mycloud gitchk
+PHONY: clean attach detach ssh dry-run list deploy watch openstack create log console login k9s mycloud gitchk
