@@ -3,13 +3,21 @@
 export KUBECONFIG=~/.kube/config
 . ~/bin/cccfg.inc
 . ~/bin/openstack-kube-versions.inc
+. ~/$CLUSTER_NAME/harbor-settings
 
 # apply cinder-csi
 KUBERNETES_VERSION=$(yq eval '.KUBERNETES_VERSION' $CCCFG)
 DEPLOY_CINDERCSI=$(yq eval '.DEPLOY_CINDERCSI' $CCCFG)
 if test "$DEPLOY_CINDERCSI" = "null"; then DEPLOY_CINDERCSI=true; fi
 cd ~/kubernetes-manifests.d/
-if test "$DEPLOY_CINDERCSI" = "false"; then exit 1; fi
+if test "$DEPLOY_CINDERCSI" = "false"; then
+  if test "$DEPLOY_HARBOR" = "true" -a "$HARBOR_PERSISTENCE" = "true"; then
+    echo "INFO: Installation of Cinder CSI forced by Harbor deployment"
+    DEPLOY_CINDERCSI=true
+  else
+    exit 1
+  fi
+fi
 if test "$DEPLOY_CINDERCSI" = "true"; then
   find_openstack_versions $KUBERNETES_VERSION
 else
