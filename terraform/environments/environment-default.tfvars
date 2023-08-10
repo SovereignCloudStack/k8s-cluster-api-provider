@@ -34,3 +34,5 @@ etcd_unsafe_fs       = "<boolean>"      # defaults to "false", dangerous
 testcluster_name     = "NAME"           # defaults to "testcluster"
 restrict_kubeapi     = [ "IP/20", "IP/22" ]	# defaults to empty (fully open), use [ "none" ] for exclusive internal access
 containerd_registry_files = {"hosts":["<list of registry host config files>"], "certs":["<list of custom cert files>"]} # defaults to '{"hosts":["./files/containerd/docker.io"], "certs":[]}'
+deploy_harbor        = "<boolean>"      # defaults to "false", "true" deploys Harbor and forces deployment of flux and potentially other services (`cert_manager`, `nginx_ingress` and `cindercsi`), see `doc/usage/harbor.md`
+harbor_config        = {"domain_name":"<name>", "issuer_email":"<email>", "persistence":"<boolean>", "database_size":"size", "redis_size":"size", "trivy_size":"size"} # for defaults see ../variables.tf
