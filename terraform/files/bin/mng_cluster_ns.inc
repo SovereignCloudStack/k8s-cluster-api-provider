@@ -1,3 +1,4 @@
+export KUBECONFIG=$HOME/.kube/config
 kubectl config use-context kind-kind
 
 # Check if the cluster already exists
