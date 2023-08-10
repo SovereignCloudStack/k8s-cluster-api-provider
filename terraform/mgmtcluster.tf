@@ -302,6 +302,14 @@ resource "terraform_data" "mgmtcluster_bootstrap_files" {
   }
 
   provisioner "file" {
+    content = templatefile("files/template/harbor-settings.tmpl", {
+      deploy_harbor = var.deploy_harbor,
+      harbor_config = var.harbor_config
+    })
+    destination = "/home/${var.ssh_username}/cluster-defaults/harbor-settings"
+  }
+
+  provisioner "file" {
     source      = "files/template/cluster-template.yaml"
     destination = "/home/${var.ssh_username}/cluster-defaults/cluster-template.yaml"
   }
