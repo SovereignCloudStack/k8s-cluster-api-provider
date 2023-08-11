@@ -13,7 +13,7 @@ export PREFIX CLUSTER_NAME
 # Ensure directory for cluster exists
 if test ! -d ~/$CLUSTER_NAME; then 
 	mkdir -p ~/$CLUSTER_NAME
-	cp -p ~/cluster-defaults/* ~/$CLUSTER_NAME/
+	cp -pr ~/cluster-defaults/* ~/$CLUSTER_NAME/
 fi
 # Copy missing files individually as needed from cluster-defaults
 if test ! -s ~/$CLUSTER_NAME/cloud.conf; then
@@ -26,9 +26,17 @@ fi
 if test ! -d ~/$CLUSTER_NAME/deployed-manifests.d/; then
 	mkdir -p ~/$CLUSTER_NAME/deployed-manifests.d/
 fi
+if test ! -d ~/$CLUSTER_NAME/containerd/; then
+  # Ensure directory for containerd exists
+  mkdir -p ~/cluster-defaults/containerd
+  # Copy missing files individually as needed from containerd
+  cp -pr ~/cluster-defaults/containerd/ ~/$CLUSTER_NAME/
+fi
 CCCFG="$HOME/${CLUSTER_NAME}/clusterctl.yaml"
 fixup_k8s_version.sh $CCCFG || exit 1
 
+# Add containerd registry host and cert files
+configure_containerd.sh $CLUSTERAPI_TEMPLATE $CLUSTER_NAME || exit 1
 # Handle wanted OVN loadbalancer
 handle_ovn_lb.sh "$CLUSTER_NAME" || exit 1
 # Determine whether we need a new application credential
@@ -83,8 +91,8 @@ if test "$CONTROL_PLANE_MACHINE_COUNT" -gt 0 &&  grep '^ *OPENSTACK_ANTI_AFFINIT
 	fi
 fi
 
-# Patch registry location for k8s (~newer than Nov 2022)
-fixup_k8sregistry.sh "$CCCFG" "${CLUSTERAPI_TEMPLATE}"
+# Check that the flavors exist and allocate volumes if needed
+fixup_flavor_volumes.sh "$CCCFG" "${CLUSTERAPI_TEMPLATE}" || exit 2
 
 cp -p "$CCCFG" $HOME/.cluster-api/clusterctl.yaml
 KCCCFG="--config $CCCFG"
@@ -157,7 +165,7 @@ echo "# Deploy services (CNI, OCCM, CSI, Metrics, Cert-Manager, Flux2, Ingress)"
 MTU_VALUE=$(yq eval '.MTU_VALUE' $CCCFG)
 if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
   # FIXME: Do we need to allow overriding MTU here as well?
-  CILIUM_VERSION="v1.13.0"
+  CILIUM_VERSION="v1.13.3"
   if test "${USE_CILIUM:0:1}" = "v"; then
     CILIUM_VERSION="${USE_CILIUM}"
   fi
