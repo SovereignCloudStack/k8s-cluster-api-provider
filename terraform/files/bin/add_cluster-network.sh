@@ -25,7 +25,8 @@ findnewnic()
 MGMT="$PREFIX-mgmtcluster"
 # FIXME: We already know the name ($PREFIX-mgmtcluster)
 #MGMT=$(openstack server list --name "$PREFIX-mgmtcluster" -f value -c Name)
-openstack server add network $MGMT k8s-clusterapi-cluster-default-$CLUSTER_NAME || exit
+NETWORK=$(openstack network list -f value -c Name | grep "k8s-clusterapi-cluster-\(default-${CLUSTER_NAME}\|${CLUSTER_NAME}-${CLUSTER_NAME}\)")
+openstack server add network $MGMT $NETWORK || exit
 WAIT=0
 while test $WAIT -lt 30; do
 	findnewnic
