@@ -58,7 +58,7 @@ wait_capi_image.sh "$1" || exit 1
 
 # Switch to capi mgmt cluster
 export KUBECONFIG=$HOME/.kube/config
-CREATE_NEW_NAMESPACE=false ~/bin/mng_cluster_ns.inc
+~/bin/mng_cluster_ns.inc
 # get the needed clusterapi-variables
 echo "# show used variables for clustertemplate ${CLUSTERAPI_TEMPLATE}"
 
