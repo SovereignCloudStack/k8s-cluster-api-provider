@@ -69,11 +69,11 @@ cleanup_list()
 	if test -n "$SINGLE"; then
 		for INST in $LST; do
 			echo $OPENSTACK $ARG delete $WAIT $SINGLE $INST 1>&2
-			$OPENSTACK $ARG delete $WAIT $SINGLE $INST
+			if test -z "$DEBUG"; then $OPENSTACK $ARG delete $WAIT $SINGLE $INST; fi
 		done
 	else
 		echo $OPENSTACK $ARG delete $WAIT $LST 1>&2
-		$OPENSTACK $ARG delete $WAIT $LST
+		if test -z "$DEBUG"; then $OPENSTACK $ARG delete $WAIT $LST; fi
 	fi
 	let DELETED+=$(echo $LST | wc -w)
 }
@@ -97,15 +97,46 @@ cleanup()
 
 # main
 if test "$1" == "--verbose"; then VERBOSE=1; shift; fi
-if test "$1" == "--full"; then FULL=1; shift; fi
-if test -z "$1"; then CLUSTER="testcluster"; else CLUSTER="$1"; shift; fi
-if test -z "$1"; then CAPIPRE="capi"; else CAPIPRE="$1"; shift; fi
-CAPIPRE2="k8s-clusterapi-cluster-default"
-CAPIPRE3="k8s-cluster-default"
+if test "$1" == "--full"; then FULL=1; MGMTSRV=" management server and"; shift; fi
+#if test -z "$1"; then CLUSTERS="${CLUSTER:-testcluster}"; else CLUSTERS="$1"; shift; fi
+#if test -z "$1"; then CAPIPRE="${CAPIPRE:-capi}"; else CAPIPRE="$1"; shift; fi
+if test -n "$1"; then CLUSTERS="$1"; shift; fi
+if test -n "$1"; then CAPIPRE="$1"; shift; fi
+# Try to guess CAPIPRE if it's unset
+if test -z "$CAPIPRE"; then
+	ENVIRONMENT=${ENVIRONMENT:-$OS_CLOUD}
+	ENVFILE=environments/environment-$ENVIRONMENT.tfvars
+	if test -n "$ENVIRONMENT" -a -r $ENVFILE && grep '^prefix[ =]' $ENVFILE >/dev/null 2>&1; then
+		CAPIPRE="$(grep '^prefix[ =]' $ENVFILE | sed 's/^prefix *= *//' | tr -d '"')"
+	else
+		CAPIPRE=capi
+	fi
+fi
+echo "# Deleting$MGMTSRV clusters for $CAPIPRE"
+# Try to detect cluster(s)
+if test -z "$CLUSTERS"; then
+	# Look for application credentials ... these tend to be created first
+	while read id name; do
+		nm=${name%-appcred}
+		nm=${nm#$CAPIPRE-}
+		CLUSTERS="$nm $CLUSTERS"
+	done < <($OPENSTACK application credential list -f value -c ID -c Name | grep $CAPIPRE-[^-]*-appcred)
+
+fi
+# Still no cluster?
+if test -z "$CLUSTERS"; then
+	ENVIRONMENT=${ENVIRONMENT:-$OS_CLOUD}
+	ENVFILE=environments/environment-$ENVIRONMENT.tfvars
+	if test -n "$ENVIRONMENT" -a -r $ENVFILE && grep '^testcluster_name[ =]' $ENVFILE >/dev/null 2>&1; then
+		CLUSTERS="$(grep '^testcluster_name[ =]' $ENVFILE | sed 's/^testcluster_name *= *//' | tr -d '"')"
+	else
+		CLUSTERS=testcluster
+	fi
+fi
 
 # For full cleanup, delete CAPI mgmt server first
 if test "$FULL" == "1"; then
-	echo "Deleting management node with prefix $CAPIPRE"
+	echo "## Deleting management node with prefix $CAPIPRE"
 	# Note: Column "Networks" contains a map of server's network names and associated IPs.
 	#  OpenStack client =<5.4.0 returns network details as follows:
 	#    <network-name-1>=<IP>, <IP>, ..., <network-name-n>=<IP>, <IP>
@@ -118,7 +149,16 @@ if test "$FULL" == "1"; then
 	cleanup_list "floating ip" 2 "" "$CAPI"
 fi
 
-echo "Deleting cluster $CLUSTER"
+echo "## Deleting clusters $CLUSTERS"
+
+for CLUSTER in $CLUSTERS; do
+
+CAPIPRE2X="k8s\-clusterapi\-cluster"
+CAPIPRE2ALL="k8s\-clusterapi\-cluster\-\(default\|$CLUSTER\)\-$CLUSTER"
+CAPIPRE3X="k8s\-cluster"
+CAPIPRE3ALL="k8s\-cluster\-\(default\|$CLUSTER\)\-$CLUSTER"
+
+echo "### Deleting cluster $CLUSTER"
 # cleanup loadbalancers
 if test -n "$NOCASCADE"; then
 POOLS=$(resourcelist "loadbalancer pool" "\(clusterapi-.*-${CLUSTER}-kubeapi\|kube_service_${CLUSTER}_ingress-nginx_ingress-nginx-controller\)")
@@ -138,7 +178,7 @@ while read LB FIP; do
 	if test "$VERBOSE" == "1"; then echo "$FID" | sed 's/^/  /' 1>&2; fi
 	if test -n "$FID"; then
 		echo $OPENSTACK floating ip delete $FID 1>&2
-		$OPENSTACK floating ip delete $FID
+		if test -z "$DEBUG"; then $OPENSTACK floating ip delete $FID; fi
 	fi
 done < <(echo "$LBS")
 if test -n "$NOCASCADE"; then
@@ -148,18 +188,18 @@ else
 fi
 cleanup server $CAPIPRE-$CLUSTER
 cleanup port $CAPIPRE-$CLUSTER
-RTR=$(resourcelist router $CAPIPRE2-$CLUSTER)
-SUBNETS=$(resourcelist subnet $CAPIPRE2-$CLUSTER)
+RTR=$(resourcelist router "$CAPIPRE2ALL")
+SUBNETS=$(resourcelist subnet "$CAPIPRE2ALL")
 if test -n "$RTR" -a -n "$SUBNETS"; then
 	echo $OPENSTACK router remove subnet $RTR $SUBNETS 1>&2
-	$OPENSTACK router remove subnet $RTR $SUBNETS
+	if test -z "$DEBUG"; then $OPENSTACK router remove subnet $RTR $SUBNETS; fi
 fi
 cleanup_list subnet "" "" "$SUBNETS"
-#cleanup subnet $CAPIPRE2-$CLUSTER
-cleanup network $CAPIPRE2-$CLUSTER
+#cleanup subnet $CAPIPRE2ALL
+cleanup network "$CAPIPRE2ALL"
 #cleanup router $CAPIPRE2-$CLUSTER
 cleanup_list router "" "" "$RTR"
-cleanup "security group" $CAPIPRE3-$CLUSTER
+cleanup "security group" "$CAPIPRE3ALL"
 cleanup "security group" $CAPIPRE-$CLUSTER-cilium
 #cleanup "image" ubuntu-capi-image
 # The PVC volumes are NOT deleted here
@@ -167,13 +207,16 @@ cleanup volume $CAPIPRE-$CLUSTER
 cleanup "server group" "$CAPIPRE-$CLUSTER"
 cleanup "application credential" "$CAPIPRE-$CLUSTER-appcred"
 
+done
+
 # Continue with capi control plane
 if test "$FULL" == "1"; then
+	echo "## Cleanup management server"
 	RTR=$(resourcelist router ${CAPIPRE}-rtr)
 	SUBNETS=$(resourcelist subnet ${CAPIPRE}-subnet)
 	if test -n "$RTR" -a -n "$SUBNETS"; then
 		echo $OPENSTACK router remove subnet $RTR $SUBNETS 1>&2
-		$OPENSTACK router remove subnet $RTR $SUBNETS
+		if test -z "$DEBUG"; then $OPENSTACK router remove subnet $RTR $SUBNETS; fi
 	fi
 	if test -n "$SUBNETS"; then
 		cleanup port "" "--fixed-ip subnet=$SUBNETS"
@@ -193,4 +236,4 @@ if test "$FULL" == "1"; then
 	$OPENSTACK volume list | grep 'pvc-'
 fi
 
-echo "Deleted $DELETED OpenStack resources"
+echo "# Deleted $DELETED OpenStack resources"
