@@ -43,8 +43,8 @@ Steps of what happens with the custom cacert in k8s-cluster-api-provider:
      path: /etc/ssl/certs/devstack-cacert
      permissions: "0644"
    ```
-4. When the creation of the workload cluster starts, *~/cluster-defaults/cluster-template.yaml*
-   is copied into workload cluster directory (*~/$CLUSTER_NAME/*)
+4. When the creation of the workload cluster (*create_cluster.sh*) starts,
+   *~/cluster-defaults/cluster-template.yaml* is copied into workload cluster directory (*~/$CLUSTER_NAME/*)
 5. Then the cacert file content is base64 encoded and saved in OPENSTACK_CLOUD_CACERT_B64 variable
    inside *~/$CLUSTER_NAME/clusterctl.yaml*, so it can be used during
    the workload cluster templating
