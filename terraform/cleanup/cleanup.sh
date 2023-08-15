@@ -13,6 +13,8 @@ if test -z "$OPENSTACK"; then OPENSTACK="openstack"; fi
 
 declare -i DELETED=0
 
+if test -n "$DEBUG"; then echo "# INFO: DEBUG set, won't delete anything for real"; DBG="Would have "; fi
+
 # collect list of resources, filtering for names
 # $1 => type (can be several strings separated by spaces, e.g. "loadbalancer listener")
 # $2 => filter (optional)
@@ -231,9 +233,9 @@ if test "$FULL" == "1"; then
 	cleanup keypair ${CAPIPRE}-keypair
 	cleanup "application credential" ${CAPIPRE}-appcred
 	#cleanup volume pvc-
-	echo "Volumes from Cinder CSI left:"
+	echo "## INFO: Volumes from Cinder CSI left:"
 	echo $OPENSTACK volume list 1>&2
 	$OPENSTACK volume list | grep 'pvc-'
 fi
 
-echo "# Deleted $DELETED OpenStack resources"
+echo "# ${DBG}deleted $DELETED OpenStack resources"
