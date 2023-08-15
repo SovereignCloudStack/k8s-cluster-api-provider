@@ -1,6 +1,6 @@
 #!/bin/bash
 . ~/bin/cccfg.inc
-SGS=$(openstack security group list -f value -c ID -c Name | grep "k8s-cluster-default-${CLUSTER_NAME}-secgroup-")
+SGS=$(openstack security group list -f value -c ID -c Name | grep "k8s-cluster-\(default-${CLUSTER_NAME}\|${CLUSTER_NAME}-${CLUSTER_NAME}\)-secgroup-")
 SG_WORKER=$(echo "$SGS" | grep worker | cut -d " " -f1)
 SG_CONTROL=$(echo "$SGS" | grep controlplane | cut -d " " -f1)
 #rm -f enable-cilium-control.yaml enable-cilium-worker.yaml
