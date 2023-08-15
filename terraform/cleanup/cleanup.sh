@@ -203,8 +203,14 @@ cleanup network "$CAPIPRE2ALL"
 cleanup_list router "" "" "$RTR"
 cleanup "security group" "$CAPIPRE3ALL"
 cleanup "security group" $CAPIPRE-$CLUSTER-cilium
+NGINX_SG=$($OPENSTACK security group list -f value -c ID -c Name -c Description | grep ' lb-sg' | grep " in cluster $CLUSTER\$")
+if test -n "$NGINX_SG"; then
+	NGINX_SGS=$(echo "$NGINX_SG" | sed 's/ .*$//g')
+	echo "$OPENSTACK security group delete $NGINX_SGS" 1>&2
+	if test -z "$DEBUG"; then $OPENSTACK security group delete $NGINX_SGS; fi
+fi
 #cleanup "image" ubuntu-capi-image
-# The PVC volumes are NOT deleted here
+# The PVC volumes are NOT deleted here, we have no idea whom they belong to
 cleanup volume $CAPIPRE-$CLUSTER
 cleanup "server group" "$CAPIPRE-$CLUSTER"
 cleanup "application credential" "$CAPIPRE-$CLUSTER-appcred"
