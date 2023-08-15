@@ -94,7 +94,7 @@ clean: init
 
 fullclean:
 	prefix=$$(grep '^prefix *=' environments/environment-${ENVIRONMENT}.tfvars | $(SED) -e 's/^[^=]*= *//' -e 's/"//g'); \
-	./cleanup/cleanup.sh --verbose --full $(TESTCLUSTER) $${prefix}
+	./cleanup/cleanup.sh --verbose --full
 	@if test -e ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); then source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); ssh-keygen -R $$MGMTCLUSTER_ADDRESS -f ~/.ssh/known_hosts; rm -f .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); fi
 	$(MAKE) clean
 
