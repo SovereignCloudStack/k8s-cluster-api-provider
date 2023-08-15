@@ -171,6 +171,11 @@ done
 echo "# Deploy services (CNI, OCCM, CSI, Metrics, Cert-Manager, Flux2, Ingress)"
 MTU_VALUE=$(yq eval '.MTU_VALUE' $CCCFG)
 if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
+  KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.0/config/crd/standard/gateway.networking.k8s.io_gatewayclasses.yaml
+  KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.0/config/crd/standard/gateway.networking.k8s.io_gateways.yaml
+  KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.0/config/crd/standard/gateway.networking.k8s.io_httproutes.yaml
+  KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.0/config/crd/standard/gateway.networking.k8s.io_referencegrants.yaml
+  KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.0/config/crd/experimental/gateway.networking.k8s.io_tlsroutes.yaml
   # FIXME: Do we need to allow overriding MTU here as well?
   CILIUM_VERSION="v1.14.0"
   if test "${USE_CILIUM:0:1}" = "v"; then
