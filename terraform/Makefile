@@ -25,14 +25,13 @@ ifneq (,$(wildcard ./minio.env))
   include minio.env
 endif
 
-YQVERSION=$(shell yq --version | $(SED) -e 's/^yq //' -e 's/^.*version //')
-YQMAJOR=$(shell YQV="$(YQVERSION)"; echo "$${YQV%%.*}")
-ifeq ($(YQMAJOR),v4)
-  YQ=yq eval
-  YQIN=-
-else
+YQISJQ=$(shell yq --help | grep jq >/dev/null 2>&1 && echo 1)
+ifeq ($(YQISJQ),1)
   YQ=yq --yaml-output
   YQIN=
+else
+  YQ=yq eval
+  YQIN=-
 endif
 
 CLOUD=$(shell ( grep '^cloud_provider' environments/environment-$(ENVIRONMENT).tfvars || echo $(ENVIRONMENT) ) | $(SED) 's@^cloud_provider[^=]*= *"*\([^"]*\).*$$@\1@' )
