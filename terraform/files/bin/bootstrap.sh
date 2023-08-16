@@ -7,7 +7,7 @@
 export PATH=$PATH:~/bin
 
 # Need yaml parsing capabilities
-if type snap >/dev/null 2>&1; then sudo snap install yq; else apt-get install yq; fi
+if type snap >/dev/null 2>&1; then sudo snap install yq; else sudo apt-get -y install yq; fi
 
 # Source global settings
 test -r ~/.capi-settings && source ~/.capi-settings
