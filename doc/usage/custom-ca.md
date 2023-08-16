@@ -63,9 +63,13 @@ for the workload clusters and in the workload clusters by OCCM and CCSI for e.g.
 In both cases, cacert is provided via secret *${CLUSTER_NAME}-cloud-config* and needs to be updated.
 
 There are 3 steps in this rotation process:
-1. Replace custom CA certificate in `~/cluster-defaults/${cloud_provider}-cacert`
+1. Replace/append custom CA certificate in `~/cluster-defaults/${cloud_provider}-cacert`
 2. Increase generation counters `CONTROL_PLANE_MACHINE_GEN` and `WORKER_MACHINE_GEN` in `~/$CLUSTER_NAME/clusterctl.yaml`
 3. Run `create_cluster.sh $CLUSTER_NAME` and wait for the rolling update of your workload cluster
+
+> In step 1, appending can be useful for avoiding downtime of your services.
+> Your cacert file will contain two CA certificates - old and new.
+> This should help with a smooth transition to a new certificate and later, the old one can be removed.
 
 > Steps 2 and 3 need to be done per workload cluster.
 
