@@ -2,8 +2,8 @@
 
 . ~/bin/cccfg.inc
 
-KUBERNETES_VERSION=$(yq eval '.KUBERNETES_VERSION' $CCCFG)
-UBU_IMG_NM=$(yq eval '.OPENSTACK_IMAGE_NAME' $CCCFG)
+KUBERNETES_VERSION=$($YQ '.KUBERNETES_VERSION' $CCCFG)
+UBU_IMG_NM=$($YQ '.OPENSTACK_IMAGE_NAME' $CCCFG)
 
 #download/upload image to openstack
 echo -n "Waiting for image $UBU_IMG_NM to become active: "

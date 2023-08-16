@@ -1,6 +1,7 @@
 #!/bin/bash
 . ~/.capi-settings
-export OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' ~/cluster-defaults/clusterctl.yaml)
+. ~/bin/yq.inc
+export OS_CLOUD=$($YQ '.OPENSTACK_CLOUD' ~/cluster-defaults/clusterctl.yaml)
 
 #install Openstack CLI
 sudo apt install -y python3-openstackclient python3-octaviaclient
@@ -18,7 +19,7 @@ if ! grep '^tenant.id' ~/cluster-defaults/cloud.conf >/dev/null; then
 fi
 
 # Determine cacert and inject into cloud.conf and cluster-template.yaml
-CACERT=$(print-cloud.py | yq eval '.clouds."'"$OS_CLOUD"'".cacert // "null"' -)
+CACERT=$(print-cloud.py | $YQ '.clouds."'"$OS_CLOUD"'".cacert // "null"' -)
 if test "$CACERT" != "null"; then
   CADEST="/etc/ssl/certs/$(basename "$CACERT")" # path for OCCM
   echo "Set ca-file to $CADEST for $OS_CLOUD"

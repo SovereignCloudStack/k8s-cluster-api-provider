@@ -64,7 +64,7 @@ disable_ovn()
 	#sed -i '/create\-monitor=true/d' $CLOUDCONF
 }
 
-export USE_OVN=$(yq eval '.USE_OVN_LB_PROVIDER' $CCCFG)
+export USE_OVN=$($YQ '.USE_OVN_LB_PROVIDER' $CCCFG)
 if test "$USE_OVN" = "false"; then disable_ovn
 elif test "$USE_OVN" = "auto"; then if test_ovn_avail; then use_ovn; else disable_ovn; fi
 elif test "$USE_OVN" = "true"; then use_ovn

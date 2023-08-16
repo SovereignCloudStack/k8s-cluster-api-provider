@@ -6,8 +6,8 @@ export KUBECONFIG=~/.kube/config
 . ~/$CLUSTER_NAME/harbor-settings
 
 # apply cinder-csi
-KUBERNETES_VERSION=$(yq eval '.KUBERNETES_VERSION' $CCCFG)
-DEPLOY_CINDERCSI=$(yq eval '.DEPLOY_CINDERCSI' $CCCFG)
+KUBERNETES_VERSION=$($YQ '.KUBERNETES_VERSION' $CCCFG)
+DEPLOY_CINDERCSI=$($YQ '.DEPLOY_CINDERCSI' $CCCFG)
 if test "$DEPLOY_CINDERCSI" = "null"; then DEPLOY_CINDERCSI=true; fi
 cd ~/kubernetes-manifests.d/
 if test "$DEPLOY_CINDERCSI" = "false"; then
@@ -72,7 +72,7 @@ else
   CCSI=cinder.yaml
 fi
 kubectl $KCONTEXT apply -f ~/$CLUSTER_NAME/deployed-manifests.d/cindercsi-snapshot.yaml || exit 8
-CACERT=$(print-cloud.py | yq eval '.clouds."'"$OS_CLOUD"'".cacert // "null"' -)
+CACERT=$(print-cloud.py | $YQ '.clouds."'"$OS_CLOUD"'".cacert // "null"' -)
 if test "$CACERT" != "null"; then
   CAMOUNT="/etc/ssl/certs" # see prepare_openstack.sh, CACERT is already injected in the k8s nodes
   CAVOLUME="cacert"

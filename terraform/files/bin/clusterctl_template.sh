@@ -4,6 +4,7 @@
 
 # yq installation done by bootstrap.sh
 #sudo snap install yq
+. ~/bin/yq.inc
 if test -z "$1"; then CLUSTER_NAME="cluster-defaults"; else CLUSTER_NAME="$1"; fi
 
 # Encode clouds.yaml
@@ -18,7 +19,7 @@ else
   sed -i "s/^tenant.id=.*\$/tenant-id=$PROJECTID/" ~/$CLUSTER_NAME/cloud.conf
 fi
 #CLOUD_YAML_ENC=$( (cat ~/.config/openstack/clouds.yaml; echo "      project_id: $PROJECTID") | base64 -w 0)
-OLD_OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' ~/$CLUSTER_NAME/clusterctl.yaml)
+OLD_OS_CLOUD=$($YQ '.OPENSTACK_CLOUD' ~/$CLUSTER_NAME/clusterctl.yaml)
 if test -z "$OS_CLOUD"; then
   OS_CLOUD=$OLD_OS_CLOUD
 fi
@@ -33,17 +34,17 @@ CLOUD_CONF_ENC=$(base64 -w 0 ~/$CLUSTER_NAME/cloud.conf)
 # Update OPENSTACK_CLOUD
 if test "$OS_CLOUD" != "$OLD_OS_CLOUD"; then
   echo "#Info: Changing OPENSTACK_CLOUD from $OLD_OS_CLOUD to $OS_CLOUD"
-  yq eval '.OPENSTACK_CLOUD = "'"$OS_CLOUD"'"' -i ~/$CLUSTER_NAME/clusterctl.yaml
+  $YQ '.OPENSTACK_CLOUD = "'"$OS_CLOUD"'"' -i ~/$CLUSTER_NAME/clusterctl.yaml
   sed -i "/^OPENSTACK_CLOUD:/a\
 OLD_OPENSTACK_CLOUD: $OLD_OS_CLOUD" ~/$CLUSTER_NAME/clusterctl.yaml
 fi
 
-CACERT=$(print-cloud.py | yq eval '.clouds."'"$OS_CLOUD"'".cacert // "null"' -)
+CACERT=$(print-cloud.py | $YQ '.clouds."'"$OS_CLOUD"'".cacert // "null"' -)
 if test "$CACERT" != "null"; then
   CLOUD_CA_ENC=$(base64 -w 0 "$CACERT")
 else
   # Snaps are broken - can not access ~/.config/openstack/clouds.yaml
-  AUTH_URL=$(print-cloud.py | yq eval .clouds.${OS_CLOUD}.auth.auth_url -)
+  AUTH_URL=$(print-cloud.py | $YQ .clouds.${OS_CLOUD}.auth.auth_url -)
   #AUTH_URL=$(grep -A12 "${cloud_provider}" ~/.config/openstack/clouds.yaml | grep auth_url | head -n1 | sed -e 's/^ *auth_url: //' -e 's/"//g')
   AUTH_URL_SHORT=$(echo "$AUTH_URL" | sed s'/https:\/\///' | sed s'/\/.*$//')
   # Check whether AUTH_URL_SHORT includes port, otherwise append ":443"
@@ -52,7 +53,7 @@ else
   CLOUD_CA_ENC=$(base64 -w 0 /etc/ssl/certs/"$CERT_CERT")
 fi
 
-yq eval '.OPENSTACK_CLOUD_YAML_B64 = "'"$CLOUD_YAML_ENC"'"' -i ~/$CLUSTER_NAME/clusterctl.yaml
-yq eval '.OPENSTACK_CLOUD_PROVIDER_CONF_B64 = "'"$CLOUD_CONF_ENC"'"' -i ~/$CLUSTER_NAME/clusterctl.yaml
-yq eval '.OPENSTACK_CLOUD_CACERT_B64 = "'"$CLOUD_CA_ENC"'"' -i ~/$CLUSTER_NAME/clusterctl.yaml
+$YQ '.OPENSTACK_CLOUD_YAML_B64 = "'"$CLOUD_YAML_ENC"'"' -i ~/$CLUSTER_NAME/clusterctl.yaml
+$YQ '.OPENSTACK_CLOUD_PROVIDER_CONF_B64 = "'"$CLOUD_CONF_ENC"'"' -i ~/$CLUSTER_NAME/clusterctl.yaml
+$YQ '.OPENSTACK_CLOUD_CACERT_B64 = "'"$CLOUD_CA_ENC"'"' -i ~/$CLUSTER_NAME/clusterctl.yaml
 

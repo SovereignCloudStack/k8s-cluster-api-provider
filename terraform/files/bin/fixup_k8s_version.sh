@@ -3,9 +3,10 @@
 # Patch $1 (clusterctl.yaml) with fixed up k8s version if needed
 # (c) Kurt Garloff, 03/2022
 # SPDX-License-Identifier: Apache-2.0
+. ~/bin/yq.inc
 
 if test -z "$1"; then echo "ERROR: Need clusterctl.yaml arg" 1>&2; exit 1; fi
-KUBERNETES_VERSION=$(yq eval '.KUBERNETES_VERSION' $1)
+KUBERNETES_VERSION=$($YQ '.KUBERNETES_VERSION' $1)
 . ~/bin/openstack-kube-versions.inc
 # Now is the time to error out
 if is_tech_preview $KUBERNETES_VERSION; then

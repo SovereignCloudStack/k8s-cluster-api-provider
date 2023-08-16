@@ -7,7 +7,7 @@
 export PATH=$PATH:~/bin
 
 # Need yaml parsing capabilities
-sudo snap install yq
+if type snap >/dev/null 2>&1; then sudo snap install yq; else apt-get install yq; fi
 
 # Source global settings
 test -r ~/.capi-settings && source ~/.capi-settings
@@ -20,9 +20,14 @@ upload_capi_image.sh
 ## install tools and utils at local account
 
 # install kubectl
-sudo snap install kubectl --classic
 sudo apt install -y binutils jq
-sudo snap install kustomize
+if type snap >/dev/null 2>&1; then
+  sudo snap install kubectl --classic
+  sudo snap install kustomize
+else
+  apt-get install -y kubectl
+  apt-get install -y kustomize
+fi
 
 # setup aliases and environment
 echo "# setup environment"
@@ -62,8 +67,9 @@ deploy_cluster_api.sh
 install_k9s.sh
 get_capi_helm.sh
 
+source ~/bin/yq.inc
 # install Flux CLI always - regardless of deploy_flux variable(it can be used only for version change)
-DEPLOY_FLUX=`yq eval '.DEPLOY_FLUX' ~/cluster-defaults/clusterctl.yaml`
+DEPLOY_FLUX=`$YQ '.DEPLOY_FLUX' ~/cluster-defaults/clusterctl.yaml`
 if test "$DEPLOY_FLUX" = "true" -o "$DEPLOY_FLUX" = "false"; then
   FLUX_VERSION="0.41.2"
 else
@@ -73,7 +79,7 @@ install_flux.sh $FLUX_VERSION
 
 #git clone https://github.com/Pharb/kubernetes-iperf3.git
 
-CONTROLLERS=`yq eval '.CONTROL_PLANE_MACHINE_COUNT' ~/cluster-defaults/clusterctl.yaml`
+CONTROLLERS=`$YQ '.CONTROL_PLANE_MACHINE_COUNT' ~/cluster-defaults/clusterctl.yaml`
 export TESTCLUSTER=${1:-$TESTCLUSTER}
 if test "$CONTROLLERS" != "0"; then
     create_cluster.sh $TESTCLUSTER

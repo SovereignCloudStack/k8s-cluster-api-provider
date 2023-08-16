@@ -50,9 +50,9 @@ handle_ovn_lb.sh "$CLUSTER_NAME" || exit 1
 create_appcred.sh || exit 1
 # Update OS_CLOUD
 #export OS_CLOUD=$PREFIX-$CLUSTER_NAME
-export OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)
+export OS_CLOUD=$($YQ '.OPENSTACK_CLOUD' $CCCFG)
 
-#export OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)
+#export OS_CLOUD=$($YQ '.OPENSTACK_CLOUD' $CCCFG)
 # Ensure image is there
 wait_capi_image.sh "$1" || exit 1
 
@@ -70,10 +70,10 @@ echo "# show used variables for clustertemplate ${CLUSTERAPI_TEMPLATE}"
 # (2) For OCCM, CSI
 #
 # set OpenStack instance create timeout before the operator starts to create instances
-CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT=$(yq eval '.CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT' $CCCFG)
+CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT=$($YQ '.CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT' $CCCFG)
 kubectl -n capo-system set env deployment/capo-controller-manager CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT=$CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT
 
-CONTROL_PLANE_MACHINE_COUNT=$(yq eval '.CONTROL_PLANE_MACHINE_COUNT' $CCCFG)
+CONTROL_PLANE_MACHINE_COUNT=$($YQ '.CONTROL_PLANE_MACHINE_COUNT' $CCCFG)
 # Implement anti-affinity with server groups
 if test "$CONTROL_PLANE_MACHINE_COUNT" -gt 0 && grep '^ *OPENSTACK_ANTI_AFFINITY: true' $CCCFG >/dev/null 2>&1; then
   SRVGRP=$(openstack server group list -f value)
@@ -127,7 +127,7 @@ sed -i '/^ *serverGroupID: nonono$/d' ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.y
 apply_kubeapi_cidrs.sh "$CCCFG" ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
 
 # Test for CILIUM
-USE_CILIUM=$(yq eval '.USE_CILIUM' $CCCFG)
+USE_CILIUM=$($YQ '.USE_CILIUM' $CCCFG)
 if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
   echo "# Security groups for cilium"
   enable-cilium-sg.sh "$CLUSTER_NAME"
@@ -169,14 +169,14 @@ done
 
 # CNI
 echo "# Deploy services (CNI, OCCM, CSI, Metrics, Cert-Manager, Flux2, Ingress)"
-MTU_VALUE=$(yq eval '.MTU_VALUE' $CCCFG)
+MTU_VALUE=$($YQ '.MTU_VALUE' $CCCFG)
 if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
   # FIXME: Do we need to allow overriding MTU here as well?
   CILIUM_VERSION="v1.14.0"
   if test "${USE_CILIUM:0:1}" = "v"; then
     CILIUM_VERSION="${USE_CILIUM}"
   fi
-  POD_CIDR=$(yq eval '.POD_CIDR' $CCCFG)
+  POD_CIDR=$($YQ '.POD_CIDR' $CCCFG)
   KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium install --version $CILIUM_VERSION \
     --helm-set-string "ipam.operator.clusterPoolIPv4PodCIDRList={${POD_CIDR}}" \
     --helm-set kubeProxyReplacement=disabled \
@@ -184,7 +184,7 @@ if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
     --helm-set sessionAffinity=true
   touch ~/$CLUSTER_NAME/deployed-manifests.d/.cilium
 else
-  CALICO_VERSION=$(yq eval '.CALICO_VERSION' $CCCFG)
+  CALICO_VERSION=$($YQ '.CALICO_VERSION' $CCCFG)
   if test ! -s ~/kubernetes-manifests.d/calico-${CALICO_VERSION}.yaml; then
     curl -L https://raw.githubusercontent.com/projectcalico/calico/$CALICO_VERSION/manifests/calico.yaml -o ~/kubernetes-manifests.d/calico-${CALICO_VERSION}.yaml
   fi
@@ -197,13 +197,13 @@ apply_openstack_integration.sh "$CLUSTER_NAME" || exit $?
 apply_cindercsi.sh "$CLUSTER_NAME" || exit $?
 
 # Metrics
-DEPLOY_METRICS=$(yq eval '.DEPLOY_METRICS' $CCCFG)
+DEPLOY_METRICS=$($YQ '.DEPLOY_METRICS' $CCCFG)
 if test "$DEPLOY_METRICS" = "true"; then
   apply_metrics.sh "$CLUSTER_NAME" || exit $?
 fi
 
 # Cert-Manager
-DEPLOY_CERT_MANAGER=$(yq eval '.DEPLOY_CERT_MANAGER' $CCCFG)
+DEPLOY_CERT_MANAGER=$($YQ '.DEPLOY_CERT_MANAGER' $CCCFG)
 if test "$DEPLOY_CERT_MANAGER" = "false" -a "$DEPLOY_HARBOR" = "true" -a -n "$HARBOR_DOMAIN_NAME"; then
   echo "INFO: Installation of cert-manager forced by Harbor deployment"
   DEPLOY_CERT_MANAGER="true"
@@ -213,7 +213,7 @@ if test "$DEPLOY_CERT_MANAGER" = "true" -o "${DEPLOY_CERT_MANAGER:0:1}" = "v"; t
 fi
 
 # Flux2
-DEPLOY_FLUX=$(yq eval '.DEPLOY_FLUX' $CCCFG)
+DEPLOY_FLUX=$($YQ '.DEPLOY_FLUX' $CCCFG)
 if test "$DEPLOY_FLUX" = "false" -a "$DEPLOY_HARBOR" = "true"; then
   echo "INFO: Installation of flux forced by Harbor deployment"
   DEPLOY_FLUX="true"
@@ -229,7 +229,7 @@ if test "$DEPLOY_FLUX" = "true" -o "${DEPLOY_FLUX:0:1}" = "v"; then
 fi
 
 # NGINX ingress
-DEPLOY_NGINX_INGRESS=$(yq eval '.DEPLOY_NGINX_INGRESS' $CCCFG)
+DEPLOY_NGINX_INGRESS=$($YQ '.DEPLOY_NGINX_INGRESS' $CCCFG)
 if test "$DEPLOY_NGINX_INGRESS" = "false" -a "$DEPLOY_HARBOR" = "true" -a -n "$HARBOR_DOMAIN_NAME"; then
   echo "INFO: Installation of ingress-nginx forced by Harbor deployment"
   DEPLOY_NGINX_INGRESS="true"
@@ -251,7 +251,7 @@ fi
 if test "$DEPLOY_HARBOR" = "true"; then
   deploy_harbor.sh "$CLUSTER_NAME" || exit $?
   echo "SUCCESS: Harbor deployed in cluster ${CLUSTER_NAME}"
-  echo "INFO: For admin password use kubectl $KCONTEXT get secret harbor-secrets -o jsonpath='{.data.values\.yaml}' | base64 -d | yq .harborAdminPassword"
+  echo "INFO: For admin password use kubectl $KCONTEXT get secret harbor-secrets -o jsonpath='{.data.values\.yaml}' | base64 -d | $YQ .harborAdminPassword $YQIN"
   echo "INFO: You can access it via k8s service 'harbor', e.g. http://harbor."
   echo "INFO: If you deployed Harbor with domain name and ingress"
   echo "INFO: use kubectl $KCONTEXT -n ingress-nginx get svc ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress}'"

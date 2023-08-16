@@ -7,8 +7,8 @@ kubectl $KCONTEXT create secret generic cloud-config --from-file="$HOME/$CLUSTER
 
 cd ~/kubernetes-manifests.d
 # install external cloud-provider openstack
-KUBERNETES_VERSION=$(yq eval '.KUBERNETES_VERSION' $CCCFG)
-DEPLOY_OCCM=$(yq eval '.DEPLOY_OCCM' $CCCFG)
+KUBERNETES_VERSION=$($YQ '.KUBERNETES_VERSION' $CCCFG)
+DEPLOY_OCCM=$($YQ '.DEPLOY_OCCM' $CCCFG)
 if test "$DEPLOY_OCCM" = "null"; then DEPLOY_OCCM=true; fi
 if test "$DEPLOY_OCCM" = "false"; then echo "ERROR: k8s will be uninitialized without occm" 1>&2; exit 1; fi
 if test "$DEPLOY_OCCM" = "true"; then

@@ -19,6 +19,7 @@ if kubectl get cluster $CLUSTER_NAME --namespace default >/dev/null 2>&1 && ! gr
 	echo "#Warn: Old style cluster, disable new appcred handling"
 	exit 0
 fi
+. ~/bin/yq.inc
 APPCREDS=$(openstack application credential list -f value -c ID -c Name -c "Project ID")
 while read id nm prjid; do
 	#echo "\"$nm\" \"$prjid\" \"$id\""
@@ -40,9 +41,9 @@ if test -z "$APPCRED_ID"; then
 	if test ! -e ~/.config/openstack/clouds.yaml.orig; then cp -p ~/.config/openstack/clouds.yaml ~/.config/openstack/clouds.yaml.orig; fi
 	#print-cloud.py -c $PREFIX-$CLUSTER_NAME -r application_credential_id=$APPCRED_ID -r application_credential_secret="\"$APPCRED_SECRET\"" -i auth_url="#project_id: $APPCRED_PRJ" | grep -v '^#' | grep -v '^---' | grep -v '^clouds:' >> ~/.config/openstack/clouds.yaml
 	# Generate a fresh section rather than relying on cleanliness of existing setup
-	AUTH_URL=$(print-cloud.py | yq eval .clouds.${OS_CLOUD}.auth.auth_url -)
-	REGION=$(print-cloud.py | yq eval .clouds.${OS_CLOUD}.region_name -)
-	CACERT=$(print-cloud.py | yq eval '.clouds."'"$OS_CLOUD"'".cacert // "null"' -)
+	AUTH_URL=$(print-cloud.py | $YQ .clouds.${OS_CLOUD}.auth.auth_url -)
+	REGION=$(print-cloud.py | $YQ .clouds.${OS_CLOUD}.region_name -)
+	CACERT=$(print-cloud.py | $YQ '.clouds."'"$OS_CLOUD"'".cacert // "null"' -)
 	# In theory we could also make interface and id_api_vers variable,
 	# but let's do that once we find the necessity. Error handling makes
 	# it slightly complex, so it's not an obvious win.
