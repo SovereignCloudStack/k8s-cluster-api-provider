@@ -11,6 +11,8 @@ executing of bootstrap script, etc. has been updated and validated.
 
 ### sonobuoy 0.56.x
 
+### cilium 1.14.0
+
 - Sonobuoy v0.56.17 adds support for the latest k8s versions even for k8s 1.27.
 
 ### cert-manager 1.12.x
@@ -100,6 +102,9 @@ SCS community successfully deployed and uses Harbor registry at https://registry
 From [#445](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/445), it is possible to deploy
 Harbor in a similar way into the workload cluster by using also this project. For further details
 check the [docs](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/usage/harbor.md).
+
+### Gateway API
+Gateway API can be enabled with the new configuration flag `DEPLOY_GATEWAY_API`. Unfortunately it breaks some sonobuoy conformance tests and is considered a tech-preview only. This feature is disabled by default.
 
 # Namespace separation for clusterctl in capi management server
 
