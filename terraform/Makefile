@@ -1,6 +1,6 @@
 # Makefile
 
-# set the env we used 
+# set the env we used
 #ENVIRONMENT = gx-betacloud
 #ENVIRONMENT ?= gx-citycloud
 #ENVIRONMENT = gx-scs
@@ -37,7 +37,7 @@ endif
 
 CLOUD=$(shell ( grep '^cloud_provider' environments/environment-$(ENVIRONMENT).tfvars || echo $(ENVIRONMENT) ) | $(SED) 's@^cloud_provider[^=]*= *"*\([^"]*\).*$$@\1@' )
 ifeq ($(TESTCLUSTER),)
-TESTCLUSTER=$(shell ( grep '^testcluster_name' environments/environment-$(ENVIRONMENT).tfvars || echo testcluster ) | $(SED) 's@^testcluster_name[^=]*= *"*\([^"]*\).*$$@\1@' )
+TESTCLUSTER=$(shell ( grep '^testcluster_name' environments/environment-$(ENVIRONMENT).tfvars || echo testcluster-$(shell echo $RANDOM | md5sum | head -c 10) ) | $(SED) 's@^testcluster_name[^=]*= *"*\([^"]*\).*$$@\1@' );
 endif
 
 GITBRANCH=$(shell git branch | grep '^*' | $(SED) 's/^* //')
@@ -77,7 +77,7 @@ gitchk:
 
 create: init
 	@touch .deploy.$(ENVIRONMENT)
-	terraform apply -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" -var "git_branch=$(GITBRANCH)" -var "git_repo=$(GITREPO)"
+	terraform apply -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" -var "git_branch=$(GITBRANCH)" -var "git_repo=$(GITREPO)" -var "testcluster_name=$(TESTCLUSTER)"
 
 show: init
 	@terraform show
@@ -109,7 +109,7 @@ purge:
 	@ospurge --purge-own-project --os-cloud $(ENVIRONMENT) --verbose
 	@rm -f .deploy.$(ENVIRONMENT) .MGMT_ADDRESS.$(ENVIRONMENT)
 	@rm -f .id_rsa.$(ENVIRONMENT)
-	@terraform workspace select default 
+	@terraform workspace select default
 	@terraform workspace delete -force $(ENVIRONMENT) || true
 	@openstack keypair delete capi-keypair || true
 	@ospurge --purge-own-project --os-cloud $(ENVIRONMENT) --verbose

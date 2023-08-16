@@ -204,7 +204,6 @@ variable "git_repo" {
 variable "testcluster_name" {
   description = "name of the testcluster optionally created during bootstrap"
   type        = string
-  default     = "testcluster"
 }
 
 variable "use_ovn_lb_provider" {
