@@ -7,7 +7,7 @@
     # TODO: use `checksum` attr here to verify the digest of the destination file, if available
 - name: Install yq
   get_url:
-    url: "https://github.com/mikefarah/yq/releases/download/v{{ yq_version }}/yq_linux_arm64"
+    url: "https://github.com/mikefarah/yq/releases/download/v{{ yq_version }}/yq_linux_amd64"
     dest: "/usr/bin/yq"
     mode: "+x"
     # TODO: use `checksum` attr here to verify the digest of the destination file, if available

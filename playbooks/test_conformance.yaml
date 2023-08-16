@@ -5,8 +5,8 @@
   - ensure-dependencies
   vars:
     project_tf_dir: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}/terraform"
-    prefix: "{{ zuul.branch }}"
-    testcluster_name: "{{ zuul.branch }}"
+    prefix: "{{ zuul.patchset }}"
+    testcluster_name: "{{ zuul.branch }}" # zuul.branch is target branch of the change
     cloud_provider: "{{ cloud }}"  # inherited from the parent job
   environment:
     ENVIRONMENT: "{{ cloud_provider }}"
@@ -18,10 +18,11 @@
          src: "templates/environment.tfvars.j2"
          dest: "{{ project_tf_dir }}/environments/environment-{{ cloud_provider }}.tfvars"
      - name: Create k8s cluster
-       command: "make create"
+       # zuul.commit_id added in zuul 9.0.0 https://zuul-ci.org/docs/zuul/latest/releasenotes.html#relnotes-9-0-0
+       command: "make create GITBRANCH={{ zuul.patchset }} GITREPO=https://{{ zuul.project.canonical_name }}"
        args:
          chdir: "{{ project_tf_dir }}"
-     - name: Execute sonobouy conformance conformance
+     - name: Execute sonobouy conformance check
        command: "make check-conformance"
        args:
          chdir: "{{ project_tf_dir }}"

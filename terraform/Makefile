@@ -40,10 +40,8 @@ ifeq ($(TESTCLUSTER),)
 TESTCLUSTER=$(shell ( grep '^testcluster_name' environments/environment-$(ENVIRONMENT).tfvars || echo testcluster ) | $(SED) 's@^testcluster_name[^=]*= *"*\([^"]*\).*$$@\1@' )
 endif
 
-# GITBRANCH=$(shell git branch | grep '^*' | $(SED) 's/^* //')
-# GITREPO=$(shell git config --get remote.origin.url | sed 's%git@\([^:]*\):%https://\1/%')
-GITBRANCH=main
-GITREPO=https://github.com/SovereignCloudStack/k8s-cluster-api-provider
+GITBRANCH=$(shell git branch | grep '^*' | $(SED) 's/^* //')
+GITREPO=$(shell git config --get remote.origin.url | sed 's%git@\([^:]*\):%https://\1/%')
 
 init:	mycloud
 	@if [ ! -d .terraform/plugins ]; then terraform init; fi
