@@ -51,8 +51,8 @@ if test -z "$APPCRED_ID"; then
     interface: public
     identity_api_version: 3
     region_name: $REGION
-    auth_type: "v3applicationcredential"
     cacert: $CACERT
+    auth_type: "v3applicationcredential"
     auth:
       auth_url: $AUTH_URL
       #project_id: $APPCRED_PRJ

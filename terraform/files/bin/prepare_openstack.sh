@@ -23,5 +23,5 @@ if test "$CACERT" != "null"; then
   CADEST="/etc/ssl/certs/$(basename "$CACERT")" # path for OCCM
   echo "Set ca-file to $CADEST for $OS_CLOUD"
   sed -i "/^application.credential.secret/aca-file=$CADEST" ~/cluster-defaults/cloud.conf
-  inject_custom_ca.sh ~/cluster-defaults/cluster-template.yaml "$CACERT" "$CADEST"
+  inject_custom_ca.sh ~/cluster-defaults/cluster-template.yaml "$CADEST"
 fi
