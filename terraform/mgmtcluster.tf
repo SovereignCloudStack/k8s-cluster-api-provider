@@ -97,7 +97,7 @@ runcmd:
   - mv /tmp/daemon.json /etc/docker/daemon.json
   - groupadd docker
   - usermod -aG docker ${var.ssh_username}
-  - apt -y -–no-install-recommends install docker.io yamllint qemu-utils
+  - apt -y install --no-install-recommends --no-install-suggests docker.io yamllint qemu-utils git
 EOF
 
 }
