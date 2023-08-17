@@ -15,7 +15,12 @@ if [ -n "$existing_cluster" ]; then
   kubectl config set-context --current --namespace=$existing_cluster
   export CLUSTER_NAMESPACE=$existing_cluster
 else
-  if [ -z "$CREATE_NEW_NAMESPACE" ] || [ "$CREATE_NEW_NAMESPACE" = true ]; then
+  if kubectl get ns "$CLUSTER_NAME" &>/dev/null; then
+    echo "> Cluster $CLUSTER_NAME does not exist, but namespace $CLUSTER_NAME already exists."
+    echo "> Changing namespace to $CLUSTER_NAME"
+    kubectl config set-context --current --namespace=$CLUSTER_NAME
+    export CLUSTER_NAMESPACE=$CLUSTER_NAME
+  elif [ -z "$CREATE_NEW_NAMESPACE" ] || [ "$CREATE_NEW_NAMESPACE" = true ]; then
     echo "> Cluster $CLUSTER_NAME does not exist. Creating a new cluster namespace..."
     kubectl create namespace $CLUSTER_NAME
     kubectl config set-context --current --namespace=$CLUSTER_NAME
