@@ -37,7 +37,7 @@ endif
 
 CLOUD=$(shell ( grep '^cloud_provider' environments/environment-$(ENVIRONMENT).tfvars || echo $(ENVIRONMENT) ) | $(SED) 's@^cloud_provider[^=]*= *"*\([^"]*\).*$$@\1@' )
 ifeq ($(TESTCLUSTER),)
-TESTCLUSTER=$(shell ( grep '^testcluster_name' environments/environment-$(ENVIRONMENT).tfvars || echo testcluster-$(shell echo $RANDOM | md5sum | head -c 10) ) | $(SED) 's@^testcluster_name[^=]*= *"*\([^"]*\).*$$@\1@' );
+TESTCLUSTER=$(shell ( grep '^testcluster_name' environments/environment-$(ENVIRONMENT).tfvars || echo testcluster-$(shell echo $RANDOM | md5sum | head -c 4) ) | $(SED) 's@^testcluster_name[^=]*= *"*\([^"]*\).*$$@\1@' );
 endif
 
 GITBRANCH=$(shell git branch | grep '^*' | $(SED) 's/^* //')
