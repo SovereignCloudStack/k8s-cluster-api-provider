@@ -30,12 +30,12 @@ upload_capi_image.sh
 ## install tools and utils at local account
 
 # install kubectl
-sudo apt install -y binutils jq
+sudo apt install --no-install-recommends -y binutils jq
 if type snap >/dev/null 2>&1; then
   sudo snap install kubectl --classic
   sudo snap install kustomize
 else
-  sudo apt-get install -y apt-transport-https ca-certificates curl gnupg2
+  sudo apt-get install -–no-install-recommends -y apt-transport-https ca-certificates curl gnupg2
   # FIXME: CHECK SIGNATURE
   KUBECTLVER=v1.27
   curl -fsSL https://pkgs.k8s.io/core:/stable:/$KUBECTLVER/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
