@@ -7,7 +7,9 @@
 export PATH=$PATH:~/bin
 
 # Need yaml parsing capabilities
-if type snap >/dev/null 2>&1; then sudo snap install yq; else sudo apt-get -y install yq; fi
+# flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+if ! type snap >/dev/null 2>&1; then sudo apt-get -y install snap; fi
+sudo snap install yq
 
 # Source global settings
 test -r ~/.capi-settings && source ~/.capi-settings
@@ -21,13 +23,8 @@ upload_capi_image.sh
 
 # install kubectl
 sudo apt install -y binutils jq
-if type snap >/dev/null 2>&1; then
-  sudo snap install kubectl --classic
-  sudo snap install kustomize
-else
-  apt-get install -y kubectl
-  apt-get install -y kustomize
-fi
+sudo snap install kubectl --classic
+sudo snap install kustomize
 
 # setup aliases and environment
 echo "# setup environment"
