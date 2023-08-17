@@ -35,17 +35,18 @@ if type snap >/dev/null 2>&1; then
   sudo snap install kubectl --classic
   sudo snap install kustomize
 else
-  sudo apt-get install -y apt-transport-https ca-certificates curl
+  sudo apt-get install -y apt-transport-https ca-certificates curl gnupg2
   # FIXME: CHECK SIGNATURE
-  curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+  KUBECTLVER=v1.27
+  curl -fsSL https://pkgs.k8s.io/core:/stable:/$KUBECTLVER/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
   #sudo mkdir -m 755 /etc/apt/keyrings
-  echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.27/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+  echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/$KUBECTLVER/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
   sudo apt-get update
   sudo apt-get install -y kubectl
   # FIXME: CHECK SIGNATURE
   KUSTVER=v5.1.1
-  curl -L https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/$KUSTVER/kustomize_${KUSTVER}_linux_amd64.tar.gz | tar xv
-  chmod +x kustomize
+  curl -L https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/$KUSTVER/kustomize_${KUSTVER}_linux_amd64.tar.gz | tar xvz
+  #chmod +x kustomize
   sudo mv kustomize /usr/local/bin/
 fi
 
