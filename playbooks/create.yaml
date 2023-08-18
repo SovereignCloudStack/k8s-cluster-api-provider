@@ -1,0 +1,6 @@
+---
+- name: Create k8s cluster
+  # zuul.commit_id added in zuul 9.0.0 https://zuul-ci.org/docs/zuul/latest/releasenotes.html#relnotes-9-0-0
+  command: "make create GITBRANCH={{ zuul.patchset }} GITREPO=https://{{ zuul.project.canonical_name }}"
+  args:
+    chdir: "{{ project_tf_dir }}"

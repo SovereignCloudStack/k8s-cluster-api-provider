@@ -1,25 +1,54 @@
 ---
-- job:
-    name: test_conformance
-    parent: openstack-access-base
-    description: |
-      Run tests of the configuration on test Kubernetes cluster using 
-      [sonobuoy](https://sonobuoy.io/) with mode conformance meaning 
-      it will test if the Kubernetes cluster is conformant to the CNCF.
-    run: playbooks/test_conformance.yaml
+#- job:
+#    name: test_conformance
+#    parent: openstack-access-base
+#    description: |
+#      Run tests of the configuration on test Kubernetes cluster using
+#      [sonobuoy](https://sonobuoy.io/) with mode conformance meaning
+#      it will test if the Kubernetes cluster is conformant to the CNCF.
+#    run: playbooks/test.yaml
+#    cleanup-run: playbooks/cleanup.yaml
+#    vars:
+#      test: conformance
+#
+#- job:
+#    name: test_quick
+#    parent: openstack-access-base
+#    description: |
+#      Run tests of the configuration on test Kubernetes cluster using
+#      [sonobuoy](https://sonobuoy.io/) with mode quick.
+#    run: playbooks/test.yaml
+#    cleanup-run: playbooks/cleanup.yaml
+#    vars:
+#      test: quick
 
 - job:
-    name: test_quick
+    name: e2e_test
     parent: openstack-access-base
-    description: |
-      Run tests of the configuration on test Kubernetes cluster using 
-      [sonobuoy](https://sonobuoy.io/) with mode quick.
-    run: playbooks/test_quick.yaml
+    run: playbooks/test.yaml
+    cleanup-run: playbooks/cleanup.yaml # executed also when the job is canceled
+
 
 - project:
     e2e-conformance:
       jobs:
-        - test_conformance
+      - e2e_test:
+          description: |
+            Run tests of the configuration on test Kubernetes cluster using 
+            [sonobuoy](https://sonobuoy.io/) with mode conformance meaning 
+            it will test if the Kubernetes cluster is conformant to the CNCF.
+          vars:
+            test: conformance
     e2e-quick:
       jobs:
-        - test_quick
+      - e2e_test:
+          description: |
+            Run tests of the configuration on test Kubernetes cluster using 
+            [sonobuoy](https://sonobuoy.io/) with mode quick.
+          vars:
+            test: quick
+    vars:
+      project_tf_dir: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}/terraform"
+      prefix: "{{ zuul.patchset }}"
+      testcluster_name: "{{ zuul.branch }}" # zuul.branch is target branch of the change
+      cloud_provider: "{{ cloud }}"  # inherited from the parent job

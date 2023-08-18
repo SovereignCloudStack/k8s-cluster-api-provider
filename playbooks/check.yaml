@@ -1,0 +1,5 @@
+---
+- name: Execute sonobouy {{ mode }} check
+  command: "make check-{{ mode }}"
+  args:
+    chdir: "{{ project_tf_dir }}"

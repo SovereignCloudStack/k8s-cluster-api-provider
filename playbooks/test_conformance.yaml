@@ -3,31 +3,19 @@
   hosts: all
   roles:
   - ensure-dependencies
-  vars:
-    project_tf_dir: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}/terraform"
-    prefix: "{{ zuul.patchset }}"
-    testcluster_name: "{{ zuul.branch }}" # zuul.branch is target branch of the change
-    cloud_provider: "{{ cloud }}"  # inherited from the parent job
   environment:
     ENVIRONMENT: "{{ cloud_provider }}"
   tasks:
-   - name: Create k8s cluster and run check-conformance
-     block:
-     - name: Create environment file
-       template:
-         src: "templates/environment.tfvars.j2"
-         dest: "{{ project_tf_dir }}/environments/environment-{{ cloud_provider }}.tfvars"
-     - name: Create k8s cluster
-       # zuul.commit_id added in zuul 9.0.0 https://zuul-ci.org/docs/zuul/latest/releasenotes.html#relnotes-9-0-0
-       command: "make create GITBRANCH={{ zuul.patchset }} GITREPO=https://{{ zuul.project.canonical_name }}"
-       args:
-         chdir: "{{ project_tf_dir }}"
-     - name: Execute sonobouy conformance check
-       command: "make check-conformance"
-       args:
-         chdir: "{{ project_tf_dir }}"
-     always:
-     - name: Cleanup
-       command: "make fullclean"
-       args:
-         chdir: "{{ project_tf_dir }}"
+  - name: Create k8s cluster and run check-conformance
+    block:
+    - name: Create environment file
+      import_tasks: create_env_file.yaml
+    - name: Create k8s cluster
+      import_tasks: create.yaml
+    - name: Execute sonobouy conformance check
+      import_tasks: check.yaml
+      vars:
+        mode: conformance
+    always:
+    - name: Cleanup
+      import_tasks: fullclean.yaml

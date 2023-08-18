@@ -1,0 +1,10 @@
+---
+- name: Cleanup
+  hosts: all
+  roles:
+  - ensure-dependencies
+  environment:
+    ENVIRONMENT: "{{ cloud_provider }}"
+  tasks:
+  - name: Cleanup
+    import_tasks: fullclean.yaml

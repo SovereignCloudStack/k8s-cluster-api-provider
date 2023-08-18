@@ -1,21 +1,21 @@
 ---
-- name: E2E quick test
+- name: E2E test
   hosts: all
   roles:
   - ensure-dependencies
+  vars:
+    mode: "{{ test }}"
   environment:
     ENVIRONMENT: "{{ cloud_provider }}"
   tasks:
-  - name: Create k8s cluster and run check-quick
+  - name: Create k8s cluster and run check-{{ mode }}
     block:
     - name: Create environment file
       import_tasks: create_env_file.yaml
     - name: Create k8s cluster
       import_tasks: create.yaml
-    - name: Execute sonobouy quick check
+    - name: Execute sonobouy {{ mode }} check
       import_tasks: check.yaml
-      vars:
-        mode: quick
     always:
     - name: Cleanup
       import_tasks: fullclean.yaml

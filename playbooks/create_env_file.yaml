@@ -1,0 +1,5 @@
+---
+- name: Create environment file
+  template:
+    src: "templates/environment.tfvars.j2"
+    dest: "{{ project_tf_dir }}/environments/environment-{{ cloud_provider }}.tfvars"
