@@ -187,8 +187,8 @@ if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
   POD_CIDR=$(yq eval '.POD_CIDR' $CCCFG)
   KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium install --version $CILIUM_VERSION \
     --helm-set-string "ipam.operator.clusterPoolIPv4PodCIDRList={${POD_CIDR}}" \
-    --helm-set-string "kubeProxyReplacement={${DEPLOY_GATEWAY_API}}" \
-    --helm-set-string "gatewayAPI.enabled={${DEPLOY_GATEWAY_API}}" \
+    --helm-set-string "kubeProxyReplacement=${DEPLOY_GATEWAY_API}" \
+    --helm-set-string "gatewayAPI.enabled=${DEPLOY_GATEWAY_API}" \
     --helm-set cni.chainingMode=portmap \
     --helm-set sessionAffinity=true
   touch ~/$CLUSTER_NAME/deployed-manifests.d/.cilium
