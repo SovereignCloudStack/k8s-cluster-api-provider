@@ -275,6 +275,7 @@ resource "terraform_data" "mgmtcluster_bootstrap_files" {
       deploy_flux                    = var.deploy_flux,
       deploy_metrics                 = var.deploy_metrics,
       deploy_nginx_ingress           = var.deploy_nginx_ingress,
+      deploy_gateway_api             = var.deploy_gateway_api,
       deploy_occm                    = var.deploy_occm,
       dns_nameservers                = var.dns_nameservers,
       etcd_unsafe_fs                 = var.etcd_unsafe_fs,
