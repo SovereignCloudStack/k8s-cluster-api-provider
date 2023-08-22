@@ -24,6 +24,8 @@ USE_CILIUM: ${use_cilium}
 CALICO_VERSION: ${calico_version}
 # deploy nginx ingress controller
 DEPLOY_NGINX_INGRESS: ${deploy_nginx_ingress}
+# deploy Gateway API CRDs and enable ciliums Gateway API implementation (requires USE_CILIUM=true)
+DEPLOY_GATEWAY_API: ${deploy_gateway_api}
 # Use PROXY protocol to get real IPs
 NGINX_INGRESS_PROXY: true
 # Use OVN LB provider (false, auto, true)
