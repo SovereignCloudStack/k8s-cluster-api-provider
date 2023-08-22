@@ -1,6 +1,14 @@
 ---
+- name: Get PR details
+  uri:
+    url: "https://api.github.com/repos/{{ zuul.project.name }}/pulls/{{ zuul.change }}"
+    body_format: json
+    headers:
+      Accept: application/vnd.github+json
+      X-GitHub-Api-Version: 2022-11-28
+  register: pull_request
+
 - name: Create k8s cluster
-  # zuul.commit_id added in zuul 9.0.0 https://zuul-ci.org/docs/zuul/latest/releasenotes.html#relnotes-9-0-0
-  command: "make create GITBRANCH={{ zuul.patchset }} GITREPO=https://{{ zuul.project.canonical_name }}"
+  command: "make create GITBRANCH={{ pull_request.json.head.ref }} GITREPO={{ pull_request.json.head.repo.clone_url }}"
   args:
     chdir: "{{ project_tf_dir }}"
