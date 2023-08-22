@@ -18,11 +18,12 @@
     register: pull_request
   - set_fact:
       pull: "{{ pull_request.json }}"
+      prefix: "{{ pull_request.json.head.ref }}"
       testcluster_name: "{{ pull_request.json.head.ref }}"
+  - name: Create environment file
+    import_tasks: create_env_file.yaml
   - name: Create k8s cluster and run check-{{ mode }}
     block:
-    - name: Create environment file
-      import_tasks: create_env_file.yaml
     - name: Create k8s cluster
       import_tasks: create.yaml
     - name: Execute sonobouy {{ mode }} check

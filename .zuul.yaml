@@ -27,7 +27,9 @@
     parent: openstack-access-base
     run: playbooks/test.yaml
     cleanup-run: playbooks/cleanup.yaml # executed also when the job is canceled
-
+    vars:
+      project_tf_dir: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}/terraform"
+      cloud_provider: "{{ cloud }}" # inherited from the parent job
 
 - project:
     e2e-conformance:
@@ -39,6 +41,7 @@
             it will test if the Kubernetes cluster is conformant to the CNCF.
           vars:
             test: conformance
+          timeout: 7200
     e2e-quick:
       jobs:
       - e2e_test:
@@ -47,7 +50,3 @@
             [sonobuoy](https://sonobuoy.io/) with mode quick.
           vars:
             test: quick
-    vars:
-      project_tf_dir: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}/terraform"
-      prefix: "{{ zuul.branch }}" # zuul.branch is target branch of the change
-      cloud_provider: "{{ cloud }}" # inherited from the parent job
