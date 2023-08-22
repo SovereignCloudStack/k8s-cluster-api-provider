@@ -16,8 +16,12 @@ data "openstack_networking_network_v2" "extnet" {
 
 # - management cluster -
 resource "openstack_networking_floatingip_v2" "mgmtcluster_floatingip" {
-  pool       = var.external != "" ? var.external : data.openstack_networking_network_v2.extnet.name
-  depends_on = [openstack_networking_router_interface_v2.router_interface]
+  pool        = var.external != "" ? var.external : data.openstack_networking_network_v2.extnet.name
+  depends_on  = [openstack_networking_router_interface_v2.router_interface]
+  description = "Floating IP for the ${var.prefix} management cluster node"
+  tags = [
+    "${var.prefix}-mgmtcluster", "k8s-cluster-api-mgmtcluster"
+  ]
 }
 
 resource "openstack_networking_port_v2" "mgmtcluster_port" {
@@ -45,6 +49,13 @@ data "openstack_images_image_ids_v2" "images" {
   sort = "updated_at:desc"
 }
 
+resource "openstack_blockstorage_volume_v3" "mgmtcluster_volume" {
+  size        = 30
+  name        = "${var.prefix}-mgmtcluster"
+  image_id    = data.openstack_images_image_ids_v2.images.ids[0]
+  description = "Volume for the ${var.prefix} management cluster node"
+}
+
 resource "openstack_compute_instance_v2" "mgmtcluster_server" {
   name              = "${var.prefix}-mgmtcluster"
   flavor_name       = var.kind_flavor
@@ -54,12 +65,16 @@ resource "openstack_compute_instance_v2" "mgmtcluster_server" {
 
   network { port = openstack_networking_port_v2.mgmtcluster_port.id }
   block_device {
-    uuid                  = data.openstack_images_image_ids_v2.images.ids[0]
-    source_type           = "image"
-    volume_size           = 30
+    uuid                  = openstack_blockstorage_volume_v3.mgmtcluster_volume.id
+    source_type           = "volume"
     boot_index            = 0
     destination_type      = "volume"
     delete_on_termination = true
+  }
+
+  lifecycle {
+    # Prevents Terraform from trying to destroy the instance when it was created before update with labeling its volume
+    ignore_changes = [block_device]
   }
 
   user_data = <<-EOF
@@ -259,6 +274,7 @@ resource "terraform_data" "mgmtcluster_bootstrap_files" {
       deploy_flux                    = var.deploy_flux,
       deploy_metrics                 = var.deploy_metrics,
       deploy_nginx_ingress           = var.deploy_nginx_ingress,
+      deploy_gateway_api             = var.deploy_gateway_api,
       deploy_occm                    = var.deploy_occm,
       dns_nameservers                = var.dns_nameservers,
       etcd_unsafe_fs                 = var.etcd_unsafe_fs,
