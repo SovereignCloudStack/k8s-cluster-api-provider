@@ -135,6 +135,12 @@ variable "deploy_nginx_ingress" {
   default     = "true"
 }
 
+variable "deploy_gateway_api" {
+  description = "deploy k8s Gateway API CRDs along with ciliums implementation of Gateway API, only works in conjunction with use_cilium=true"
+  type        = string
+  default     = "false"
+}
+
 variable "deploy_cert_manager" {
   description = "deploy cert-manager (version) into k8s-capi created clusters"
   type        = string
