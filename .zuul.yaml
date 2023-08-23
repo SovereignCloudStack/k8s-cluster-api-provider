@@ -28,8 +28,9 @@
     run: playbooks/test.yaml
     cleanup-run: playbooks/cleanup.yaml # executed also when the job is canceled
     vars:
-      project_tf_dir: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}/terraform"
       cloud_provider: "{{ cloud }}" # inherited from the parent job
+      project_tf_dir: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}/terraform"
+      wait_for_cluster: 1 # minutes
 
 - project:
     e2e-conformance:
@@ -41,7 +42,7 @@
             it will test if the Kubernetes cluster is conformant to the CNCF.
           vars:
             test: conformance
-          timeout: 7200
+          timeout: 10800
     e2e-quick:
       jobs:
       - e2e_test:
