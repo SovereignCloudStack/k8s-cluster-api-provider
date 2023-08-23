@@ -25,9 +25,8 @@ ifneq (,$(wildcard ./minio.env))
   include minio.env
 endif
 
-YQVERSION=$(shell yq --version | $(SED) -e 's/^yq //' -e 's/^.*version //')
-YQMAJOR=$(shell YQV="$(YQVERSION)"; echo "$${YQV%%.*}")
-ifeq ($(YQMAJOR),2)
+YQISJQ=$(shell yq --help | grep jq >/dev/null 2>&1 && echo 1)
+ifeq ($(YQISJQ),1)
   YQ=yq --yaml-output
   YQIN=
 else
