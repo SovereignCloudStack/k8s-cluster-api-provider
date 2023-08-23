@@ -95,7 +95,7 @@ write_files:
       $nrconf{kernelhints} = -1;
       $nrconf{restart} = 'a';
     owner: root:root
-    path: /tmp/needrestart.conf
+    path: /etc/needrestart/conf.d/needrestart.conf
     permissions: '0644'
 runcmd:
   # Note: Needrestart is part of the `apt-get upgrade` process from Ubuntu 22.04. By default, it is set to an
@@ -103,7 +103,6 @@ runcmd:
   #   version is available after the upgrade process and when upgraded services need to restart. A custom configuration
   #   file overrides mentioned settings and ensures that kernel hints are printed only to stderr and services are
   #   restarted automatically if needed.
-  - mv /tmp/needrestart.conf /etc/needrestart/conf.d/ || echo "Needrestart is not installed. Skipped."
   - echo nf_conntrack > /etc/modules-load.d/90-nf_conntrack.conf
   - modprobe nf_conntrack
   - echo net.netfilter.nf_conntrack_max=131072 > /etc/sysctl.d/90-conntrack_max.conf
@@ -113,7 +112,7 @@ runcmd:
   - mv /tmp/daemon.json /etc/docker/daemon.json
   - groupadd docker
   - usermod -aG docker ${var.ssh_username}
-  - apt -y install docker.io yamllint qemu-utils
+  - apt -y install --no-install-recommends --no-install-suggests docker.io yamllint qemu-utils git
 EOF
 
 }

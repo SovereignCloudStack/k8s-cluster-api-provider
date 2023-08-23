@@ -90,7 +90,7 @@ show: init
 
 clean: init
 	@if test -e ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); then source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
-	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS timeout 200 ~/bin/cleanup.sh || true; fi
+	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "timeout 200 ~/bin/cleanup.sh || true"; fi
 	terraform destroy -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" $(PARAMS)
 	@terraform workspace select default
 	terraform workspace delete $(ENVIRONMENT)
@@ -190,10 +190,10 @@ watch: .deploy.id_rsa.$(ENVIRONMENT) .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT)
 	  NORM=$$(echo -e "\e[0;0m"); \
 	fi; \
 	while true; do \
-		LEN=$$(ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS sudo wc -l /var/log/cloud-init-output.log 2>/dev/null); \
+		LEN=$$(ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "sudo wc -l /var/log/cloud-init-output.log 2>/dev/null"); \
 		LEN=$${LEN%% *}; \
 		if test -n "$$LEN" -a "$$LEN" != "$$DISP"; then \
-		  OUT=$$(ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS sudo tail -n $$((LEN-DISP)) /var/log/cloud-init-output.log 2>/dev/null); \
+		  OUT=$$(ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "sudo tail -n $$((LEN-DISP)) /var/log/cloud-init-output.log 2>/dev/null"); \
 		  echo -e "$$OUT" | \
 		    $(SED) -e "s/^\(TASK.*\)$$/$$BOLD\1$$NORM/" \
 		        -e "s/^\(PLAY.*\)$$/$$GREEN\1$$NORM/" \
