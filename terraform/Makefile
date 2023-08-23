@@ -1,6 +1,6 @@
 # Makefile
 
-# set the env we used 
+# set the env we used
 #ENVIRONMENT = gx-betacloud
 #ENVIRONMENT ?= gx-citycloud
 #ENVIRONMENT = gx-scs
@@ -40,6 +40,9 @@ ifeq ($(TESTCLUSTER),)
 TESTCLUSTER=$(shell ( grep '^testcluster_name' environments/environment-$(ENVIRONMENT).tfvars || echo testcluster ) | $(SED) 's@^testcluster_name[^=]*= *"*\([^"]*\).*$$@\1@' )
 endif
 
+PREFIX:=$(shell (grep '^prefix *=' environments/environment-${ENVIRONMENT}.tfvars || echo capi | $(SED) -e 's/^[^=]*= *//' -e 's/"//g'))
+MGMTCLUSTERNAME:=$(shell ($(OPENSTACK) server list --name "$(PREFIX)-mgmtcluster" -c Name -f value))
+
 GITBRANCH=$(shell git branch | grep '^*' | $(SED) 's/^* //')
 GITREPO=$(shell git config --get remote.origin.url | sed 's%git@\([^:]*\):%https://\1/%')
 
@@ -76,8 +79,12 @@ gitchk:
 	@if test -s git.diff; then echo "WARN: Local changes won't be used on mgmtcluster. Commit and push them"; cat git.diff; fi
 
 create: init
-	@touch .deploy.$(ENVIRONMENT)
-	terraform apply -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" -var "git_branch=$(GITBRANCH)" -var "git_repo=$(GITREPO)"
+	@if [[ "$(MGMTCLUSTERNAME)" ]]; then \
+		echo "Management cluster with prefix $(PREFIX) already exists. This is not supported due to unexpected side-effects." && exit 1; \
+	else \
+		touch .deploy.$(ENVIRONMENT); \
+		terraform apply -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" -var "git_branch=$(GITBRANCH)" -var "git_repo=$(GITREPO)"; \
+	fi
 
 show: init
 	@terraform show
@@ -109,7 +116,7 @@ purge:
 	@ospurge --purge-own-project --os-cloud $(ENVIRONMENT) --verbose
 	@rm -f .deploy.$(ENVIRONMENT) .MGMT_ADDRESS.$(ENVIRONMENT)
 	@rm -f .id_rsa.$(ENVIRONMENT)
-	@terraform workspace select default 
+	@terraform workspace select default
 	@terraform workspace delete -force $(ENVIRONMENT) || true
 	@openstack keypair delete capi-keypair || true
 	@ospurge --purge-own-project --os-cloud $(ENVIRONMENT) --verbose
