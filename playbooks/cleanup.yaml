@@ -1,8 +1,9 @@
 ---
 - name: Cleanup
   hosts: all
-  roles:
-  - ensure-dependencies
+  vars:
+    cloud_provider: "{{ cloud }}" # inherited from the parent job
+    project_tf_dir: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}/terraform"
   environment:
     ENVIRONMENT: "{{ cloud_provider }}"
   tasks:

@@ -1,8 +1,6 @@
 ---
 - name: E2E test
   hosts: all
-  roles:
-  - ensure-dependencies
   vars:
     mode: "{{ test }}"
     cloud_provider: "{{ cloud }}" # inherited from the parent job
