@@ -19,7 +19,7 @@ Parameters controlling the Cluster-API management server (capi management server
 |--------------------------|-----------------|------------|-------------------|-------------------------------------------------------------------------------|
 | `prefix`                 |                 | SCS        | `capi`            | Prefix used for OpenStack resources for the capi mgmt node                    |
 | `kind_flavor`            |                 | SCS        | `SCS-2V-4`        | Flavor to be used for the k8s capi mgmt server                                |
-| `image`                  |                 | SCS        | `Ubuntu 22.04`    | Image to be deployed for the capi mgmt server                                 |
+| `image`                  |                 | SCS        | `Ubuntu 22.04`    | Image for the capi mgmt server. Use `Ubuntu 22.04` or `Debian 12`             |
 | `ssh_username`           |                 | SCS        | `ubuntu`          | Name of the default user for the `image`                                      |
 | `clusterapi_version`     |                 | SCS        | `1.3.8`           | Version of the cluster-API incl. `clusterctl`                                 |
 | `capi_openstack_version` |                 | SCS        | `0.7.3`           | Version of the cluster-api-provider-openstack (needs to fit the CAPI version) |
