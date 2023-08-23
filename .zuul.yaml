@@ -51,3 +51,4 @@
             [sonobuoy](https://sonobuoy.io/) with mode quick.
           vars:
             test: quick
+          timeout: 2700
