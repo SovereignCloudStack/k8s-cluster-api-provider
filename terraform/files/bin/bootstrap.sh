@@ -7,7 +7,17 @@
 export PATH=$PATH:~/bin
 
 # Need yaml parsing capabilities
-sudo snap install yq
+# flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+if type snap >/dev/null 2>&1; then
+  sudo snap install yq
+else
+  ARCH=`uname -m`
+  if test "$ARCH" = "x86_64"; then ARCH=amd64; fi
+  # FIXME: CHECK SIGNATURE
+  curl -LO https://github.com/mikefarah/yq/releases/download/v4.35.1/yq_linux_$ARCH
+  chmod +x yq_linux_$ARCH
+  sudo mv yq_linux_$ARCH /usr/local/bin/yq
+fi
 
 # Source global settings
 test -r ~/.capi-settings && source ~/.capi-settings
@@ -20,9 +30,25 @@ upload_capi_image.sh
 ## install tools and utils at local account
 
 # install kubectl
-sudo snap install kubectl --classic
-sudo apt install -y binutils jq
-sudo snap install kustomize
+sudo apt install --no-install-recommends --no-install-suggests -y binutils jq
+if type snap >/dev/null 2>&1; then
+  sudo snap install kubectl --classic
+  sudo snap install kustomize
+else
+  sudo apt-get install --no-install-recommends --no-install-suggests -y apt-transport-https ca-certificates curl gnupg2
+  # FIXME: CHECK SIGNATURE
+  KUBECTLVER=v1.27
+  curl -fsSL https://pkgs.k8s.io/core:/stable:/$KUBECTLVER/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+  #sudo mkdir -m 755 /etc/apt/keyrings
+  echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/$KUBECTLVER/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+  sudo apt-get update
+  sudo apt-get install -y kubectl
+  # FIXME: CHECK SIGNATURE
+  KUSTVER=v5.1.1
+  curl -L https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/$KUSTVER/kustomize_${KUSTVER}_linux_amd64.tar.gz | tar xvz
+  #chmod +x kustomize
+  sudo mv kustomize /usr/local/bin/
+fi
 
 # setup aliases and environment
 echo "# setup environment"

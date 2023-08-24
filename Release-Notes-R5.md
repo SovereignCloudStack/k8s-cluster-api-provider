@@ -98,9 +98,10 @@ aims to add first parts needed for IPv6 support you can check the current progre
 ### Harbor registry
 
 SCS community successfully deployed and uses Harbor registry at https://registry.scs.community/ using
-[k8s-harbor](https://github.com/SovereignCloudStack/k8s-harbor) project.
+[k8s-harbor](https://github.com/SovereignCloudStack/k8s-harbor) project. The mentioned project has also been
+deployed in [dNation](https://dnation.cloud/) company at https://registry.dnation.cloud/.
 From [#445](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/445), it is possible to deploy
-Harbor in a similar way into the workload cluster by using also this project. For further details
+Harbor in a similar way into the workload cluster by using this project. For further details
 check the [docs](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/usage/harbor.md).
 
 ### Gateway API
