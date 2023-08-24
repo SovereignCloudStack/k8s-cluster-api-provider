@@ -1,0 +1,5 @@
+---
+- name: Cleanup
+  command: "make fullclean"
+  args:
+    chdir: "{{ project_tf_dir }}"

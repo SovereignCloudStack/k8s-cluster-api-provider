@@ -1,0 +1,7 @@
+---
+dependencies:
+  - role: ensure-pip  # https://zuul-ci.org/docs/zuul-jobs/latest/python-roles.html#role-ensure-pip
+  - role: ensure-terraform  # https://zuul-ci.org/docs/zuul-jobs/latest/hashicorp-roles.html#role-ensure-terraform
+    vars:
+      terraform_version: "{{ tf_version }}"
+      terraform_install_dir: "{{ tf_install_dir }}"

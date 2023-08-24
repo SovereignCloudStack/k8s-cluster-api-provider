@@ -1,0 +1,37 @@
+---
+- job:
+    name: test_conformance
+    parent: openstack-access-base
+    description: |
+      Run tests of the configuration on test Kubernetes cluster using
+      [sonobuoy](https://sonobuoy.io/) with mode conformance meaning
+      it will test if the Kubernetes cluster is conformant to the CNCF.
+    pre-run: playbooks/dependencies.yaml
+    run: playbooks/test.yaml
+    cleanup-run: playbooks/cleanup.yaml # executed also when the job is canceled
+    vars:
+      test: conformance
+      wait_for_cluster: 2 # minutes
+    timeout: 10800
+
+- job:
+    name: test_quick
+    parent: openstack-access-base
+    description: |
+      Run tests of the configuration on test Kubernetes cluster using
+      [sonobuoy](https://sonobuoy.io/) with mode quick.
+    pre-run: playbooks/dependencies.yaml
+    run: playbooks/test.yaml
+    cleanup-run: playbooks/cleanup.yaml # executed also when the job is canceled
+    vars:
+      test: quick
+      wait_for_cluster: 1 # minutes
+    timeout: 2700
+
+- project:
+    e2e-test:
+      jobs:
+      - test_conformance
+    e2e-quick-test:
+      jobs:
+      - test_quick

@@ -1,0 +1,5 @@
+---
+- name: Create k8s cluster
+  command: "make create GITBRANCH={{ pull.head.ref }} GITREPO={{ pull.head.repo.clone_url }}"
+  args:
+    chdir: "{{ project_tf_dir }}"

@@ -27,6 +27,7 @@ anti_affinity        = "<boolean>"      # defaults to "true"
 use_cilium           = "version/true/false"       # defaults to "true", can also be set to "vx.y.z", also see cilium_binaries
 use_ovn_lb_provider  = "auto/true/false"	  # use OVN LB if available (auto) or force (true) or never (false), not yet recommended
 deploy_nginx_ingress = "version/true/false"       # defaults to "true", you can also set vX.Y.Z if you want
+deploy_gateway_api   = "true/false"               # defaults to "false"
 deploy_cert_manager  = "version/true/false"       # defaults to "false", you can also set to vX.Y.Z if you want
 deploy_flux          = "version/true/false"       # defaults to "false", you can also set to vX.Y.Z if you want
 deploy_metrics       = "<boolean>"      # defaults to "true"
