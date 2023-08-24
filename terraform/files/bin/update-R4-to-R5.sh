@@ -96,4 +96,7 @@ fi
 echo "removing backup files after patch"
 rm cluster-template.yaml.backup clusterctl.yaml.backup
 
+# Install jq
+apt update && apt install -y jq
+
 echo "update of cluster files from R4 to R5 version has been successfully finished"
