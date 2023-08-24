@@ -1,12 +1,12 @@
 #!/bin/bash
-# 
+#
 # flavor_disk.sh
-# 
+#
 # Determine if flavor needs a volume and return needed size
 # Usage: flavor_disk.sh FLAVOR [IMAGE]
 #  Determines whether FLAVOR has a disk
 #  If yes, return 0 (no disk needed)
-#  If no, return a number (size of disk to be created), 
+#  If no, return a number (size of disk to be created),
 #    The size is calculatd by heuristic: 20+RAM/2 rounded to next 5, max 125
 #  If FLAVOR does not exit: return -1
 #  If IMAGE is passed in addition:
@@ -24,33 +24,48 @@
 # (c) Kurt Garloff <scs@garloff.de>, 6/2023
 # SPDX-License-Identifier: Apache-2.0
 
-usage()
-{
-	echo "Usage: flavor_disk.sh FLAVOR [IMAGE]"
-	exit 1
+usage() {
+  echo "Usage: flavor_disk.sh FLAVOR [IMAGE]"
+  exit 1
 }
 
 if test -z "$1"; then usage; fi
-
-FLAVOR=`openstack flavor show $1 -f json`
-if test $? != 0; then exit -1; fi
-if test -n "$2"; then
-	IMAGE=`openstack image show $2 -f json`
-	if test $? != 0; then exit -3; fi
-	ISIZE=`echo "$IMAGE" | jq '.min_disk'`
+if command -v jq &>/dev/null; then
+  FLAVOR=$(openstack flavor show $1 -f json)
+  if test $? != 0; then exit -1; fi
+  if test -n "$2"; then
+    IMAGE=$(openstack image show $2 -f json)
+    if test $? != 0; then exit -3; fi
+    ISIZE=$(echo "$IMAGE" | jq '.min_disk')
+  else
+    ISIZE=20
+  fi
+  CPU=$(echo "$FLAVOR" | jq '.vcpus') #  | tr -d '"'
+  RAM=$(echo "$FLAVOR" | jq '.ram')
+  RAM=$(((RAM + 64) / 1024))
+  DISK=$(echo "$FLAVOR" | jq '.disk')
 else
-	ISIZE=20
+  echo "WARNING: jq not found, using yq instead, please install jq 'apt install jq' " >&2
+  FLAVOR=$(openstack flavor show $1 -f yaml)
+  if test $? != 0; then exit -1; fi
+  if test -n "$2"; then
+    IMAGE=$(openstack image show $2 -f yaml)
+    if test $? != 0; then exit -3; fi
+    ISIZE=$(echo "$IMAGE" | yq eval '.min_disk' -)
+  else
+    ISIZE=20
+  fi
+  CPU=$(echo "$FLAVOR" | yq eval '.vcpus' -)
+  RAM=$(echo "$FLAVOR" | yq eval '.ram' -)
+  RAM=$(((RAM + 64) / 1024))
+  DISK=$(echo "$FLAVOR" | yq eval '.disk' -)
 fi
-CPU=`echo "$FLAVOR" | jq '.vcpus'` #  | tr -d '"'
-RAM=`echo "$FLAVOR" | jq '.ram'`
-RAM=$(((RAM+64)/1024))
-DISK=`echo "$FLAVOR" | jq '.disk'`
 #FIXME: Should we prevent single CPU here?
 if test $DISK != 0; then
-	if test $DISK -lt $ISIZE; then exit -2; else exit 0; fi
+  if test $DISK -lt $ISIZE; then exit -2; else exit 0; fi
 else
-	WANT=$(((ISIZE+2+$RAM/2)/5*5))
-	if test $WANT -gt 125; then WANT=125; fi
-	if test $WANT -lt $ISIZE; then WANT=$ISIZE; fi
-	exit $WANT
+  WANT=$(((ISIZE + 2 + $RAM / 2) / 5 * 5))
+  if test $WANT -gt 125; then WANT=125; fi
+  if test $WANT -lt $ISIZE; then WANT=$ISIZE; fi
+  exit $WANT
 fi
