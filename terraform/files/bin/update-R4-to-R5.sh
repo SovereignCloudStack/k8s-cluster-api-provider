@@ -21,6 +21,8 @@ usage()
   echo "!This script is under development and will be stabilized within the release R5!"
   echo "Usage: update-R4-to-R5.sh <CLUSTER_NAME>"
   echo "Updates cluster files from R4 to R5 version."
+  echo "To update cluster defaults for new clusters and install new dependencies"
+  echo "use 'cluster-defaults' as <CLUSTER_NAME>."
   exit 1
 }
 
