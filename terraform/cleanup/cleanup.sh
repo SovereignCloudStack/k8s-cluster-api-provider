@@ -97,6 +97,24 @@ cleanup()
 	if test "${3:0:2}" == "--"; then cleanup_list "$1" "" "" "$RL"; else cleanup_list "$1" "" "$3" "$RL"; fi
 }
 
+# Find volumes attached to a set of servers
+# $* => list of server UUIDs
+# Output a list of volume UUIDs that are attached
+server_vols()
+{
+	if test -z "$1"; then echo; return 1; fi
+	srchexpr="\\("
+	for arg in "$@"; do
+		srchexpr="$srchexpr$arg\\|"
+	done
+	srchexpr="${srchexpr%\\|}\\)"
+	#if test -n "$DEBUG"; then echo "#### Search for volumes $srchexpr"; fi
+	ANS=$($OPENSTACK volume list -f value -c ID -c "Attached to" | grep "'server_id': '$srchexpr'" | cut -f1 -d " ")
+	echo $ANS
+	return 0
+}
+
+
 # main
 if test "$1" == "--verbose"; then VERBOSE=1; shift; fi
 if test "$1" == "--full"; then FULL=1; MGMTSRV=" management server and"; shift; fi
@@ -147,6 +165,8 @@ if test "$FULL" == "1"; then
 	#  Custom `sed` expression below filters the last IP from the last server network. It works with both formats.
 	#  We assumed here that it is a floating IP associated with the capi mgmt server.
 	CAPI=$(resourcelist server ${CAPIPRE}-mgmtcluster "" Networks "s/^\([0-9a-f-]*\) .*, [']\{0,1\}\(\([0-9]*\.\)\{3\}[0-9]*\).*\$/\1 \2/g")
+	CAPIVOL=$(server_vols ${CAPI%% *})
+	if test -n "$DEBUG"; then echo "## Attached volumes to ${CAPI%% *}: $CAPIVOL"; fi
 	cleanup_list server 1 "" "$CAPI"
 	cleanup_list "floating ip" 2 "" "$CAPI"
 fi
@@ -188,6 +208,9 @@ if test -n "$NOCASCADE"; then
 else
 	cleanup_list loadbalancer 1 "--cascade" "$LBS"
 fi
+SRV=$(resourcelist server $CAPIPRE-$CLUSTER)
+SRVVOL=$(server_vols $SRV)
+if test -n "$DEBUG"; then echo "### Attached volumes to ${SRV}: $SRVVOL"; fi
 cleanup server $CAPIPRE-$CLUSTER
 cleanup port $CAPIPRE-$CLUSTER
 RTR=$(resourcelist router "$CAPIPRE2ALL")
@@ -210,9 +233,11 @@ if test -n "$NGINX_SG"; then
 	if test -z "$DEBUG"; then $OPENSTACK security group delete $NGINX_SGS; fi
 fi
 #cleanup "image" ubuntu-capi-image
-# The PVC volumes are NOT deleted here, we have no idea whom they belong to
-cleanup volume $CAPIPRE-$CLUSTER
 cleanup "server group" "$CAPIPRE-$CLUSTER"
+# This should hit all volumes that were attached to the servers
+cleanup_list volume "" "" "$SRVVOL"
+# The PVC volumes would NOT deleted here, we have no idea whom they belong to
+#cleanup volume $CAPIPRE-$CLUSTER
 cleanup "application credential" "$CAPIPRE-$CLUSTER-appcred"
 
 done
@@ -237,6 +262,7 @@ if test "$FULL" == "1"; then
 	cleanup "security group" ${CAPIPRE}-mgmt
 	cleanup "security group" ${CAPIPRE}-allow-
 	cleanup keypair ${CAPIPRE}-keypair
+	cleanup_list volume "" "" "$CAPIVOL"
 	cleanup "application credential" ${CAPIPRE}-appcred
 	#cleanup volume pvc-
 	echo "## INFO: Volumes from Cinder CSI left:"
