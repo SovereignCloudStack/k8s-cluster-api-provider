@@ -24,6 +24,8 @@ USE_CILIUM: ${use_cilium}
 CALICO_VERSION: ${calico_version}
 # deploy nginx ingress controller
 DEPLOY_NGINX_INGRESS: ${deploy_nginx_ingress}
+# deploy Gateway API CRDs and enable ciliums Gateway API implementation (requires USE_CILIUM=true)
+DEPLOY_GATEWAY_API: ${deploy_gateway_api}
 # Use PROXY protocol to get real IPs
 NGINX_INGRESS_PROXY: true
 # Use OVN LB provider (false, auto, true)
@@ -51,8 +53,10 @@ OPENSTACK_FAILURE_DOMAIN: ${availability_zone}
 
 ETCD_UNSAFE_FS: ${etcd_unsafe_fs}
 
-# Nodes CIDR
+# CIDRs
 NODE_CIDR: ${node_cidr}
+SERVICE_CIDR: ${service_cidr}
+POD_CIDR: ${pod_cidr}
 
 # Set MTU for k8s CNI network (50 smaller than cloud, 0 = auto)
 MTU_VALUE: 0

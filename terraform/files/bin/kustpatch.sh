@@ -50,7 +50,7 @@ cd $IWD
 
 if test ! -t 0; then cat > $KTMPDIR/base/base.yaml; fi
 if test ! -s $KTMPDIR/base/base.yaml; then
-	INPUT=$(grep '^#YAML_TO_PATCH:' "$@" | sed 's/^.*#YAML_TO_PATCH: *//g' | head -n1)
+	INPUT=$(grep '^# YAML_TO_PATCH:' "$@" | sed 's/^.*# YAML_TO_PATCH: *//g' | head -n1)
 	if test -z "$INPUT"; then echo "ERROR: Pass input YAML via stdin (or specify in patch header)" 1>&2; usage 4; fi
 	if test "${INPUT:0:4}" = "http"; then
 		curl -fsSL "$INPUT" -o $KTMPDIR/base/base.yaml

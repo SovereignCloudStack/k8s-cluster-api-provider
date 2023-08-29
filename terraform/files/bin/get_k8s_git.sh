@@ -5,8 +5,8 @@
 # SPDX-License-Identifier: Apache-2.0
 cd
 getent hosts github.com || sleep 30
-cd k8s-cluster-api-provider
-if test -n "$1"; then git clone "$1" || exit 1; fi
+#cd k8s-cluster-api-provider
+if test -n "$1"; then git clone "$1" k8s-cluster-api-provider || exit 1; fi
 cd k8s-cluster-api-provider
 if test -n "$2"; then git checkout "$2" || exit 1; fi
 if test -n "$3"; then patch -p1 <"$3" || exit 1; fi

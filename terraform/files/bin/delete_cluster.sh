@@ -7,7 +7,8 @@ export KUBECONFIG=~/.kube/config
 . ~/.capi-settings
 . ~/bin/cccfg.inc
 
-kubectl config use-context kind-kind
+CREATE_NEW_NAMESPACE=false . ~/bin/mng_cluster_ns.inc
+
 echo "Deleting cluster $CLUSTER_NAME"
 # Delete workload pods (default namespace)
 PODS=$(kubectl $KCONTEXT get pods | grep -v '^NAME' | awk '{ print $1; }')
@@ -46,7 +47,7 @@ kubectl config delete-context "$CLUSTER_NAME-admin@$CLUSTER_NAME"
 kubectl config delete-user "$CLUSTER_NAME-admin"
 kubectl config delete-cluster "$CLUSTER_NAME"
 if test $RC != 0; then
-	PORTS=$(openstack port list --fixed-ip subnet=k8s-clusterapi-cluster-default-$CLUSTER_NAME -f value -c Id -c Status -c fixed_ips)
+	PORTS=$(openstack port list --fixed-ip subnet=k8s-clusterapi-cluster-$CLUSTER_NAMESPACE-$CLUSTER_NAME -f value -c Id -c Status -c fixed_ips)
 	NODE_CIDR=$(grep NODE_CIDR ~/$CLUSTER_NAME/clusterctl.yaml | sed 's/^NODE_CIDR: *//')
 	NODE_START=${NODE_CIDR%.*}; NODE_START=${NODE_START%.*}
 	while read id stat fixed; do
@@ -65,6 +66,10 @@ if test $RC != 0; then
 	timeout 150 kubectl delete cluster "$CLUSTER_NAME"
 	# Non existent cluster means success
 	if ! kubectl get cluster "$CLUSTER_NAME"; then RC=0; fi
+fi
+kubectl config set-context --current --namespace=default
+if [[ $CLUSTER_NAMESPACE != default ]]; then
+  kubectl delete namespace "$CLUSTER_NAMESPACE"
 fi
 # TODO: Clean up machine templates etc.
 # Clean up appcred stuff (for new style appcred mgmt)

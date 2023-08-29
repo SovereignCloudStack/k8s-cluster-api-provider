@@ -18,7 +18,7 @@ variable "image" {
 variable "kind_flavor" {
   description = "openstack nova flavor for instance running kind (capi mgmt node)"
   type        = string
-  default     = "SCS-1V-4-20"
+  default     = "SCS-2V-4"
 }
 
 variable "controller_flavor" {
@@ -30,7 +30,7 @@ variable "controller_flavor" {
 variable "worker_flavor" {
   description = "openstack nova flavor for instances running the k8s worker nodes"
   type        = string
-  default     = "SCS-2V-4-20"
+  default     = "SCS-2V-4-20s"
 }
 
 variable "availability_zone" {
@@ -39,8 +39,10 @@ variable "availability_zone" {
 }
 
 variable "external" {
-  description = "external network for access"
+  description = "external/public network for access"
   type        = string
+  default     = ""
+  # default   = data.openstack_networking_network_v2.extnet.name
 }
 
 variable "ssh_username" {
@@ -109,6 +111,18 @@ variable "node_cidr" {
   default     = "10.8.0.0/20"
 }
 
+variable "pod_cidr" {
+  description = "network addresses (CIDR) for the k8s pods"
+  type        = string
+  default     = "192.168.0.0/16"
+}
+
+variable "service_cidr" {
+  description = "network addresses (CIDR) for the k8s services"
+  type        = string
+  default     = "10.96.0.0/12"
+}
+
 variable "deploy_metrics" {
   description = "deploy metrics service into k8s-capi created clusters"
   type        = bool
@@ -119,6 +133,12 @@ variable "deploy_nginx_ingress" {
   description = "deploy NGINX ingress controller (version) into k8s-capi created clusters"
   type        = string
   default     = "true"
+}
+
+variable "deploy_gateway_api" {
+  description = "deploy k8s Gateway API CRDs along with ciliums implementation of Gateway API, only works in conjunction with use_cilium=true"
+  type        = string
+  default     = "false"
 }
 
 variable "deploy_cert_manager" {
@@ -160,13 +180,13 @@ variable "dns_nameservers" {
 variable "use_cilium" {
   description = "use cilium (version) rather than calico as CNI"
   type        = string
-  default     = "false"
+  default     = "true"
 }
 
 variable "cilium_binaries" {
   description = "cilium and hubble CLI versions in the vA.B.C;vX.Y.Z format"
   type        = string
-  default     = "v0.13.2;v0.11.6"
+  default     = "v0.15.0;v0.11.6"
 }
 
 variable "etcd_unsafe_fs" {
@@ -234,5 +254,51 @@ variable "containerd_registry_files" {
 
     visit containerd docs for further details on how to configure registry hosts https://github.com/containerd/containerd/blob/main/docs/hosts.md
     EOF
+  default     = {}
+}
+
+variable "deploy_harbor" {
+  description = <<EOF
+  Deploy Harbor container registry. If enabled, the SCS container registry instance of the Harbor will be deployed
+  as defined in the k8s-harbor [project](https://github.com/SovereignCloudStack/k8s-harbor), which is used
+  also for the SCS community Harbor instance available at https://registry.scs.community/. It deploys `flux2` as a
+  mandatory dependency and may deploy also `cert-manager`, `ingress-nginx` and `Cinder CSI` dependencies,
+  see the `harbor_config` variable. It also expects that the Swift object store is available in the targeting
+  OpenStack project. A Swift bucket and ec2 credentials will be created and used for storing container image blobs.
+  EOF
+  type        = bool
+  default     = false
+}
+
+variable "harbor_config" {
+  type = object({
+    domain_name   = optional(string, ""),
+    issuer_email  = optional(string, ""),
+    persistence   = optional(bool, false),
+    database_size = optional(string, "1Gi"),
+    redis_size    = optional(string, "1Gi"),
+    trivy_size    = optional(string, "5Gi") # x 2 replicas
+  })
+  description = <<-EOF
+  Harbor container registry configuration options.
+
+  Attributes:
+    domain_name (string, optional): Harbor domain name. If set, Harbor services will be exposed via the `Ingress`
+      resource and secured by SSL/TLS certificate. The certificate will be issued from Let’s Encrypt using the
+      standard ACME HTTP-01 challenge. This will also force the deployment of dependent services such as
+      `cert-manager` and `ingress-nginx`. If not set, Harbor services will be exposed via the `ClusterIP` service type.
+      See ingress [environment](files/kubernetes-manifests.d/harbor/envs/ingress/) for further details.
+    issuer_email (string, optional): Email address for the cert-manager issuer ACME account used for issuing Harbor
+      certificate. It will be used to contact you in case of issues with your account or certificates,
+      including expiry notification emails. Relevant only when `domain_name` is set.
+    persistence (bool, optional): Enable persistence for the Harbor components.
+      This will force the deployment of `Cinder CSI`.
+    database_size (string, optional): PV size of the Harbor database. Relevant only when `persistence` is true.
+      Defaults to `1Gi`.
+    redis_size (string, optional): PV size of the Harbor k-v database (Redis). Relevant only when `persistence` is true.
+      Defaults to `1Gi`.
+    trivy_size (string, optional): PV size of the Trivy. Relevant only when `persistence` is true.
+      Defaults to `5Gi` for each of 2 Trivy replicas.
+  EOF
   default     = {}
 }

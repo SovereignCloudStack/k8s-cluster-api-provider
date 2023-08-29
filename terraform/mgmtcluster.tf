@@ -10,10 +10,18 @@ resource "openstack_identity_application_credential_v3" "appcred" {
   unrestricted = true
 }
 
+data "openstack_networking_network_v2" "extnet" {
+  external = true
+}
+
 # - management cluster -
 resource "openstack_networking_floatingip_v2" "mgmtcluster_floatingip" {
-  pool       = var.external
-  depends_on = [openstack_networking_router_interface_v2.router_interface]
+  pool        = var.external != "" ? var.external : data.openstack_networking_network_v2.extnet.name
+  depends_on  = [openstack_networking_router_interface_v2.router_interface]
+  description = "Floating IP for the ${var.prefix} management cluster node"
+  tags = [
+    "${var.prefix}-mgmtcluster", "k8s-cluster-api-mgmtcluster"
+  ]
 }
 
 resource "openstack_networking_port_v2" "mgmtcluster_port" {
@@ -36,14 +44,38 @@ locals {
   clouds = yamldecode(file("mycloud.${var.cloud_provider}.yaml"))
 }
 
+data "openstack_images_image_ids_v2" "images" {
+  name = var.image
+  sort = "updated_at:desc"
+}
+
+resource "openstack_blockstorage_volume_v3" "mgmtcluster_volume" {
+  size        = 30
+  name        = "${var.prefix}-mgmtcluster"
+  image_id    = data.openstack_images_image_ids_v2.images.ids[0]
+  description = "Volume for the ${var.prefix} management cluster node"
+}
+
 resource "openstack_compute_instance_v2" "mgmtcluster_server" {
   name              = "${var.prefix}-mgmtcluster"
-  image_name        = var.image
   flavor_name       = var.kind_flavor
   availability_zone = var.availability_zone
   key_pair          = openstack_compute_keypair_v2.keypair.name
+  # image_name      = var.image
 
   network { port = openstack_networking_port_v2.mgmtcluster_port.id }
+  block_device {
+    uuid                  = openstack_blockstorage_volume_v3.mgmtcluster_volume.id
+    source_type           = "volume"
+    boot_index            = 0
+    destination_type      = "volume"
+    delete_on_termination = true
+  }
+
+  lifecycle {
+    # Prevents Terraform from trying to destroy the instance when it was created before update with labeling its volume
+    ignore_changes = [block_device]
+  }
 
   user_data = <<-EOF
 
@@ -63,7 +95,7 @@ write_files:
       $nrconf{kernelhints} = -1;
       $nrconf{restart} = 'a';
     owner: root:root
-    path: /tmp/needrestart.conf
+    path: /etc/needrestart/conf.d/needrestart.conf
     permissions: '0644'
 runcmd:
   # Note: Needrestart is part of the `apt-get upgrade` process from Ubuntu 22.04. By default, it is set to an
@@ -71,7 +103,6 @@ runcmd:
   #   version is available after the upgrade process and when upgraded services need to restart. A custom configuration
   #   file overrides mentioned settings and ensures that kernel hints are printed only to stderr and services are
   #   restarted automatically if needed.
-  - mv /tmp/needrestart.conf /etc/needrestart/conf.d/ || echo "Needrestart is not installed. Skipped."
   - echo nf_conntrack > /etc/modules-load.d/90-nf_conntrack.conf
   - modprobe nf_conntrack
   - echo net.netfilter.nf_conntrack_max=131072 > /etc/sysctl.d/90-conntrack_max.conf
@@ -81,9 +112,39 @@ runcmd:
   - mv /tmp/daemon.json /etc/docker/daemon.json
   - groupadd docker
   - usermod -aG docker ${var.ssh_username}
-  - apt -y install docker.io yamllint qemu-utils
+  - apt -y install --no-install-recommends --no-install-suggests docker.io yamllint qemu-utils git
 EOF
 
+}
+
+resource "terraform_data" "cacert" {
+  depends_on = [
+    openstack_compute_instance_v2.mgmtcluster_server
+  ]
+
+  count = contains(keys(local.clouds), "cacert") ? 1 : 0
+
+  triggers_replace = [
+    openstack_networking_floatingip_v2.mgmtcluster_floatingip.address,
+    file(local.clouds["cacert"])
+  ]
+
+  connection {
+    host        = openstack_networking_floatingip_v2.mgmtcluster_floatingip.address
+    private_key = openstack_compute_keypair_v2.keypair.private_key
+    user        = var.ssh_username
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir -p /home/${var.ssh_username}/cluster-defaults"
+    ]
+  }
+
+  provisioner "file" {
+    source      = local.clouds["cacert"]
+    destination = "/home/${var.ssh_username}/cluster-defaults/${var.cloud_provider}-cacert"
+  }
 }
 
 resource "terraform_data" "mgmtcluster_containerd_registry_host_files" {
@@ -213,14 +274,17 @@ resource "terraform_data" "mgmtcluster_bootstrap_files" {
       deploy_flux                    = var.deploy_flux,
       deploy_metrics                 = var.deploy_metrics,
       deploy_nginx_ingress           = var.deploy_nginx_ingress,
+      deploy_gateway_api             = var.deploy_gateway_api,
       deploy_occm                    = var.deploy_occm,
       dns_nameservers                = var.dns_nameservers,
       etcd_unsafe_fs                 = var.etcd_unsafe_fs,
-      external                       = var.external,
+      external                       = var.external != "" ? var.external : data.openstack_networking_network_v2.extnet.name,
       image_registration_extra_flags = var.image_registration_extra_flags,
       kube_image_raw                 = var.kube_image_raw,
       kubernetes_version             = var.kubernetes_version,
       node_cidr                      = var.node_cidr,
+      pod_cidr                       = var.pod_cidr,
+      service_cidr                   = var.service_cidr,
       prefix                         = var.prefix,
       restrict_kubeapi               = var.restrict_kubeapi
       use_cilium                     = var.use_cilium,
@@ -235,9 +299,10 @@ resource "terraform_data" "mgmtcluster_bootstrap_files" {
   provisioner "file" {
     content = templatefile("files/template/clouds.yaml.tmpl", {
       appcredid      = openstack_identity_application_credential_v3.appcred.id,
-      appcredsecret  = openstack_identity_application_credential_v3.appcred.secret
+      appcredsecret  = openstack_identity_application_credential_v3.appcred.secret,
       cloud_provider = var.cloud_provider,
       clouds         = local.clouds,
+      cacert         = contains(keys(local.clouds), "cacert") ? "/home/${var.ssh_username}/cluster-defaults/${var.cloud_provider}-cacert" : "null"
     })
     destination = "/home/${var.ssh_username}/.config/openstack/clouds.yaml"
   }
@@ -249,6 +314,14 @@ resource "terraform_data" "mgmtcluster_bootstrap_files" {
       appcredsecret = openstack_identity_application_credential_v3.appcred.secret
     })
     destination = "/home/${var.ssh_username}/cluster-defaults/cloud.conf"
+  }
+
+  provisioner "file" {
+    content = templatefile("files/template/harbor-settings.tmpl", {
+      deploy_harbor = var.deploy_harbor,
+      harbor_config = var.harbor_config
+    })
+    destination = "/home/${var.ssh_username}/cluster-defaults/harbor-settings"
   }
 
   provisioner "file" {

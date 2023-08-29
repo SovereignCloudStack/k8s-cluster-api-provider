@@ -1,8 +1,12 @@
 #!/bin/bash
 export KUBECONFIG=~/.kube/config
 . ~/bin/cccfg.inc
+. ~/$CLUSTER_NAME/harbor-settings
 # Are we enabled? Has a version been set explicitly?
 DEPLOY_NGINX_INGRESS=$(yq eval '.DEPLOY_NGINX_INGRESS' $CCCFG)
+if test "$DEPLOY_NGINX_INGRESS" = "false" -a "$DEPLOY_HARBOR" = "true" -a -n "$HARBOR_DOMAIN_NAME"; then
+  DEPLOY_NGINX_INGRESS="true"
+fi
 if test "$DEPLOY_NGINX_INGRESS" = "true"; then
 	NGINX_VERSION="v1.8.0"
 elif test "$DEPLOY_NGINX_INGRESS" = "false"; then

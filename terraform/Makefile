@@ -1,6 +1,6 @@
 # Makefile
 
-# set the env we used 
+# set the env we used
 #ENVIRONMENT = gx-betacloud
 #ENVIRONMENT ?= gx-citycloud
 #ENVIRONMENT = gx-scs
@@ -8,7 +8,6 @@ SHELL=/bin/bash
 SED ?= sed
 #ENVIRONMENT = gx-bc
 OPENSTACK ?= openstack
-USERNAME ?= ubuntu
 CONSOLE = capi-mgmtcluster
 #TESTCLUSTER ?= testcluster
 
@@ -19,26 +18,29 @@ ifeq ($(NEED_OSCLOUD),1)
 else
   ENVIRONMENT ?= $(OS_CLOUD)
 endif
+USERNAME=$(shell ( grep '^ssh_username' environments/environment-$(ENVIRONMENT).tfvars || echo ubuntu ) | $(SED) 's@^ssh_username[^=]*= *"*\([^"]*\).*$$@\1@' )
 
 # if enabled, use s3 for remote terraform state
 ifneq (,$(wildcard ./minio.env))
   include minio.env
 endif
 
-YQVERSION=$(shell yq --version | $(SED) -e 's/^yq //' -e 's/^.*version //')
-YQMAJOR=$(shell YQV="$(YQVERSION)"; echo "$${YQV%%.*}")
-ifeq ($(YQMAJOR),v4)
-  YQ=yq eval
-  YQIN=-
-else
+YQISJQ=$(shell yq --help | grep jq >/dev/null 2>&1 && echo 1)
+ifeq ($(YQISJQ),1)
   YQ=yq --yaml-output
   YQIN=
+else
+  YQ=yq eval
+  YQIN=-
 endif
 
 CLOUD=$(shell ( grep '^cloud_provider' environments/environment-$(ENVIRONMENT).tfvars || echo $(ENVIRONMENT) ) | $(SED) 's@^cloud_provider[^=]*= *"*\([^"]*\).*$$@\1@' )
 ifeq ($(TESTCLUSTER),)
 TESTCLUSTER=$(shell ( grep '^testcluster_name' environments/environment-$(ENVIRONMENT).tfvars || echo testcluster ) | $(SED) 's@^testcluster_name[^=]*= *"*\([^"]*\).*$$@\1@' )
 endif
+
+PREFIX:=$(shell (grep '^prefix *=' environments/environment-${ENVIRONMENT}.tfvars || echo capi | $(SED) -e 's/^[^=]*= *//' -e 's/"//g'))
+MGMTCLUSTERNAME:=$(shell ($(OPENSTACK) server list --name "$(PREFIX)-mgmtcluster" -c Name -f value))
 
 GITBRANCH=$(shell git branch | grep '^*' | $(SED) 's/^* //')
 GITREPO=$(shell git config --get remote.origin.url | sed 's%git@\([^:]*\):%https://\1/%')
@@ -60,22 +62,35 @@ dry-run: init
 	terraform plan -var-file="environments/environment-$(ENVIRONMENT).tfvars" -var "git_branch=$(GITBRANCH)" $(PARAMS)
 
 mycloud: environments/environment-$(ENVIRONMENT).tfvars
-	@$(YQ) '.clouds."$(CLOUD)"' $(YQIN) < <(cat ./clouds.yaml ~/.config/openstack/clouds.yaml /etc/openstack/clouds.yaml 2>/dev/null) > mycloud.$(CLOUD).yaml
+	@if [ -f "clouds.yaml" ]; then \
+        $(YQ) '.clouds."$(CLOUD)"' $(YQIN) < clouds.yaml > mycloud.$(CLOUD).yaml; \
+    elif [ -f "${HOME}/.config/openstack/clouds.yaml" ]; then \
+        $(YQ) '.clouds."$(CLOUD)"' $(YQIN) < ${HOME}/.config/openstack/clouds.yaml > mycloud.$(CLOUD).yaml; \
+    elif [ -f "/etc/openstack/clouds.yaml" ]; then \
+        $(YQ) '.clouds."$(CLOUD)"' $(YQIN) < /etc/openstack/clouds.yaml > mycloud.$(CLOUD).yaml; \
+    else \
+        echo "Error clouds.yaml file not found in any location."; \
+        exit 1; \
+    fi
 
 gitchk:
 	@git diff -r origin/$(GITBRANCH) > git.diff
 	@if test -s git.diff; then echo "WARN: Local changes won't be used on mgmtcluster. Commit and push them"; cat git.diff; fi
 
 create: init
-	@touch .deploy.$(ENVIRONMENT)
-	terraform apply -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" -var "git_branch=$(GITBRANCH)" -var "git_repo=$(GITREPO)"
+	@if [[ "$(MGMTCLUSTERNAME)" ]]; then \
+		echo "Management cluster with prefix $(PREFIX) already exists. This is not supported due to unexpected side-effects." && exit 1; \
+	else \
+		touch .deploy.$(ENVIRONMENT); \
+		terraform apply -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" -var "git_branch=$(GITBRANCH)" -var "git_repo=$(GITREPO)"; \
+	fi
 
 show: init
 	@terraform show
 
 clean: init
 	@if test -e ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); then source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
-	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS timeout 200 ~/bin/cleanup.sh || true; fi
+	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "timeout 200 ~/bin/cleanup.sh || true"; fi
 	terraform destroy -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" $(PARAMS)
 	@terraform workspace select default
 	terraform workspace delete $(ENVIRONMENT)
@@ -85,7 +100,7 @@ clean: init
 
 fullclean:
 	prefix=$$(grep '^prefix *=' environments/environment-${ENVIRONMENT}.tfvars | $(SED) -e 's/^[^=]*= *//' -e 's/"//g'); \
-	./cleanup/cleanup.sh --verbose --full $(TESTCLUSTER) $${prefix}
+	./cleanup/cleanup.sh --verbose --full
 	@if test -e ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); then source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); ssh-keygen -R $$MGMTCLUSTER_ADDRESS -f ~/.ssh/known_hosts; rm -f .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); fi
 	$(MAKE) clean
 
@@ -100,7 +115,7 @@ purge:
 	@ospurge --purge-own-project --os-cloud $(ENVIRONMENT) --verbose
 	@rm -f .deploy.$(ENVIRONMENT) .MGMT_ADDRESS.$(ENVIRONMENT)
 	@rm -f .id_rsa.$(ENVIRONMENT)
-	@terraform workspace select default 
+	@terraform workspace select default
 	@terraform workspace delete -force $(ENVIRONMENT) || true
 	@openstack keypair delete capi-keypair || true
 	@ospurge --purge-own-project --os-cloud $(ENVIRONMENT) --verbose
@@ -175,10 +190,10 @@ watch: .deploy.id_rsa.$(ENVIRONMENT) .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT)
 	  NORM=$$(echo -e "\e[0;0m"); \
 	fi; \
 	while true; do \
-		LEN=$$(ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS sudo wc -l /var/log/cloud-init-output.log 2>/dev/null); \
+		LEN=$$(ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "sudo wc -l /var/log/cloud-init-output.log 2>/dev/null"); \
 		LEN=$${LEN%% *}; \
 		if test -n "$$LEN" -a "$$LEN" != "$$DISP"; then \
-		  OUT=$$(ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS sudo tail -n $$((LEN-DISP)) /var/log/cloud-init-output.log 2>/dev/null); \
+		  OUT=$$(ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "sudo tail -n $$((LEN-DISP)) /var/log/cloud-init-output.log 2>/dev/null"); \
 		  echo -e "$$OUT" | \
 		    $(SED) -e "s/^\(TASK.*\)$$/$$BOLD\1$$NORM/" \
 		        -e "s/^\(PLAY.*\)$$/$$GREEN\1$$NORM/" \
