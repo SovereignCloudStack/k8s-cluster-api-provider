@@ -237,6 +237,7 @@ if test -n "$NGINX_SG"; then
 	if test -z "$DEBUG"; then $OPENSTACK security group delete $NGINX_SGS; fi
 fi
 # This should hit all volumes that were attached to the servers
+echo "### Hint: It's safe to ignore errors on already deleted volumes here"
 cleanup_list volume "" "" "$SRVVOL"
 #cleanup "image" ubuntu-capi-image
 cleanup "server group" "$CAPIPRE-$CLUSTER"
@@ -268,6 +269,7 @@ if test "$FULL" == "1"; then
 	cleanup "security group" ${CAPIPRE}-mgmt
 	cleanup "security group" ${CAPIPRE}-allow-
 	cleanup keypair ${CAPIPRE}-keypair
+	echo "## Hint: It's safe to ignore errors on an already deleted volume here"
 	cleanup_list volume "" "" "$CAPIVOL"
 	cleanup "application credential" ${CAPIPRE}-appcred
 	cleanup volume $CAPIPRE-mgmthost
