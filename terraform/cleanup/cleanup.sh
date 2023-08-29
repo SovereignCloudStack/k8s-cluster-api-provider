@@ -206,7 +206,8 @@ done < <(echo "$LBS")
 SRV=$(resourcelist server $CAPIPRE-$CLUSTER)
 SRVVOL=$(server_vols $SRV)
 if test -n "$DEBUG"; then echo "### Attached volumes to "${SRV}": $SRVVOL"; fi
-cleanup server $CAPIPRE-$CLUSTER
+#cleanup server $CAPIPRE-$CLUSTER
+cleanup_list server "" "" "$SRV"
 if test -n "$NOCASCADE"; then
 	cleanup_list loadbalancer 1 "" "$LBS"
 else
