@@ -248,6 +248,8 @@ if test "$FULL" == "1"; then
 	echo "## Cleanup management server"
 	RTR=$(resourcelist router ${CAPIPRE}-rtr)
 	SUBNETS=$(resourcelist subnet ${CAPIPRE}-subnet)
+	FIP=$($OPENSTACK floating ip list -f value -c ID --tags "$CAPIPRE-mgmtcluster")
+	cleanup_list "floating ip" "" "" "$FIP"
 	if test -n "$RTR" -a -n "$SUBNETS"; then
 		echo $OPENSTACK router remove subnet $RTR $SUBNETS 1>&2
 		if test -z "$DEBUG"; then $OPENSTACK router remove subnet $RTR $SUBNETS; fi
