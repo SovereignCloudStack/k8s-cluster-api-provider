@@ -7,7 +7,7 @@
 # (c) Kurt Garloff <garloff@osb-alliance.com>, 8/2021
 # SPDX-License-Identifier: Apache-2.0
 #
-# Usage: cleanup.sh [--full] [CLUSTERNAME] [PREFIX]
+# Usage: cleanup.sh [--full] [--force-fip] [--force-pvc] [CLUSTERNAME] [PREFIX]
 
 if test -z "$OPENSTACK"; then OPENSTACK="openstack"; fi
 
@@ -116,8 +116,11 @@ server_vols()
 
 
 # main
+# TODO: Real option parser with help
 if test "$1" == "--verbose"; then VERBOSE=1; shift; fi
 if test "$1" == "--full"; then FULL=1; MGMTSRV=" management server and"; shift; fi
+if test "$1" == "--force-fip"; then FORCEFIP=1; shift; fi
+if test "$1" == "--force-pvc"; then FORCEPVC=1; shift; fi
 #if test -z "$1"; then CLUSTERS="${CLUSTER:-testcluster}"; else CLUSTERS="$1"; shift; fi
 #if test -z "$1"; then CAPIPRE="${CAPIPRE:-capi}"; else CAPIPRE="$1"; shift; fi
 if test -n "$1"; then CLUSTERS="$1"; shift; fi
@@ -268,10 +271,17 @@ if test "$FULL" == "1"; then
 	cleanup_list volume "" "" "$CAPIVOL"
 	cleanup "application credential" ${CAPIPRE}-appcred
 	cleanup volume $CAPIPRE-mgmthost
-	#cleanup volume pvc-
+fi
+if test -n "$FORCEPVC"; then
+	cleanup volume pvc-
+else
 	echo "## INFO: Volumes left, possibly from Cinder CSI:"
 	echo $OPENSTACK volume list 1>&2
 	$OPENSTACK volume list | grep 'pvc-'
+fi
+if test -n "$FORCEFIP"; then
+	FIP=$($OPENSTACK floating ip list --status DOWN -f value -c ID)
+	cleanup_list "floating ip" "" "" "$FIP"
 fi
 
 echo "# ${DBG}deleted $DELETED OpenStack resources"
