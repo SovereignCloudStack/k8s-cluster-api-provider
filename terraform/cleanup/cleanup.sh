@@ -203,15 +203,15 @@ while read LB FIP; do
 		if test -z "$DEBUG"; then $OPENSTACK floating ip delete $FID; fi
 	fi
 done < <(echo "$LBS")
+SRV=$(resourcelist server $CAPIPRE-$CLUSTER)
+SRVVOL=$(server_vols $SRV)
+if test -n "$DEBUG"; then echo "### Attached volumes to "${SRV}": $SRVVOL"; fi
+cleanup server $CAPIPRE-$CLUSTER
 if test -n "$NOCASCADE"; then
 	cleanup_list loadbalancer 1 "" "$LBS"
 else
 	cleanup_list loadbalancer 1 "--cascade" "$LBS"
 fi
-SRV=$(resourcelist server $CAPIPRE-$CLUSTER)
-SRVVOL=$(server_vols $SRV)
-if test -n "$DEBUG"; then echo "### Attached volumes to ${SRV}: $SRVVOL"; fi
-cleanup server $CAPIPRE-$CLUSTER
 cleanup port $CAPIPRE-$CLUSTER
 RTR=$(resourcelist router "$CAPIPRE2ALL")
 SUBNETS=$(resourcelist subnet "$CAPIPRE2ALL")
@@ -232,12 +232,12 @@ if test -n "$NGINX_SG"; then
 	echo "$OPENSTACK security group delete $NGINX_SGS" 1>&2
 	if test -z "$DEBUG"; then $OPENSTACK security group delete $NGINX_SGS; fi
 fi
-#cleanup "image" ubuntu-capi-image
-cleanup "server group" "$CAPIPRE-$CLUSTER"
 # This should hit all volumes that were attached to the servers
 cleanup_list volume "" "" "$SRVVOL"
-# The PVC volumes would NOT deleted here, we have no idea whom they belong to
-#cleanup volume $CAPIPRE-$CLUSTER
+#cleanup "image" ubuntu-capi-image
+cleanup "server group" "$CAPIPRE-$CLUSTER"
+# Normally, the volumes should be all gone, but if there's one left, take care of it
+cleanup volume $CAPIPRE-$CLUSTER
 cleanup "application credential" "$CAPIPRE-$CLUSTER-appcred"
 
 done
@@ -264,8 +264,9 @@ if test "$FULL" == "1"; then
 	cleanup keypair ${CAPIPRE}-keypair
 	cleanup_list volume "" "" "$CAPIVOL"
 	cleanup "application credential" ${CAPIPRE}-appcred
+	cleanup volume $CAPIPRE-mgmthost
 	#cleanup volume pvc-
-	echo "## INFO: Volumes from Cinder CSI left:"
+	echo "## INFO: Volumes left, possibly from Cinder CSI:"
 	echo $OPENSTACK volume list 1>&2
 	$OPENSTACK volume list | grep 'pvc-'
 fi
