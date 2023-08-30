@@ -7,12 +7,15 @@
 # (c) Kurt Garloff <garloff@osb-alliance.com>, 8/2021
 # SPDX-License-Identifier: Apache-2.0
 #
-# Usage: cleanup.sh [--full] [--force-fip] [--force-pvc] [CLUSTERNAME] [PREFIX]
+# Usage: cleanup.sh [--debug] [--verbose] [--full]
+#                   [--force-fip] [--force-pvc] [PREFIX [[CLUSTERNAMES]]
+# Note: The order of options args is fixed due to naive parser
 
 if test -z "$OPENSTACK"; then OPENSTACK="openstack"; fi
 
 declare -i DELETED=0
 
+if test "$1" == "--debug"; then DEBUG=1; shift; fi
 if test -n "$DEBUG"; then echo "# INFO: DEBUG set, won't delete anything for real"; DBG="Would have "; fi
 
 # collect list of resources, filtering for names
@@ -121,10 +124,10 @@ if test "$1" == "--verbose"; then VERBOSE=1; shift; fi
 if test "$1" == "--full"; then FULL=1; MGMTSRV=" management server and"; shift; fi
 if test "$1" == "--force-fip"; then FORCEFIP=1; shift; fi
 if test "$1" == "--force-pvc"; then FORCEPVC=1; shift; fi
-#if test -z "$1"; then CLUSTERS="${CLUSTER:-testcluster}"; else CLUSTERS="$1"; shift; fi
 #if test -z "$1"; then CAPIPRE="${CAPIPRE:-capi}"; else CAPIPRE="$1"; shift; fi
-if test -n "$1"; then CLUSTERS="$1"; shift; fi
+#if test -z "$1"; then CLUSTERS="${CLUSTER:-testcluster}"; else CLUSTERS="$1"; shift; fi
 if test -n "$1"; then CAPIPRE="$1"; shift; fi
+if test -n "$1"; then CLUSTERS="$@"; shift; fi
 # Try to guess CAPIPRE if it's unset
 if test -z "$CAPIPRE"; then
 	ENVIRONMENT=${ENVIRONMENT:-$OS_CLOUD}
