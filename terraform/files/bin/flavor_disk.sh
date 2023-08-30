@@ -31,6 +31,9 @@ usage()
 }
 
 if test -z "$1"; then usage; fi
+if ! command -v jq &>/dev/null; then
+  sudo apt update && sudo apt install -y jq
+fi
 
 FLAVOR=`openstack flavor show $1 -f json`
 if test $? != 0; then exit -1; fi
