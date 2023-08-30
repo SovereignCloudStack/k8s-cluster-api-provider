@@ -70,6 +70,8 @@ makes the flavors with root disks only recommended (except for the two new SSD f
 The used `cluster-template.yaml` now is dynamically patched to allocate a root disk
 as needed when diskless flavors are being used.
 
+This change requires installation of `jq`.
+
 (This fix is backported to the maintained R4 branch v5.x.)
 
 ### Custom CA
