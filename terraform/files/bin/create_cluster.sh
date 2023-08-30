@@ -34,6 +34,10 @@ if test ! -d ~/$CLUSTER_NAME/containerd/; then
 fi
 # Harbor settings
 if test ! -s ~/$CLUSTER_NAME/harbor-settings; then
+  # Ensure harbor-settings file exists
+  if test ! -e ~/cluster-defaults/harbor-settings; then
+    touch ~/cluster-defaults/harbor-settings
+  fi
   cp -p ~/cluster-defaults/harbor-settings ~/$CLUSTER_NAME/
 fi
 . ~/$CLUSTER_NAME/harbor-settings
