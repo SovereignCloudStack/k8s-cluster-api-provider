@@ -210,7 +210,7 @@ You can use script `update_R4_to_R5.sh` to update the default `cluster-template.
 Note: !This script is under development and will be stabilized within the release R5!
 
 ```bash
-update_R4_to_R5.sh <CLUSTER_NAME>
+update_R4_to_R5.sh cluster-defaults
 ```
 
 #### New defaults
@@ -333,3 +333,21 @@ storage attached), your choice is between a single-controller cluster
 (without `ETCD_UNSAFE_FS`) and a multi-controller cluster with
 `ETCD_UNSAFE_FS`. Neither option is perfect, but we deem the
 multi-controller cluster preferable in such a scenario.
+
+
+### R4 to R5
+
+In R4 to R5, the `cluster-template.yaml` and `clusterctl.yaml` changed (see release notes).
+
+You can use script `update_R4_to_R5.sh` to update the cluster's `cluster-template.yaml` and `clusterctl.yaml`.
+
+You have to call this script for each existing cluster.
+
+Some functionalities such as per cluster namespaces are supported only on new clusters and will not be migrated on the
+existing clusters.
+
+Note: !This script is under development and will be stabilized within the release R5!
+
+```bash
+update_R4_to_R5.sh <CLUSTER_NAME>
+```
