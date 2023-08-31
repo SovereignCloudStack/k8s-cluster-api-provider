@@ -1,0 +1,28 @@
+---
+- name: Cleanup
+  hosts: all
+  roles:
+  - role: ensure-pip  # https://zuul-ci.org/docs/zuul-jobs/latest/python-roles.html#role-ensure-pip
+  vars:
+    cloud_provider: "{{ cloud }}"  # inherited from the parent job
+    prefix: "pr{{ zuul.change }}"
+    testcluster_name: "pr{{ zuul.change }}"
+  environment:
+    OS_CLOUD: "{{ cloud_provider }}"
+  tasks:
+  - name: Ensure ospurge and openstackclient
+    pip:
+      name:
+      - "git+https://git.openstack.org/openstack/ospurge"
+      - "python-openstackclient"
+  - name: Cleanup - keypair
+    command: "openstack keypair delete {{ prefix }}-keypair"
+    ignore_errors: true
+  - name: Cleanup - application credentials
+    command: "openstack application credential delete {{ item }}"
+    ignore_errors: true
+    loop:
+    - "{{ prefix }}-appcred"
+    - "{{ prefix }}-{{ testcluster_name }}-appcred"
+  - name: Cleanup - purge openstack project
+    command: "ospurge --purge-own-project --verbose"
