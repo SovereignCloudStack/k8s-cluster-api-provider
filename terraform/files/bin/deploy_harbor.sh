@@ -29,7 +29,7 @@ fi
 if test ! -s ~/bin/s3-credentials.bash; then
   curl -L "$RAW_TAG_URL/envs/public/s3-credentials.bash" -o ~/bin/s3-credentials.bash || exit 2
 fi
-sudo apt install -y pwgen apache2-utils
+sudo apt-get install -y pwgen apache2-utils
 
 # generate harbor secrets
 bash ~/bin/harbor-secrets.bash
