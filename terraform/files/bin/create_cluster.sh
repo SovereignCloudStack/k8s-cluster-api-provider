@@ -175,8 +175,8 @@ done
 echo "# Deploy services (CNI, OCCM, CSI, Metrics, Cert-Manager, Flux2, Ingress)"
 MTU_VALUE=$(yq eval '.MTU_VALUE' $CCCFG)
 if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
-  DEPLOY_GATEWAY_API=$(yq eval '.DEPLOY_GATEWAY_API' $CCCFG)
-  if test "$DEPLOY_GATEWAY_API" = "true"; then
+  DEPLOY_GATEWAY_API=$(yq eval '.DEPLOY_GATEWAY_API == true' $CCCFG)
+  if test "${DEPLOY_GATEWAY_API}" = "true"; then
     KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.0/config/crd/standard/gateway.networking.k8s.io_gatewayclasses.yaml
     KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.0/config/crd/standard/gateway.networking.k8s.io_gateways.yaml
     KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.0/config/crd/standard/gateway.networking.k8s.io_httproutes.yaml
@@ -191,8 +191,8 @@ if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
   POD_CIDR=$(yq eval '.POD_CIDR' $CCCFG)
   KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium install --version $CILIUM_VERSION \
     --helm-set-string "ipam.operator.clusterPoolIPv4PodCIDRList={${POD_CIDR}}" \
-    --helm-set-string "kubeProxyReplacement=${DEPLOY_GATEWAY_API}" \
-    --helm-set gatewayAPI.enabled="${DEPLOY_GATEWAY_API}" \
+    --helm-set kubeProxyReplacement=${DEPLOY_GATEWAY_API} \
+    --helm-set gatewayAPI.enabled=${DEPLOY_GATEWAY_API} \
     --helm-set cni.chainingMode=portmap \
     --helm-set sessionAffinity=true
   touch ~/$CLUSTER_NAME/deployed-manifests.d/.cilium
