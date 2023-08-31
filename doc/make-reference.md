@@ -85,11 +85,15 @@ unfortunately, some error in the deployment may result in resources left around.
 
 ### Make fullclean
 
-``make fullclean`` uses a custom script (using the openstack CLI) to clean up everything
-while trying to not hit any resources not created by the CAPI or terraform.
+``make fullclean`` uses a custom script `cleanup/cleanup.sh` (using the openstack CLI) to clean up
+everything while trying to not hit any resources not created by the CAPI or terraform for
+clusters from this management host.
 It is the recommended way for doing cleanups if ``make clean`` fails. Watch out for leftover
 floating IP addresses and persistent volumes, as these can not be easily traced back to the
-Cluster API created resources and may thus be left.
+Cluster API created resources and may thus be left. There is also a ``make forceclean`` variant
+that hits unused floating IPs and all persistent volumes -- this is risky as there is no good
+way to tell which PVCs belong to us unless we find them attached to cluster nodes in which
+case we don't need the force options.
 
 ### Make purge
 
