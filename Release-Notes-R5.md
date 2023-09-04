@@ -21,7 +21,7 @@ executing of bootstrap script, etc. has been updated and validated.
 
 ### helm 3.12.x
 
-### metrics-server 0.6.3
+### metrics-server 0.6.4
 
 ### nginx-ingress 1.8.x
 
