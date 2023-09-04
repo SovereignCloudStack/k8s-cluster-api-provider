@@ -10,7 +10,7 @@ if test "$DEPLOY_CERT_MANAGER" = "false" -a "$DEPLOY_HARBOR" = "true" -a -n "$HA
   DEPLOY_CERT_MANAGER="true"
 fi
 if test "$DEPLOY_CERT_MANAGER" = "true"; then
-	CERTMGR_VERSION="v1.12.2"
+	CERTMGR_VERSION="v1.12.4"
 elif test "$DEPLOY_CERT_MANAGER" = "false"; then
 	echo "cert-manager disabled" 1>&2; exit 1
 else
