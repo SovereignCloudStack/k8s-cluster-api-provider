@@ -83,7 +83,7 @@ else
   # PR#413 Make openstack instance create timeout configurable
   sed -i '/^OPENSTACK_CLOUD_CACERT_B64/a # set OpenStack Instance create timeout (in minutes)\nCLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT: 5' clusterctl.yaml || restore 8
 fi
-# Nginx-ingress controller has been updated to version 1.8.0 in PR#440. This is a breaking change that includes updates
+# Nginx-ingress controller has been updated to version 1.8.0 in PR#440 and later to 1.8.1. This is a breaking change that includes updates
 # of immutable fields. Therefore, if environment contains nginx ingress deployed via k8s-cluster-api-provider
 # (variable DEPLOY_NGINX_INGRESS=true) the following k8s resources should be removed before R5 update (https://github.com/kubernetes/ingress-nginx/issues/5884):
 if test "$CLUSTER_NAME" != "cluster-defaults"; then # Patch needed only when existing cluster is updated
