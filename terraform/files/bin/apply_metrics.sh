@@ -2,7 +2,7 @@
 export KUBECONFIG=~/.kube/config
 . ~/bin/cccfg.inc
 
-METRICS_VERSION=v0.6.3
+METRICS_VERSION=v0.6.4
 
 echo "Deploy metrics server to $CLUSTER_NAME"
 # Metrics server

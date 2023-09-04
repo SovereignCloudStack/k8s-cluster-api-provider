@@ -6,7 +6,7 @@
 
 - Sonobuoy v0.56.17 adds support for the latest k8s versions even for k8s 1.27.
 
-### metrics-server 0.6.3
+### metrics-server 0.6.4
 ### k9s 0.27.x
 
 - In the previous releases, the latest version was used. Now, it is pinned.
