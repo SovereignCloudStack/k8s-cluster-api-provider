@@ -30,7 +30,7 @@ upload_capi_image.sh
 ## install tools and utils at local account
 
 # install kubectl
-sudo apt install --no-install-recommends --no-install-suggests -y binutils jq
+sudo apt-get install --no-install-recommends --no-install-suggests -y binutils jq
 if type snap >/dev/null 2>&1; then
   sudo snap install kubectl --classic
   sudo snap install kustomize

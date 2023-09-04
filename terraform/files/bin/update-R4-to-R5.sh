@@ -101,7 +101,7 @@ rm cluster-template.yaml.backup clusterctl.yaml.backup
 # General updates
 if test "$CLUSTER_NAME" = "cluster-defaults"; then
   # Install jq
-  sudo apt update && sudo apt install -y jq
+  sudo apt-get update && sudo apt-get install -y jq
 fi
 
 echo "update of cluster files from R4 to R5 version has been successfully finished"
