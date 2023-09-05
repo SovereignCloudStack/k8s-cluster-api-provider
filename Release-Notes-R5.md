@@ -21,7 +21,7 @@ executing of bootstrap script, etc. has been updated and validated.
 
 ### helm 3.12.x
 
-### metrics-server 0.6.3
+### metrics-server 0.6.4
 
 ### nginx-ingress 1.8.x
 
@@ -69,6 +69,8 @@ The SCS [flavor spec v3](https://github.com/SovereignCloudStack/standards/blob/m
 makes the flavors with root disks only recommended (except for the two new SSD flavors).
 The used `cluster-template.yaml` now is dynamically patched to allocate a root disk
 as needed when diskless flavors are being used.
+
+This change requires installation of `jq`.
 
 (This fix is backported to the maintained R4 branch v5.x.)
 

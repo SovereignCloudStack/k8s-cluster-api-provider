@@ -104,6 +104,12 @@ fullclean:
 	@if test -e ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); then source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); ssh-keygen -R $$MGMTCLUSTER_ADDRESS -f ~/.ssh/known_hosts; rm -f .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); fi
 	$(MAKE) clean
 
+forceclean:
+	prefix=$$(grep '^prefix *=' environments/environment-${ENVIRONMENT}.tfvars | $(SED) -e 's/^[^=]*= *//' -e 's/"//g'); \
+	./cleanup/cleanup.sh --verbose --full --force-fip --force-pvc
+	@if test -e ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); then source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); ssh-keygen -R $$MGMTCLUSTER_ADDRESS -f ~/.ssh/known_hosts; rm -f .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); fi
+	$(MAKE) clean
+
 purge:
 	@echo "Warning, going to delete ALL resources in $(ENVIRONMENT), even those that have not been created by the testbed. The SSH-Key capi-keypair will be removed for all projects."
 	@read -p "Continue? (y/n) " -r; \

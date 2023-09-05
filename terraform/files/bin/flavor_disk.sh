@@ -1,12 +1,12 @@
 #!/bin/bash
-# 
+#
 # flavor_disk.sh
-# 
+#
 # Determine if flavor needs a volume and return needed size
 # Usage: flavor_disk.sh FLAVOR [IMAGE]
 #  Determines whether FLAVOR has a disk
 #  If yes, return 0 (no disk needed)
-#  If no, return a number (size of disk to be created), 
+#  If no, return a number (size of disk to be created),
 #    The size is calculatd by heuristic: 20+RAM/2 rounded to next 5, max 125
 #  If FLAVOR does not exit: return -1
 #  If IMAGE is passed in addition:
@@ -31,6 +31,9 @@ usage()
 }
 
 if test -z "$1"; then usage; fi
+if ! command -v jq &>/dev/null; then
+  sudo apt-get update && sudo apt-get install -y jq
+fi
 
 FLAVOR=`openstack flavor show $1 -f json`
 if test $? != 0; then exit -1; fi

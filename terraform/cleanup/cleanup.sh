@@ -7,12 +7,15 @@
 # (c) Kurt Garloff <garloff@osb-alliance.com>, 8/2021
 # SPDX-License-Identifier: Apache-2.0
 #
-# Usage: cleanup.sh [--full] [CLUSTERNAME] [PREFIX]
+# Usage: cleanup.sh [--debug] [--verbose] [--full]
+#                   [--force-fip] [--force-pvc] [PREFIX [[CLUSTERNAMES]]
+# Note: The order of options args is fixed due to naive parser
 
 if test -z "$OPENSTACK"; then OPENSTACK="openstack"; fi
 
 declare -i DELETED=0
 
+if test "$1" == "--debug"; then DEBUG=1; shift; fi
 if test -n "$DEBUG"; then echo "# INFO: DEBUG set, won't delete anything for real"; DBG="Would have "; fi
 
 # collect list of resources, filtering for names
@@ -97,13 +100,34 @@ cleanup()
 	if test "${3:0:2}" == "--"; then cleanup_list "$1" "" "" "$RL"; else cleanup_list "$1" "" "$3" "$RL"; fi
 }
 
+# Find volumes attached to a set of servers
+# $* => list of server UUIDs
+# Output a list of volume UUIDs that are attached
+server_vols()
+{
+	if test -z "$1"; then echo; return 1; fi
+	srchexpr="\\("
+	for arg in "$@"; do
+		srchexpr="$srchexpr$arg\\|"
+	done
+	srchexpr="${srchexpr%\\|}\\)"
+	#if test -n "$DEBUG"; then echo "#### Search for volumes $srchexpr"; fi
+	ANS=$($OPENSTACK volume list -f value -c ID -c "Attached to" | grep "'server_id': '$srchexpr'" | cut -f1 -d " ")
+	echo $ANS
+	return 0
+}
+
+
 # main
+# TODO: Real option parser with help
 if test "$1" == "--verbose"; then VERBOSE=1; shift; fi
 if test "$1" == "--full"; then FULL=1; MGMTSRV=" management server and"; shift; fi
-#if test -z "$1"; then CLUSTERS="${CLUSTER:-testcluster}"; else CLUSTERS="$1"; shift; fi
+if test "$1" == "--force-fip"; then FORCEFIP=1; shift; fi
+if test "$1" == "--force-pvc"; then FORCEPVC=1; shift; fi
 #if test -z "$1"; then CAPIPRE="${CAPIPRE:-capi}"; else CAPIPRE="$1"; shift; fi
-if test -n "$1"; then CLUSTERS="$1"; shift; fi
+#if test -z "$1"; then CLUSTERS="${CLUSTER:-testcluster}"; else CLUSTERS="$1"; shift; fi
 if test -n "$1"; then CAPIPRE="$1"; shift; fi
+if test -n "$1"; then CLUSTERS="$@"; shift; fi
 # Try to guess CAPIPRE if it's unset
 if test -z "$CAPIPRE"; then
 	ENVIRONMENT=${ENVIRONMENT:-$OS_CLOUD}
@@ -147,6 +171,8 @@ if test "$FULL" == "1"; then
 	#  Custom `sed` expression below filters the last IP from the last server network. It works with both formats.
 	#  We assumed here that it is a floating IP associated with the capi mgmt server.
 	CAPI=$(resourcelist server ${CAPIPRE}-mgmtcluster "" Networks "s/^\([0-9a-f-]*\) .*, [']\{0,1\}\(\([0-9]*\.\)\{3\}[0-9]*\).*\$/\1 \2/g")
+	CAPIVOL=$(server_vols ${CAPI%% *})
+	if test -n "$DEBUG"; then echo "## Attached volumes to ${CAPI%% *}: $CAPIVOL"; fi
 	cleanup_list server 1 "" "$CAPI"
 	cleanup_list "floating ip" 2 "" "$CAPI"
 fi
@@ -183,12 +209,16 @@ while read LB FIP; do
 		if test -z "$DEBUG"; then $OPENSTACK floating ip delete $FID; fi
 	fi
 done < <(echo "$LBS")
+SRV=$(resourcelist server $CAPIPRE-$CLUSTER)
+SRVVOL=$(server_vols $SRV)
+if test -n "$DEBUG"; then echo "### Attached volumes to "${SRV}": $SRVVOL"; fi
+#cleanup server $CAPIPRE-$CLUSTER
+cleanup_list server "" "" "$SRV"
 if test -n "$NOCASCADE"; then
 	cleanup_list loadbalancer 1 "" "$LBS"
 else
 	cleanup_list loadbalancer 1 "--cascade" "$LBS"
 fi
-cleanup server $CAPIPRE-$CLUSTER
 cleanup port $CAPIPRE-$CLUSTER
 RTR=$(resourcelist router "$CAPIPRE2ALL")
 SUBNETS=$(resourcelist subnet "$CAPIPRE2ALL")
@@ -209,10 +239,13 @@ if test -n "$NGINX_SG"; then
 	echo "$OPENSTACK security group delete $NGINX_SGS" 1>&2
 	if test -z "$DEBUG"; then $OPENSTACK security group delete $NGINX_SGS; fi
 fi
+# This should hit all volumes that were attached to the servers
+echo "### Hint: It's safe to ignore errors on already deleted volumes here"
+cleanup_list volume "" "" "$SRVVOL"
 #cleanup "image" ubuntu-capi-image
-# The PVC volumes are NOT deleted here, we have no idea whom they belong to
-cleanup volume $CAPIPRE-$CLUSTER
 cleanup "server group" "$CAPIPRE-$CLUSTER"
+# Normally, the volumes should be all gone, but if there's one left, take care of it
+cleanup volume $CAPIPRE-$CLUSTER
 cleanup "application credential" "$CAPIPRE-$CLUSTER-appcred"
 
 done
@@ -222,6 +255,8 @@ if test "$FULL" == "1"; then
 	echo "## Cleanup management server"
 	RTR=$(resourcelist router ${CAPIPRE}-rtr)
 	SUBNETS=$(resourcelist subnet ${CAPIPRE}-subnet)
+	FIP=$($OPENSTACK floating ip list -f value -c ID --tags "$CAPIPRE-mgmtcluster")
+	cleanup_list "floating ip" "" "" "$FIP"
 	if test -n "$RTR" -a -n "$SUBNETS"; then
 		echo $OPENSTACK router remove subnet $RTR $SUBNETS 1>&2
 		if test -z "$DEBUG"; then $OPENSTACK router remove subnet $RTR $SUBNETS; fi
@@ -237,11 +272,21 @@ if test "$FULL" == "1"; then
 	cleanup "security group" ${CAPIPRE}-mgmt
 	cleanup "security group" ${CAPIPRE}-allow-
 	cleanup keypair ${CAPIPRE}-keypair
+	echo "## Hint: It's safe to ignore errors on an already deleted volume here"
+	cleanup_list volume "" "" "$CAPIVOL"
 	cleanup "application credential" ${CAPIPRE}-appcred
-	#cleanup volume pvc-
-	echo "## INFO: Volumes from Cinder CSI left:"
+	cleanup volume $CAPIPRE-mgmthost
+fi
+if test -n "$FORCEPVC"; then
+	cleanup volume pvc-
+else
+	echo "## INFO: Volumes left, possibly from Cinder CSI:"
 	echo $OPENSTACK volume list 1>&2
 	$OPENSTACK volume list | grep 'pvc-'
+fi
+if test -n "$FORCEFIP"; then
+	FIP=$($OPENSTACK floating ip list --status DOWN -f value -c ID)
+	cleanup_list "floating ip" "" "" "$FIP"
 fi
 
 echo "# ${DBG}deleted $DELETED OpenStack resources"
