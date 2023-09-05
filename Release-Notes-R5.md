@@ -12,7 +12,7 @@
 | kind           | 0.18.0  |                                                                                                                                                                                |
 | helm           | 3.12.x  |                                                                                                                                                                                |
 | metrics-server | 0.6.4   |                                                                                                                                                                                |
-| nginx-ingress  | 1.8.x   | Supports only k8s version > 1.24. We dropped support for older k8s versions. [supported versions table](https://github.com/kubernetes/ingress-nginx#supported-versions-table). |
+| nginx-ingress  | 1.8.x   | Supports only k8s version >= 1.24. We dropped support for older k8s versions. [supported versions table](https://github.com/kubernetes/ingress-nginx#supported-versions-table). |
 | k9s            | 0.27.x  | Instead of latest version has been pinned.                                                                                                                                     |
 | calico         | 3.26.x  |                                                                                                                                                                                |
 | capi           | v1.3.8  |                                                                                                                                                                                |
