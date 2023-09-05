@@ -176,7 +176,7 @@ sed -r 's/(^WORKER_MACHINE_GEN: genw)([0-9][0-9])/printf "\1%02d" $((\2+1))/ge' 
 
 7. Workaround: If your environment contains nginx ingress deployed via k8s-cluster-api-provider
 (variable DEPLOY_NGINX_INGRESS=true) disable its update. Nginx-ingress controller has
-been updated to version 1.8.0 in PR#440. This is a breaking change that includes updates
+been updated to version 1.8.0 in PR#440 and later to 1.8.1. This is a breaking change that includes updates
 of immutable fields. If the above is the case skip this update as follows:
 ```bash
 sed 's/DEPLOY_NGINX_INGRESS: true/DEPLOY_NGINX_INGRESS: false/g' -i clusterctl.yaml

@@ -25,7 +25,7 @@ executing of bootstrap script, etc. has been updated and validated.
 
 ### nginx-ingress 1.8.x
 
-- We removed support for older k8s versions <= 1.19. Ingress-nginx 1.8.0 supports k8s version >= 1.24.
+- We removed support for older k8s versions <= 1.19. Ingress-nginx 1.8.1 supports k8s version >= 1.24.
   See also
   ingress-nginx [supported versions table](https://github.com/kubernetes/ingress-nginx#supported-versions-table).
 
