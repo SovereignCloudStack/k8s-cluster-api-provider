@@ -47,7 +47,7 @@ When the Harbor is deployed, you can check the status, e.g. by:
 ```bash
 $ flux get helmrelease -n default
 NAME    REVISION        SUSPENDED       READY   MESSAGE                          
-harbor  1.12.3          False           True    Release reconciliation succeeded
+harbor  1.12.4          False           True    Release reconciliation succeeded
 ```
 or you can simply check if pods are running by `kubectl get pods`.
 
