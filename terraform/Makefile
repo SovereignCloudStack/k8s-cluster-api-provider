@@ -40,7 +40,7 @@ TESTCLUSTER=$(shell ( grep '^testcluster_name' environments/environment-$(ENVIRO
 endif
 
 PREFIX:=$(shell (grep '^prefix *=' environments/environment-${ENVIRONMENT}.tfvars || echo capi | $(SED) -e 's/^[^=]*= *//' -e 's/"//g'))
-MGMTCLUSTERNAME:=$(shell ($(OPENSTACK) server list --name "$(PREFIX)-mgmtcluster" -c Name -f value))
+MGMTCLUSTERNAME:=$(shell ($(OPENSTACK) --os-cloud $(ENVIRONMENT) server list --name "$(PREFIX)-mgmtcluster" -c Name -f value))
 
 GITBRANCH=$(shell git branch | grep '^*' | $(SED) 's/^* //')
 GITREPO=$(shell git config --get remote.origin.url | sed 's%git@\([^:]*\):%https://\1/%')
