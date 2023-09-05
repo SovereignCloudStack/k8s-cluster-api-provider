@@ -171,6 +171,16 @@ do
 done
 
 # CNI
+SLEEP=0
+until kubectl $KCONTEXT -n kube-system get daemonset/kube-proxy -o=jsonpath='{.metadata.name}' >/dev/null 2>&1; do
+  echo "[$SLEEP] waiting for kube-proxy"
+  sleep 10
+  let SLEEP+=10
+done
+
+echo "waiting for kube-proxy to become ready"
+kubectl $KCONTEXT -n kube-system wait --for=condition=ready --timeout=5m pods -l k8s-app=kube-proxy
+
 echo "# Deploy services (CNI, OCCM, CSI, Metrics, Cert-Manager, Flux2, Ingress)"
 MTU_VALUE=$(yq eval '.MTU_VALUE' $CCCFG)
 if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
@@ -180,7 +190,7 @@ if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
     CILIUM_VERSION="${USE_CILIUM}"
   fi
   KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium install --version $CILIUM_VERSION \
-    --helm-set kubeProxyReplacement=disabled \
+    --helm-set kubeProxyReplacement=false \
     --helm-set cni.chainingMode=portmap \
     --helm-set sessionAffinity=true
   touch ~/$CLUSTER_NAME/deployed-manifests.d/.cilium
