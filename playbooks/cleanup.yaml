@@ -9,12 +9,14 @@
     testcluster_name: "pr{{ zuul.change }}"
   environment:
     OS_CLOUD: "{{ cloud_provider }}"
+    PATH: "{{ ansible_user_dir }}/.local/bin:{{ ansible_env.PATH }}"
   tasks:
   - name: Ensure ospurge and openstackclient
     pip:
       name:
       - "git+https://git.openstack.org/openstack/ospurge"
       - "python-openstackclient"
+      extra_args: --user
   - name: Cleanup - keypair
     command: "openstack keypair delete {{ prefix }}-keypair"
     ignore_errors: true

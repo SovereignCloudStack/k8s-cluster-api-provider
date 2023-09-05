@@ -8,7 +8,9 @@
     openstackclient_version: "6.2.0"
     octaviaclient_version: "3.4.0"
     tf_version: "1.4.6"
-    install_dir: "/usr/bin"
+    install_dir: "{{ ansible_user_dir }}/.local/bin"
+  environment:
+    PATH: "{{ install_dir }}:{{ ansible_env.PATH }}"
   roles:
   - role: ensure-pip  # https://zuul-ci.org/docs/zuul-jobs/latest/python-roles.html#role-ensure-pip
   - role: ensure-terraform  # https://zuul-ci.org/docs/zuul-jobs/latest/hashicorp-roles.html#role-ensure-terraform
@@ -39,3 +41,4 @@
       name:
       - "python-openstackclient=={{ openstackclient_version }}"
       - "python-octaviaclient=={{ octaviaclient_version }}"
+      extra_args: --user

@@ -118,7 +118,7 @@ echo -n "super-secret" | \
 #### How do developers/reviewers should proceed if they want to CI test this project?
 
 A developer initiates a PR as usual. If a reviewer deems that the PR requires e2e testing,
-he/she can apply a specific label to the PR.
+they can apply a specific label to the PR.
 Currently, the following labels could be applied:
 - `e2e-test` (for comprehensive e2e testing, including k8s cluster creation, execution of sonobuoy conformance tests, and cluster deletion)
 - `e2e-quick-test` (for expedited e2e testing, involving k8s cluster creation, quick sonobuoy tests, and cluster deletion)

@@ -9,7 +9,22 @@
     testcluster_name: "pr{{ zuul.change }}"
   environment:
     ENVIRONMENT: "{{ cloud_provider }}"
+    PATH: "{{ ansible_user_dir }}/.local/bin:{{ ansible_env.PATH }}"
   tasks:
+  - name: Install ip command
+    package:
+      name:
+        - iproute2
+    become: true
+  - name: get device
+    shell: "ip route show default | head -n1 | sed 's/^.*dev \\([^ ]*\\).*$/\\1/'"
+    register: dev
+  - name: print mtu
+    debug:
+      var: dev
+  - name: set mtu
+    command: "ip link set ens3 mtu 1500"
+    become: true
   - name: Prepare environment
     block:
     - name: Get PR details
