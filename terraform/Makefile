@@ -40,9 +40,12 @@ TESTCLUSTER=$(shell ( grep '^testcluster_name' environments/environment-$(ENVIRO
 endif
 
 PREFIX:=$(shell (grep '^prefix *=' environments/environment-${ENVIRONMENT}.tfvars || echo capi | $(SED) -e 's/^[^=]*= *//' -e 's/"//g'))
-MGMTCLUSTERNAME:=$(shell ($(OPENSTACK) server list --name "$(PREFIX)-mgmtcluster" -c Name -f value))
+MGMTCLUSTERNAME:=$(shell ($(OPENSTACK) --os-cloud $(ENVIRONMENT) server list --name "$(PREFIX)-mgmtcluster" -c Name -f value))
 
 GITBRANCH=$(shell git branch | grep '^*' | $(SED) 's/^* //')
+# Specify a branch, tag or commit to checkout on the mgmtcluster
+GITREFERENCE=$(shell git rev-parse HEAD)
+# GITREFERENCE=$GITBRANCH
 GITREPO=$(shell git config --get remote.origin.url | sed 's%git@\([^:]*\):%https://\1/%')
 
 init:	mycloud
@@ -59,7 +62,7 @@ state-push: init
 	@terraform state push $(STATE)
 
 dry-run: init
-	terraform plan -var-file="environments/environment-$(ENVIRONMENT).tfvars" -var "git_branch=$(GITBRANCH)" $(PARAMS)
+	terraform plan -var-file="environments/environment-$(ENVIRONMENT).tfvars" -var "git_reference=$(GITREFERENCE)" $(PARAMS)
 
 mycloud: environments/environment-$(ENVIRONMENT).tfvars
 	@if [ -f "clouds.yaml" ]; then \
@@ -74,7 +77,11 @@ mycloud: environments/environment-$(ENVIRONMENT).tfvars
     fi
 
 gitchk:
-	@git diff -r origin/$(GITBRANCH) > git.diff
+	@if [ "$(GITREFERENCE)" != "$(GITBRANCH)" ]; then \
+		git diff -r $(GITREFERENCE) -- :/ ':(exclude,top)terraform/environments' > git.diff ; \
+	else \
+  		git diff -r origin/$(GITBRANCH) -- :/ ':(exclude,top)terraform/environments' > git.diff ; \
+	fi
 	@if test -s git.diff; then echo "WARN: Local changes won't be used on mgmtcluster. Commit and push them"; cat git.diff; fi
 
 create: init
@@ -82,7 +89,7 @@ create: init
 		echo "Management cluster with prefix $(PREFIX) already exists. This is not supported due to unexpected side-effects." && exit 1; \
 	else \
 		touch .deploy.$(ENVIRONMENT); \
-		terraform apply -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" -var "git_branch=$(GITBRANCH)" -var "git_repo=$(GITREPO)"; \
+		terraform apply -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" -var "git_reference=$(GITREFERENCE)" -var "git_repo=$(GITREPO)"; \
 	fi
 
 show: init

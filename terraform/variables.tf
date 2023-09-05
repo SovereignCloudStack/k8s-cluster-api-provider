@@ -54,7 +54,7 @@ variable "ssh_username" {
 variable "calico_version" {
   description = "desired version of calico"
   type        = string
-  default     = "v3.25.1"
+  default     = "v3.26.1"
 }
 
 variable "clusterapi_version" {
@@ -195,8 +195,8 @@ variable "etcd_unsafe_fs" {
   default     = false
 }
 
-variable "git_branch" {
-  description = "k8s-cluster-api-provider git branch to be checked out on mgmtserver"
+variable "git_reference" {
+  description = "k8s-cluster-api-provider git reference to be checked out on mgmtserver"
   type        = string
   default     = "main"
 }
