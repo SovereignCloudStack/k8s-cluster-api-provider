@@ -8,7 +8,7 @@ if test "$DEPLOY_NGINX_INGRESS" = "false" -a "$DEPLOY_HARBOR" = "true" -a -n "$H
   DEPLOY_NGINX_INGRESS="true"
 fi
 if test "$DEPLOY_NGINX_INGRESS" = "true"; then
-	NGINX_VERSION="v1.8.0"
+	NGINX_VERSION="v1.8.1"
 elif test "$DEPLOY_NGINX_INGRESS" = "false"; then
 	echo "nginx ingress disabled" 1>&2; exit 1
 else

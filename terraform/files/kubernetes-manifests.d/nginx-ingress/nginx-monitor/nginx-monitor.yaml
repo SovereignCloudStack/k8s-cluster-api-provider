@@ -1,5 +1,5 @@
 ---
-# YAML_TO_PATCH: https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.0/deploy/static/provider/cloud/deploy.yaml
+# YAML_TO_PATCH: https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.1/deploy/static/provider/cloud/deploy.yaml
 apiVersion: v1
 kind: Service
 metadata:

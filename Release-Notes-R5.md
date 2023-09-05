@@ -25,13 +25,15 @@ executing of bootstrap script, etc. has been updated and validated.
 
 ### nginx-ingress 1.8.x
 
-- We removed support for older k8s versions <= 1.19. Ingress-nginx 1.8.0 supports k8s version >= 1.24.
+- We removed support for older k8s versions <= 1.19. Ingress-nginx 1.8.1 supports k8s version >= 1.24.
   See also
   ingress-nginx [supported versions table](https://github.com/kubernetes/ingress-nginx#supported-versions-table).
 
 ### k9s 0.27.x
 
 - In the previous releases, the latest version was used. Now, it is pinned.
+
+### calico 3.26.x
 
 ## New features
 
@@ -109,7 +111,7 @@ check the [docs](https://github.com/SovereignCloudStack/k8s-cluster-api-provider
 ### Gateway API
 Gateway API can be enabled with the new configuration flag `DEPLOY_GATEWAY_API`. Unfortunately it breaks some sonobuoy conformance tests and is considered a tech-preview only. This feature is disabled by default.
 
-# Namespace separation for clusterctl in capi management server
+### Namespace separation for clusterctl in capi management server
 
 When creating a new cluster, resources inside the capi management server are now created in a
 separate namespace. The namespace is named after the cluster name. This allow to utilize the
