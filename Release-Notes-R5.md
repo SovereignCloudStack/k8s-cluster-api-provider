@@ -20,6 +20,8 @@ executing of bootstrap script, etc. has been updated and validated.
 
 - In the previous releases, the latest version was used. Now, it is pinned.
 
+### calico 3.26.x
+
 ## New features
 
 ### Ubuntu 22.04
