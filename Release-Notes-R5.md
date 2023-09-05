@@ -15,7 +15,7 @@ executing of bootstrap script, etc. has been updated and validated.
 
 ### cilium 1.14.1
 
-- Cilium and hubble CLI versions are v0.15.7 and v0.12.0.
+- The CLI versions for Cilium and Hubble have been respectively upgraded to v0.15.7 and v0.12.0.
 
 ### cert-manager 1.12.x
 
