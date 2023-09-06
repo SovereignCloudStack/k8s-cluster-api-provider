@@ -2,7 +2,7 @@
 
 ## Supported k8s versions
 
-As of R4, our tests cover 1.22.latest ... 1.26.latest.
+As of R5, our tests cover 1.24.latest ... 1.27.latest.
 All of them pass the sonobuoy CNCF conformance tests.
 
 ## Overview over the parameters in clusterctl.yaml and environment-XXX.tfvars
@@ -21,7 +21,7 @@ Parameters controlling the Cluster-API management server (capi management server
 | `kind_flavor`            |                 | SCS        | `SCS-2V-4`        | Flavor to be used for the k8s capi mgmt server                                |
 | `image`                  |                 | SCS        | `Ubuntu 22.04`    | Image for the capi mgmt server. Use `Ubuntu 22.04` or `Debian 12`             |
 | `ssh_username`           |                 | SCS        | `ubuntu`          | Name of the default user for the `image`                                      |
-| `clusterapi_version`     |                 | SCS        | `1.3.8`           | Version of the cluster-API incl. `clusterctl`                                 |
+| `clusterapi_version`     |                 | SCS        | `1.5.1`           | Version of the cluster-API incl. `clusterctl`                                 |
 | `capi_openstack_version` |                 | SCS        | `0.7.3`           | Version of the cluster-api-provider-openstack (needs to fit the CAPI version) |
 | `cilium_binaries`        |                 | SCS        | `v0.15.7;v0.12.0` | Versions of the cilium and hubble CLI in the vA.B.C;vX.Y.Z format             |
 
@@ -47,7 +47,7 @@ Parameters controlling the cluster creation:
 | `node_cidr`                      | `NODE_CIDR`                                     | SCS        | `10.8.0.0/20`                                            | IPv4 address range (CIDR notation) for workload nodes                                                                                                                                                      |
 | `use_cilium`                     | `USE_CILIUM`                                    | SCS        | `false`                                                  | Use cilium as CNI instead of calico, it can be set to vX.Y.Z and `true` results in `v1.14.1`                                                                                                               |
 | `calico_version`                 | `CALICO_VERSION`                                | SCS        | `v3.26.1`                                                | Version of the Calico CNI provider (ignored if `use_cilium` is set)                                                                                                                                        |
-| `kubernetes_version`             | `KUBERNETES_VERSION`                            | capo       | `v1.25.x`                                                | Kubernetes version deployed into workload cluster (`.x` means latest patch release)                                                                                                                        |
+| `kubernetes_version`             | `KUBERNETES_VERSION`                            | capo       | `v1.27.x`                                                | Kubernetes version deployed into workload cluster (`.x` means latest patch release)                                                                                                                        |
 | ``                               | `OPENSTACK_IMAGE_NAME`                          | capo       | `ubuntu-capi-image-${KUBERNETES_VERION}`                 | Image name for k8s controller and worker nodes. Ubuntu 22.04 image is used for k8s versions >= 1.27.3, 1.26.6, 1.25.11, Ubuntu 20.04 otherwise.                                                            |
 | `kube_image_raw`                 | `OPENSTACK_IMAGE_RAW`                           | SCS        | `true`                                                   | Register images in raw format (instead of qcow2), good for ceph COW                                                                                                                                        |
 | `image_registration_extra_flags` | `OPENSTACK_IMAGE_REGISTATION_EXTRA_FLAGS`       | SCS        | `""`                                                     | Extra flags passed during image registration                                                                                                                                                               |

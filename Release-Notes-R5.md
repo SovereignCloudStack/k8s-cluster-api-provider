@@ -2,6 +2,31 @@
 
 ## Updated software
 
+### capi v1.5.1 and OpenStack capi provider 0.7.3
+
+[Kubernetes Cluster API Provider](https://cluster-api.sigs.k8s.io/)
+[OpenStack Provider for CAPI](https://cluster-api-openstack.sigs.k8s.io/)
+
+### k8s versions (1.24 -- 1.27)
+
+We test Kubernetes versions 1.24 -- 1.27 with the R5 Cluster API
+solution. We had tested earlier versions (down to 1.18) successfully before,
+and we don't expect them to break, but these are no longer supported
+upstream and no fresh node images are provided by us.
+
+Please note that k8s-v1.25 brought the removal of the deprecated Pod Security
+Policies (PSPs) and brought
+[Pod Security Standards (PSS)](https://kubernetes.io/blog/2022/08/25/pod-security-admission-stable/)
+instead.
+The end of life for v1.25 is at the end of October.
+
+Release notes for upstream Kubernetes can be found [here](https://github.com/kubernetes/kubernetes/releases).
+Please read the [API deprecation notes](https://kubernetes.io/docs/reference/using-api/deprecation-guide/#v1-27)
+when you move your workloads to the latest k8s versions.
+
+Kubernetes v1.28 can be deployed as a technical preview for now, but
+we expect that it will be stabilized soon.
+
 ### terraform v1.4.6
 
 Terraform used for creation of capi management server, security groups for cluster,
@@ -20,7 +45,9 @@ This version is well-tested, the next upgrade will come later.
 - The CLI versions for Cilium and Hubble have been respectively upgraded to v0.15.7 and v0.12.0.
 
 ### cert-manager 1.12.x
-### kind 0.18.0
+
+### kind 0.20.0
+
 ### helm 3.12.x
 ### metrics-server 0.6.4
 
