@@ -7,7 +7,9 @@
 Terraform used for creation of capi management server, security groups for cluster,
 executing of bootstrap script, etc. has been updated and validated.
 
-### flux2 0.41.x
+### flux2 0.41.2
+
+This version is well-tested, the next upgrade will come later.
 
 ### sonobuoy 0.56.x
 
