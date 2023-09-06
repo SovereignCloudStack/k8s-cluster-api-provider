@@ -13,11 +13,11 @@
 | helm           | 3.12.x  |                                                                                                                                                                                 |
 | metrics-server | 0.6.4   |                                                                                                                                                                                 |
 | nginx-ingress  | 1.8.x   | Supports only k8s version >= 1.24. We dropped support for older k8s versions. [supported versions table](https://github.com/kubernetes/ingress-nginx#supported-versions-table). |
-| k9s            | 0.27.x  | Instead of latest version, it has been pinned.                                                                                                                                  |
+| k9s            | 0.27.x  | Instead of using just the latest version, it has been pinned now.                                                                                                                              |
 | calico         | 3.26.x  |                                                                                                                                                                                 |
 | capi           | v1.3.8  |                                                                                                                                                                                 |
 | capo           | 0.7.3   |                                                                                                                                                                                 |
-| ubuntu         | 22.04   | See below.                                                                                                                                                                      |
+| ubuntu         | 22.04   | See [below](#ubuntu-2204).                                                                                                                                                                      |
 
 ## New features
 
@@ -51,7 +51,7 @@ and snapshot functionality is validated using the check-csi CNCF/sonobuoy test.
 
 ### Cilium is the default CNI now
 
-We have decided to use cilium as default
+We have decided to use Cilium as default
 CNI, [#431](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/431).
 You can still override this and set `USE_CILIUM="false"` if you prefer Calico.
 
@@ -72,7 +72,7 @@ This change requires installation of `jq`.
 
 From [#460](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/460), the k8s-cluster-api-provider
 supports a situation when communication with OpenStack API is protected by the certificate issued by custom or private
-CA. All you have to do is provide `cacert` option in your clouds.yaml configuration file. Ca-cert will be copied
+CA. All you have to do is provide `cacert` option in your clouds.yaml configuration file. CA cert will be copied
 to the management and workload cluster so provide only necessary certificates in that file.
 You can see an example and a more detailed explanation in the
 [docs](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/usage/custom-ca.md).
@@ -148,7 +148,7 @@ versatile use cases, such as configuring Containerd to utilize a custom CA certi
 registry hosts or specifying a container registry mirror to bypass restrictions, like DockerHub's pull rate limits. In
 the SCS KaaS reference implementation, users can pass container registry host configuration files to configure
 Containerd cluster-wide. The `containerd_registry_files` Terraform variable allows users to define additional registry
-host configuration files and associated certificates, which will be copied to specific directories on each workload
+host configuration files and associated certificates, which will be copied to specific directories on each 
 cluster node.
 
 The default configuration uses the `registry.scs.community` container registry as a public mirror of
@@ -161,10 +161,6 @@ With this followup PRs:
 
 - [#447](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/447)
   Add optional containerd registry config files
-- [#452](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/452)
-  Fix default cluster directory ~/cluster-defaults cp command
-- [#472](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/472)
-  Fix configure_containerd.sh script idempotency
 - [#477](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/477)
   Add migration steps for existing k8s clusters to adopt #432
 
@@ -174,6 +170,7 @@ With this followup PRs:
   Make openstack instance create timeout configurable
 - [#392](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/392)
   Comment on AZs, treat YQ3 as old yq.
+  - This fix is later further rewritten for better support in #508 
 - [#422](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/422)
   Replace k8s registry locations
     - `k8s.gcr.io` -> `registry.k8s.io`
