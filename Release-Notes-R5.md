@@ -5,19 +5,21 @@
 | Software       | Version | Note                                                                                                                                                                            |
 |----------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Terraform      | v1.4.6  | [#515](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/515) Given Hashicorp change of license to BSL we pinned terraform to version < 1.6.0.               |
-| flux2          | 0.41.x  |                                                                                                                                                                                 |
+| flux2          | 0.41.2  | This version is well-tested, the next upgrade will come later.                                                                                                                  |
 | sonobuoy       | 0.56.x  | v0.56.17 adds support for the latest k8s versions even for k8s 1.27.                                                                                                            |
-| cilium         | 1.14.0  |                                                                                                                                                                                 |
+| Cilium         | 1.14.1  |                                                                                                                                                                                 |
+| Cilium cli     | v0.15.7 |                                                                                                                                                                                 |
+| Cilium Hubble  | v0.12.0 |                                                                                                                                                                                 |
 | cert-manager   | 1.12.x  |                                                                                                                                                                                 |
 | kind           | 0.18.0  |                                                                                                                                                                                 |
 | helm           | 3.12.x  |                                                                                                                                                                                 |
 | metrics-server | 0.6.4   |                                                                                                                                                                                 |
 | nginx-ingress  | 1.8.x   | Supports only k8s version >= 1.24. We dropped support for older k8s versions. [supported versions table](https://github.com/kubernetes/ingress-nginx#supported-versions-table). |
-| k9s            | 0.27.x  | Instead of using just the latest version, it has been pinned now.                                                                                                                              |
+| k9s            | 0.27.x  | Instead of using just the latest version, it has been pinned now.                                                                                                               |
 | calico         | 3.26.x  |                                                                                                                                                                                 |
 | capi           | v1.3.8  |                                                                                                                                                                                 |
 | capo           | 0.7.3   |                                                                                                                                                                                 |
-| ubuntu         | 22.04   | See [below](#ubuntu-2204).                                                                                                                                                                      |
+| ubuntu         | 22.04   | See [below](#ubuntu-2204).                                                                                                                                                      |
 
 ## New features
 
