@@ -11,15 +11,77 @@
 | Cilium cli     | v0.15.7 |                                                                                                                                                                                 |
 | Cilium Hubble  | v0.12.0 |                                                                                                                                                                                 |
 | cert-manager   | 1.12.x  |                                                                                                                                                                                 |
-| kind           | 0.18.0  |                                                                                                                                                                                 |
+| kind           | 0.20.0  |                                                                                                                                                                                 |
 | helm           | 3.12.x  |                                                                                                                                                                                 |
 | metrics-server | 0.6.4   |                                                                                                                                                                                 |
 | nginx-ingress  | 1.8.x   | Supports only k8s version >= 1.24. We dropped support for older k8s versions. [supported versions table](https://github.com/kubernetes/ingress-nginx#supported-versions-table). |
 | k9s            | 0.27.x  | Instead of using just the latest version, it has been pinned now.                                                                                                               |
 | calico         | 3.26.x  |                                                                                                                                                                                 |
-| capi           | v1.3.8  |                                                                                                                                                                                 |
+| capi           | v1.5.1  |                                                                                                                                                                                 |
 | capo           | 0.7.3   |                                                                                                                                                                                 |
 | ubuntu         | 22.04   | See [below](#ubuntu-2204).                                                                                                                                                      |
+
+### capi v1.5.1 and OpenStack capi provider 0.7.3
+
+[Kubernetes Cluster API Provider](https://cluster-api.sigs.k8s.io/)
+[OpenStack Provider for CAPI](https://cluster-api-openstack.sigs.k8s.io/)
+
+### k8s versions (1.24 -- 1.27)
+
+We test Kubernetes versions 1.24 -- 1.27 with the R5 Cluster API
+solution. We had tested earlier versions (down to 1.18) successfully before,
+and we don't expect them to break, but these are no longer supported
+upstream and no fresh node images are provided by us.
+
+Please note that k8s-v1.25 brought the removal of the deprecated Pod Security
+Policies (PSPs) and brought
+[Pod Security Standards (PSS)](https://kubernetes.io/blog/2022/08/25/pod-security-admission-stable/)
+instead.
+The end of life for v1.25 is at the end of October.
+
+Release notes for upstream Kubernetes can be found [here](https://github.com/kubernetes/kubernetes/releases).
+Please read the [API deprecation notes](https://kubernetes.io/docs/reference/using-api/deprecation-guide/#v1-27)
+when you move your workloads to the latest k8s versions.
+
+Kubernetes v1.28 can be deployed as a technical preview for now, but
+we expect that it will be stabilized soon.
+
+### terraform v1.4.6
+
+Terraform used for creation of capi management server, security groups for cluster,
+executing of bootstrap script, etc. has been updated and validated.
+
+### flux2 0.41.2
+
+This version is well-tested, the next upgrade will come later.
+
+### sonobuoy 0.56.x
+
+- Sonobuoy v0.56.17 adds support for the latest k8s versions even for k8s 1.27.
+
+### cilium 1.14.1
+
+- The CLI versions for Cilium and Hubble have been respectively upgraded to v0.15.7 and v0.12.0.
+
+### cert-manager 1.12.x
+
+### kind 0.20.0
+
+### helm 3.12.x
+
+### metrics-server 0.6.4
+
+### nginx-ingress 1.8.x
+
+- We removed support for older k8s versions <= 1.19. Ingress-nginx 1.8.1 supports k8s version >= 1.24.
+  See also
+  ingress-nginx [supported versions table](https://github.com/kubernetes/ingress-nginx#supported-versions-table).
+
+### k9s 0.27.x
+
+- In the previous releases, the latest version was used. Now, it is pinned.
+
+### calico 3.26.x
 
 ## New features
 
@@ -38,7 +100,7 @@ The Ubuntu 22.04 LTS node images are available starting from k8s version 1.25.11
 ### Support for Debian 12
 
 From [#509](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/509), Debian 12 is supported as a
-management server OS.
+management server OS as an alternative to the default Ubuntu 22.04.
 
 ### Storage snapshots
 
