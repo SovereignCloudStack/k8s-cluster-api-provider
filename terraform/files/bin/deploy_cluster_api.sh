@@ -5,6 +5,7 @@
 
 # variables
 . ~/.capi-settings
+. ~/bin/openstack-kube-versions.inc
 
 ARCH=$(uname -m | sed 's/x86_64/amd64/')
 # Install clusterctl
@@ -31,7 +32,11 @@ clusterctl version --output yaml
 sed '/OPENSTACK_DNS_NAMESERVERS:/s@, \]"@ ]"@' -i ~/cluster-defaults/clusterctl.yaml
 
 # cp clusterctl.yaml to the right place
-cp -p $HOME/cluster-defaults/clusterctl.yaml $HOME/.cluster-api/clusterctl.yaml
+if test "$(dotversion "$(clusterctl version -o short)")" -ge 10500; then
+  cp -p $HOME/cluster-defaults/clusterctl.yaml $HOME/.config/cluster-api/clusterctl.yaml
+else
+  cp -p $HOME/cluster-defaults/clusterctl.yaml $HOME/.cluster-api/clusterctl.yaml
+fi
 
 # deploy cluster-api on mgmt cluster
 echo "deploy cluster-api with openstack provider $CLUSTERAPI_OPENSTACK_PROVIDER_VERSION"

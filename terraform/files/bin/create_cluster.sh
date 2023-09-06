@@ -7,6 +7,7 @@ STARTTIME=$(date +%s)
 # variables
 . ~/.capi-settings
 . ~/bin/cccfg.inc
+. ~/bin/openstack-kube-versions.inc
 
 export PREFIX CLUSTER_NAME
 
@@ -105,7 +106,12 @@ fi
 # Check that the flavors exist and allocate volumes if needed
 fixup_flavor_volumes.sh "$CCCFG" "${CLUSTERAPI_TEMPLATE}" || exit 2
 
-cp -p "$CCCFG" $HOME/.cluster-api/clusterctl.yaml
+if test "$(dotversion "$(clusterctl version -o short)")" -ge 10500; then
+  cp -p "$CCCFG" $HOME/.config/cluster-api/clusterctl.yaml
+else
+  cp -p "$CCCFG" $HOME/.cluster-api/clusterctl.yaml
+fi
+
 KCCCFG="--config $CCCFG"
 #clusterctl $KCCCFG config cluster ${CLUSTER_NAME} --list-variables --from ${CLUSTERAPI_TEMPLATE}
 clusterctl $KCCCFG generate cluster "${CLUSTER_NAME}" --list-variables --from ${CLUSTERAPI_TEMPLATE} || exit 2
