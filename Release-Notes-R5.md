@@ -11,9 +11,11 @@ executing of bootstrap script, etc. has been updated and validated.
 
 ### sonobuoy 0.56.x
 
-### cilium 1.14.0
-
 - Sonobuoy v0.56.17 adds support for the latest k8s versions even for k8s 1.27.
+
+### cilium 1.14.1
+
+- The CLI versions for Cilium and Hubble have been respectively upgraded to v0.15.7 and v0.12.0.
 
 ### cert-manager 1.12.x
 
