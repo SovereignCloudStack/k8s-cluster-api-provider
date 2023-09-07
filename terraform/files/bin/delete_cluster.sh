@@ -10,24 +10,60 @@ export KUBECONFIG=~/.kube/config
 CREATE_NEW_NAMESPACE=false . ~/bin/mng_cluster_ns.inc
 
 echo "Deleting cluster $CLUSTER_NAME"
-# Delete workload pods (default namespace)
-PODS=$(kubectl $KCONTEXT get pods | grep -v '^NAME' | awk '{ print $1; }')
-for pod in $PODS; do
-	echo -en " Delete pod $pod\n "
-	kubectl $KCONTEXT delete pod $pod
-done
+# Cordoning all nodes
+echo "Cordoning all nodes ..."
+kubectl $KCONTEXT get nodes -o=jsonpath="{'set -x\n'}{range .items[*]}{'kubectl $KCONTEXT cordon '}{.metadata.name}{'\n'}{end}" | bash
+# Delete storage classes (prevents creation of new PVs)
+echo "Deleting storage classes ..."
+kubectl $KCONTEXT get storageclasses -o=jsonpath="{'set -x\n'}{range .items[*]}{'kubectl $KCONTEXT delete storageclass '}{.metadata.name}{' --ignore-not-found=true\n'}{end}" | bash
 # Delete nginx ingress
-INPODS=$(kubectl $KCONTEXT --namespace ingress-nginx get pods) 
+INPODS=$(kubectl $KCONTEXT --namespace ingress-nginx get pods)
 if echo "$INPODS" | grep nginx >/dev/null 2>&1; then
 	echo -en " Delete ingress \n "
 	timeout 150 kubectl $KCONTEXT delete -f ~/${CLUSTER_NAME}/deployed-manifests.d/nginx-ingress.yaml
 fi
-# Delete persistent volumes
-PVCS=$(kubectl $KCONTEXT get persistentvolumeclaims | grep -v '^NAME' | awk '{ print $1; }')
-for pvc in $PVCS; do
-	echo -en " Delete pvc $pvc\n "
-	kubectl $KCONTEXT delete persistentvolumeclaim $pvc
-done
+# Delete pods with persistent volume claims
+echo "Deleting pods with persistent volume claims ..."
+kubectl $KCONTEXT get pods --all-namespaces -o=jsonpath="{'set -x\n'}{range .items[?(@.spec.volumes[*].persistentVolumeClaim.claimName)]}{'kubectl $KCONTEXT delete pod '}{.metadata.name}{' -n '}{.metadata.namespace}{' --grace-period=0 --ignore-not-found=true\n'}{end}" | bash
+# Delete deployments with persistent volume claims
+echo "Deleting deployments with persistent volume claims ..."
+kubectl $KCONTEXT get deployments --all-namespaces -o=jsonpath="{'set -x\n'}{range .items[?(@.spec.template.spec.volumes[*].persistentVolumeClaim.claimName)]}{'kubectl $KCONTEXT delete deployment '}{.metadata.name}{' -n '}{.metadata.namespace}{' --grace-period=0 --ignore-not-found=true\n'}{end}" | bash
+# Delete daemonsets with persistent volume claims
+echo "Deleting daemonsets with persistent volume claims ..."
+kubectl $KCONTEXT get daemonsets --all-namespaces -o=jsonpath="{'set -x\n'}{range .items[?(@.spec.template.spec.volumes[*].persistentVolumeClaim.claimName)]}{'kubectl $KCONTEXT delete daemonset '}{.metadata.name}{' -n '}{.metadata.namespace}{' --grace-period=0 --ignore-not-found=true\n'}{end}" | bash
+# Delete statefulsets with persistent volume claims
+echo "Deleting statefulsets with persistent volume claims ..."
+kubectl $KCONTEXT get statefulsets --all-namespaces -o=jsonpath="{'set -x\n'}{range .items[?(@.spec.template.spec.volumes[*].persistentVolumeClaim.claimName)]}{'kubectl $KCONTEXT delete statefulset '}{.metadata.name}{' -n '}{.metadata.namespace}{' --grace-period=0 --ignore-not-found=true\n'}{end}" | bash
+# Delete all CronJobs
+echo "Deleting all CronJobs ..."
+kubectl $KCONTEXT get cronjobs --all-namespaces -o=jsonpath="{'set -x\n'}{range .items[*]}{'kubectl $KCONTEXT delete cronjob '}{.metadata.name}{' -n '}{.metadata.namespace}{' --grace-period=0 --force\n'}{end}" | bash
+# Delete all Jobs
+echo "Deleting all Jobs ..."
+kubectl $KCONTEXT get jobs --all-namespaces -o=jsonpath="{'set -x\n'}{range .items[*]}{'kubectl $KCONTEXT delete job '}{.metadata.name}{' -n '}{.metadata.namespace}{' --grace-period=0 --force\n'}{end}" | bash
+# Delete persistent volume claims
+echo "Delete persistent volume claims"
+kubectl $KCONTEXT get pvc --all-namespaces -o=jsonpath="{'set -x\n'}{range .items[*]}{'kubectl $KCONTEXT delete pvc '}{.metadata.name}{' -n '}{.metadata.namespace}{' --grace-period=0 --ignore-not-found=true --wait\n'}{end}" | bash
+# Delete Persistent Volumes
+echo "Deleting all Persistent Volumes..."
+kubectl $KCONTEXT get pv -o=jsonpath="{'set -x\n'}{range .items[*]}{'kubectl $KCONTEXT delete pv '}{.metadata.name}{'  --grace-period=0 --ignore-not-found=true --wait\n'}{end}" | bash
+# Delete workload pods
+echo "Deleting pods ..."
+kubectl $KCONTEXT get pods --all-namespaces -o=jsonpath="{'set -x\n'}{range .items[*]}{'kubectl $KCONTEXT delete pod '}{.metadata.name}{' -n '}{.metadata.namespace}{' --grace-period=0 --ignore-not-found=true\n'}{end}" | bash
+# Delete all deployments
+echo "Deleting all deployments ..."
+kubectl $KCONTEXT get deployments --all-namespaces -o=jsonpath="{'set -x\n'}{range .items[*]}{'kubectl $KCONTEXT delete deployment '}{.metadata.name}{' -n '}{.metadata.namespace}{' --grace-period=0 --ignore-not-found=true\n'}{end}" | bash
+# Delete all daemonsets
+echo "Deleting all daemonsets ..."
+kubectl $KCONTEXT get daemonsets --all-namespaces -o=jsonpath="{'set -x\n'}{range .items[*]}{'kubectl $KCONTEXT delete daemonset '}{.metadata.name}{' -n '}{.metadata.namespace}{' --grace-period=0 --ignore-not-found=true\n'}{end}" | bash
+# Delete all statefulsets
+echo "Deleting all statefulsets ..."
+kubectl $KCONTEXT get statefulsets --all-namespaces -o=jsonpath="{'set -x\n'}{range .items[*]}{'kubectl $KCONTEXT delete statefulset '}{.metadata.name}{' -n '}{.metadata.namespace}{' --grace-period=0 --ignore-not-found=true\n'}{end}" | bash
+# Delete all Ingress
+echo "Deleting all Ingress ..."
+kubectl $KCONTEXT get ingress --all-namespaces -o=jsonpath="{'set -x\n'}{range .items[*]}{'kubectl $KCONTEXT delete ingress '}{.metadata.name}{' -n '}{.metadata.namespace}{' --grace-period=0 --ignore-not-found=true\n'}{end}" | bash
+# Delete all Services (except `kubernetes` service in `default` namespace)
+echo "Deleting all Services ..."
+kubectl $KCONTEXT get services --all-namespaces --field-selector metadata.name!=kubernetes -o=jsonpath="{'set -x\n'}{range .items[*]}{'kubectl $KCONTEXT delete service '}{.metadata.name}{' -n '}{.metadata.namespace}{' --grace-period=0 --ignore-not-found=true\n'}{end}" | bash
 # Delete server groups (if any)
 if grep '^ *OPENSTACK_ANTI_AFFINITY: true' $CCCFG >/dev/null 2>&1; then
 	SRVGRP=$(openstack server group list -f value)
@@ -71,6 +107,15 @@ kubectl config set-context --current --namespace=default
 if [[ $CLUSTER_NAMESPACE != default ]]; then
   kubectl delete namespace "$CLUSTER_NAMESPACE"
 fi
+# Clean up harbor
+if [ -f "$HOME/$CLUSTER_NAME/deployed-manifests.d/harbor/.ec2" ]; then
+  . $HOME/$CLUSTER_NAME/deployed-manifests.d/harbor/.ec2
+  echo "Deleting ec2 credentials $REGISTRY_STORAGE_S3_ACCESSKEY"
+  openstack ec2 credentials delete $REGISTRY_STORAGE_S3_ACCESSKEY
+  HARBOR_S3_BUCKET=$PREFIX-$CLUSTER_NAME-harbor-registry
+  echo "Deleting bucket $HARBOR_S3_BUCKET"
+  openstack container delete $HARBOR_S3_BUCKET
+fi
 # TODO: Clean up machine templates etc.
 # Clean up appcred stuff (for new style appcred mgmt)
 if grep '^OLD_OPENSTACK_CLOUD:' $CCCFG >/dev/null 2>&1; then
@@ -90,5 +135,10 @@ if grep '^OLD_OPENSTACK_CLOUD:' $CCCFG >/dev/null 2>&1; then
     echo "Please delete application credential $PREFIX-$CLUSTER_NAME-appcred once capo has cleaned everything up."
   fi
 fi
-# TODO: Clean up ~/$CLUSTER_NAME
+rm -rf ~/$CLUSTER_NAME
+if test $RC = 0; then
+  echo "Deleting cluster $CLUSTER_NAME completed successfully."
+else
+  echo "Deleting cluster $CLUSTER_NAME likely incomplete."
+fi
 exit $RC
