@@ -207,13 +207,13 @@ kubectl delete job ingress-nginx-admission-patch -n ingress-nginx --kubeconfig=t
 ##### R4 to R5
 
 In R4 to R5, the `cluster-template.yaml` and `clusterctl.yaml` changed (see release notes).
-You can use script `update_R4_to_R5.sh` to update the cluster's `cluster-template.yaml` and `clusterctl.yaml` from
+You can use script `update-R4-to-R5.sh` to update the cluster's `cluster-template.yaml` and `clusterctl.yaml` from
 R4 to R5. This script could update an existing Kubernetes cluster configuration files
 as well as `cluster-defaults` files that could be used for spawning new R5 clusters.
 
 If you want to update an existing cluster configuration files from R4 to R5, just use script as follows:
 ```bash
-update_R4_to_R5.sh <CLUSTER_NAME>
+update-R4-to-R5.sh <CLUSTER_NAME>
 ```
 
 After you executed the above you will find that e.g. Calico version has been bumped from
@@ -228,7 +228,7 @@ and step-by-step Kubernetes upgrade of +2 minor releases.
 
 If you want to update `cluster-defaults` configuration files from R4 to R5, just use script as follows:
 ```bash
-update_R4_to_R5.sh cluster-defaults
+update-R4-to-R5.sh cluster-defaults
 ```
 
 The above action updates a cluster-defaults configuration file, which is almost similar
@@ -268,21 +268,23 @@ clusters.)
 
 The defaults have changed as follows:
 
-|               | R2          | R3          | R4          | R5       |
-|---------------|-------------|-------------|-------------|----------|
-| kind          | v0.14.0     | v0.14.0     | v0.17.0     | v0.20.0  |
-| capi          | v1.0.5      | v1.2.2      | v1.3.5      | v1.5.1   |
-| capo          | v0.5.3      | v0.6.3      | v0.7.1      | v0.7.1   |
-| helm          | v3.8.1      | v3.9.4      | v3.11.1     | v3.12.3  |
-| sonobuoy      | v0.56.2     | v0.56.10    | v0.56.16    | v0.56.17 |
-| calico        | v3.22.1     | v3.24.1     | v3.25.0     | v3.26.1  |
-| calico CLI    | v3.22.1     | v3.24.1     | v3.25.0     | v3.26.1  |
-| cilium        | unversioned | unversioned | v1.13.0     | v1.14.1  |
-| cilium CLI    | unversioned | unversioned | unversioned | v0.15.7  |
-| hubble CLI    | unversioned | unversioned | unversioned | v0.12.0  |
-| nginx-ingress | v1.1.2      | v1.3.0      | v1.6.4      | v1.8.1   |
-| flux2         | unversioned | unversioned | v0.40.2     | v0.40.2  |
-| cert-manager  | v1.7.1      | v1.9.1      | v1.11.0     | v1.12.4  |
+|                | R2          | R3          | R4          | R5       |
+|----------------|-------------|-------------|-------------|----------|
+| kind           | v0.14.0     | v0.14.0     | v0.17.0     | v0.20.0  |
+| capi           | v1.0.5      | v1.2.2      | v1.3.5      | v1.5.1   |
+| capo           | v0.5.3      | v0.6.3      | v0.7.1      | v0.7.3   |
+| helm           | v3.8.1      | v3.9.4      | v3.11.1     | v3.12.3  |
+| sonobuoy       | v0.56.2     | v0.56.10    | v0.56.16    | v0.56.17 |
+| k9s            | unversioned | unversioned | unversioned | v0.27.4  |
+| calico         | v3.22.1     | v3.24.1     | v3.25.0     | v3.26.1  |
+| calico CLI     | v3.22.1     | v3.24.1     | v3.25.0     | v3.26.1  |
+| cilium         | unversioned | unversioned | v1.13.0     | v1.14.1  |
+| cilium CLI     | unversioned | unversioned | v0.13.1     | v0.15.7  |
+| hubble CLI     | unversioned | unversioned | v0.11.2     | v0.12.0  |
+| nginx-ingress  | v1.1.2      | v1.3.0      | v1.6.4      | v1.8.1   |
+| flux2          | unversioned | unversioned | v0.40.2     | v0.41.2  |
+| cert-manager   | v1.7.1      | v1.9.1      | v1.11.0     | v1.12.4  |
+| metrics-server | v0.6.1      | v0.6.1      | v0.6.1      | v0.6.4   |
 
 ### The clusterctl move approach
 
@@ -350,7 +352,7 @@ Follow the below steps if you want to migrate an existing cluster from R4 to R5:
    ```
 4. Update an existing cluster configuration files from R4 to R5:
    ```bash
-   update_R4_to_R5.sh <CLUSTER_NAME>
+   update-R4-to-R5.sh <CLUSTER_NAME>
    ```
 5. Validate updated cluster configuration files. You will find that e.g. Calico version
    has been bumped from v3.25.0 to v3.26.1. Note that some software versions are not configurable
