@@ -136,5 +136,9 @@ if grep '^OLD_OPENSTACK_CLOUD:' $CCCFG >/dev/null 2>&1; then
   fi
 fi
 rm -rf ~/$CLUSTER_NAME
-echo "Deleting cluster $CLUSTER_NAME done."
+if test $RC = 0; then
+  echo "Deleting cluster $CLUSTER_NAME completed successfully."
+else
+  echo "Deleting cluster $CLUSTER_NAME likely incomplete."
+fi
 exit $RC
