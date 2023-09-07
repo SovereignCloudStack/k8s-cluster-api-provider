@@ -230,8 +230,19 @@ spec:
 
           [Install]
           WantedBy=timers.target
+      - path: /root/tweak-kubeapi-memlimit.sh
+        owner: root:root
+        permissions: "0755"
+        content: |
+          #!/bin/bash
+          grep '^      limits:' /etc/kubernetes/manifests/kube-apiserver.yaml >/dev/null 2>&1 && exit 0
+          MEM=$(free -m | grep '^Mem:' | awk '{print $2;}')
+          CPU=$(grep '^processor' /proc/cpuinfo | wc -l)
+          sed -i "/^ *requests:/i\      limits:\n        memory: $((10+3*$MEM/4))M\n        cpu: $((750*$CPU))m" /etc/kubernetes/manifests/kube-apiserver.yaml
+          sed -i "/^ *requests:/a\        memory: 512M" /etc/kubernetes/manifests/kube-apiserver.yaml
     postKubeadmCommands:
       - if test "${ETCD_UNSAFE_FS}" = "true"; then mount -o remount,barrier=0,commit=20 /; sed -i 's@errors=remount-ro@errors=remount-ro,barrier=0,commit=20@' /etc/fstab; fi
+      - /root/tweak-kubeapi-memlimit.sh
       - sync; systemctl restart kubelet    # We should no longer need this
       - while test -z "$EPID"; do sleep 5; EPID=`pgrep etcd`; done; renice -10 $EPID; ionice -c2 -n0 -p $EPID
       - systemctl enable etcd-defrag.service
@@ -253,7 +264,7 @@ spec:
       - systemctl daemon-reload
       - systemctl restart containerd.service
       # Install etcdctl
-      - ETCDCTL_VERSION=v3.5.7
+      - ETCDCTL_VERSION=v3.5.9
       - curl -L https://github.com/coreos/etcd/releases/download/$${ETCDCTL_VERSION}/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz -o /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz
       - tar xzvf /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz -C /tmp/
       - sudo cp /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64/etcdctl /usr/local/bin/

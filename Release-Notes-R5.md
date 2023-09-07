@@ -228,6 +228,14 @@ With this followup PRs:
 - [#477](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/477)
   Add migration steps for existing k8s clusters to adopt #432
 
+### kube-apiserver resource limits
+
+The kube-apiserver has memory and cpu resource limits set now such that it will not eat all
+CPU and RAM on the control plane nodes, creating trouble for etcd or the CNI controller running there.
+This will make the control-plane a bit more robust under extremely high load and cause it
+to fail more gracefully if finally overwhelmed.
+[#552](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/552)
+
 ## Minor improvements
 
 - [#413](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/413)
