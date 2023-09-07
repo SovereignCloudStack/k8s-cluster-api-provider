@@ -107,6 +107,15 @@ kubectl config set-context --current --namespace=default
 if [[ $CLUSTER_NAMESPACE != default ]]; then
   kubectl delete namespace "$CLUSTER_NAMESPACE"
 fi
+# Clean up harbor
+if [ -f "$HOME/$CLUSTER_NAME/deployed-manifests.d/harbor/.ec2" ]; then
+  . $HOME/$CLUSTER_NAME/deployed-manifests.d/harbor/.ec2
+  echo "Deleting ec2 credentials $REGISTRY_STORAGE_S3_ACCESSKEY"
+  openstack ec2 credentials delete $REGISTRY_STORAGE_S3_ACCESSKEY
+  HARBOR_S3_BUCKET=$PREFIX-$CLUSTER_NAME-harbor-registry
+  echo "Deleting bucket $HARBOR_S3_BUCKET"
+  openstack container delete $HARBOR_S3_BUCKET
+fi
 # TODO: Clean up machine templates etc.
 # Clean up appcred stuff (for new style appcred mgmt)
 if grep '^OLD_OPENSTACK_CLOUD:' $CCCFG >/dev/null 2>&1; then
