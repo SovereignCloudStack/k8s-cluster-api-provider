@@ -62,7 +62,6 @@ else
   # instance as a public mirror of DockerHub. See #432 for further details.
   mkdir -p containerd/hosts
   cp ~/k8s-cluster-api-provider/terraform/files/containerd/docker.io containerd/hosts/docker.io
-  # TODO: Investigate whether both generation counters need to be increased when R5 release will be stabilized
   # Increase the generation counter of control plane and worker machines as the `cluster-template.yaml` patches modified control plane and worker nodes templates.
   if test "$CLUSTER_NAME" != "cluster-defaults"; then # Patch needed only when existing cluster is updated
     echo "increasing generation counter of control plane and worker machines in clusterctl.yaml"
@@ -73,15 +72,26 @@ fi
 # Update clusterctl.yaml
 # TODO: Update below sed commands when R5 release will be stabilized
 #   see: git diff 078385c <R5 commit hash> terraform/files/template/clusterctl.yaml.tmpl
-if grep -q "SERVICE_CIDR\|POD_CIDR\|CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT" clusterctl.yaml; then
+if grep -q "DEPLOY_GATEWAY_API\|SERVICE_CIDR\|POD_CIDR\|CLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT" clusterctl.yaml; then
   echo "variables in clusterctl.yaml already updated"
 else
   echo "patching variables in clusterctl.yaml"
+  # PR#503 Enables Cilium's implementation of Gateway API
+  sed -i '/^DEPLOY_NGINX_INGRESS/a # deploy Gateway API CRDs and enable ciliums Gateway API implementation (requires USE_CILIUM=true)\nDEPLOY_GATEWAY_API: false' clusterctl.yaml || restore 6
+  # PR#544 Update default calico to 3.26.1
+  sed -i 's/^CALICO_VERSION: v3.25.0/CALICO_VERSION: v3.26.1/' clusterctl.yaml || restore 7
   # PR#454 Add ability to specify service and pod CIDRs
-  sed -i 's/^# Nodes CIDR/# CIDRs/' clusterctl.yaml || restore 6
-  sed -i '/^NODE_CIDR/a SERVICE_CIDR: 10.96.0.0\/12\nPOD_CIDR: 192.168.0.0\/16' clusterctl.yaml || restore 7
+  sed -i 's/^# Nodes CIDR/# CIDRs/' clusterctl.yaml || restore 8
+  sed -i '/^NODE_CIDR/a SERVICE_CIDR: 10.96.0.0\/12\nPOD_CIDR: 192.168.0.0\/16' clusterctl.yaml || restore 9
   # PR#413 Make openstack instance create timeout configurable
-  sed -i '/^OPENSTACK_CLOUD_CACERT_B64/a # set OpenStack Instance create timeout (in minutes)\nCLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT: 5' clusterctl.yaml || restore 8
+  sed -i '/^OPENSTACK_CLOUD_CACERT_B64/a # set OpenStack Instance create timeout (in minutes)\nCLUSTER_API_OPENSTACK_INSTANCE_CREATE_TIMEOUT: 5' clusterctl.yaml || restore 10
+  if test "$CLUSTER_NAME" = "cluster-defaults"; then # The patch is limited to application on new clusters, as this script does not cover the migration from Calico CNI to Cilium CNI and step-by-step k8s update
+    # PR#549 Update default k8s to 1.27
+    sed -i 's/^KUBERNETES_VERSION: v1.25.6/KUBERNETES_VERSION: v1.27.5/' clusterctl.yaml || restore 11
+    sed -i 's/^OPENSTACK_IMAGE_NAME: ubuntu-capi-image-v1.25.6/OPENSTACK_IMAGE_NAME: ubuntu-capi-image-v1.27.5/' clusterctl.yaml || restore 12
+    # PR#431 Make Cilium the default CNI
+    sed -i 's/^USE_CILIUM: false/USE_CILIUM: true/' clusterctl.yaml || restore 13
+  fi
 fi
 # Nginx-ingress controller has been updated to version 1.8.0 in PR#440 and later to 1.8.1. This is a breaking change that includes updates
 # of immutable fields. Therefore, if environment contains nginx ingress deployed via k8s-cluster-api-provider
