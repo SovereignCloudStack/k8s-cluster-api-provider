@@ -236,7 +236,7 @@ spec:
         content: |
           #!/bin/bash
           MEM=$(free -m | grep '^Mem:' | awk '{print $2;}')
-          CPU=$(grep '^processor:' /proc/cpuinfo | wc -l)
+          CPU=$(grep '^processor[   ]' /proc/cpuinfo | wc -l)
           sed -i "/^ *requests:/i\      limits:\n        memory: $((10+3*$MEM/4))M\n        cpu: $((750*$CPU))m" /etc/kubernetes/manifests/kube-apiserver.yaml
     postKubeadmCommands:
       - if test "${ETCD_UNSAFE_FS}" = "true"; then mount -o remount,barrier=0,commit=20 /; sed -i 's@errors=remount-ro@errors=remount-ro,barrier=0,commit=20@' /etc/fstab; fi
