@@ -26,7 +26,7 @@ UBU_IMG=ubuntu-$UBUVER-kube-$KUBERNETES_VERSION
 WAITLOOP=64
 #download/upload image to openstack
 CAPIIMG=$(openstack image list --name "$UBU_IMG_NM")
-IMGURL=https://minio.services.osism.tech/openstack-k8s-capi-images
+IMGURL=https://swift.services.a.regiocloud.tech/swift/v1/AUTH_b182637428444b9aa302bb8d5a5a418c/openstack-k8s-capi-images
 IMAGESRC=$IMGURL/ubuntu-$UBUVER-kube-$VERSION_CAPI_IMAGE/$UBU_IMG.qcow2
 if test -z "$CAPIIMG"; then
   # TODO: Check signature
