@@ -1,0 +1,10 @@
+---
+- job:
+    name: test-zuul-job
+    parent: base
+    run: playbooks/test-zuul-job.yaml
+
+- project:
+    check:
+      jobs:
+        - test-zuul-job
