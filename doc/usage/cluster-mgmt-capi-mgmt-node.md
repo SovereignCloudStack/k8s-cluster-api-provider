@@ -25,7 +25,7 @@ of them. There are management scripts on the management server:
   Note that `CLUSTERNAME` defaults to `testcluster` and must not contain
   whitespace.
   The script also makes sure that appropriate CAPI images are available (it grabs them
-  from [OSISM](https://minio.services.osism.tech/openstack-k8s-capi-images)
+  from [OSISM](https://swift.services.a.regiocloud.tech/swift/v1/AUTH_b182637428444b9aa302bb8d5a5a418c/openstack-k8s-capi-images)
   as needed and registers them with OpenStack, following the SCS image metadata
   standard).
   The script returns once the control plane is fully working (the worker
