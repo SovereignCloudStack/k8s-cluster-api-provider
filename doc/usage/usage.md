@@ -10,4 +10,5 @@ The kubeconfig with admin power for the created testcluster is named `testcluste
 or `$CLUSTER_NAME/$CLUSTER_NAME.yaml` for all the other clusters) and can be handed out to users that should get full
 administrative control over the cluster. You can also retrieve them
 using `make get-kubeconfig TESTCLUSTER=${CLUSTER_NAME}` from the machines where you created the management server from,
-and possibly create an encrypted .zip file for handing these out. (You can omit `
+and possibly create an encrypted .zip file for handing these out. (You can omit ``TESTCLUSTER=...`` for the
+default testcluster.)

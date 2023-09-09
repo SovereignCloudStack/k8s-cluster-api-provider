@@ -27,7 +27,7 @@ a [clouds.yaml](https://docs.openstack.org/python-openstackclient/latest/configu
 inside the `terraform` dir, in `~/.config/openstack` or `/etc/openstack`.
 
 It is recommended to set the name of the cloud in the `clouds.yml` to the same value as the `cloud_provider` in
-the `environment-<YOURCLOUD>.tfvars`, then you only have to specify the `ENVIRONMENT` or `OS_CLOUDS` variable.
+the `environment-<YOURCLOUD>.tfvars`, then you only have to specify the `ENVIRONMENT` or `OS_CLOUD` variable.
 
 ## Create a test cluster
 
@@ -47,10 +47,6 @@ make get-kubeconfig
 # Interact with the testcluster
 kubectl --kubeconfig testcluster.yaml.<YOURCLOUD> get nodes
 ```
-
-> Note: If `make create` fails with a `yq` related error message, the detection of the
-`yq` variant in the Makefile may have gone wrong. You can force the usage of the other
-> variant by editing the Makefile -- we plan to improve this.
 
 ## Teardown
 
