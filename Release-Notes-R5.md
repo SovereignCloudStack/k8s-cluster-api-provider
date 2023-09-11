@@ -236,6 +236,13 @@ This will make the control-plane a bit more robust under extremely high load and
 to fail more gracefully if finally overwhelmed.
 [#552](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/552)
 
+### External network autodetection
+
+Most clouds have exactly one external network for floating IP addresses.
+In that case, it is autodetected and does not need to be set
+by the `external` parameter in your environment file.
+[#424](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/424)
+
 ## Minor improvements
 
 - [#413](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/413)
