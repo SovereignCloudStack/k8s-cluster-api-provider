@@ -8,7 +8,7 @@ STARTTIME=$(date +%s)
 wait_for_k8s_resource_matching() {
   local SLEEP=0
   until kubectl $2 get $1 -o=jsonpath='{.metadata.name}' >/dev/null 2>&1; do
-    echo "[$SLEEP] waiting for $1"
+    echo "[${SLEEP}s] Waiting for $1"
     sleep 10
     let SLEEP+=10
   done
@@ -17,7 +17,7 @@ wait_for_k8s_resource_matching() {
 wait_for_k8s_resources_matching() {
   local SLEEP=0
   until [ ! -z $(kubectl $3 get $2 --template '{{if len .items}}{{with index .items 0}}{{.metadata.name}}{{end}}{{end}}') ]; do
-    echo "[$SLEEP] waiting for $1"
+    echo "[${SLEEP}s] Waiting for $1"
     sleep 10
     let SLEEP+=10
   done
@@ -184,19 +184,12 @@ MERGED=$(mktemp merged.yaml.XXXXXX)
 kubectl config view --flatten >$MERGED
 mv $MERGED $HOME/.kube/config
 export KUBECONFIG=$HOME/.kube/config
-#kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
 
-SLEEP=0
-until kubectl $KCONTEXT api-resources; do
-  echo "[$SLEEP] waiting for api-server"
-  sleep 10
-  let SLEEP+=10
-done
-
-# CNI
+# Waiting for api-server
 wait_for_k8s_resource_matching daemonset/kube-proxy "${KCONTEXT} -n kube-system"
 
-echo "waiting for kube-proxy to become ready"
+# CNI
+echo "# Waiting for kube-proxy=Ready"
 kubectl $KCONTEXT -n kube-system wait --for=condition=ready --timeout=5m pods -l k8s-app=kube-proxy
 
 echo "# Deploy services (CNI, OCCM, CSI, Metrics, Cert-Manager, Flux2, Ingress)"
