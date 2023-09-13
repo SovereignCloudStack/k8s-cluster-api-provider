@@ -1,8 +1,8 @@
 diff --git a/terraform/files/template/cluster-template.yaml b/terraform/files/template/cluster-template.yaml
-index 7b3a1fb..418a2aa 100644
+index 43560bc..469b829 100644
 --- a/terraform/files/template/cluster-template.yaml
 +++ b/terraform/files/template/cluster-template.yaml
-@@ -7,7 +7,9 @@ metadata:
+@@ -7,10 +7,12 @@ metadata:
  spec:
    clusterNetwork:
      pods:
@@ -12,7 +12,38 @@ index 7b3a1fb..418a2aa 100644
 +      cidrBlocks: ["${SERVICE_CIDR}"]
      serviceDomain: "cluster.local"
    infrastructureRef:
-     #apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+-    #apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
++    # apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+     apiVersion: infrastructure.cluster.x-k8s.io/v1alpha6
+     kind: OpenStackCluster
+     name: ${CLUSTER_NAME}
+@@ -19,7 +21,7 @@ spec:
+     apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+     name: ${CLUSTER_NAME}-control-plane
+ ---
+-#apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
++# apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+ apiVersion: infrastructure.cluster.x-k8s.io/v1alpha6
+ kind: OpenStackCluster
+ metadata:
+@@ -29,7 +31,7 @@ spec:
+   identityRef:
+     name: ${CLUSTER_NAME}-cloud-config
+     kind: Secret
+-  #managedAPIServerLoadBalancer: true
++  # managedAPIServerLoadBalancer: true
+   apiServerLoadBalancer:
+     enabled: true
+   managedSecurityGroups: true
+@@ -46,7 +48,7 @@ spec:
+   machineTemplate:
+     infrastructureRef:
+       kind: OpenStackMachineTemplate
+-      #apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
++      # apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+       apiVersion: infrastructure.cluster.x-k8s.io/v1alpha6
+       name: "${PREFIX}-${CLUSTER_NAME}-control-plane-${CONTROL_PLANE_MACHINE_GEN}"
+   kubeadmConfigSpec:
 @@ -57,6 +59,8 @@ spec:
            cloud-provider: external
      clusterConfiguration:
@@ -148,7 +179,7 @@ index 7b3a1fb..418a2aa 100644
 
            [Install]
            WantedBy=timers.target
-@@ -144,8 +243,21 @@ spec:
+@@ -144,12 +243,25 @@ spec:
        - apt-get update -y
        - TRIMMED_KUBERNETES_VERSION=$(echo ${KUBERNETES_VERSION} | sed 's/\./\./g' | sed 's/^v//')
        - RESOLVED_KUBERNETES_VERSION=$(apt-cache policy kubelet | sed 's/\*\*\*//' | awk -v VERSION=$${TRIMMED_KUBERNETES_VERSION} '$1~ VERSION { print $1 }' | head -n1)
@@ -171,6 +202,25 @@ index 7b3a1fb..418a2aa 100644
        # TODO: Detect local SSD and mkfs/mount /var/lib/etcd
    version: "${KUBERNETES_VERSION}"
  ---
+-#apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
++# apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+ apiVersion: infrastructure.cluster.x-k8s.io/v1alpha6
+ kind: OpenStackMachineTemplate
+ metadata:
+@@ -191,11 +303,11 @@ spec:
+           kind: KubeadmConfigTemplate
+       infrastructureRef:
+         name: "${PREFIX}-${CLUSTER_NAME}-md-0-${WORKER_MACHINE_GEN}"
+-        #apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
++        # apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+         apiVersion: infrastructure.cluster.x-k8s.io/v1alpha6
+         kind: OpenStackMachineTemplate
+ ---
+-#apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
++# apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+ apiVersion: infrastructure.cluster.x-k8s.io/v1alpha6
+ kind: OpenStackMachineTemplate
+ metadata:
 @@ -236,7 +348,14 @@ spec:
          - TRIMMED_KUBERNETES_VERSION=$(echo ${KUBERNETES_VERSION} | sed 's/\./\./g' | sed 's/^v//')
          - RESOLVED_KUBERNETES_VERSION=$(apt-cache policy kubelet | sed 's/\*\*\*//' | awk -v VERSION=$${TRIMMED_KUBERNETES_VERSION} '$1~ VERSION { print $1 }' | head -n1)

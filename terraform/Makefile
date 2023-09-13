@@ -8,7 +8,7 @@ SHELL=/bin/bash
 SED ?= sed
 #ENVIRONMENT = gx-bc
 OPENSTACK ?= openstack
-CONSOLE = capi-mgmtcluster
+CONSOLE = $(PREFIX)-mgmtcluster
 #TESTCLUSTER ?= testcluster
 
 # check for openstack credentials
@@ -39,8 +39,8 @@ ifeq ($(TESTCLUSTER),)
 TESTCLUSTER=$(shell ( grep '^testcluster_name' environments/environment-$(ENVIRONMENT).tfvars || echo testcluster ) | $(SED) 's@^testcluster_name[^=]*= *"*\([^"]*\).*$$@\1@' )
 endif
 
-PREFIX:=$(shell (grep '^prefix *=' environments/environment-${ENVIRONMENT}.tfvars || echo capi | $(SED) -e 's/^[^=]*= *//' -e 's/"//g'))
-MGMTCLUSTERNAME:=$(shell ($(OPENSTACK) --os-cloud $(ENVIRONMENT) server list --name "$(PREFIX)-mgmtcluster" -c Name -f value))
+PREFIX=$(shell (grep '^prefix *=' environments/environment-${ENVIRONMENT}.tfvars || echo capi ) | $(SED) -e 's/^[^=]*= *//' -e 's/"//g')
+MGMTCLUSTERNAME=$(shell ($(OPENSTACK) --os-cloud $(ENVIRONMENT) server list --name "$(PREFIX)-mgmtcluster" -c Name -f value))
 
 GITBRANCH=$(shell git branch | grep '^*' | $(SED) 's/^* //')
 # Specify a branch, tag or commit to checkout on the mgmtcluster
@@ -97,7 +97,7 @@ show: init
 
 clean: init
 	@if test -e ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); then source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
-	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "timeout 200 ~/bin/cleanup.sh || true"; fi
+	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "timeout 320 ~/bin/cleanup.sh || true"; fi
 	terraform destroy -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" $(PARAMS)
 	@terraform workspace select default
 	terraform workspace delete $(ENVIRONMENT)
@@ -106,13 +106,11 @@ clean: init
 	@rm -f .kubeconfig.$(ENVIRONMENT) $(TESTCLUSTER).yaml.$(ENVIRONMENT) clusterctl.$(TESTCLUSTER).yaml.$(ENVIRONMENT) $(TESTCLUSTER)-config.yaml.$(ENVIRONMENT)
 
 fullclean:
-	prefix=$$(grep '^prefix *=' environments/environment-${ENVIRONMENT}.tfvars | $(SED) -e 's/^[^=]*= *//' -e 's/"//g'); \
 	./cleanup/cleanup.sh --verbose --full
 	@if test -e ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); then source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); ssh-keygen -R $$MGMTCLUSTER_ADDRESS -f ~/.ssh/known_hosts; rm -f .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); fi
 	$(MAKE) clean
 
 forceclean:
-	prefix=$$(grep '^prefix *=' environments/environment-${ENVIRONMENT}.tfvars | $(SED) -e 's/^[^=]*= *//' -e 's/"//g'); \
 	./cleanup/cleanup.sh --verbose --full --force-fip --force-pvc
 	@if test -e ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); then source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); ssh-keygen -R $$MGMTCLUSTER_ADDRESS -f ~/.ssh/known_hosts; rm -f .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); fi
 	$(MAKE) clean

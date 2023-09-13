@@ -6,7 +6,7 @@ source ~/.bash_aliases
 
 export KUBECONFIG=~/.kube/config
 kubectl config use-context kind-kind
-CLUSTERS=$(kubectl get cluster --all-namespaces -o jsonpath='{range .items[]}{.metadata.name}{end}')
+CLUSTERS=$(kubectl get cluster --all-namespaces -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
 echo "Deleting all clusters: $CLUSTERS"
 echo "Hit ^C to interrupt"
 sleep 3

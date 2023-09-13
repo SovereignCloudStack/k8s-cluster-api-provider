@@ -247,6 +247,7 @@ cleanup "server group" "$CAPIPRE-$CLUSTER"
 # Normally, the volumes should be all gone, but if there's one left, take care of it
 cleanup volume $CAPIPRE-$CLUSTER
 cleanup "application credential" "$CAPIPRE-$CLUSTER-appcred"
+cleanup container "$CAPIPRE-$CLUSTER-harbor-registry"
 
 done
 

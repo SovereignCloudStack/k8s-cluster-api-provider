@@ -7,6 +7,7 @@ STARTTIME=$(date +%s)
 # variables
 . ~/.capi-settings
 . ~/bin/cccfg.inc
+. ~/bin/openstack-kube-versions.inc
 
 export PREFIX CLUSTER_NAME
 
@@ -105,7 +106,12 @@ fi
 # Check that the flavors exist and allocate volumes if needed
 fixup_flavor_volumes.sh "$CCCFG" "${CLUSTERAPI_TEMPLATE}" || exit 2
 
-cp -p "$CCCFG" $HOME/.cluster-api/clusterctl.yaml
+if test "$(dotversion "$(clusterctl version -o short)")" -ge 10500; then
+  cp -p "$CCCFG" $HOME/.config/cluster-api/clusterctl.yaml
+else
+  cp -p "$CCCFG" $HOME/.cluster-api/clusterctl.yaml
+fi
+
 KCCCFG="--config $CCCFG"
 #clusterctl $KCCCFG config cluster ${CLUSTER_NAME} --list-variables --from ${CLUSTERAPI_TEMPLATE}
 clusterctl $KCCCFG generate cluster "${CLUSTER_NAME}" --list-variables --from ${CLUSTERAPI_TEMPLATE} || exit 2
@@ -187,14 +193,14 @@ MTU_VALUE=$(yq eval '.MTU_VALUE' $CCCFG)
 if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
   DEPLOY_GATEWAY_API=$(yq eval '.DEPLOY_GATEWAY_API == true' $CCCFG)
   if test "${DEPLOY_GATEWAY_API}" = "true"; then
-    KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.0/config/crd/standard/gateway.networking.k8s.io_gatewayclasses.yaml
-    KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.0/config/crd/standard/gateway.networking.k8s.io_gateways.yaml
-    KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.0/config/crd/standard/gateway.networking.k8s.io_httproutes.yaml
-    KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.0/config/crd/standard/gateway.networking.k8s.io_referencegrants.yaml
-    KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.0/config/crd/experimental/gateway.networking.k8s.io_tlsroutes.yaml
+    KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.1/config/crd/standard/gateway.networking.k8s.io_gatewayclasses.yaml
+    KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.1/config/crd/standard/gateway.networking.k8s.io_gateways.yaml
+    KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.1/config/crd/standard/gateway.networking.k8s.io_httproutes.yaml
+    KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.1/config/crd/standard/gateway.networking.k8s.io_referencegrants.yaml
+    KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.1/config/crd/experimental/gateway.networking.k8s.io_tlsroutes.yaml
   fi
   # FIXME: Do we need to allow overriding MTU here as well?
-  CILIUM_VERSION="v1.14.0"
+  CILIUM_VERSION="v1.14.1"
   if test "${USE_CILIUM:0:1}" = "v"; then
     CILIUM_VERSION="${USE_CILIUM}"
   fi
