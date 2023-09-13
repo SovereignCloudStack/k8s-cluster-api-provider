@@ -4,6 +4,25 @@
 ## license: Apache-2.0
 
 STARTTIME=$(date +%s)
+
+wait_for_k8s_resource_matching() {
+  local SLEEP=0
+  until kubectl $2 get $1 -o=jsonpath='{.metadata.name}' >/dev/null 2>&1; do
+    echo "[${SLEEP}s] Waiting for $1"
+    sleep 10
+    let SLEEP+=10
+  done
+}
+
+wait_for_k8s_resources_matching() {
+  local SLEEP=0
+  until [ ! -z $(kubectl $3 get $2 --template '{{if len .items}}{{with index .items 0}}{{.metadata.name}}{{end}}{{end}}') ]; do
+    echo "[${SLEEP}s] Waiting for $1"
+    sleep 10
+    let SLEEP+=10
+  done
+}
+
 # variables
 . ~/.capi-settings
 . ~/bin/cccfg.inc
@@ -149,15 +168,12 @@ fi
 echo "# apply configuration and deploy cluster ${CLUSTER_NAME}"
 kubectl apply -f ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml || exit 3
 
-#Waiting for Clusterstate Ready
+# Waiting for Cluster=Ready
+wait_for_k8s_resource_matching kubeadmcontrolplanes/${CLUSTER_NAME}-control-plane
+wait_for_k8s_resources_matching machines/${CLUSTER_NAME} "machines -l cluster.x-k8s.io/cluster-name=${CLUSTER_NAME}"
+
 echo "# Waiting for Cluster=Ready"
-sync
-sleep 2
-#wget https://gx-scs.okeanos.dev --quiet -O /dev/null
-#ping -c1 -w2 9.9.9.9 >/dev/null 2>&1
-if test "$CLUSTER_EXISTS" != "1"; then sleep 12; fi
-kubectl wait --timeout=5s --for=condition=certificatesavailable kubeadmcontrolplanes -l cluster.x-k8s.io/cluster-name=${CLUSTER_NAME} >/dev/null 2>&1 || sleep 25
-kubectl wait --timeout=14m --for=condition=certificatesavailable kubeadmcontrolplanes -l cluster.x-k8s.io/cluster-name=${CLUSTER_NAME} || exit 1
+kubectl wait --timeout=14m --for=condition=certificatesavailable kubeadmcontrolplanes/${CLUSTER_NAME}-control-plane || exit 1
 kubectl wait --timeout=8m --for=condition=Ready machine -l cluster.x-k8s.io/control-plane,cluster.x-k8s.io/cluster-name=${CLUSTER_NAME} || exit 4
 
 kubectl get secrets "${CLUSTER_NAME}-kubeconfig" --output go-template='{{ .data.value | base64decode }}' >"${KUBECONFIG_WORKLOADCLUSTER}" || exit 5
@@ -168,24 +184,12 @@ MERGED=$(mktemp merged.yaml.XXXXXX)
 kubectl config view --flatten >$MERGED
 mv $MERGED $HOME/.kube/config
 export KUBECONFIG=$HOME/.kube/config
-#kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
 
-SLEEP=0
-until kubectl $KCONTEXT api-resources; do
-  echo "[$SLEEP] waiting for api-server"
-  sleep 10
-  let SLEEP+=10
-done
+# Waiting for api-server
+wait_for_k8s_resource_matching daemonset/kube-proxy "${KCONTEXT} -n kube-system"
 
 # CNI
-SLEEP=0
-until kubectl $KCONTEXT -n kube-system get daemonset/kube-proxy -o=jsonpath='{.metadata.name}' >/dev/null 2>&1; do
-  echo "[$SLEEP] waiting for kube-proxy"
-  sleep 10
-  let SLEEP+=10
-done
-
-echo "waiting for kube-proxy to become ready"
+echo "# Waiting for kube-proxy=Ready"
 kubectl $KCONTEXT -n kube-system wait --for=condition=ready --timeout=5m pods -l k8s-app=kube-proxy
 
 echo "# Deploy services (CNI, OCCM, CSI, Metrics, Cert-Manager, Flux2, Ingress)"
