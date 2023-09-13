@@ -11,20 +11,6 @@
     ENVIRONMENT: "{{ cloud_provider }}"
     PATH: "{{ ansible_user_dir }}/.local/bin:{{ ansible_env.PATH }}"
   tasks:
-  - name: Install ip command
-    package:
-      name:
-        - iproute2
-    become: true
-  - name: get device
-    shell: "ip route show default | head -n1 | sed 's/^.*dev \\([^ ]*\\).*$/\\1/'"
-    register: dev
-  - name: print mtu
-    debug:
-      var: dev
-  - name: set mtu
-    command: "ip link set ens3 mtu 1500"
-    become: true
   - name: Prepare environment
     block:
     - name: Get PR details
@@ -43,6 +29,12 @@
       template:
         src: "templates/environment.tfvars.j2"
         dest: "{{ project_tf_dir }}/environments/environment-{{ cloud_provider }}.tfvars"
+    - name: Get default interface name
+      shell: "ip route show default | head -n1 | sed 's/^.*dev \\([^ ]*\\).*$/\\1/'"
+      register: dev
+    - name: Set mtu for the default interface  # workaround for terraform file provisioner scp error
+      command: "ip link set {{ dev.stdout }} mtu 1500"
+      become: true
   - name: Create k8s cluster and execute sonobouy {{ sonobouy_mode }} check
     block:
     - name: Create k8s cluster

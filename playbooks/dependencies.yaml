@@ -42,3 +42,8 @@
       - "python-openstackclient=={{ openstackclient_version }}"
       - "python-octaviaclient=={{ octaviaclient_version }}"
       extra_args: --user
+  - name: Install ip command
+    package:
+      name:
+        - iproute2
+    become: true

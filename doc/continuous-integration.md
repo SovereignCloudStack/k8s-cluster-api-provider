@@ -43,10 +43,10 @@ This section describes an [SCS Zuul pipelines](https://github.com/SovereignCloud
 
 - `e2e-test`
   - It is triggered by the `e2e-test` label in the opened PR
-  - It executes `e2e-conformance` job
-  - It applies the PR label `successful-e2e-test` and leaves an informative PR comment when the `e2e-conformance` job succeeded
-  - It applies the PR label `failed-e2e-test` and leaves an informative PR comment when the `e2e-conformance` job failed
-  - It applies the PR label `cancelled-e2e-test` and leaves an informative PR comment when the `e2e-conformance` job is canceled
+  - It executes `k8s-cluster-api-provider-e2e-conformance` job
+  - It applies the PR label `successful-e2e-test` and leaves an informative PR comment when the `k8s-cluster-api-provider-e2e-conformance` job succeeded
+  - It applies the PR label `failed-e2e-test` and leaves an informative PR comment when the `k8s-cluster-api-provider-e2e-conformance` job failed
+  - It applies the PR label `cancelled-e2e-test` and leaves an informative PR comment when the `k8s-cluster-api-provider-e2e-conformance` job is canceled
 
 - `unlabel-on-update-e2e-test`
   - It is triggered by the PR update only when PR contains the `successful-e2e-test` label
@@ -55,10 +55,10 @@ This section describes an [SCS Zuul pipelines](https://github.com/SovereignCloud
 
 - `e2e-quick-test`
   - It is triggered by the `e2e-quick-test` label in the opened PR
-  - It executes `e2e-quick` job
-  - It applies the PR label `successful-e2e-quick-test` and leaves an informative PR comment when the `e2e-quick` job succeeded
-  - It applies the PR label `failed-e2e-quick-test` and leaves an informative PR comment when the `e2e-quick` job failed
-  - It applies the PR label `cancelled-e2e-quick-test` and leaves an informative PR comment when the `e2e-quick` job is canceled
+  - It executes `k8s-cluster-api-provider-e2e-quick` job
+  - It applies the PR label `successful-e2e-quick-test` and leaves an informative PR comment when the `k8s-cluster-api-provider-e2e-quick` job succeeded
+  - It applies the PR label `failed-e2e-quick-test` and leaves an informative PR comment when the `k8s-cluster-api-provider-e2e-quick` job failed
+  - It applies the PR label `cancelled-e2e-quick-test` and leaves an informative PR comment when the `k8s-cluster-api-provider-e2e-quick` job is canceled
 
 - `unlabel-on-update-e2e-quick-test`
   - It is triggered by the PR update only when PR contains the `successful-e2e-quick-test` label
@@ -69,22 +69,22 @@ This section describes an [SCS Zuul pipelines](https://github.com/SovereignCloud
 
 This section describes Zuul jobs defined within the k8s-cluster-api-provider project and linked in the above pipelines.
 
-- `e2e-conformance`
+- `k8s-cluster-api-provider-e2e-conformance`
   - It runs a sonobuoy conformance test against Kubernetes cluster spawned by k8s-cluster-api-provider scripts
   - This job is a child job of `openstack-access-base` that ensures OpenStack credentials
     availability in Zuul worker node. Parent job also defines a Zuul semaphore `semaphore-openstack-access`,
     that ensures that only one `openstack-access-base` job (or its children) can run at a time
-  - See a high level `e2e-conformance` job steps:
+  - See a high level `k8s-cluster-api-provider-e2e-conformance` job steps:
     - Pre-run playbook `dependencies.yaml` installs project prerequisites, e.g. terraform, yq, etc. 
     - Main playbook `e2e.yaml` spawns a k8s cluster, runs sonobuoy conformance test, and cleans created infrastructure, all by k8s-cluster-api-provider scripts
     - Cleanup-run playbook `cleanup.yaml` runs `ospurge`, cleanup created application credentials and keypair to ensure that multiple e2e runs do not interfere
 
-- `e2e-quick`
+- `k8s-cluster-api-provider-e2e-quick`
   - It runs a sonobuoy quick test against Kubernetes cluster spawned by k8s-cluster-api-provider scripts
   - This job is a child job of `openstack-access-base` that ensures OpenStack credentials
     availability in Zuul worker node. Parent job also defines a Zuul semaphore `semaphore-openstack-access`,
     that ensures that only one `openstack-access-base` job (or its children) can run at a time
-  - See a high level `e2e-quick` job steps:
+  - See a high level `k8s-cluster-api-provider-e2e-quick` job steps:
     - Pre-run playbook `dependencies.yaml` installs project prerequisites, e.g. terraform, yq, etc. 
     - Main playbook `e2e.yaml` spawns a k8s cluster, runs sonobuoy quick test, and cleans created infrastructure, all by k8s-cluster-api-provider scripts
     - Cleanup-run playbook `cleanup.yaml` runs `ospurge`, cleanup created application credentials and keypair to ensure that multiple e2e runs do not interfere
