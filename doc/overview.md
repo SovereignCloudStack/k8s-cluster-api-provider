@@ -9,7 +9,7 @@ We expect the functionality to be mainly consumed in two scenarios:
 
 Note that we have an intermediate model in mind -- a model where a one-click / one-API call interface would allow the management server to be created on behalf of a user and then serve as an API endpoint to that user's k8s CAPI needs. Ideally with some dashboard or GUI that would shield less experienced users from all the YAML.
 
-Once we as the SCS Communtiy have the gitops style cluster control working, the self-service model will become more convenient to use.
+Once we as the SCS Community have the gitops style cluster control working, the self-service model will become more convenient to use.
 
 Basically, this repository covers two topics:
 
