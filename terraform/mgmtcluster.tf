@@ -108,7 +108,7 @@ runcmd:
   - echo net.netfilter.nf_conntrack_max=131072 > /etc/sysctl.d/90-conntrack_max.conf
   - sysctl -w -p /etc/sysctl.d/90-conntrack_max.conf
   - mkdir /etc/docker
-  - /tmp/get_mtu.sh
+  - HOME=/home/${var.ssh_username} /tmp/get_mtu.sh
   - mv /tmp/daemon.json /etc/docker/daemon.json
   - groupadd docker
   - usermod -aG docker ${var.ssh_username}
@@ -265,7 +265,7 @@ resource "terraform_data" "mgmtcluster_bootstrap_files" {
     content = templatefile("files/template/clusterctl.yaml.tmpl", {
       anti_affinity                  = var.anti_affinity,
       availability_zone              = var.availability_zone,
-      capo_instance_create_timeout   = var.capo_instance_create_timeout
+      capo_instance_create_timeout   = var.capo_instance_create_timeout,
       cloud_provider                 = var.cloud_provider,
       controller_count               = var.controller_count,
       controller_flavor              = var.controller_flavor,
@@ -286,12 +286,12 @@ resource "terraform_data" "mgmtcluster_bootstrap_files" {
       pod_cidr                       = var.pod_cidr,
       service_cidr                   = var.service_cidr,
       prefix                         = var.prefix,
-      restrict_kubeapi               = var.restrict_kubeapi
+      restrict_kubeapi               = var.restrict_kubeapi,
       use_cilium                     = var.use_cilium,
       calico_version                 = var.calico_version,
       use_ovn_lb_provider            = var.use_ovn_lb_provider,
       worker_count                   = var.worker_count,
-      worker_flavor                  = var.worker_flavor,
+      worker_flavor                  = var.worker_flavor
     })
     destination = "/home/${var.ssh_username}/cluster-defaults/clusterctl.yaml"
   }
