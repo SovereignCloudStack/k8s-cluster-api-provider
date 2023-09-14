@@ -283,3 +283,4 @@ by the `external` parameter in your environment file.
 - [#489](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/489)
   Pass conformance tests with cilium
     - Only with Gateway API disabled
+
