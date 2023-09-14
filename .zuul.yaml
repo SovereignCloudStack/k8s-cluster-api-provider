@@ -1,0 +1,46 @@
+---
+- job:
+    name: k8s-cluster-api-provider-e2e-conformance
+    parent: openstack-access-base
+    description: |
+      Run tests of the configuration on test Kubernetes cluster using
+      [sonobuoy](https://sonobuoy.io/) with mode conformance meaning
+      it will test if the Kubernetes cluster is conformant to the CNCF.
+    pre-run: playbooks/dependencies.yaml
+    run: playbooks/e2e.yaml
+    cleanup-run: playbooks/cleanup.yaml  # executed also when the job is canceled
+    vars:
+      sonobouy_mode: conformance
+      wait_for_cluster: 600  # 10min
+    timeout: 10800  # 3h
+
+- job:
+    name: k8s-cluster-api-provider-e2e-quick
+    parent: openstack-access-base
+    description: |
+      Run tests of the configuration on test Kubernetes cluster using
+      [sonobuoy](https://sonobuoy.io/) with mode quick.
+    pre-run: playbooks/dependencies.yaml
+    run: playbooks/e2e.yaml
+    cleanup-run: playbooks/cleanup.yaml  # executed also when the job is canceled
+    vars:
+      sonobouy_mode: quick
+      wait_for_cluster: 600  # 10min
+    timeout: 3600  # 1h
+
+- project:
+    name: SovereignCloudStack/k8s-cluster-api-provider
+    default-branch: main
+    merge-mode: "squash-merge"
+    e2e-test:
+      jobs:
+      - k8s-cluster-api-provider-e2e-conformance
+    unlabel-on-update-e2e-test:
+      jobs:
+        - noop
+    e2e-quick-test:
+      jobs:
+      - k8s-cluster-api-provider-e2e-quick
+    unlabel-on-update-e2e-quick-test:
+      jobs:
+        - noop
