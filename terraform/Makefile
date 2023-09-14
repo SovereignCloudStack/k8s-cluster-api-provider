@@ -9,7 +9,6 @@ SED ?= sed
 #ENVIRONMENT = gx-bc
 OPENSTACK ?= openstack
 CONSOLE = $(PREFIX)-mgmtcluster
-#TESTCLUSTER ?= testcluster
 
 # check for openstack credentials
 NEED_OSCLOUD := $(shell test -z "$$OS_PASSWORD" -a -z "$$OS_CLOUD" && echo 1 || echo 0)
@@ -46,7 +45,7 @@ GITBRANCH=$(shell git branch | grep '^*' | $(SED) 's/^* //')
 # Specify a branch, tag or commit to checkout on the mgmtcluster
 GITREFERENCE=$(shell git rev-parse HEAD)
 # GITREFERENCE=$GITBRANCH
-GITREPO=$(shell git config --get remote.origin.url | sed 's%git@\([^:]*\):%https://\1/%')
+GITREPO=$(shell git config --get remote.origin.url | $(SED) 's%git@\([^:]*\):%https://\1/%')
 
 init:	mycloud
 	@if [ ! -d .terraform/plugins ]; then terraform init; fi
@@ -116,19 +115,25 @@ forceclean:
 	$(MAKE) clean
 
 purge:
-	@echo "Warning, going to delete ALL resources in $(ENVIRONMENT), even those that have not been created by the testbed. The SSH-Key capi-keypair will be removed for all projects."
+	@echo "Warning, going to delete ALL resources in $(ENVIRONMENT), even those that have not been created by the CAPI or terraform. The SSH-Key $(PREFIX)-keypair will be removed for all projects."
+	@echo "Application credentials $(PREFIX)-appcred and $(PREFIX)-$(TESTCLUSTER)-appcred will be also removed for all projects."
 	@read -p "Continue? (y/n) " -r; \
         if [[ ! $$REPLY =~ ^[Yy] ]]; \
         then \
 			exit 1; \
         fi
-	@openstack keypair delete capi-keypair || true
-	@ospurge --purge-own-project --os-cloud $(ENVIRONMENT) --verbose
-	@rm -f .deploy.$(ENVIRONMENT) .MGMT_ADDRESS.$(ENVIRONMENT)
-	@rm -f .id_rsa.$(ENVIRONMENT)
+	@$(OPENSTACK) keypair delete $(PREFIX)-keypair || true
+	@$(OPENSTACK) application credential delete $(PREFIX)-appcred || true
+	@$(OPENSTACK) application credential delete $(PREFIX)-$(TESTCLUSTER)-appcred || true
+	@ospurge --purge-own-project --os-cloud $(ENVIRONMENT) --verbose || true
 	@terraform workspace select default
 	@terraform workspace delete -force $(ENVIRONMENT) || true
-	@openstack keypair delete capi-keypair || true
+	@if test -e ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); then source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); ssh-keygen -R $$MGMTCLUSTER_ADDRESS -f ~/.ssh/known_hosts; fi
+	@rm -f .deploy.$(ENVIRONMENT) .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT) mycloud.$(ENVIRONMENT).yaml
+	@rm -f .kubeconfig.$(ENVIRONMENT) $(TESTCLUSTER).yaml.$(ENVIRONMENT) clusterctl.$(TESTCLUSTER).yaml.$(ENVIRONMENT) $(TESTCLUSTER)-config.yaml.$(ENVIRONMENT)
+	@$(OPENSTACK) keypair delete $(PREFIX)-keypair || true
+	@$(OPENSTACK) application credential delete $(PREFIX)-appcred || true
+	@$(OPENSTACK) application credential delete $(PREFIX)-$(TESTCLUSTER)-appcred || true
 	@ospurge --purge-own-project --os-cloud $(ENVIRONMENT) --verbose
 
 list: init
