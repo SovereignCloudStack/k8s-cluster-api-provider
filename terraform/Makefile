@@ -9,7 +9,6 @@ SED ?= sed
 #ENVIRONMENT = gx-bc
 OPENSTACK ?= openstack
 CONSOLE = $(PREFIX)-mgmtcluster
-#TESTCLUSTER ?= testcluster
 
 # check for openstack credentials
 NEED_OSCLOUD := $(shell test -z "$$OS_PASSWORD" -a -z "$$OS_CLOUD" && echo 1 || echo 0)
