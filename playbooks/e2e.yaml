@@ -5,8 +5,18 @@
     cloud_provider: "{{ cloud }}"  # inherited from the parent job
     project_dir: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}"
     project_tf_dir: "{{ project_dir }}/terraform"
-    prefix: "pr{{ zuul.change }}"
-    testcluster_name: "pr{{ zuul.change }}"
+    git_reference_default: "main"  # A fallback used when the git_reference variable is undefined and the pipeline is not executed on a PR
+    git_repo_default: "https://github.com/SovereignCloudStack/k8s-cluster-api-provider.git"  # A fallback used when the git_repo variable is undefined and the pipeline is not executed on a PR
+    # Some Kubernetes resources managed by the k8s-cluster-api-provider project employ names
+    # formed by combining elements such as a prefix, cluster-name, and additional suffix.
+    # This combined naming convention may potentially exceed the character limits imposed by
+    # Kubernetes. To mitigate this issue, we take precautions by truncating both the prefix
+    # and the cluster name to 12 characters each. This adjustment ensures that we stay
+    # within Kubernetes' limits and allows us to utilize a single OpenStack project with
+    # multiple k8s-capi deployments.
+    pr_or_main: "{{ 'pr' + zuul.change if zuul.change is defined else 'main' }}"
+    prefix: "{{ (pr_or_main + '-' + zuul.build) | truncate(12, True, '') }}"
+    testcluster_name: "{{ (pr_or_main + '-' + zuul.build) | truncate(12, True, '') }}"
   environment:
     ENVIRONMENT: "{{ cloud_provider }}"
     PATH: "{{ ansible_user_dir }}/.local/bin:{{ ansible_env.PATH }}"
@@ -21,10 +31,14 @@
           Accept: application/vnd.github+json
           X-GitHub-Api-Version: 2022-11-28
       register: pull_request
-    - name: Set facts based on PR details
+      when: zuul.change is defined  # execute when the e2e pipeline is initiated on a PR
+    - name: |
+        Set facts -
+        Priority is given to the values of git_reference and git_repo over variables collected from the PR.
+        In cases where git_reference and git_repo are undefined, and e2e is not executed on the PR, a fallback mechanism is employed.
       set_fact:
-        git_branch_name: "{{ pull_request.json.head.ref }}"
-        git_repository_url: "{{ pull_request.json.head.repo.clone_url }}"
+        git_branch_name: "{{ git_reference | default(pull_request.json.head.ref) | default(git_reference_default) }}"
+        git_repository_url: "{{ git_repo | default(pull_request.json.head.repo.clone_url) | default(git_repo_default) }}"
     - name: Create environment file
       template:
         src: "templates/environment.tfvars.j2"
