@@ -90,99 +90,98 @@ Warning: This tutorial causes a rolling update (rolling re-deployment) of the co
 
 1. Log in to the cluster management instance, pull remote changes, and then checkout to relevant commit that
 includes all mentioned PRs.
-```bash
-cd k8s-cluster-api-provider/
-git pull
-git checkout b31a79db26c3956b473f026038e71e9aba7819b8
-```
+   ```bash
+   cd k8s-cluster-api-provider/
+   git pull
+   git checkout b31a79db26c3956b473f026038e71e9aba7819b8
+   ```
 
 2. Backup the config directory of an existing cluster.
-```bash
-cd ..
-cp -R <CLUSTER_NAME> <CLUSTER_NAME>.bkp
-```
+   ```bash
+   cd ..
+   cp -R <CLUSTER_NAME> <CLUSTER_NAME>.bkp
+   ```
 
 3. Ensure that the directory for containerd registry configs exists and create a default containerd registry
 config file that instructs containerd to use registry.scs.community container registry
 instance as a public mirror of DockerHub.
 Optionally, create another containerd container registry host file in the `containerd/hosts` directory.
 You can find working examples of those files [here](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/tree/main/terraform/files/containerd).
-```bash
-cd <CLUSTER_NAME>
-mkdir -p containerd/hosts
-cat >containerd/hosts/docker.io <<EOF
-server = "https://registry-1.docker.io"
+   ```bash
+   cd <CLUSTER_NAME>
+   mkdir -p containerd/hosts
+   cat >containerd/hosts/docker.io <<EOF
+   server = "https://registry-1.docker.io"
 
-[host."https://registry.scs.community/v2/docker.io"]
-    capabilities = ["pull"]
-    override_path = true
-EOF
-# Optionally, create another containerd container registry host file here.
-```
+   [host."https://registry.scs.community/v2/docker.io"]
+       capabilities = ["pull"]
+       override_path = true
+   EOF
+   # Optionally, create another containerd container registry host file here.
+   ```
 
 4. Injects containerd registry host file(s) (from point 3.) into `cluster-template.yaml`.
 Script `configure_containerd.sh` does the injection.
-```bash
-configure_containerd.sh cluster-template.yaml <CLUSTER_NAME>
-```
+   ```bash
+   configure_containerd.sh cluster-template.yaml <CLUSTER_NAME>
+   ```
 
 5. Inject containerd configuration in `cluster-template.yaml`. This configuration allows
 containerd to discover registry host file(s).
 
-- Create `containerd_conf_append` temp file
-```bash
-cat >containerd_conf_append <<EOF
-cat <<EOT >> /etc/containerd/config.toml
-[plugins."io.containerd.grpc.v1.cri".registry]
-  config_path = "/etc/containerd/certs.d"
-EOT
-EOF
-```
+   - Create `containerd_conf_append` temp file
+     ```bash
+     cat >containerd_conf_append <<EOF
+     cat <<EOT >> /etc/containerd/config.toml
+     [plugins."io.containerd.grpc.v1.cri".registry]
+       config_path = "/etc/containerd/certs.d"
+     EOT
+     EOF
+     ```
 
-- Inject temp file and `systemctl restart containerd.service` line into the `cluster-template.yaml` (inplace)
-```bash
-yq 'select(.kind == "KubeadmControlPlane").spec.kubeadmConfigSpec.preKubeadmCommands |= (
-    (.[] | select(. == "apt-get install -y ca-certificates socat*") | key + 1) as $pos |
-    .[:$pos] +
-    [load_str("containerd_conf_append")] +
-    .[$pos:])' -i cluster-template.yaml
+   - Inject temp file and `systemctl restart containerd.service` line into the `cluster-template.yaml` (inplace)
+     ```bash
+     yq 'select(.kind == "KubeadmControlPlane").spec.kubeadmConfigSpec.preKubeadmCommands |= (
+         (.[] | select(. == "apt-get install -y ca-certificates socat*") | key + 1) as $pos |
+         .[:$pos] +
+         [load_str("containerd_conf_append")] +
+         .[$pos:])' -i cluster-template.yaml
 
-yq 'select(.kind == "KubeadmControlPlane").spec.kubeadmConfigSpec.preKubeadmCommands |= (
-    (.[] | select(. == "systemctl daemon-reload") | key + 1) as $pos |
-    .[:$pos] +
-    ["systemctl restart containerd.service"] +
-    .[$pos:])' -i cluster-template.yaml
+     yq 'select(.kind == "KubeadmControlPlane").spec.kubeadmConfigSpec.preKubeadmCommands |= (
+         (.[] | select(. == "systemctl daemon-reload") | key + 1) as $pos |
+         .[:$pos] +
+         ["systemctl restart containerd.service"] +
+         .[$pos:])' -i cluster-template.yaml
 
-yq 'select(.kind == "KubeadmConfigTemplate").spec.template.spec.preKubeadmCommands |= (
-    (.[] | select(. == "apt-get install -y ca-certificates socat*") | key + 1) as $pos |
-    .[:$pos] +
-    [load_str("containerd_conf_append")] +
-    .[$pos:])' -i cluster-template.yaml
+     yq 'select(.kind == "KubeadmConfigTemplate").spec.template.spec.preKubeadmCommands |= (
+         (.[] | select(. == "apt-get install -y ca-certificates socat*") | key + 1) as $pos |
+         .[:$pos] +
+         [load_str("containerd_conf_append")] +
+         .[$pos:])' -i cluster-template.yaml
 
-yq 'select(.kind == "KubeadmConfigTemplate").spec.template.spec.preKubeadmCommands |= (
-    (.[] | select(. == "systemctl daemon-reload") | key + 1) as $pos |
-    .[:$pos] +
-    ["systemctl restart containerd.service"] +
-    .[$pos:])' -i cluster-template.yaml
-```
+     yq 'select(.kind == "KubeadmConfigTemplate").spec.template.spec.preKubeadmCommands |= (
+         (.[] | select(. == "systemctl daemon-reload") | key + 1) as $pos |
+         .[:$pos] +
+         ["systemctl restart containerd.service"] +
+         .[$pos:])' -i cluster-template.yaml
+     ```
 
 6. The above changes (when point 8. will be applied) of `KubeadmControlPlane` will cause a rolling update of control plane nodes.
 As the `KubeadmConfigTemplate` has been adjusted we need to increase the generation
 counter of worker machines to ensure that the worker nodes will be rolling updated as well.
-```bash
-sed -r 's/(^WORKER_MACHINE_GEN: genw)([0-9][0-9])/printf "\1%02d" $((\2+1))/ge' -i clusterctl.yaml
-```
-
+   ```bash
+   sed -r 's/(^WORKER_MACHINE_GEN: genw)([0-9][0-9])/printf "\1%02d" $((\2+1))/ge' -i clusterctl.yaml
+   ```
 
 7. Workaround: If your environment contains nginx ingress deployed via k8s-cluster-api-provider
 (variable DEPLOY_NGINX_INGRESS=true) disable its update. Nginx-ingress controller has
 been updated to version 1.8.0 in PR#440 and later to 1.8.1. This is a breaking change that includes updates
 of immutable fields. If the above is the case skip this update as follows:
-```bash
-sed 's/DEPLOY_NGINX_INGRESS: true/DEPLOY_NGINX_INGRESS: false/g' -i clusterctl.yaml
-```
+   ```bash
+   sed 's/DEPLOY_NGINX_INGRESS: true/DEPLOY_NGINX_INGRESS: false/g' -i clusterctl.yaml
+   ```
 
 8. Update the existing cluster.
-```bash
-create_cluster.sh test1
-```
+   ```bash
+   create_cluster.sh test1
+   ```
