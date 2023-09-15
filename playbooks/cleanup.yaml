@@ -1,30 +1,28 @@
 ---
 - name: Cleanup
   hosts: all
-  roles:
-  - role: ensure-pip  # https://zuul-ci.org/docs/zuul-jobs/latest/python-roles.html#role-ensure-pip
   vars:
     cloud_provider: "{{ cloud }}"  # inherited from the parent job
-    prefix: "pr{{ zuul.change }}"
-    testcluster_name: "pr{{ zuul.change }}"
+    project_dir: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}"
+    project_tf_dir: "{{ project_dir }}/terraform"
+    # Some Kubernetes resources managed by the k8s-cluster-api-provider project employ names
+    # formed by combining elements such as a prefix, cluster-name, and additional suffix.
+    # This combined naming convention may potentially exceed the character limits imposed by
+    # Kubernetes. To mitigate this issue, we take precautions by truncating both the prefix
+    # and the cluster name to 12 characters each. This adjustment ensures that we stay
+    # within Kubernetes' limits and allows us to utilize a single OpenStack project with
+    # multiple k8s-capi deployments.
+    prefix: "{{ ('pr'+ zuul.change + '-' + zuul.build) | truncate(12, True, '') }}"
+    testcluster_name: "{{ ('pr'+ zuul.change + '-' + zuul.build) | truncate(12, True, '') }}"
   environment:
-    OS_CLOUD: "{{ cloud_provider }}"
+    ENVIRONMENT: "{{ cloud_provider }}"
     PATH: "{{ ansible_user_dir }}/.local/bin:{{ ansible_env.PATH }}"
   tasks:
-  - name: Ensure ospurge and openstackclient
-    pip:
-      name:
-      - "git+https://git.openstack.org/openstack/ospurge"
-      - "python-openstackclient"
-      extra_args: --user
-  - name: Cleanup - keypair
-    command: "openstack keypair delete {{ prefix }}-keypair"
-    ignore_errors: true
-  - name: Cleanup - application credentials
-    command: "openstack application credential delete {{ item }}"
-    ignore_errors: true
-    loop:
-    - "{{ prefix }}-appcred"
-    - "{{ prefix }}-{{ testcluster_name }}-appcred"
-  - name: Cleanup - purge openstack project
-    command: "ospurge --purge-own-project --verbose"
+  - name: Ensure environment file
+    template:
+      src: "templates/environment.tfvars.j2"
+      dest: "{{ project_tf_dir }}/environments/environment-{{ cloud_provider }}.tfvars"
+  - name: Cleanup - forceclean
+    command: "make forceclean"
+    args:
+      chdir: "{{ project_tf_dir }}"
