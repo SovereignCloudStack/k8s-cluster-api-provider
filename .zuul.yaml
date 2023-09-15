@@ -43,10 +43,10 @@
     timeout: 10800  # 3h
     vars:
       sonobouy_mode: conformance
-      git_reference: v6.0.0-rc2
+      git_reference: v6.0.0-rc1
 
 - project:
-    name: SovereignCloudStack/k8s-cluster-api-provider
+    name: matofederorg/k8s-cluster-api-provider
     default-branch: main
     merge-mode: "squash-merge"
     e2e-test:
@@ -61,6 +61,6 @@
     unlabel-on-update-e2e-quick-test:
       jobs:
         - noop
-  periodic-daily:
+  periodic-hourly:
     jobs:
     - k8s-cluster-api-provider-e2e-conformance-daily
