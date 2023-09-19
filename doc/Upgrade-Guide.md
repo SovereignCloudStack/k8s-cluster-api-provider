@@ -282,7 +282,7 @@ The defaults have changed as follows:
 | cilium CLI     | unversioned | unversioned | v0.13.1     | v0.15.7  |
 | hubble CLI     | unversioned | unversioned | v0.11.2     | v0.12.0  |
 | nginx-ingress  | v1.1.2      | v1.3.0      | v1.6.4      | v1.8.1   |
-| flux2          | unversioned | unversioned | v0.40.2     | v0.41.2  |
+| flux2          | unversioned | unversioned | v0.40.2     | v2.1.0   |
 | cert-manager   | v1.7.1      | v1.9.1      | v1.11.0     | v1.12.4  |
 | metrics-server | v0.6.1      | v0.6.1      | v0.6.1      | v0.6.4   |
 

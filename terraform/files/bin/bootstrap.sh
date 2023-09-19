@@ -91,7 +91,7 @@ get_capi_helm.sh
 # install Flux CLI always - regardless of deploy_flux variable(it can be used only for version change)
 DEPLOY_FLUX=`yq eval '.DEPLOY_FLUX' ~/cluster-defaults/clusterctl.yaml`
 if test "$DEPLOY_FLUX" = "true" -o "$DEPLOY_FLUX" = "false"; then
-  FLUX_VERSION="0.41.2"
+  FLUX_VERSION="2.1.0"
 else
   FLUX_VERSION="${DEPLOY_FLUX:1}"
 fi

@@ -5,8 +5,8 @@
 | Software       | Version | Note                                                                                                                                                                            |
 |----------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Terraform      | v1.4.6  | [#515](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/515) Given Hashicorp change of license to BSL we pinned terraform to version < 1.6.0.               |
-| flux2          | 0.41.2  | This version is well-tested, the next upgrade will come later.                                                                                                                  |
-| sonobuoy       | 0.56.x  | v0.56.17 adds support for the latest k8s versions even for k8s 1.27.                                                                                                            |
+| flux2          | v2.1.0  |                                                                                                                                                                                 |
+| sonobuoy       | 0.56.x  | v0.56.17 adds support for the latest k8s 1.27 version.                                                                                                                          |
 | Cilium         | 1.14.1  |                                                                                                                                                                                 |
 | Cilium cli     | v0.15.7 |                                                                                                                                                                                 |
 | Cilium Hubble  | v0.12.0 |                                                                                                                                                                                 |
@@ -17,14 +17,9 @@
 | nginx-ingress  | 1.8.x   | Supports only k8s version >= 1.24. We dropped support for older k8s versions. [supported versions table](https://github.com/kubernetes/ingress-nginx#supported-versions-table). |
 | k9s            | 0.27.x  | Instead of using just the latest version, it has been pinned now.                                                                                                               |
 | calico         | 3.26.x  |                                                                                                                                                                                 |
-| capi           | v1.5.1  |                                                                                                                                                                                 |
-| capo           | 0.7.3   |                                                                                                                                                                                 |
+| capi           | v1.5.1  | [Kubernetes Cluster API Provider](https://cluster-api.sigs.k8s.io/)                                                                                                             |
+| capo           | 0.7.3   | [OpenStack Provider for CAPI](https://cluster-api-openstack.sigs.k8s.io/)                                                                                                       |
 | ubuntu         | 22.04   | See [below](#ubuntu-2204).                                                                                                                                                      |
-
-### capi v1.5.1 and OpenStack capi provider 0.7.3
-
-[Kubernetes Cluster API Provider](https://cluster-api.sigs.k8s.io/)
-[OpenStack Provider for CAPI](https://cluster-api-openstack.sigs.k8s.io/)
 
 ### k8s versions (1.24 -- 1.27)
 
@@ -45,43 +40,6 @@ when you move your workloads to the latest k8s versions.
 
 Kubernetes v1.28 can be deployed as a technical preview for now, but
 we expect that it will be stabilized soon.
-
-### terraform v1.4.6
-
-Terraform used for creation of capi management server, security groups for cluster,
-executing of bootstrap script, etc. has been updated and validated.
-
-### flux2 0.41.2
-
-This version is well-tested, the next upgrade will come later.
-
-### sonobuoy 0.56.x
-
-- Sonobuoy v0.56.17 adds support for the latest k8s versions even for k8s 1.27.
-
-### cilium 1.14.1
-
-- The CLI versions for Cilium and Hubble have been respectively upgraded to v0.15.7 and v0.12.0.
-
-### cert-manager 1.12.x
-
-### kind 0.20.0
-
-### helm 3.12.x
-
-### metrics-server 0.6.4
-
-### nginx-ingress 1.8.x
-
-- We removed support for older k8s versions <= 1.19. Ingress-nginx 1.8.1 supports k8s version >= 1.24.
-  See also
-  ingress-nginx [supported versions table](https://github.com/kubernetes/ingress-nginx#supported-versions-table).
-
-### k9s 0.27.x
-
-- In the previous releases, the latest version was used. Now, it is pinned.
-
-### calico 3.26.x
 
 ## New features
 
@@ -212,7 +170,7 @@ versatile use cases, such as configuring Containerd to utilize a custom CA certi
 registry hosts or specifying a container registry mirror to bypass restrictions, like DockerHub's pull rate limits. In
 the SCS KaaS reference implementation, users can pass container registry host configuration files to configure
 Containerd cluster-wide. The `containerd_registry_files` Terraform variable allows users to define additional registry
-host configuration files and associated certificates, which will be copied to specific directories on each 
+host configuration files and associated certificates, which will be copied to specific directories on each
 cluster node.
 
 The default configuration uses the `registry.scs.community` container registry as a public mirror of
@@ -243,13 +201,18 @@ In that case, it is autodetected and does not need to be set
 by the `external` parameter in your environment file.
 [#424](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/424)
 
+### Zuul Nightly builds
+
+The Zuul CI system is now used to run nightly CNCF conformance tests of the k8s-cluster-api-provider.
+[#570](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/570)
+
 ## Minor improvements
 
 - [#413](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/413)
   Make openstack instance create timeout configurable
 - [#392](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/392)
   Comment on AZs, treat YQ3 as old yq.
-  - This fix is later further rewritten for better support in #508 
+    - This fix is later further rewritten for better support in #508
 - [#422](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/422)
   Replace k8s registry locations
     - `k8s.gcr.io` -> `registry.k8s.io`
@@ -273,6 +236,16 @@ by the `external` parameter in your environment file.
   Changed: replace usages of `apt` with `apt-get`
 - [#523](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/523)
   Enhance `make create` to use actual commit for checkout
+- [#557](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/557)
+  Node images was moved to REGIO.cloud
+- [#562](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/562)
+  Enhance the logic to wait for k8s resources in create_cluster.sh
+- [#551](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/551)
+  Update delete_cluster.sh to more thoroughly delete all k8s resources
+- [#560](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/560)
+  Improve make purge
+- [#566](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/566)
+  Remove hardcoded ubuntu home folder
 
 ## Bug fixes
 

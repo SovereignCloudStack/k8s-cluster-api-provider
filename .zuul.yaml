@@ -1,32 +1,50 @@
 ---
 - job:
-    name: k8s-cluster-api-provider-e2e-conformance
+    name: k8s-cluster-api-provider-e2e-abstract
+    abstract: true
     parent: openstack-access-base
     description: |
-      Run tests of the configuration on test Kubernetes cluster using
-      [sonobuoy](https://sonobuoy.io/) with mode conformance meaning
-      it will test if the Kubernetes cluster is conformant to the CNCF.
+      An abstract job for e2e testing of k8s-cluster-api-provider project.
+      This job is not intended to be run directly, but instead must be inherited from it.
     pre-run: playbooks/dependencies.yaml
     run: playbooks/e2e.yaml
     cleanup-run: playbooks/cleanup.yaml  # executed also when the job is canceled
     vars:
-      sonobouy_mode: conformance
       wait_for_cluster: 600  # 10min
+
+- job:
+    name: k8s-cluster-api-provider-e2e-conformance
+    parent: k8s-cluster-api-provider-e2e-abstract
+    description: |
+      Run e2e tests of k8s-cluster-api-provider project using
+      [sonobuoy](https://sonobuoy.io/) with mode conformance meaning
+      it will test if the Kubernetes cluster is conformant to the CNCF.
     timeout: 10800  # 3h
+    vars:
+      sonobouy_mode: conformance
 
 - job:
     name: k8s-cluster-api-provider-e2e-quick
-    parent: openstack-access-base
+    parent: k8s-cluster-api-provider-e2e-abstract
     description: |
-      Run tests of the configuration on test Kubernetes cluster using
+      Run e2e tests of k8s-cluster-api-provider project using
       [sonobuoy](https://sonobuoy.io/) with mode quick.
-    pre-run: playbooks/dependencies.yaml
-    run: playbooks/e2e.yaml
-    cleanup-run: playbooks/cleanup.yaml  # executed also when the job is canceled
+    timeout: 3600  # 1h
     vars:
       sonobouy_mode: quick
-      wait_for_cluster: 600  # 10min
-    timeout: 3600  # 1h
+
+- job:
+    name: k8s-cluster-api-provider-e2e-conformance-daily
+    parent: k8s-cluster-api-provider-e2e-abstract
+    branches: main
+    description: |
+      Run **daily** e2e tests of k8s-cluster-api-provider project using
+      [sonobuoy](https://sonobuoy.io/) with mode conformance meaning
+      it will test if the Kubernetes cluster is conformant to the CNCF.
+    timeout: 10800  # 3h
+    vars:
+      sonobouy_mode: conformance
+      git_reference: v6.0.0-rc2
 
 - project:
     name: SovereignCloudStack/k8s-cluster-api-provider
@@ -44,3 +62,6 @@
     unlabel-on-update-e2e-quick-test:
       jobs:
         - noop
+    periodic-daily:
+      jobs:
+      - k8s-cluster-api-provider-e2e-conformance-daily
