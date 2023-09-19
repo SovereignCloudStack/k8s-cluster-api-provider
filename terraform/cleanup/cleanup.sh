@@ -181,10 +181,10 @@ echo "## Deleting clusters $CLUSTERS"
 
 for CLUSTER in $CLUSTERS; do
 
-CAPIPRE2X="k8s\-clusterapi\-cluster"
-CAPIPRE2ALL="k8s\-clusterapi\-cluster\-\(default\|$CLUSTER\)\-$CLUSTER"
-CAPIPRE3X="k8s\-cluster"
-CAPIPRE3ALL="k8s\-cluster\-\(default\|$CLUSTER\)\-$CLUSTER"
+CAPIPRE2X="k8s-clusterapi-cluster"
+CAPIPRE2ALL="k8s-clusterapi-cluster-\(default\|$CLUSTER\)-$CLUSTER"
+CAPIPRE3X="k8s-cluster"
+CAPIPRE3ALL="k8s-cluster-\(default\|$CLUSTER\)-$CLUSTER"
 
 echo "### Deleting cluster $CLUSTER"
 # cleanup loadbalancers
