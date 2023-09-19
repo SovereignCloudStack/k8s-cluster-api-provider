@@ -5,7 +5,7 @@
 | Software       | Version | Note                                                                                                                                                                            |
 |----------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Terraform      | v1.4.6  | [#515](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/515) Given Hashicorp change of license to BSL we pinned terraform to version < 1.6.0.               |
-| flux2          | 0.41.2  | This version is well-tested, the next upgrade will come later.                                                                                                                  |
+| flux2          | v2.1.0  |                                                                                                                                                                                 |
 | sonobuoy       | 0.56.x  | v0.56.17 adds support for the latest k8s 1.27 version.                                                                                                                          |
 | Cilium         | 1.14.1  |                                                                                                                                                                                 |
 | Cilium cli     | v0.15.7 |                                                                                                                                                                                 |
