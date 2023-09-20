@@ -1,0 +1,27 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: harbor
+spec:
+  postRenderers:
+  - kustomize:
+      patches:
+      - patch: |-
+          - op: add
+            path: /spec/template/spec/volumes/-
+            value:
+              name: portal-look
+              configMap:
+                name: harbor-look
+          - op: add
+            path: /spec/template/spec/containers/0/volumeMounts/-
+            value:
+              name: portal-look
+              mountPath: /usr/share/nginx/html/setting.json
+              subPath: setting.json
+        target:
+          group: apps
+          version: v1
+          kind: Deployment
+          name: .*-portal
+          labelSelector: "component=portal"

@@ -1,0 +1,19 @@
+apiVersion: v1
+data:
+  setting.json: |
+    {
+      "headerBgColor": {
+        "darkMode": "",
+        "lightMode": ""
+      },
+      "loginBgImg": "",
+      "loginTitle": "SCS Registry",
+      "product": {
+        "name": "SCS Harbor",
+        "logo": "",
+        "introduction": ""
+      }
+    }
+kind: ConfigMap
+metadata:
+  name: harbor-look
