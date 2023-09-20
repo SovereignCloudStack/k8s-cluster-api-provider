@@ -201,10 +201,11 @@ In that case, it is autodetected and does not need to be set
 by the `external` parameter in your environment file.
 [#424](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/424)
 
-### Zuul Nightly builds
+### CNCF daily conformance tests
 
-The Zuul CI system is now used to run nightly CNCF conformance tests of the k8s-cluster-api-provider.
-[#570](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/570)
+The Zuul CI system is now used to run daily CNCF conformance tests of the k8s-cluster-api-provider.
+The feature has been implemented in [#570](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/570),
+and with the subsequent PR[#578](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/578), the CNCF daily conformance test tag has been updated to version v6.0.0.
 
 ## Minor improvements
 
