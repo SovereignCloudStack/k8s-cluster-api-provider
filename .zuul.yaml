@@ -44,7 +44,7 @@
     timeout: 10800  # 3h
     vars:
       sonobouy_mode: conformance
-      git_reference: v6.0.0-rc2
+      git_reference: v6.0.0
 
 - project:
     name: SovereignCloudStack/k8s-cluster-api-provider
