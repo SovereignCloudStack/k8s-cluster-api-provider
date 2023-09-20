@@ -19,6 +19,12 @@ spec:
               name: portal-look
               mountPath: /usr/share/nginx/html/setting.json
               subPath: setting.json
+          - op: add
+            path: /spec/template/spec/containers/0/volumeMounts/-
+            value:
+              name: portal-look
+              mountPath: /usr/share/nginx/html/favicon.ico
+              subPath: favicon.ico
         target:
           group: apps
           version: v1
