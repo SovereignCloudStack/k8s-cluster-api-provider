@@ -11,6 +11,7 @@ configMapGenerator:
   files:
   - setting.json=lookandfeel/setting.json
   - favicon.ico=lookandfeel/favicon.ico
+  - SCS_logo.png=lookandfeel/SCS_logo.png
 
 patches:
 - path: helmrelease.yaml

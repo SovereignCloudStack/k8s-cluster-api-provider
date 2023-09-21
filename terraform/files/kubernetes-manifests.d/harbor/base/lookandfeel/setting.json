@@ -6,8 +6,8 @@
   "loginBgImg": "",
   "loginTitle": "SCS Registry",
   "product": {
-    "name": "SCS Harbor",
-    "logo": "",
-    "introduction": ""
+    "name": "SCS Registry",
+    "logo": "SCS_logo.png",
+    "introduction": "Sovereign Cloud Stack (SCS) Registry represents a reference deployment of the SCS registry, built upon the open source (https://registry.scs.community/license) Harbor project. The main features include proxying and caching major repositories like docker.io, ghcr.io, quay.io and others. It runs daily security scans and maintains cleanliness through automated garbage collection and log rotation. For enhanced access control, it offers OIDC Authentication via SCS UCS. Default storage quotas are 100 GiB per project. Other additional features are webhooks, automatic onboarding, and content signing/validation. Feel free to explore and contribute to the https://github.com/SovereignCloudStack/k8s-harbor repository."
   }
 }
