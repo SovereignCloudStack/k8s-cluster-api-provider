@@ -28,6 +28,9 @@
 # (c) Matej Feder, 06/2023
 # SPDX-License-Identifier: Apache-2.0
 
+# imports
+. ~/bin/utils.inc
+
 if test -z "$1"; then echo "ERROR: Need cluster-template.yaml arg" 1>&2; exit 1; fi
 if test -z "$2"; then echo "ERROR: Need CLUSTER_NAME arg" 1>&2; exit 1; fi
 
