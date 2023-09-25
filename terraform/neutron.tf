@@ -65,14 +65,10 @@ resource "openstack_networking_subnet_v2" "subnet_mgmt" {
   }
 }
 
-data "openstack_networking_network_v2" "external" {
-  name = var.external != "" ? var.external : data.openstack_networking_network_v2.extnet.name
-}
-
 resource "openstack_networking_router_v2" "router_mgmt" {
   name                    = "${var.prefix}-rtr"
   description             = "router for mgmtcluster (managed by terraform)"
-  external_network_id     = data.openstack_networking_network_v2.external.id
+  external_network_id     = data.openstack_networking_network_v2.extnet.id
   availability_zone_hints = [var.availability_zone] # comment this out if your cloud does not have network AZs
 }
 
