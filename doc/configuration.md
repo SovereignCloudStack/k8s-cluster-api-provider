@@ -22,7 +22,7 @@ Parameters controlling the Cluster-API management server (capi management server
 | `image`                  |                 | SCS        | `Ubuntu 22.04`    | Image for the capi mgmt server. Use `Ubuntu 22.04` or `Debian 12`. Check also the `ssh_username` parameter |
 | `ssh_username`           |                 | SCS        | `ubuntu`          | Name of the default user for the `image`                                                                   |
 | `clusterapi_version`     |                 | SCS        | `1.5.1`           | Version of the cluster-API incl. `clusterctl`                                                              |
-| `capi_openstack_version` |                 | SCS        | `0.7.3`           | Version of the cluster-api-provider-openstack (needs to fit the CAPI version)                              |
+| `capi_openstack_version` |                 | SCS        | `0.8.0`           | Version of the cluster-api-provider-openstack (needs to fit the CAPI version)                              |
 | `cilium_binaries`        |                 | SCS        | `v0.15.7;v0.12.0` | Versions of the cilium and hubble CLI in the vA.B.C;vX.Y.Z format                                          |
 
 ### Common parameters management server and clusters
