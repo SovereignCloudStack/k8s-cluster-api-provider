@@ -40,6 +40,7 @@ fi
 
 # deploy cluster-api on mgmt cluster
 echo "deploy cluster-api with openstack provider $CLUSTERAPI_OPENSTACK_PROVIDER_VERSION"
+export CLUSTER_TOPOLOGY=true
 clusterctl init --infrastructure openstack:v$CLUSTERAPI_OPENSTACK_PROVIDER_VERSION --core cluster-api:v$CLUSTERAPI_VERSION -b kubeadm:v$CLUSTERAPI_VERSION -c kubeadm:v$CLUSTERAPI_VERSION
 
 # Install calicoctl
