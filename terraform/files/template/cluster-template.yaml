@@ -1,3 +1,4 @@
+---
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: ClusterClass
 metadata:
@@ -161,11 +162,11 @@ spec:
               # Script then backup & trim local (ex-leader) etcd member
               #
               # Usage: etcd-defrag.sh [--force-single] [--force-unhealthy] [--force-nonleader]
-      
+
               export LOG_DIR=/var/log
               export ETCDCTL_API=3
               ETCDCTL="etcdctl --cert /etc/kubernetes/pki/etcd/peer.crt --key /etc/kubernetes/pki/etcd/peer.key --cacert /etc/kubernetes/pki/etcd/ca.crt"
-      
+
               while :
               do
                   case "$1" in
@@ -179,7 +180,7 @@ spec:
                   esac
                   shift
               done
-      
+
               if test "$($ETCDCTL endpoint status | cut -d ',' -f 5 | tr -d [:blank:])" = "false"; then
                 if test "$FORCE_NONLEADER" = "1"; then
                   echo "Warning: forced defragmentation on non leader!"
@@ -188,7 +189,7 @@ spec:
                   exit 0
                 fi
               fi
-      
+
               # Check health of all etcd members
               while read MEMBER; do
                 if test "$(echo "$MEMBER" | cut -d ' ' -f 3 | tr -d [:])" != "healthy"; then
@@ -200,7 +201,7 @@ spec:
                   fi
                 fi
               done < <($ETCDCTL endpoint health --cluster)
-      
+
               # Get all etcd members with their endpoints, IDs, and leader status
               declare -a MEMBERS
               declare -i MEMBERS_LENGTH=0
@@ -208,7 +209,7 @@ spec:
                 MEMBERS+=( "$MEMBER" )
                 ((MEMBERS_LENGTH++))
               done < <($ETCDCTL endpoint status --cluster)
-      
+
               if test "$FORCE" != "1" -a "$MEMBERS_LENGTH" = 1; then
                 if test "$FORCE_SINGLE" = "1"; then
                   echo "Warning: forced defragmentation on single member etcd!"
@@ -217,7 +218,7 @@ spec:
                   exit 0
                 fi
               fi
-      
+
               # Skip step-by-step defragmentation if the defragmentation on single member etcd is forced
               if test -z "$FORCE_SINGLE"; then
                 declare -a NON_LEADER_IDS
@@ -235,18 +236,18 @@ spec:
                     ((NON_LEADER_IDS_LENGTH++))
                   fi
                 done
-      
+
                 # Randomly pick an ID from non-leader IDs and make it a leader
                 RANDOM_NON_LEADER_ID=$${NON_LEADER_IDS[ $(($RANDOM % "$NON_LEADER_IDS_LENGTH")) ]}
                 echo "Member $${RANDOM_NON_LEADER_ID} is becoming the leader"
                 $ETCDCTL move-leader $RANDOM_NON_LEADER_ID
               fi
-      
+
               # Defrag this ex-leader etcd member
               sync
               sleep 2
               $ETCDCTL defrag
-      
+
               # Backup&trim this ex-leader etcd member
               sleep 3
               $ETCDCTL snapshot save /root/etcd-backup
@@ -261,7 +262,7 @@ spec:
               Description=Run etcdctl defrag
               Documentation=https://etcd.io/docs/v3.5/op-guide/maintenance/#defragmentation
               After=network.target
-      
+
               [Service]
               Type=oneshot
               #Environment="LOG_DIR=/var/log"
@@ -270,7 +271,7 @@ spec:
               Nice=19
               IOSchedulingClass=idle
               IOSchedulingPriority=7
-      
+
               [Install]
               WantedBy=timers.target
           - path: /etc/systemd/system/etcd-defrag.timer
@@ -280,10 +281,10 @@ spec:
               [Unit]
               Description=Run etcd-defrag.service every day
               After=network.target
-      
+
               [Timer]
               OnCalendar=*-*-* 02:30:00
-      
+
               [Install]
               WantedBy=timers.target
           - path: /root/tweak-kubeapi-memlimit.sh
