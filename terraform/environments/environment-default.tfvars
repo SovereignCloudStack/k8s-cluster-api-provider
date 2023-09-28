@@ -8,7 +8,7 @@ dns_nameservers      = [ "DNS_IP1", "DNS_IP2" ]	  # defaults to [ "5.1.66.255", 
 kind_flavor          = "<flavor>"                 # defaults to SCS-2V-4  (larger does not hurt)
 ssh_username         = "<username_for_ssh>"	  # defaults to "ubuntu"
 clusterapi_version   = "<1.x.y>"		  # defaults to "1.5.2"
-capi_openstack_version = "<0.x.y>"		  # defaults to "0.7.3"
+capi_openstack_version = "<0.x.y>"		  # defaults to "0.8.0"
 image                = "<glance_image>"		  # defaults to "Ubuntu 22.04"
 cilium_binaries      = "<v0.aa.bb;v0.xx.yy>"      # defaults to "v0.15.7;v0.12.0"
 # Settings for testcluster
