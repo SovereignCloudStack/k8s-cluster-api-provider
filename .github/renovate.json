@@ -1,15 +1,16 @@
 {
-  "extends": [
-    "config:base"
-  ],
-  "commitBody": "Signed-off-by: Renovate Bot <bot@renovateapp.com>",
+  "commitBody": "Signed-off-by: SCS Renovate Bot <renovatebot@scs.community>",
+  "gitAuthor": "SCS Renovate Bot <renovatebot@scs.community>",
+  "dependencyDashboard": "true",
+  "enabledManagers": ["regex"],
   "regexManagers":[
     {
       "fileMatch":[
-        "^\\.github\\/workflows\\/.*\\.yml"
+        "^terraform\\/variables.tf","^doc\\/configuration.md"
       ],
       "matchStrings":[
-        "terraform_version: (?<currentValue>.*?)\\s*# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\n"
+        "default\\s*= \"(?<currentValue>.*?)\"\\s*# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\n",
+        ".\\|\\s*`(?<currentValue>.*?)`\\s*<!-- renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?) -->"
      ],
      "extractVersionTemplate": "^v(?<version>.*)$"
     }
