@@ -329,11 +329,6 @@ resource "terraform_data" "mgmtcluster_bootstrap_files" {
     destination = "/home/${var.ssh_username}/cluster-defaults/cluster-template.yaml"
   }
 
-  provisioner "file" {
-    source      = "files/fix-keystoneauth-plugins-unversioned.diff"
-    destination = "/tmp/fix-keystoneauth-plugins-unversioned.diff"
-  }
-
   provisioner "remote-exec" {
     inline = [
       "chmod 0600 /home/${var.ssh_username}/.ssh/id_rsa /home/${var.ssh_username}/cluster-defaults/clusterctl.yaml /home/${var.ssh_username}/cluster-defaults/cloud.conf /home/${var.ssh_username}/.config/openstack/clouds.yaml",

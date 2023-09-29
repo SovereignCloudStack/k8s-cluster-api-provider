@@ -28,7 +28,7 @@ kustomize_cluster_cidrs()
 	KPATCH=~/${CLUSTER_NAME}/restrict-kubeapi-cidr.yaml
 	cat >$KPATCH <<EOT
 ---
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha6
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha7
 kind: OpenStackCluster
 metadata:
   name: ${CLUSTER_NAME}
