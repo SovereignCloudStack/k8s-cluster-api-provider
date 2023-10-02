@@ -1,4 +1,4 @@
-# See https://raw.githubusercontent.com/kubernetes-sigs/cluster-api-provider-openstack/main/templates/cluster-template-external-cloud-provider.yaml
+# See https://raw.githubusercontent.com/kubernetes-sigs/cluster-api-provider-openstack/main/templates/cluster-template.yaml
 ---
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
@@ -13,7 +13,7 @@ spec:
     serviceDomain: "cluster.local"
   infrastructureRef:
     # apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha6
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha7
     kind: OpenStackCluster
     name: ${CLUSTER_NAME}
   controlPlaneRef:
@@ -22,7 +22,7 @@ spec:
     name: ${CLUSTER_NAME}-control-plane
 ---
 # apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha6
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha7
 kind: OpenStackCluster
 metadata:
   name: ${CLUSTER_NAME}
@@ -49,7 +49,7 @@ spec:
     infrastructureRef:
       kind: OpenStackMachineTemplate
       # apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-      apiVersion: infrastructure.cluster.x-k8s.io/v1alpha6
+      apiVersion: infrastructure.cluster.x-k8s.io/v1alpha7
       name: "${PREFIX}-${CLUSTER_NAME}-control-plane-${CONTROL_PLANE_MACHINE_GEN}"
   kubeadmConfigSpec:
     initConfiguration:
@@ -57,6 +57,7 @@ spec:
         name: '{{ local_hostname }}'
         kubeletExtraArgs:
           cloud-provider: external
+          provider-id: openstack:///'{{ instance_id }}'
     clusterConfiguration:
       imageRepository: registry.k8s.io
       dns:
@@ -81,6 +82,7 @@ spec:
         name: '{{ local_hostname }}'
         kubeletExtraArgs:
           cloud-provider: external
+          provider-id: openstack:///'{{ instance_id }}'
     files:
       - path: /root/etcd-defrag.sh
         owner: "root:root"
@@ -273,7 +275,7 @@ spec:
   version: "${KUBERNETES_VERSION}"
 ---
 # apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha6
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha7
 kind: OpenStackMachineTemplate
 metadata:
   name: ${PREFIX}-${CLUSTER_NAME}-control-plane-${CONTROL_PLANE_MACHINE_GEN}
@@ -315,11 +317,11 @@ spec:
       infrastructureRef:
         name: "${PREFIX}-${CLUSTER_NAME}-md-0-${WORKER_MACHINE_GEN}"
         # apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-        apiVersion: infrastructure.cluster.x-k8s.io/v1alpha6
+        apiVersion: infrastructure.cluster.x-k8s.io/v1alpha7
         kind: OpenStackMachineTemplate
 ---
 # apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-apiVersion: infrastructure.cluster.x-k8s.io/v1alpha6
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha7
 kind: OpenStackMachineTemplate
 metadata:
   name: ${PREFIX}-${CLUSTER_NAME}-md-0-${WORKER_MACHINE_GEN}
@@ -351,6 +353,7 @@ spec:
           name: '{{ local_hostname }}'
           kubeletExtraArgs:
             cloud-provider: external
+            provider-id: openstack:///'{{ instance_id }}'
       preKubeadmCommands:
         - DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https curl
         - curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
