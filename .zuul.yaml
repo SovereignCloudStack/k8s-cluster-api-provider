@@ -33,19 +33,6 @@
     vars:
       sonobouy_mode: quick
 
-- job:
-    name: k8s-cluster-api-provider-e2e-conformance-daily
-    parent: k8s-cluster-api-provider-e2e-abstract
-    branches: main
-    description: |
-      Run **daily** e2e tests of k8s-cluster-api-provider project using
-      [sonobuoy](https://sonobuoy.io/) with mode conformance meaning
-      it will test if the Kubernetes cluster is conformant to the CNCF.
-    timeout: 10800  # 3h
-    vars:
-      sonobouy_mode: conformance
-      git_reference: v6.0.0
-
 - project:
     name: SovereignCloudStack/k8s-cluster-api-provider
     default-branch: main
@@ -55,13 +42,18 @@
       - k8s-cluster-api-provider-e2e-conformance
     unlabel-on-update-e2e-test:
       jobs:
-        - noop
+      - noop
     e2e-quick-test:
       jobs:
       - k8s-cluster-api-provider-e2e-quick
     unlabel-on-update-e2e-quick-test:
       jobs:
-        - noop
+      - noop
     periodic-daily:
       jobs:
-      - k8s-cluster-api-provider-e2e-conformance-daily
+      - k8s-cluster-api-provider-e2e-conformance:
+          branches:
+          - main
+          - release/v6.0.0
+          vars:
+            git_reference: "{{ zuul.branch }}"
