@@ -55,5 +55,6 @@
           branches:
           - main
           - release/v6.0.0
+          - test_br
           vars:
             git_reference: "{{ zuul.branch }}"
