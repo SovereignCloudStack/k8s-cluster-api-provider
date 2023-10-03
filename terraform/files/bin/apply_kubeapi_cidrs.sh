@@ -29,14 +29,16 @@ kustomize_cluster_cidrs()
 	cat >$KPATCH <<EOT
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha7
-kind: OpenStackCluster
+kind: OpenStackClusterTemplate
 metadata:
   name: ${CLUSTER_NAME}
 spec:
-  allowAllInClusterTraffic: true
-  apiServerLoadBalancer:
-    allowedCidrs:
-    - $FIP/32
+  template:
+    spec:
+      allowAllInClusterTraffic: true
+      apiServerLoadBalancer:
+        allowedCidrs:
+        - $FIP/32
 EOT
 	for item in $1; do
 		#echo "$item"
@@ -44,7 +46,7 @@ EOT
 		if test "$item" = "[" -o $item = "]" -o -z "$item"; then continue; fi
 		if test "$item" = "none"; then continue; fi
 		if test "${item%/*}" = "$item"; then item="$item/32"; fi
-		echo "    - $item" >> $KPATCH
+		echo "        - $item" >> $KPATCH
 	done
 	cp -p "$2" "$2.orig"
 	#cat $KPATCH

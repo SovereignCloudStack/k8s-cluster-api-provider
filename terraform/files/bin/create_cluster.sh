@@ -166,7 +166,9 @@ fi
 
 # apply to the kubernetes mgmt cluster
 echo "# apply configuration and deploy cluster ${CLUSTER_NAME}"
-kubectl apply -f ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml || exit 3
+# sort so ClusterClass is deployed before Cluster
+yq eval-all '[.] | sort_by(.kind) | reverse | .[] | splitDoc' ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml > ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config-sorted.yaml
+kubectl apply -f ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config-sorted.yaml || exit 3
 
 # Waiting for Cluster=Ready
 wait_for_k8s_resource_matching kubeadmcontrolplanes/${CLUSTER_NAME}-control-plane

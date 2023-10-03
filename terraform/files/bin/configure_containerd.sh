@@ -20,7 +20,7 @@
 #     <file content>
 #   ```
 # - Injects temporary YAML file into $1 (cluster-template.yaml) file (using `yq` in place edit).
-#   Temporary file is injected to the `KubeadmControlPlane.spec.kubeadmConfigSpec.files` that specifies extra files to be
+#   Temporary file is injected to the `KubeadmControlPlaneTemplate.spec.template.spec.kubeadmConfigSpec.files` that specifies extra files to be
 #   passed to user_data upon creation of control plane nodes and to the `KubeadmConfigTemplate.spec.template.spec.files`
 #   that specifies extra files to be passed to user_data upon creation of worker nodes.
 # - Removes temporary YAML file
@@ -60,12 +60,12 @@ for path in "${paths[@]}"; do
       # Evaluate whether the file is already present in the cluster-template.yaml.
       # YAML key `files` is not mandatory therefore it should be added as an empty array to ensure that the whole evaluation will work as expected,
       # see related YQ docs: https://mikefarah.gitbook.io/yq/operators/alternative-default-value#update-or-create-entity-does-not-exist
-      file_cp_exist=$(yq 'select(.kind == "KubeadmControlPlane").spec.kubeadmConfigSpec | (.files // (.files = []))[] | select(.path == env(destination_path) + env(file_name))' "$1")
+      file_cp_exist=$(yq 'select(.kind == "KubeadmControlPlaneTemplate").spec.template.spec.kubeadmConfigSpec | (.files // (.files = []))[] | select(.path == env(destination_path) + env(file_name))' "$1")
       if test -z "$file_cp_exist"; then
-        echo "Adding $file_name to the KubeadmControlPlane files"
-        yq 'select(.kind == "KubeadmControlPlane").spec.kubeadmConfigSpec.files += [load("file_tmp")]' -i "$1"
+        echo "Adding $file_name to the KubeadmControlPlaneTemplate files"
+        yq 'select(.kind == "KubeadmControlPlaneTemplate").spec.template.spec.kubeadmConfigSpec.files += [load("file_tmp")]' -i "$1"
       else
-        echo "$file_name is already defined in KubeadmControlPlane files"
+        echo "$file_name is already defined in KubeadmControlPlaneTemplate files"
       fi
       file_ct_exist=$(yq 'select(.kind == "KubeadmConfigTemplate").spec.template.spec | (.files // (.files = []))[] | select(.path == env(destination_path) + env(file_name))' "$1")
       if test -z "$file_ct_exist"; then
