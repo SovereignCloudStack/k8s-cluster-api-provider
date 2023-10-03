@@ -1,10 +1,10 @@
 # k8s-cluster-api-provider repository
 
 
-| Version | CNCF Conformance Check                                                                                                                                    |
-|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Latest  | ![latest](https://zuul.scs.community/api/tenant/SCS/badge?project=SovereignCloudStack/k8s-cluster-api-provider&pipeline=periodic-daily&branch=main)       |
-| R5      | ![R5](https://zuul.scs.community/api/tenant/SCS/badge?project=SovereignCloudStack/k8s-cluster-api-provider&pipeline=periodic-daily&branch=release/v6.0.0) |
+| Version | CNCF Conformance Check                                                                                                                                            |
+|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Latest  | ![latest](http://http://213.131.230.109:9000/api/tenant/mfederorg/badge?project=matofederorg/k8s-cluster-api-provider&pipeline=periodic-daily&branch=main)       |
+| R5      | ![R5](http://http://213.131.230.109:9000/api/tenant/mfederorg/badge?project=matofederorg/k8s-cluster-api-provider&pipeline=periodic-daily&branch=release/v6.0.0) |
 
 This repository is the reference implementation of the Kubernetes Cluster
 Management as a Service in the [Sovereign Cloud Stack](https://scs.community/)

@@ -46,9 +46,9 @@
     - name: Get default interface name
       shell: "ip route show default | head -n1 | sed 's/^.*dev \\([^ ]*\\).*$/\\1/'"
       register: dev
-    - name: Set mtu for the default interface  # workaround for terraform file provisioner scp error
-      command: "ip link set {{ dev.stdout }} mtu 1500"
-      become: true
+#    - name: Set mtu for the default interface  # workaround for terraform file provisioner scp error
+#      command: "ip link set {{ dev.stdout }} mtu 1500"
+#      become: true
   - name: Create k8s cluster and execute sonobouy {{ sonobouy_mode }} check
     block:
     - name: Create k8s cluster
