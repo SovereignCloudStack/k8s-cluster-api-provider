@@ -81,4 +81,4 @@ kubectl wait --for=condition=Ready --timeout=5m -n capo-system pod --all
 kubectl wait --for condition=established --timeout=60s crds/openstackmachines.infrastructure.cluster.x-k8s.io
 kubectl wait --for condition=established --timeout=60s crds/openstackmachinetemplates.infrastructure.cluster.x-k8s.io
 kubectl wait --for condition=established --timeout=60s crds/openstackclusters.infrastructure.cluster.x-k8s.io
-
+kubectl wait --for condition=established --timeout=60s crds/openstackclustertemplates.infrastructure.cluster.x-k8s.io
