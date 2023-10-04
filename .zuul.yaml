@@ -49,11 +49,3 @@
     unlabel-on-update-e2e-quick-test:
       jobs:
       - noop
-    periodic-daily:
-      jobs:
-      - k8s-cluster-api-provider-e2e-conformance:
-          branches:
-          - main
-          - release/v6.0.0
-          vars:
-            git_reference: "{{ zuul.branch }}"
