@@ -8,7 +8,7 @@ spec:
     ref:
       apiVersion: controlplane.cluster.x-k8s.io/v1beta1
       kind: KubeadmControlPlaneTemplate
-      name: "${CLUSTER_NAME}-control-plane"
+      name: "${CLUSTER_NAME}-control-plane-${CONTROL_PLANE_MACHINE_GEN}"
     machineInfrastructure:
       ref:
         kind: OpenStackMachineTemplate
@@ -85,7 +85,7 @@ spec:
 kind: KubeadmControlPlaneTemplate
 apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 metadata:
-  name: "${CLUSTER_NAME}-control-plane"
+  name: "${CLUSTER_NAME}-control-plane-${CONTROL_PLANE_MACHINE_GEN}"
 spec:
   template:
     spec:
