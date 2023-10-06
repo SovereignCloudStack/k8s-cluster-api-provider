@@ -19,7 +19,7 @@ else
 endif
 USERNAME=$(shell ( grep '^ssh_username' environments/environment-$(ENVIRONMENT).tfvars || echo ubuntu ) | $(SED) 's@^ssh_username[^=]*= *"*\([^"]*\).*$$@\1@' )
 
-# if enabled, use s3 for remote terraform state
+# if enabled, use s3 for remote tofu state
 ifneq (,$(wildcard ./minio.env))
   include minio.env
 endif
@@ -48,20 +48,20 @@ GITREFERENCE=$(shell git rev-parse HEAD)
 GITREPO=$(shell git config --get remote.origin.url | $(SED) 's%git@\([^:]*\):%https://\1/%')
 
 init:	mycloud
-	@if [ ! -d .terraform/plugins ]; then terraform init; fi
-	@terraform workspace select ${ENVIRONMENT} || terraform workspace new ${ENVIRONMENT}
+	@if [ ! -d .terraform/plugins ]; then tofu init; fi
+	@tofu workspace select ${ENVIRONMENT} || tofu workspace new ${ENVIRONMENT}
 
 attach: init
-	@terraform import -var-file="environments/environment-$(ENVIRONMENT).tfvars" $(RESOURCE) $(PARAMS)
+	@tofu import -var-file="environments/environment-$(ENVIRONMENT).tfvars" $(RESOURCE) $(PARAMS)
 
 detach: init
-	@terraform state rm $(RESOURCE) $(PARAMS)
+	@tofu state rm $(RESOURCE) $(PARAMS)
 
 state-push: init
-	@terraform state push $(STATE)
+	@tofu state push $(STATE)
 
 dry-run: init
-	terraform plan -var-file="environments/environment-$(ENVIRONMENT).tfvars" -var "git_reference=$(GITREFERENCE)" $(PARAMS)
+	tofu plan -var-file="environments/environment-$(ENVIRONMENT).tfvars" -var "git_reference=$(GITREFERENCE)" $(PARAMS)
 
 mycloud: environments/environment-$(ENVIRONMENT).tfvars
 	@if [ -f "clouds.yaml" ]; then \
@@ -88,18 +88,18 @@ create: init
 		echo "Management cluster with prefix $(PREFIX) already exists. This is not supported due to unexpected side-effects." && exit 1; \
 	else \
 		touch .deploy.$(ENVIRONMENT); \
-		terraform apply -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" -var "git_reference=$(GITREFERENCE)" -var "git_repo=$(GITREPO)"; \
+		tofu apply -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" -var "git_reference=$(GITREFERENCE)" -var "git_repo=$(GITREPO)"; \
 	fi
 
 show: init
-	@terraform show
+	@tofu show
 
 clean: init
 	@if test -e ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); then source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
 	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "timeout 320 ~/bin/cleanup.sh || true"; fi
-	terraform destroy -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" $(PARAMS)
-	@terraform workspace select default
-	terraform workspace delete $(ENVIRONMENT)
+	tofu destroy -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" $(PARAMS)
+	@tofu workspace select default
+	tofu workspace delete $(ENVIRONMENT)
 	@if test -e ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); then source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); ssh-keygen -R $$MGMTCLUSTER_ADDRESS -f ~/.ssh/known_hosts; fi
 	@rm -f .deploy.$(ENVIRONMENT) .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT) mycloud.$(ENVIRONMENT).yaml
 	@rm -f .kubeconfig.$(ENVIRONMENT) $(TESTCLUSTER).yaml.$(ENVIRONMENT) clusterctl.$(TESTCLUSTER).yaml.$(ENVIRONMENT) $(TESTCLUSTER)-config.yaml.$(ENVIRONMENT)
@@ -115,7 +115,7 @@ forceclean:
 	$(MAKE) clean
 
 purge:
-	@echo "Warning, going to delete ALL resources in $(ENVIRONMENT), even those that have not been created by the CAPI or terraform. The SSH-Key $(PREFIX)-keypair will be removed for all projects."
+	@echo "Warning, going to delete ALL resources in $(ENVIRONMENT), even those that have not been created by the CAPI or tofu. The SSH-Key $(PREFIX)-keypair will be removed for all projects."
 	@echo "Application credentials $(PREFIX)-appcred and $(PREFIX)-$(TESTCLUSTER)-appcred will be also removed for all projects."
 	@read -p "Continue? (y/n) " -r; \
         if [[ ! $$REPLY =~ ^[Yy] ]]; \
@@ -126,8 +126,8 @@ purge:
 	@$(OPENSTACK) application credential delete $(PREFIX)-appcred || true
 	@$(OPENSTACK) application credential delete $(PREFIX)-$(TESTCLUSTER)-appcred || true
 	@ospurge --purge-own-project --os-cloud $(ENVIRONMENT) --verbose || true
-	@terraform workspace select default
-	@terraform workspace delete -force $(ENVIRONMENT) || true
+	@tofu workspace select default
+	@tofu workspace delete -force $(ENVIRONMENT) || true
 	@if test -e ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); then source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); ssh-keygen -R $$MGMTCLUSTER_ADDRESS -f ~/.ssh/known_hosts; fi
 	@rm -f .deploy.$(ENVIRONMENT) .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT) mycloud.$(ENVIRONMENT).yaml
 	@rm -f .kubeconfig.$(ENVIRONMENT) $(TESTCLUSTER).yaml.$(ENVIRONMENT) clusterctl.$(TESTCLUSTER).yaml.$(ENVIRONMENT) $(TESTCLUSTER)-config.yaml.$(ENVIRONMENT)
@@ -137,7 +137,7 @@ purge:
 	@ospurge --purge-own-project --os-cloud $(ENVIRONMENT) --verbose
 
 list: init
-	@terraform state list
+	@tofu state list
 
 ssh:    .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
@@ -165,15 +165,15 @@ console:   .deploy.$(ENVIRONMENT)
 	@xdg-open $$( $(OPENSTACK) console url show $(CONSOLE) -f value -c url )
 
 .deploy.$(ENVIRONMENT): init
-	@STAT=$$(terraform state list); \
+	@STAT=$$(tofu state list); \
 	if test -n "$$STAT"; then touch .deploy.$(ENVIRONMENT); else echo 'please, use "make create"'; exit 1; fi
 
 .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT): .deploy.$(ENVIRONMENT)
-	@MGMTCLUSTER_ADDRESS=$$(terraform output mgmtcluster_address); \
+	@MGMTCLUSTER_ADDRESS=$$(tofu output mgmtcluster_address); \
 	echo "MGMTCLUSTER_ADDRESS=$$MGMTCLUSTER_ADDRESS" > $@;
 
 .deploy.id_rsa.$(ENVIRONMENT): .deploy.$(ENVIRONMENT)
-	@PRIVATE_KEY=$$(terraform output private_key); \
+	@PRIVATE_KEY=$$(tofu output private_key); \
 	echo "$$PRIVATE_KEY" > $@; \
         chmod 0600 $@
 
