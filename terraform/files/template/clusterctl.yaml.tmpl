@@ -66,7 +66,7 @@ RESTRICT_KUBEAPI: "[ %{ for cidr in restrict_kubeapi ~} ${cidr}, %{ endfor ~} ]"
 
 # Openstack external Network ID
 # hint: openstack network list --external -f value -c ID
-OPENSTACK_EXTERNAL_NETWORK_ID: ${external}
+OPENSTACK_EXTERNAL_NETWORK_ID: ${external_id}
 
 OPENSTACK_DNS_NAMESERVERS: "[ %{ for dnsip in dns_nameservers ~} ${dnsip}, %{ endfor ~} ]"
 

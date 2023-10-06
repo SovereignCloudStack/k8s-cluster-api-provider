@@ -38,6 +38,7 @@ Parameters controlling both management server creation and cluster creation:
 | `kind_mtu`             | `MTU_VALUE`                     | SCS        | `0`                                  | MTU for the mgmt server; Calico is set 50 bytes smaller; 0 means autodetection                                               |
 | `restrict_mgmt_server` |                                 | SCS        | `["0.0.0.0/0"]`                      | Allows restricting access to the management server by the given list of CIDRs. Empty value (default) means public.           |
 
+
 ### Parameters clusters
 
 Parameters controlling the cluster creation:
