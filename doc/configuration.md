@@ -29,13 +29,13 @@ Parameters controlling the Cluster-API management server (capi management server
 
 Parameters controlling both management server creation and cluster creation:
 
-| environment         | clusterctl.yaml                 | provenance | default                              | meaning                                                                                                                      |
-|---------------------|---------------------------------|------------|--------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
-| `cloud_provider`    | `OPENSTACK_CLOUD`               | capo       |                                      | `OS_CLOUD` name in clouds.yaml                                                                                               |
-| `external`          | `OPENSTACK_EXTERNAL_NETWORK_ID` | capo       | `""`                                 | Name/ID of the external (public) OpenStack network, default "" uses the detected external network                            |
-| `dns_nameservers`   | `OPENSTACK_DNS_NAMESERVERS`     | capo       | `[ "5.1.66.255", "185.150.99.255" ]` | Array of nameservers for capi mgmt server and for cluster nodes, replace the FF MUC defaults with local servers if available |
-| `availability_zone` | `OPENSTACK_FAILURE_DOMAIN`      | capo       |                                      | Availability Zone(s) for the mgmt node / workload clusters                                                                   |
-| `kind_mtu`          | `MTU_VALUE`                     | SCS        | `0`                                  | MTU for the mgmt server; Calico is set 50 bytes smaller; 0 means autodetection                                               |
+| environment              | clusterctl.yaml                 | provenance | default                              | meaning                                                                                                                                                                                           |
+|--------------------------|---------------------------------|------------|--------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `cloud_provider`         | `OPENSTACK_CLOUD`               | capo       |                                      | `OS_CLOUD` name in clouds.yaml                                                                                                                                                                    |
+| `external`/`external_id` | `OPENSTACK_EXTERNAL_NETWORK_ID` | capo       | `""`                                 | Name/ID of the external (public) OpenStack network, default "" uses the detected external network (for clouds with one external network). Required for clouds with more than one external network |
+| `dns_nameservers`        | `OPENSTACK_DNS_NAMESERVERS`     | capo       | `[ "5.1.66.255", "185.150.99.255" ]` | Array of nameservers for capi mgmt server and for cluster nodes, replace the FF MUC defaults with local servers if available                                                                      |
+| `availability_zone`      | `OPENSTACK_FAILURE_DOMAIN`      | capo       |                                      | Availability Zone(s) for the mgmt node / workload clusters                                                                                                                                        |
+| `kind_mtu`               | `MTU_VALUE`                     | SCS        | `0`                                  | MTU for the mgmt server; Calico is set 50 bytes smaller; 0 means autodetection                                                                                                                    |
 
 ### Parameters clusters
 
