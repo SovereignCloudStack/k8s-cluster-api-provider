@@ -118,6 +118,25 @@ echo -n "super-secret" | \
   --project github.com/SovereignCloudStack/zuul-config
 ```
 
+### Job customization
+
+In some cases you may want to change your `environment.tfvars` file before running the e2e test without changing
+the `environment.tfvars` file in the repository. For example, you may want to change the `image` variable to test a different
+system image without altering the default image used by the project.
+
+To do so, you can in the body of the PR add the following text:
+```text
+
+```ZUUL_CONFIG
+image = "Ubuntu 20.04"
+\```
+
+```
+
+There is one caveat though.
+Due to the way how Zuul parses the PR body, the `ZUUL_CONFIG` must have an empty line between each line of the configuration.
+Otherwise Zuul will join the lines together and the configuration will be invalid.
+
 ### FAQ
 
 #### How do developers/reviewers should proceed if they want to CI test this project?
