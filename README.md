@@ -22,3 +22,4 @@ remains accessible.
 
 --test
 --test_cancellation
+--test_cancellation_2
