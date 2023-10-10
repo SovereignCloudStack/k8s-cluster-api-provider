@@ -129,14 +129,10 @@ To do so, you can in the body of the PR add the following text:
 
 ```ZUUL_CONFIG
 image = "Ubuntu 20.04"
-\```
+```.
 
 ```
-
-There is one caveat though.
-Due to the way how Zuul parses the PR body, the `ZUUL_CONFIG` must have an empty line between each line of the configuration.
-Otherwise Zuul will join the lines together and the configuration will be invalid.
-
+The dot at the end of the code block is just for formatting purposes and should not be included in the PR.
 ### FAQ
 
 #### How do developers/reviewers should proceed if they want to CI test this project?
