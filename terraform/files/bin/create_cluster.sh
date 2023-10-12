@@ -186,11 +186,12 @@ mv $MERGED $HOME/.kube/config
 export KUBECONFIG=$HOME/.kube/config
 
 # Waiting for api-server
-wait_for_k8s_resource_matching daemonset/kube-proxy "${KCONTEXT} -n kube-system"
-
-# CNI
-echo "# Waiting for kube-proxy=Ready"
-kubectl $KCONTEXT -n kube-system wait --for=condition=ready --timeout=5m pods -l k8s-app=kube-proxy
+SLEEP=0
+until kubectl $KCONTEXT api-resources; do
+  echo "[${SLEEP}s] Waiting for api-server"
+  sleep 10
+  let SLEEP+=10
+done
 
 echo "# Deploy services (CNI, OCCM, CSI, Metrics, Cert-Manager, Flux2, Ingress)"
 MTU_VALUE=$(yq eval '.MTU_VALUE' $CCCFG)
@@ -211,7 +212,7 @@ if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
   POD_CIDR=$(yq eval '.POD_CIDR' $CCCFG)
   KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium install --version $CILIUM_VERSION \
     --helm-set-string "ipam.operator.clusterPoolIPv4PodCIDRList={${POD_CIDR}}" \
-    --helm-set kubeProxyReplacement=${DEPLOY_GATEWAY_API} \
+    --helm-set kubeProxyReplacement=true \
     --helm-set gatewayAPI.enabled=${DEPLOY_GATEWAY_API} \
     --helm-set cni.chainingMode=portmap \
     --helm-set sessionAffinity=true
