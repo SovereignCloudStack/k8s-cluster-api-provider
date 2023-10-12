@@ -87,6 +87,7 @@ install_helm.sh
 deploy_cluster_api.sh
 install_k9s.sh
 get_capi_helm.sh
+install_kubectx.sh
 
 # install Flux CLI always - regardless of deploy_flux variable(it can be used only for version change)
 DEPLOY_FLUX=`yq eval '.DEPLOY_FLUX' ~/cluster-defaults/clusterctl.yaml`
