@@ -88,6 +88,14 @@ package_upgrade: true
 write_files:
   - content: |
       {
+        %{ if var.http_proxy != "" }
+        "proxies": {
+          "default": {
+            "httpProxy": "http://${var.http_proxy}",
+            "httpsProxy": "https://${var.http_proxy}"
+          }
+        },
+        %{ endif }
         "mtu": ${var.kind_mtu}
       }
     owner: root:root
@@ -99,6 +107,32 @@ write_files:
     owner: root:root
     path: /etc/needrestart/conf.d/needrestart.conf
     permissions: '0644'
+  - content: |
+      PROXY="${var.http_proxy}"
+      if [[ ! -z "$PROXY" ]]; then
+      	export HTTP_PROXY=$PROXY
+      	export HTTPS_PROXY=$PROXY
+      	export http_proxy=$PROXY
+      	export https_proxy=$PROXY
+      fi
+    owner: root:root
+    path: /etc/profile.d/proxy.sh
+    permissions: '0644'
+  %{ if var.http_proxy != "" }
+  - content: |
+      {
+        "proxies": {
+          "default": {
+            "httpProxy": "http://${var.http_proxy}",
+            "httpsProxy": "https://${var.http_proxy}"
+          }
+        }
+       }
+    owner: root:root
+    path: /tmp/docker-proxy-config.json
+    permissions: '0644'
+    %{ endif }
+
 runcmd:
   # Note: Needrestart is part of the `apt-get upgrade` process from Ubuntu 22.04. By default, it is set to an
   #   "interactive" mode which causes the interruption of scripts. The interactive mode is applied when the new kernel
@@ -111,10 +145,12 @@ runcmd:
   - sysctl -w -p /etc/sysctl.d/90-conntrack_max.conf
   - mkdir /etc/docker
   - HOME=/home/${var.ssh_username} /tmp/get_mtu.sh
-  - mv /tmp/daemon.json /etc/docker/daemon.json
+  - cp /tmp/daemon.json /etc/docker/daemon.json
   - groupadd docker
   - usermod -aG docker ${var.ssh_username}
   - apt-get -y install --no-install-recommends --no-install-suggests docker.io yamllint qemu-utils git
+  # had to use this workaround due to ordering issues: https://bugs.launchpad.net/cloud-init/+bug/1486113
+  - test -f /tmp/docker-proxy-config.json && mkdir -p /home/${var.ssh_username}/.docker && cp /tmp/docker-proxy-config.json /home/${var.ssh_username}/.docker/config.json && chown -R ${var.ssh_username}:${var.ssh_username} /home/${var.ssh_username}/.docker
 EOF
 
 }

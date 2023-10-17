@@ -100,6 +100,13 @@ variable "kind_mtu" {
   default     = 0
 }
 
+variable "http_proxy" {
+  description = "HTTP Proxy that is set in the following components: "
+  type        = string
+  default     = ""
+}
+
+
 variable "worker_count" {
   description = "number of worker nodes in testcluster"
   type        = number

@@ -36,6 +36,7 @@ Parameters controlling both management server creation and cluster creation:
 | `dns_nameservers`        | `OPENSTACK_DNS_NAMESERVERS`     | capo       | `[ "5.1.66.255", "185.150.99.255" ]` | Array of nameservers for capi mgmt server and for cluster nodes, replace the FF MUC defaults with local servers if available                                                                      |
 | `availability_zone`      | `OPENSTACK_FAILURE_DOMAIN`      | capo       |                                      | Availability Zone(s) for the mgmt node / workload clusters                                                                                                                                        |
 | `kind_mtu`               | `MTU_VALUE`                     | SCS        | `0`                                  | MTU for the mgmt server; Calico is set 50 bytes smaller; 0 means autodetection                                                                                                                    |
+|  http_proxy              |                                 | SCS        |                                      | Global setting for HTTP Proxy currently will be trickled down to: 
 
 ### Parameters clusters
 
