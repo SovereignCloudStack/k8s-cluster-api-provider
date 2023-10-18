@@ -24,18 +24,18 @@ jobs:
       - name: create credentials
         run: cp secure.yaml.sample secure.yaml
         working-directory: ./terraform
-      - name: Setup terraform
-        uses: hashicorp/setup-terraform@v2
+      - name: Setup OpenTofu
+        uses: opentofu/setup-opentofu@v1.0.0
         with:
-          terraform_version: 1.4.6  # renovate: datasource=github-releases depName=hashicorp/terraform
-      - name: Terraform init
-        run: terraform init
+          tofu_version: 1.6.0-alpha2  # renovate: datasource=github-releases depName=opentofu/opentofu
+      - name: Tofu init
+        run: tofu init
         working-directory: ./terraform
-      - name: Terraform validate
-        run: terraform validate
+      - name: Tofu validate
+        run: tofu validate
         working-directory: ./terraform
         env:
           ENVIRONMENT: gx-betacloud
-      - name: Terraform format
-        run: terraform fmt -check
+      - name: Tofu format
+        run: tofu fmt -check
         working-directory: ./terraform
