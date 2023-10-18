@@ -20,8 +20,7 @@ if test "$CLOUDMTU" == "0"; then
 	echo "Detected MTU $CLOUDMTU (dev $DEV)"
 	DOCKERMTU=$((CLOUDMTU/8*8))
 	if test -e /tmp/daemon.json && grep '"mtu": 0' /tmp/daemon.json >/dev/null; then
-		if test "$CLOUDMTU" == "1500"; then rm /tmp/daemon.json; fi
-		sed -i "s/: 0/: $DOCKERMTU/" /tmp/daemon.json
+		sed -i "s/\"mtu\": 0/\"mtu\": $DOCKERMTU/" /tmp/daemon.json
 	fi
 fi
 CALICOMTU=$(((CLOUDMTU-50)/8*8))
