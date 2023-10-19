@@ -9,4 +9,4 @@ kind_flavor       = "SCS-2V:4"
 controller_flavor = "SCS-2V:4:20"
 worker_flavor     = "SCS-2V:4:20"
 
-{{ zuul_config }}
+{{ zuul_config|default("") }}
