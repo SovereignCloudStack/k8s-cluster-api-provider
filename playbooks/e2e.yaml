@@ -61,11 +61,11 @@
             warnings:
               - "
               ## Custom ENV config
-              
+
               ```
-              
+
               {{ zuul_config }}
-              
+
               ```"
       when: zuul_config is defined and zuul_config is not none and zuul_config != ''
     - name: Create environment file
