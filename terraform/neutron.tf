@@ -1,4 +1,4 @@
-# generic security group allow ssh connection 
+# generic security group allow ssh connection
 # used for cluster-api-nodes
 resource "openstack_compute_secgroup_v2" "security_group_ssh" {
   name        = "${var.prefix}-allow-ssh"
@@ -31,11 +31,15 @@ resource "openstack_compute_secgroup_v2" "security_group_mgmt" {
   name        = "${var.prefix}-mgmt"
   description = "security group for mgmtcluster (managed by terraform)"
 
-  rule {
-    cidr        = "0.0.0.0/0"
-    ip_protocol = "tcp"
-    from_port   = 22
-    to_port     = 22
+  dynamic "rule" {
+    for_each = var.restrict_mgmt_server
+    iterator = cidr
+    content {
+      cidr        = cidr.value
+      ip_protocol = "tcp"
+      from_port   = 22
+      to_port     = 22
+    }
   }
 
   rule {
@@ -66,7 +70,7 @@ resource "openstack_networking_subnet_v2" "subnet_mgmt" {
 }
 
 data "openstack_networking_network_v2" "external" {
-  name = var.external != "" ? var.external : data.openstack_networking_network_v2.extnet.name
+  name = data.openstack_networking_network_v2.extnet.name
 }
 
 resource "openstack_networking_router_v2" "router_mgmt" {
