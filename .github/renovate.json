@@ -28,6 +28,15 @@
 	"`(?<currentValue>v(\\d+\\.){1,2}(x|\\d+))`\\s*<!-- renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?) -->",
         "default\\s*= \"(?<currentValue>v(\\d+\\.){1,2}(x|\\d+))\"\\s*# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\n"
      ]
+    },
+    {
+      "description": "Matcher for k9s (version declared and used in shell script).",
+      "fileMatch":[
+	"^terraform\\/files\\/bin\\/install_k9s.sh"
+      ],
+      "matchStrings":[
+	"K9S_VERSION=(?<currentValue>v(\\d+\\.){1,2}(x|\\d+))\\s# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\n"
+     ]
     }
   ]
 }

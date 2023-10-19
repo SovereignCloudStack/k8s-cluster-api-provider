@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # install k9s
-K9S_VERSION=v0.27.4
+K9S_VERSION=v0.27.4 # renovate: datasource=github-releases depName=derailed/k9s
 echo "# install k9s $K9S_VERSION"
 ARCH=$(uname -m | sed 's/x86_64/amd64/')
 # TODO: Check signature
