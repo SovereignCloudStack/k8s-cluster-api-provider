@@ -90,10 +90,9 @@ write_files:
       {
         %{ if var.http_proxy != "" }
         "proxies": {
-          "default": {
-            "httpProxy": "http://${var.http_proxy}",
-            "httpsProxy": "https://${var.http_proxy}"
-          }
+          "http-proxy": "${var.http_proxy}",
+          "https-proxy": "${var.http_proxy}",
+          "no-proxy": "127.0.0.0/8"
         },
         %{ endif }
         "mtu": ${var.kind_mtu}
