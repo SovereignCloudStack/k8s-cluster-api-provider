@@ -331,7 +331,7 @@ to watch the progress of this.
 #### On R5 clusters
 
 If you decide to migrate your existing Kubernetes cluster from R4 to R5 be aware of the following: 
-- R5 features such as per cluster namespaces and Calico as a default CNI are supported
+- R5 features such as per cluster namespaces and Cilium as a default CNI are supported
   only on new clusters and will not be migrated on the existing clusters
 - R4 default Kubernetes version v1.25.6 can not be directly migrated to the R5 default
   Kubernetes version v1.27.5, because +2 minor Kubernetes version upgrade is [not allowed](https://cluster-api.sigs.k8s.io/tasks/experimental-features/cluster-class/operate-cluster.html?highlight=upgrade%20cluster#upgrade-a-cluster).

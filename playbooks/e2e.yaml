@@ -39,6 +39,13 @@
       ansible.builtin.set_fact:
         git_branch_name: "{{ git_reference | default(pull_request.json.head.ref) | default(git_reference_default) }}"
         git_repository_url: "{{ git_repo | default(pull_request.json.head.repo.clone_url) | default(git_repo_default) }}"
+    - name: Checkout to PR branch
+      ansible.builtin.git:
+        repo: "{{ git_repository_url }}"
+        clone: false
+        dest: "{{ project_dir }}"
+        version: "{{ git_branch_name }}"
+      when: zuul.change is defined  # execute when the e2e pipeline is initiated on a PR
     - name: Create environment file
       ansible.builtin.template:
         src: "templates/environment.tfvars.j2"
