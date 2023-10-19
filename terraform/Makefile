@@ -4,7 +4,7 @@
 #ENVIRONMENT = gx-betacloud
 #ENVIRONMENT ?= gx-citycloud
 #ENVIRONMENT = gx-scs
-SHELL=/bin/bash
+SHELL = /bin/bash
 SED ?= sed
 #ENVIRONMENT = gx-bc
 OPENSTACK ?= openstack
@@ -17,7 +17,7 @@ ifeq ($(NEED_OSCLOUD),1)
 else
   ENVIRONMENT ?= $(OS_CLOUD)
 endif
-USERNAME=$(shell ( grep '^ssh_username' environments/environment-$(ENVIRONMENT).tfvars || echo ubuntu ) | $(SED) 's@^ssh_username[^=]*= *"*\([^"]*\).*$$@\1@' )
+USERNAME=$(shell ( grep '^ssh_username' environments/environment-$(ENVIRONMENT).tfvars || echo ubuntu ) | $(SED) 's@^ssh_username[^=]*= *"*\([^"]*\).*$$@\1@')
 
 # if enabled, use s3 for remote terraform state
 ifneq (,$(wildcard ./minio.env))
@@ -33,12 +33,12 @@ else
   YQIN=-
 endif
 
-CLOUD=$(shell ( grep '^cloud_provider' environments/environment-$(ENVIRONMENT).tfvars || echo $(ENVIRONMENT) ) | $(SED) 's@^cloud_provider[^=]*= *"*\([^"]*\).*$$@\1@' )
+CLOUD=$(shell ( grep '^cloud_provider' environments/environment-$(ENVIRONMENT).tfvars || echo $(ENVIRONMENT) ) | $(SED) 's@^cloud_provider[^=]*= *"*\([^"]*\).*$$@\1@')
 ifeq ($(TESTCLUSTER),)
-TESTCLUSTER=$(shell ( grep '^testcluster_name' environments/environment-$(ENVIRONMENT).tfvars || echo testcluster ) | $(SED) 's@^testcluster_name[^=]*= *"*\([^"]*\).*$$@\1@' )
+TESTCLUSTER=$(shell ( grep '^testcluster_name' environments/environment-$(ENVIRONMENT).tfvars || echo testcluster ) | $(SED) 's@^testcluster_name[^=]*= *"*\([^"]*\).*$$@\1@')
 endif
 
-PREFIX=$(shell (grep '^prefix *=' environments/environment-${ENVIRONMENT}.tfvars || echo capi ) | $(SED) -e 's/^[^=]*= *//' -e 's/"//g')
+PREFIX=$(shell (grep '^prefix *=' environments/environment-${ENVIRONMENT}.tfvars || echo capi) | $(SED) -e 's/^[^=]*= *//' -e 's/"//g')
 MGMTCLUSTERNAME=$(shell ($(OPENSTACK) --os-cloud $(ENVIRONMENT) server list --name "$(PREFIX)-mgmtcluster" -c Name -f value))
 
 GITBRANCH=$(shell git branch | grep '^*' | $(SED) 's/^* //')
@@ -47,8 +47,8 @@ GITREFERENCE=$(shell git rev-parse HEAD)
 # GITREFERENCE=$GITBRANCH
 GITREPO=$(shell git config --get remote.origin.url | $(SED) 's%git@\([^:]*\):%https://\1/%')
 
-init:	mycloud
-	@if [ ! -d .terraform/plugins ]; then terraform init; fi
+init: mycloud
+	@if [ ! -d .terraform/providers ]; then terraform init; fi
 	@terraform workspace select ${ENVIRONMENT} || terraform workspace new ${ENVIRONMENT}
 
 attach: init
@@ -65,21 +65,21 @@ dry-run: init
 
 mycloud: environments/environment-$(ENVIRONMENT).tfvars
 	@if [ -f "clouds.yaml" ]; then \
-        $(YQ) '.clouds."$(CLOUD)"' $(YQIN) < clouds.yaml > mycloud.$(CLOUD).yaml; \
-    elif [ -f "${HOME}/.config/openstack/clouds.yaml" ]; then \
-        $(YQ) '.clouds."$(CLOUD)"' $(YQIN) < ${HOME}/.config/openstack/clouds.yaml > mycloud.$(CLOUD).yaml; \
-    elif [ -f "/etc/openstack/clouds.yaml" ]; then \
-        $(YQ) '.clouds."$(CLOUD)"' $(YQIN) < /etc/openstack/clouds.yaml > mycloud.$(CLOUD).yaml; \
-    else \
-        echo "Error clouds.yaml file not found in any location."; \
-        exit 1; \
-    fi
+		$(YQ) '.clouds."$(CLOUD)"' $(YQIN) < clouds.yaml > mycloud.$(CLOUD).yaml; \
+	elif [ -f "${HOME}/.config/openstack/clouds.yaml" ]; then \
+		$(YQ) '.clouds."$(CLOUD)"' $(YQIN) < ${HOME}/.config/openstack/clouds.yaml > mycloud.$(CLOUD).yaml; \
+	elif [ -f "/etc/openstack/clouds.yaml" ]; then \
+		$(YQ) '.clouds."$(CLOUD)"' $(YQIN) < /etc/openstack/clouds.yaml > mycloud.$(CLOUD).yaml; \
+	else \
+		echo "Error clouds.yaml file not found in any location."; \
+		exit 1; \
+	fi
 
 gitchk:
 	@if [ "$(GITREFERENCE)" != "$(GITBRANCH)" ]; then \
 		git diff -r $(GITREFERENCE) -- :/ ':(exclude,top)terraform/environments' > git.diff ; \
 	else \
-  		git diff -r origin/$(GITBRANCH) -- :/ ':(exclude,top)terraform/environments' > git.diff ; \
+		git diff -r origin/$(GITBRANCH) -- :/ ':(exclude,top)terraform/environments' > git.diff ; \
 	fi
 	@if test -s git.diff; then echo "WARN: Local changes won't be used on mgmtcluster. Commit and push them"; cat git.diff; fi
 
@@ -118,10 +118,9 @@ purge:
 	@echo "Warning, going to delete ALL resources in $(ENVIRONMENT), even those that have not been created by the CAPI or terraform. The SSH-Key $(PREFIX)-keypair will be removed for all projects."
 	@echo "Application credentials $(PREFIX)-appcred and $(PREFIX)-$(TESTCLUSTER)-appcred will be also removed for all projects."
 	@read -p "Continue? (y/n) " -r; \
-        if [[ ! $$REPLY =~ ^[Yy] ]]; \
-        then \
-			exit 1; \
-        fi
+	if [[ ! $$REPLY =~ ^[Yy] ]]; then \
+		exit 1; \
+	fi
 	@$(OPENSTACK) keypair delete $(PREFIX)-keypair || true
 	@$(OPENSTACK) application credential delete $(PREFIX)-appcred || true
 	@$(OPENSTACK) application credential delete $(PREFIX)-$(TESTCLUSTER)-appcred || true
@@ -139,7 +138,7 @@ purge:
 list: init
 	@terraform state list
 
-ssh:    .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
+ssh: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
 	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS
 
@@ -158,10 +157,10 @@ deploy: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
 	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "~/bin/deploy_cluster_api.sh"
 
-log:    .deploy.$(ENVIRONMENT)
+log: .deploy.$(ENVIRONMENT)
 	@$(OPENSTACK) console log show $(CONSOLE)
 
-console:   .deploy.$(ENVIRONMENT)
+console: .deploy.$(ENVIRONMENT)
 	@xdg-open $$( $(OPENSTACK) console url show $(CONSOLE) -f value -c url )
 
 .deploy.$(ENVIRONMENT): init
@@ -175,13 +174,13 @@ console:   .deploy.$(ENVIRONMENT)
 .deploy.id_rsa.$(ENVIRONMENT): .deploy.$(ENVIRONMENT)
 	@PRIVATE_KEY=$$(terraform output private_key); \
 	echo "$$PRIVATE_KEY" > $@; \
-        chmod 0600 $@
+	chmod 0600 $@
 
 check: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
 	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "~/bin/sonobuoy.sh $(TESTCLUSTER) $(SONOMODE)"
 
-# Pass SONOMODE="--mode light" for a quick check
+# Pass SONOMODE="--mode quick" for a quick check
 check-quick:
 	$(MAKE) check SONOMODE="--mode quick"
 
@@ -211,8 +210,8 @@ watch: .deploy.id_rsa.$(ENVIRONMENT) .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT)
 		if test -n "$$LEN" -a "$$LEN" != "$$DISP"; then \
 		  OUT=$$(ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "sudo tail -n $$((LEN-DISP)) /var/log/cloud-init-output.log 2>/dev/null"); \
 		  echo -e "$$OUT" | \
-		    $(SED) -e "s/^\(TASK.*\)$$/$$BOLD\1$$NORM/" \
-		        -e "s/^\(PLAY.*\)$$/$$GREEN\1$$NORM/" \
+			$(SED) -e "s/^\(TASK.*\)$$/$$BOLD\1$$NORM/" \
+			-e "s/^\(PLAY.*\)$$/$$GREEN\1$$NORM/" \
 			-e "s/^\(The system is finally up.*\)$$/$$GREENBOLD\1$$NORM/" \
 			-e "s/\(FAILED\)/$$RED\1$$NORM/g" \
 			-e "s/\(failed=[1-9][0-9]*\|unreachable=[1-9][0-9]*\)/$$RED\1$$NORM/g" \

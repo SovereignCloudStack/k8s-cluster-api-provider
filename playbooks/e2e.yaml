@@ -24,7 +24,7 @@
   - name: Prepare environment
     block:
     - name: Get PR details
-      uri:
+      ansible.builtin.uri:
         url: "https://api.github.com/repos/{{ zuul.project.name }}/pulls/{{ zuul.change }}"
         body_format: json
         headers:
@@ -36,47 +36,74 @@
         Set facts -
         Priority is given to the values of git_reference and git_repo over variables collected from the PR.
         In cases where git_reference and git_repo are undefined, and e2e is not executed on the PR, a fallback mechanism is employed.
-      set_fact:
+      ansible.builtin.set_fact:
         git_branch_name: "{{ git_reference | default(pull_request.json.head.ref) | default(git_reference_default) }}"
         git_repository_url: "{{ git_repo | default(pull_request.json.head.repo.clone_url) | default(git_repo_default) }}"
+    - name: Checkout to PR branch
+      ansible.builtin.git:
+        repo: "{{ git_repository_url }}"
+        clone: false
+        dest: "{{ project_dir }}"
+        version: "{{ git_branch_name }}"
+      when: zuul.change is defined  # execute when the e2e pipeline is initiated on a PR
     - name: Create environment file
-      template:
+      ansible.builtin.template:
         src: "templates/environment.tfvars.j2"
         dest: "{{ project_tf_dir }}/environments/environment-{{ cloud_provider }}.tfvars"
+        mode: "0644"
     - name: Get default interface name
-      shell: "ip route show default | head -n1 | sed 's/^.*dev \\([^ ]*\\).*$/\\1/'"
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          ip route show default | head -n1 | sed 's/^.*dev \([^ ]*\).*$/\1/'
+        executable: /bin/bash
       register: dev
+      changed_when: false
+    - name: Get default interface MTU
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          ip link show {{ dev.stdout }} | head -n1 | sed 's/^.*mtu \([^ ]*\).*$/\1/'
+        executable: /bin/bash
+      register: mtu
+      changed_when: false
     - name: Set mtu for the default interface  # workaround for terraform file provisioner scp error
-      command: "ip link set {{ dev.stdout }} mtu 1500"
+      ansible.builtin.command: "ip link set {{ dev.stdout }} mtu 1500"
       become: true
-  - name: Create k8s cluster and execute sonobouy {{ sonobouy_mode }} check
+      when: mtu.stdout != "1500"
+      changed_when: mtu.stdout != "1500"
+  - name: Create k8s cluster and execute sonobouy check
     block:
     - name: Create k8s cluster
-      command: "make create GITREFERENCE={{ git_branch_name }} GITREPO={{ git_repository_url }}"
+      ansible.builtin.command: "make create GITREFERENCE={{ git_branch_name }} GITREPO={{ git_repository_url }}"
       args:
         chdir: "{{ project_tf_dir }}"
+      changed_when: true
     - name: Get kubeconfig of the workload k8s cluster
-      command: "make get-kubeconfig TESTCLUSTER={{ testcluster_name }}"
+      ansible.builtin.command: "make get-kubeconfig TESTCLUSTER={{ testcluster_name }}"
       args:
         chdir: "{{ project_tf_dir }}"
+      changed_when: true
     - name: Wait for all system pods in the workload k8s cluster to become ready
-      command: "kubectl wait -n kube-system --for=condition=Ready --timeout={{ wait_for_cluster }}s pod --all"
+      ansible.builtin.command: "kubectl wait -n kube-system --for=condition=Ready --timeout={{ wait_for_cluster }}s pod --all"
       args:
         chdir: "{{ project_tf_dir }}"
       environment:
         KUBECONFIG: "{{ testcluster_name }}.yaml.{{ cloud_provider }}"
-    - name: Execute sonobouy {{ sonobouy_mode }} check
-      command: "make check-{{ sonobouy_mode }}"
+      changed_when: true
+    - name: Execute sonobouy check mode {{ sonobouy_mode }}
+      ansible.builtin.command: "make check-{{ sonobouy_mode }}"
       register: sonobouy_results
       args:
         chdir: "{{ project_tf_dir }}"
+      changed_when: true
     always:
-    - name: Parse sonobouy results
-      set_fact:
+    - name: Parse sonobouy results  # noqa: ignore-errors
+      ansible.builtin.set_fact:
         sonobouy_results_parsed: "{{ sonobouy_results.stdout | regex_search('=== Collecting results ===[\\S\\s]*') }}"
       when: sonobouy_results is defined
       ignore_errors: true  # ignore when this task failed as it is nice to have, and we should ensure that fullclean is reached
-    - name: Insert parsed sonobouy results to the warning message that will be appended to the comment zuul leaves on the PR
+    - name: Insert parsed sonobouy results to the warning message that will be appended to the comment zuul leaves on the PR  # noqa: ignore-errors
       zuul_return:
         data:
           zuul:
@@ -85,6 +112,7 @@
       when: sonobouy_results_parsed is defined and sonobouy_results_parsed | length > 0
       ignore_errors: true  # ignore when this task failed as it is nice to have, and we should ensure that fullclean is reached
     - name: Cleanup - fullclean
-      command: "make fullclean"
+      ansible.builtin.command: "make fullclean"
       args:
         chdir: "{{ project_tf_dir }}"
+      changed_when: true
