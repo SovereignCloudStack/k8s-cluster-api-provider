@@ -30,6 +30,7 @@
   - name: Print Zuul config
     ansible.builtin.debug:
       var: zuul_config
+    changed_when: true
   - name: Ensure environment file
     ansible.builtin.template:
       src: "templates/environment.tfvars.j2"
