@@ -15,9 +15,10 @@
   - role: ensure-pip  # https://zuul-ci.org/docs/zuul-jobs/latest/python-roles.html#role-ensure-pip
   tasks:
   - name: Make sure installation directory exists
-    file:
+    ansible.builtin.file:
       path: "{{ install_dir }}"
       state: directory
+      mode: 0755
   - name: Install jq
     ansible.builtin.get_url:
       url: "https://github.com/jqlang/jq/releases/download/jq-{{ jq_version }}/jq-linux64"
@@ -49,42 +50,41 @@
   - name: Install OpenTofu
     # TODO: write separate role ensure-opentofu, see https://opendev.org/zuul/zuul-jobs/src/branch/master/roles/ensure-terraform
     block:
-      - name: Check if unzip is installed
-        command: "unzip -v"
-        failed_when: false
-        register: _unzip_probe
       - name: Install unzip
-        when: _unzip_probe.rc != 0
-        package:
+        ansible.builtin.package:
           name: unzip
         become: true
       - name: Create temp directory
-        tempfile:
+        ansible.builtin.tempfile:
           state: directory
         register: tofu_install_tempdir
       - name: Download OpenTofu archive
-        get_url:
+        ansible.builtin.get_url:
           url: "https://github.com/opentofu/opentofu/releases/download/v{{ opentofu_version }}/tofu_{{ opentofu_version }}_linux_amd64.zip"
           dest: "{{ tofu_install_tempdir.path }}/opentofu.zip"
+          mode: 0644
       # TODO: checksum
       - name: Create OpenTofu package directory
-        file:
+        ansible.builtin.file:
           path: "{{ tofu_install_tempdir.path }}/opentofu"
           state: directory
+          mode: 0755
       - name: Unarchive OpenTofu
-        unarchive:
+        ansible.builtin.unarchive:
           src: "{{ tofu_install_tempdir.path }}/opentofu.zip"
           dest: "{{ tofu_install_tempdir.path }}/opentofu"
           remote_src: true
       - name: Install OpenTofu
-        copy:
+        ansible.builtin.copy:
           src: "{{ tofu_install_tempdir.path }}/opentofu/tofu"
           dest: "{{ install_dir }}/tofu"
           mode: "+x"
           remote_src: true
       - name: Remove temp directory
-        file:
+        ansible.builtin.file:
           path: "{{ tofu_install_tempdir }}"
           state: absent
       - name: Output OpenTofu version
-        command: "tofu version"
+        ansible.builtin.command: "tofu version"
+        register: tofu_version
+        changed_when: tofu_version.rc != 0
