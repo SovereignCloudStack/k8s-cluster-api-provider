@@ -59,7 +59,14 @@
         data:
           zuul:
             warnings:
-              - "## Custom ENV config\n```\n{{ zuul_config }}\n```\n"
+              -|
+              ## Custom ENV config
+              
+              ```
+              
+              {{ zuul_config }}
+              
+              ```
       when: zuul_config is defined and zuul_config is not none and zuul_config != ''
     - name: Create environment file
       ansible.builtin.template:
