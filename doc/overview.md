@@ -11,7 +11,7 @@ Note that we have an intermediate model in mind -- a model where a one-click / o
 
 Once we as the SCS Community have the gitops style cluster control working, the self-service model will become more convenient to use.
 
-Basically, this repository covers two topics:
+The provided solution covers the following two main topics:
 
 1. Automation (terraform, Makefile) to bootstrap a cluster-API management server by installing kind on a vanilla Ubuntu image and deploying some tools on this node ([kubectl](https://kubernetes.io/docs/reference/kubectl/overview/), [openstack CLI tools](https://docs.openstack.org/newton/user-guide/common/cli-install-openstack-command-line-clients.html), [k9s](https://github.com/derailed/k9s), [cilium](https://cilium.io/), [calico](https://www.tigera.io/tigera-products/calico/), [helm](https://helm.sh/), [flux](https://fluxcd.io/) ...) and deploying [cluster-API](https://cluster-api.sigs.k8s.io/) (clusterctl) and the [OpenStack cluster-api provider](https://github.com/kubernetes-sigs/cluster-api-provider-openstack) along with suitable credentials. The terraform automation is driven by a Makefile for convenience. The tooling also contains all the logic to clean up again. The newly deployed node clones this git repository early in the bootstrap process and uses the thus received files to set up the management cluster and scripts.
 
