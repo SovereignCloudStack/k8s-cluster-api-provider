@@ -126,13 +126,11 @@ system image without altering the default image used by the project.
 
 To do so, you can in the body of the PR add the following text:
 ```text
-
-```ZUUL_CONFIG
-image = "Ubuntu 20.04"
-```.
-
+    ```ZUUL_CONFIG
+    image = "Ubuntu 20.04"
+    ```
 ```
-The dot at the end of the code block is just for formatting purposes and should not be included in the PR.
+
 ### FAQ
 
 #### How do developers/reviewers should proceed if they want to CI test this project?
