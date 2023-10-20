@@ -50,6 +50,8 @@ else
   sudo mv kustomize /usr/local/bin/
 fi
 
+install_kube_ps1.sh
+
 # setup aliases and environment
 echo "# setup environment"
 cat <<EOF >> ~/.bash_aliases
@@ -62,8 +64,11 @@ source <( kubectl completion bash )
 # clusterctl
 source <( clusterctl completion bash )
 
+# kube_ps1
+source ~/.kube-ps1/kube-ps1.sh
+
 # Error code in prompt
-PS1="\${PS1%\\\\\$ } [\\\$?]\\\$ "
+PS1="\${PS1%\\\\\$ } \\\$(kube_ps1) [\\\$?]\\\$ "
 # We may do git commits and nano feels unusual ...
 export VISUAL=/usr/bin/vim
 # eof
