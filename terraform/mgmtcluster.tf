@@ -92,7 +92,7 @@ write_files:
         "proxies": {
           "http-proxy": "${var.http_proxy}",
           "https-proxy": "${var.http_proxy}",
-          "no-proxy": "127.0.0.0/8"
+          "no-proxy": "127.0.0.0/8,172.18.0.0/16,fc00:f853:ccd:e793::/64,10.96.0.0/16,10.244.0.0/16,kind-control-plane,.svc,.svc.cluster,.svc.cluster.local"
         },
         %{ endif }
         "mtu": ${var.kind_mtu}
@@ -109,10 +109,12 @@ write_files:
   - content: |
       PROXY="${var.http_proxy}"
       if [[ ! -z "$PROXY" ]]; then
-      	export HTTP_PROXY=$PROXY
-      	export HTTPS_PROXY=$PROXY
-      	export http_proxy=$PROXY
-      	export https_proxy=$PROXY
+        export HTTP_PROXY=$PROXY
+        export HTTPS_PROXY=$PROXY
+        export http_proxy=$PROXY
+        export https_proxy=$PROXY
+        export NO_PROXY=172.18.0.0/16,fc00:f853:ccd:e793::/64,10.96.0.0/16,10.244.0.0/16,kind-control-plane,.svc,.svc.cluster,.svc.cluster.local
+        export no_proxy=172.18.0.0/16,fc00:f853:ccd:e793::/64,10.96.0.0/16,10.244.0.0/16,kind-control-plane,.svc,.svc.cluster,.svc.cluster.local
       fi
     owner: root:root
     path: /etc/profile.d/proxy.sh
@@ -123,7 +125,8 @@ write_files:
         "proxies": {
           "default": {
             "httpProxy": "http://${var.http_proxy}",
-            "httpsProxy": "https://${var.http_proxy}"
+            "httpsProxy": "http://${var.http_proxy}",
+            "noProxy": "127.0.0.0/8,172.18.0.0/16,fc00:f853:ccd:e793::/64,10.96.0.0/16,10.244.0.0/16,kind-control-plane,.svc,.svc.cluster,.svc.cluster.local"
           }
         }
        }
