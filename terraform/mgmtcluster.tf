@@ -11,12 +11,14 @@ resource "openstack_identity_application_credential_v3" "appcred" {
 }
 
 data "openstack_networking_network_v2" "extnet" {
-  external = true
+  external   = true
+  name       = var.external != "" ? var.external : null
+  network_id = var.external_id != "" ? var.external_id : null
 }
 
 # - management cluster -
 resource "openstack_networking_floatingip_v2" "mgmtcluster_floatingip" {
-  pool        = var.external != "" ? var.external : data.openstack_networking_network_v2.extnet.name
+  pool        = data.openstack_networking_network_v2.extnet.name
   depends_on  = [openstack_networking_router_interface_v2.router_interface]
   description = "Floating IP for the ${var.prefix} management cluster node"
   tags = [
@@ -278,7 +280,7 @@ resource "terraform_data" "mgmtcluster_bootstrap_files" {
       deploy_occm                    = var.deploy_occm,
       dns_nameservers                = var.dns_nameservers,
       etcd_unsafe_fs                 = var.etcd_unsafe_fs,
-      external                       = var.external != "" ? var.external : data.openstack_networking_network_v2.extnet.name,
+      external_id                    = data.openstack_networking_network_v2.extnet.id,
       image_registration_extra_flags = var.image_registration_extra_flags,
       kube_image_raw                 = var.kube_image_raw,
       kubernetes_version             = var.kubernetes_version,
@@ -327,6 +329,11 @@ resource "terraform_data" "mgmtcluster_bootstrap_files" {
   provisioner "file" {
     source      = "files/template/cluster-template.yaml"
     destination = "/home/${var.ssh_username}/cluster-defaults/cluster-template.yaml"
+  }
+
+  provisioner "file" {
+    source      = "files/fix-keystoneauth-plugins-unversioned.diff"
+    destination = "/tmp/fix-keystoneauth-plugins-unversioned.diff"
   }
 
   provisioner "remote-exec" {

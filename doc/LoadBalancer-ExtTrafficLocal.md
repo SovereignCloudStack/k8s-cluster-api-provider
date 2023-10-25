@@ -1,4 +1,4 @@
-# Why `externalTrafficPolicy: local`?
+# Ingress with `externalTrafficPolicy: local`
 
 Setting up the nginx ingress controller from the upstream deployment templates
 using the `externalTrafficPolicy: local` setting and -- without any special
@@ -26,7 +26,7 @@ the inactive nodes out of the rotation. Should the container be rescheduled on
 some other node, the health-monitor will adapt within a few seconds.
 
 Since SCS R2, the deployed nginx-ingress deployment is patched to carry a service
-annotation (OpenStack specific, sigh) that enables the health-monitor for the LB in
+annotation (a behavior specifically needed by OpenStack) that enables the health-monitor for the LB in
 front of the ingress. This results in traffic to flow.
 
 This covers the nginx ingress controller that is deployed by setting`
@@ -87,7 +87,7 @@ Note that the `use_ovn_lb_provider` does not affect the LB in front of the kube 
 That one is created by capo and requires other settings. Also note that it would
 not yet support the CIDR filtering with `restrict_kubeapi` setting.
 
-# Enabling health-monitor by default?
+# Disabled health-monitor by default
 
 We could enable a health-monitor by default for load-balancers created from OCCM
 in the k8s clusters. This would make services with `externalTrafficPolicy: local`

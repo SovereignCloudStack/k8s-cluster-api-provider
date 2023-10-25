@@ -67,7 +67,7 @@ This section describes an [SCS Zuul pipelines](https://github.com/SovereignCloud
 
 - `periodic-daily`
   - This pipeline runs jobs daily at 3AM
-  - It executes `k8s-cluster-api-provider-e2e-conformance-daily` job
+  - It executes `k8s-cluster-api-provider-e2e-conformance` job
   - The job overrides the `git_reference` variable to ensure that the e2e conformance testing is executed on a specific tag
 
 ## Jobs
@@ -83,10 +83,6 @@ This section describes Zuul jobs defined within the k8s-cluster-api-provider pro
     - Pre-run playbook `dependencies.yaml` installs project prerequisites, e.g. terraform, yq, etc. 
     - Main playbook `e2e.yaml` spawns a k8s cluster, runs sonobuoy conformance test, and cleans created infrastructure, all by k8s-cluster-api-provider scripts
     - Cleanup-run playbook `cleanup.yaml` runs `ospurge`, cleanup created application credentials and keypair to ensure that multiple e2e runs do not interfere
-
-- `k8s-cluster-api-provider-e2e-conformance-daily`
-  - It shares a nearly identical behavior with the `k8s-cluster-api-provider-e2e-conformance` job,
-    but it serves as a scheduled task for performing e2e conformance testing on a specific tag. The tag's selection is specified by the `git_reference` variable
 
 - `k8s-cluster-api-provider-e2e-quick`
   - It runs a sonobuoy quick test against Kubernetes cluster spawned by k8s-cluster-api-provider scripts
@@ -120,6 +116,19 @@ echo -n "super-secret" | \
   zuul-client --zuul-url https://zuul.scs.community encrypt \
   --tenant SCS \
   --project github.com/SovereignCloudStack/zuul-config
+```
+
+### Job customization
+
+In some cases you may want to change your `environment.tfvars` file before running the e2e test without changing
+the `environment.tfvars` file in the repository. For example, you may want to change the `image` variable to test a different
+system image without altering the default image used by the project.
+
+To do so, you can in the body of the PR add the following text:
+```text
+    ```ZUUL_CONFIG
+    image = "Ubuntu 20.04"
+    ```
 ```
 
 ### FAQ

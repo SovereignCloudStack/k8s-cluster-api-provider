@@ -39,10 +39,17 @@ variable "availability_zone" {
 }
 
 variable "external" {
-  description = "external/public network for access"
+  description = "external/public network name for access"
   type        = string
   default     = ""
   # default   = data.openstack_networking_network_v2.extnet.name
+}
+
+variable "external_id" {
+  description = "external/public network ID for access"
+  type        = string
+  default     = ""
+  # default   = data.openstack_networking_network_v2.extnet.id
 }
 
 variable "ssh_username" {
@@ -54,19 +61,19 @@ variable "ssh_username" {
 variable "calico_version" {
   description = "desired version of calico"
   type        = string
-  default     = "v3.26.1"
+  default     = "v3.26.1" # renovate: datasource=github-releases depName=projectcalico/calico
 }
 
 variable "clusterapi_version" {
   description = "desired version of cluster-api"
   type        = string
-  default     = "1.5.1"
+  default     = "1.5.3" # renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api
 }
 
 variable "capi_openstack_version" {
   description = "desired version of the OpenStack cluster-api provider"
   type        = string
-  default     = "0.7.3"
+  default     = "0.8.0" # renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api-provider-openstack
 }
 
 variable "kubernetes_version" {
@@ -229,6 +236,11 @@ variable "restrict_kubeapi" {
   default     = []
 }
 
+variable "restrict_mgmt_server" {
+  description = "List of IP ranges (CIDRs) that get exclusive access to the SSH port of the management server. Leave empty for all"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+}
 
 variable "capo_instance_create_timeout" {
   description = "time to wait for an openstack machine to be created (in minutes)"
