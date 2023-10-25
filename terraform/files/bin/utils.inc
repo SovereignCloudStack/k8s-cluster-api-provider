@@ -24,6 +24,8 @@ setup_kubectl_context_workspace() {
   local KUBECONFIG_WORKSPACE=`mktemp --tmpdir kubeconfig.yaml.XXXXXX`
   trap 'reset_kubectl_context_workspace' EXIT
 
+  # Always use default KUBECONFIG location as source
+  KUBECONFIG=${HOME}/.kube/config
   kubectl config view --flatten >${KUBECONFIG_WORKSPACE}
   KUBECONFIG=${KUBECONFIG_WORKSPACE}
 }
