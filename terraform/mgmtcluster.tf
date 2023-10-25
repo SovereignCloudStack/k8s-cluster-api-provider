@@ -83,6 +83,12 @@ resource "openstack_compute_instance_v2" "mgmtcluster_server" {
 
 #cloud-config
 final_message: "The system is finally up, after $UPTIME seconds"
+%{ if var.http_proxy != "" }
+apt:
+  conf:
+   http_proxy: "${var.http_proxy}"
+   https_proxy: "${var.http_proxy}"
+%{ endif }
 package_update: true
 package_upgrade: true
 write_files:
@@ -124,8 +130,8 @@ write_files:
       {
         "proxies": {
           "default": {
-            "httpProxy": "http://${var.http_proxy}",
-            "httpsProxy": "http://${var.http_proxy}",
+            "httpProxy": "${var.http_proxy}",
+            "httpsProxy": "${var.http_proxy}",
             "noProxy": "127.0.0.0/8,172.18.0.0/16,fc00:f853:ccd:e793::/64,10.96.0.0/16,10.244.0.0/16,kind-control-plane,.svc,.svc.cluster,.svc.cluster.local"
           }
         }

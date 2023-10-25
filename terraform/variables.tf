@@ -101,7 +101,7 @@ variable "kind_mtu" {
 }
 
 variable "http_proxy" {
-  description = "HTTP Proxy that is set in the following components: "
+  description = "HTTP Proxy that is set on the mgmt host as well as on the worker and controlplane nodes of the created cluster."
   type        = string
   default     = ""
 }
