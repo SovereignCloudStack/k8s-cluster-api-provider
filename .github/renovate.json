@@ -2,6 +2,7 @@
   "commitBody": "Signed-off-by: SCS Renovate Bot <renovatebot@scs.community>",
   "gitAuthor": "SCS Renovate Bot <renovatebot@scs.community>",
   "dependencyDashboard": "true",
+  "labels": ["e2e-quick-test"],
   "enabledManagers": ["regex"],
   "regexManagers":[
     {
