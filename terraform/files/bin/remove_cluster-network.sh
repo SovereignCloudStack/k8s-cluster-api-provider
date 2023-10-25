@@ -1,6 +1,7 @@
 #!/bin/bash
-export KUBECONFIG=~/.kube/config
-. ~/.capi-settings
+
+# imports
+. ~/bin/utils.inc
 . ~/bin/cccfg.inc
 
 NET_NAME=$(openstack network list -f value -c Name | grep "k8s-clusterapi-cluster-\(default-${CLUSTER_NAME}\|${CLUSTER_NAME}-${CLUSTER_NAME}\)")
