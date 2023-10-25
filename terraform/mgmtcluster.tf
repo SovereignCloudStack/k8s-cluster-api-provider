@@ -83,24 +83,24 @@ resource "openstack_compute_instance_v2" "mgmtcluster_server" {
 
 #cloud-config
 final_message: "The system is finally up, after $UPTIME seconds"
-%{ if var.http_proxy != "" }
+%{if var.http_proxy != ""}
 apt:
   conf:
    http_proxy: "${var.http_proxy}"
    https_proxy: "${var.http_proxy}"
-%{ endif }
+%{endif}
 package_update: true
 package_upgrade: true
 write_files:
   - content: |
       {
-        %{ if var.http_proxy != "" }
+        %{if var.http_proxy != ""}
         "proxies": {
           "http-proxy": "${var.http_proxy}",
           "https-proxy": "${var.http_proxy}",
           "no-proxy": "127.0.0.0/8,172.18.0.0/16,fc00:f853:ccd:e793::/64,10.96.0.0/16,10.244.0.0/16,kind-control-plane,.svc,.svc.cluster,.svc.cluster.local"
         },
-        %{ endif }
+        %{endif}
         "mtu": ${var.kind_mtu}
       }
     owner: root:root
@@ -125,7 +125,7 @@ write_files:
     owner: root:root
     path: /etc/profile.d/proxy.sh
     permissions: '0644'
-  %{ if var.http_proxy != "" }
+  %{if var.http_proxy != ""}
   - content: |
       {
         "proxies": {
@@ -139,7 +139,7 @@ write_files:
     owner: root:root
     path: /tmp/docker-proxy-config.json
     permissions: '0644'
-    %{ endif }
+    %{endif}
 
 runcmd:
   # Note: Needrestart is part of the `apt-get upgrade` process from Ubuntu 22.04. By default, it is set to an
