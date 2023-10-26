@@ -67,7 +67,7 @@ variable "calico_version" {
 variable "clusterapi_version" {
   description = "desired version of cluster-api"
   type        = string
-  default     = "1.5.2" # renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api
+  default     = "1.5.3" # renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api
 }
 
 variable "capi_openstack_version" {

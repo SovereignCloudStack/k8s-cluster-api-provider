@@ -6,6 +6,7 @@
   "terraform": {
     "pinDigests": true
   },
+  "labels": ["e2e-quick-test"],
   "regexManagers":[
     {
       "description": "Regex used to match versions without prefix 'v'. Example: capi, capo.",
