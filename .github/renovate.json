@@ -2,8 +2,11 @@
   "commitBody": "Signed-off-by: SCS Renovate Bot <renovatebot@scs.community>",
   "gitAuthor": "SCS Renovate Bot <renovatebot@scs.community>",
   "dependencyDashboard": "true",
+  "enabledManagers": ["regex", "terraform"],
+  "terraform": {
+    "pinDigests": true
+  },
   "labels": ["e2e-quick-test"],
-  "enabledManagers": ["regex"],
   "regexManagers":[
     {
       "description": "Regex used to match versions without prefix 'v'. Example: capi, capo.",
