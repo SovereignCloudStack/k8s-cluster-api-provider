@@ -25,7 +25,7 @@ jobs:
         run: cp secure.yaml.sample secure.yaml
         working-directory: ./terraform
       - name: Setup OpenTofu
-        uses: opentofu/setup-opentofu@v1.0.0
+        uses: opentofu/setup-opentofu@v1
         with:
           tofu_version: 1.6.0-alpha3  # renovate: datasource=github-releases depName=opentofu/opentofu
       - name: Tofu init
