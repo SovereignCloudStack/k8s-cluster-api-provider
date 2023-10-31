@@ -3,6 +3,9 @@
 ##    desc: bootstrap a cluster-api environment for openstack
 ## license: Apache-2.0
 
+# Source proxy settings:
+. /etc/profile.d/proxy.sh
+
 # Find helper scripts
 export PATH=$PATH:~/bin
 
