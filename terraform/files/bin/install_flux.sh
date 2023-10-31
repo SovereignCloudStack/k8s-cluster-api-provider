@@ -1,4 +1,5 @@
 #!/bin/bash
+. /etc/profile.d/proxy.sh
 # TODO: Check sig
 if test -x /usr/local/bin/flux; then exit 0; fi
 curl -s https://fluxcd.io/install.sh > ~/bin/install-flux2.sh
