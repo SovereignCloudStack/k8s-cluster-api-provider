@@ -6,6 +6,7 @@
 # variables
 . ~/.capi-settings
 . ~/bin/openstack-kube-versions.inc
+. /etc/profile.d/proxy.sh
 
 ARCH=$(uname -m | sed 's/x86_64/amd64/')
 # Install clusterctl
