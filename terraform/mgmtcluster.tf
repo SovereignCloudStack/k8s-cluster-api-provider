@@ -85,9 +85,8 @@ resource "openstack_compute_instance_v2" "mgmtcluster_server" {
 final_message: "The system is finally up, after $UPTIME seconds"
 %{if var.http_proxy != ""}
 apt:
-  conf:
-   http_proxy: "${var.http_proxy}"
-   https_proxy: "${var.http_proxy}"
+  http_proxy: "${var.http_proxy}"
+  https_proxy: "${var.http_proxy}"
 %{endif}
 package_update: true
 package_upgrade: true
