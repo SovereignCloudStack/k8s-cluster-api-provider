@@ -17,6 +17,8 @@
 #
 # (c) Kurt Garloff <garloff@osb-alliance.com>, 3/2022
 # SPDX-License-Identifier: Apache-2.0
+ 
+. /etc/profile.d/proxy.sh
 
 unset KTMPDIR
 cleanup()
