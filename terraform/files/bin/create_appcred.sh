@@ -8,6 +8,8 @@
 # SPDX-License-Identifier: Apache-2.0
 # 
 #Determine whether we need a new application credential
+
+. /etc/profile.d/proxy.sh
 export KUBECONFIG=$HOME/.kube/config
 ~/bin/mng_cluster_ns.inc
 # If the cluster exists already and we don't have a private appcred, leave it alone
