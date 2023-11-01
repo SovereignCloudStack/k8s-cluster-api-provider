@@ -158,6 +158,8 @@ runcmd:
   - apt-get -y install --no-install-recommends --no-install-suggests docker.io yamllint qemu-utils git
   # had to use this workaround due to ordering issues: https://bugs.launchpad.net/cloud-init/+bug/1486113
   - test -f /tmp/docker-proxy-config.json && mkdir -p /home/${var.ssh_username}/.docker && cp /tmp/docker-proxy-config.json /home/${var.ssh_username}/.docker/config.json && chown -R ${var.ssh_username}:${var.ssh_username} /home/${var.ssh_username}/.docker
+  - type snap && snap set system proxy.http="${var.http_proxy}"
+  - type snap && snap set system proxy.https="${var.http_proxy}"
 EOF
 
 }
