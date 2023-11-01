@@ -1,0 +1,10 @@
+---
+use_default_rules: true
+skip_list:
+  - yaml # disabled because we use yamllint
+# Roles and modules imported from https://opendev.org/zuul/zuul-jobs
+mock_roles:
+  - ensure-pip
+  - ensure-terraform
+mock_modules:
+  - zuul_return

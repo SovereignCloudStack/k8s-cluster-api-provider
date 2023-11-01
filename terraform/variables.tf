@@ -61,13 +61,13 @@ variable "ssh_username" {
 variable "calico_version" {
   description = "desired version of calico"
   type        = string
-  default     = "v3.26.1"
+  default     = "v3.26.1" # renovate: datasource=github-releases depName=projectcalico/calico
 }
 
 variable "clusterapi_version" {
   description = "desired version of cluster-api"
   type        = string
-  default     = "1.5.2" # renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api
+  default     = "1.5.3" # renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api
 }
 
 variable "capi_openstack_version" {
@@ -243,6 +243,11 @@ variable "restrict_kubeapi" {
   default     = []
 }
 
+variable "restrict_mgmt_server" {
+  description = "List of IP ranges (CIDRs) that get exclusive access to the SSH port of the management server. Leave empty for all"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+}
 
 variable "capo_instance_create_timeout" {
   description = "time to wait for an openstack machine to be created (in minutes)"

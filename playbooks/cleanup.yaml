@@ -19,11 +19,21 @@
     ENVIRONMENT: "{{ cloud_provider }}"
     PATH: "{{ ansible_user_dir }}/.local/bin:{{ ansible_env.PATH }}"
   tasks:
+  - name: Extract Zuul config
+    ansible.builtin.set_fact:
+      zuul_config: "{{ zuul.change_message | regex_search('(?s)```ZUUL_CONFIG(.+?)```', '\\1', multiline=true) }}"
+    when: zuul.change_message is defined
+  - name: Trim Zuul config
+    ansible.builtin.set_fact:
+      zuul_config: "{{ zuul_config  | first | split('/n') | map('trim') | join('\n') }}"
+    when: zuul_config is defined and zuul_config is not none and zuul_config != ''
   - name: Ensure environment file
-    template:
+    ansible.builtin.template:
       src: "templates/environment.tfvars.j2"
       dest: "{{ project_tf_dir }}/environments/environment-{{ cloud_provider }}.tfvars"
+      mode: "0644"
   - name: Cleanup - forceclean
-    command: "make forceclean"
+    ansible.builtin.command: "make forceclean"
     args:
       chdir: "{{ project_tf_dir }}"
+    changed_when: true

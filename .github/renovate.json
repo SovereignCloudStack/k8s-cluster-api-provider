@@ -2,17 +2,41 @@
   "commitBody": "Signed-off-by: SCS Renovate Bot <renovatebot@scs.community>",
   "gitAuthor": "SCS Renovate Bot <renovatebot@scs.community>",
   "dependencyDashboard": "true",
-  "enabledManagers": ["regex"],
+  "enabledManagers": ["regex", "terraform"],
+  "terraform": {
+    "pinDigests": true
+  },
+  "labels": ["e2e-quick-test"],
   "regexManagers":[
     {
+      "description": "Regex used to match versions without prefix 'v'. Example: capi, capo.",
       "fileMatch":[
-        "^terraform\\/variables.tf","^doc\\/configuration.md"
+        "^terraform\\/variables.tf","^doc\\/configuration.md","^terraform\\/environments\\/environment-default.tfvars"
       ],
       "matchStrings":[
-        "default\\s*= \"(?<currentValue>.*?)\"\\s*# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\n",
-        ".\\|\\s*`(?<currentValue>.*?)`\\s*<!-- renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?) -->"
+	"`(?<currentValue>(\\d+\\.){1,2}(x|\\d+))`\\s*<!-- renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?) -->",
+        "default\\s*= \"(?<currentValue>(\\d+\\.){1,2}(x|\\d+))\"\\s*# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\n"
      ],
      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "description": "Regex used to match versions with prefix 'v'. Example: calico.",
+      "fileMatch":[
+        "^terraform\\/variables.tf","^doc\\/configuration.md","^terraform\\/environments\\/environment-default.tfvars"
+      ],
+      "matchStrings":[
+	"`(?<currentValue>v(\\d+\\.){1,2}(x|\\d+))`\\s*<!-- renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?) -->",
+        "default\\s*= \"(?<currentValue>v(\\d+\\.){1,2}(x|\\d+))\"\\s*# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\n"
+     ]
+    },
+    {
+      "description": "Matcher for k9s (version declared and used in shell script).",
+      "fileMatch":[
+	"^terraform\\/files\\/bin\\/install_k9s.sh"
+      ],
+      "matchStrings":[
+	"K9S_VERSION=(?<currentValue>v(\\d+\\.){1,2}(x|\\d+))\\s# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\n"
+     ]
     }
   ]
 }
