@@ -1,0 +1,4 @@
+DEPLOY_HARBOR=${deploy_harbor}
+%{ for config_key, config_value in harbor_config ~}
+HARBOR_${upper(config_key)}=${config_value}
+%{ endfor ~}
