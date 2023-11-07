@@ -50,6 +50,8 @@ else
   sudo mv kustomize /usr/local/bin/
 fi
 
+install_kube_ps1.sh
+
 # setup aliases and environment
 echo "# setup environment"
 cat <<EOF >> ~/.bash_aliases
@@ -62,8 +64,11 @@ source <( kubectl completion bash )
 # clusterctl
 source <( clusterctl completion bash )
 
+# kube_ps1
+source ~/.kube-ps1/kube-ps1.sh
+
 # Error code in prompt
-PS1="\${PS1%\\\\\$ } [\\\$?]\\\$ "
+PS1="\${PS1%\\\\\$ } \\\$(kube_ps1) [\\\$?]\\\$ "
 # We may do git commits and nano feels unusual ...
 export VISUAL=/usr/bin/vim
 # eof
@@ -87,6 +92,7 @@ install_helm.sh
 deploy_cluster_api.sh
 install_k9s.sh
 get_capi_helm.sh
+install_kubectx.sh
 
 # install Flux CLI always - regardless of deploy_flux variable(it can be used only for version change)
 DEPLOY_FLUX=`yq eval '.DEPLOY_FLUX' ~/cluster-defaults/clusterctl.yaml`

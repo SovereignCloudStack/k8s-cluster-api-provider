@@ -61,13 +61,13 @@ variable "ssh_username" {
 variable "calico_version" {
   description = "desired version of calico"
   type        = string
-  default     = "v3.26.1" # renovate: datasource=github-releases depName=projectcalico/calico
+  default     = "v3.26.3" # renovate: datasource=github-releases depName=projectcalico/calico
 }
 
 variable "clusterapi_version" {
   description = "desired version of cluster-api"
   type        = string
-  default     = "1.5.2" # renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api
+  default     = "1.5.3" # renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api
 }
 
 variable "capi_openstack_version" {

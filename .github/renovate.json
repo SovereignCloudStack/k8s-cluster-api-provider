@@ -2,7 +2,11 @@
   "commitBody": "Signed-off-by: SCS Renovate Bot <renovatebot@scs.community>",
   "gitAuthor": "SCS Renovate Bot <renovatebot@scs.community>",
   "dependencyDashboard": "true",
-  "enabledManagers": ["regex"],
+  "enabledManagers": ["regex", "terraform"],
+  "terraform": {
+    "pinDigests": true
+  },
+  "labels": ["e2e-quick-test"],
   "regexManagers":[
     {
       "description": "Regex used to match versions without prefix 'v'. Example: capi, capo.",
@@ -23,6 +27,15 @@
       "matchStrings":[
 	"`(?<currentValue>v(\\d+\\.){1,2}(x|\\d+))`\\s*<!-- renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?) -->",
         "default\\s*= \"(?<currentValue>v(\\d+\\.){1,2}(x|\\d+))\"\\s*# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\n"
+     ]
+    },
+    {
+      "description": "Matcher for k9s (version declared and used in shell script).",
+      "fileMatch":[
+	"^terraform\\/files\\/bin\\/install_k9s.sh"
+      ],
+      "matchStrings":[
+	"K9S_VERSION=(?<currentValue>v(\\d+\\.){1,2}(x|\\d+))\\s# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\n"
      ]
     }
   ]

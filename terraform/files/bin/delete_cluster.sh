@@ -22,9 +22,6 @@ if echo "$INPODS" | grep nginx >/dev/null 2>&1; then
 	echo -en " Delete ingress \n "
 	timeout 150 kubectl $KCONTEXT delete -f ~/${CLUSTER_NAME}/deployed-manifests.d/nginx-ingress.yaml
 fi
-# Delete pods with persistent volume claims
-echo "Deleting pods with persistent volume claims ..."
-kubectl $KCONTEXT get pods --all-namespaces -o=jsonpath="{'set -x\n'}{range .items[?(@.spec.volumes[*].persistentVolumeClaim.claimName)]}{'kubectl $KCONTEXT delete pod '}{.metadata.name}{' -n '}{.metadata.namespace}{' --grace-period=0 --ignore-not-found=true\n'}{end}" | bash
 # Delete deployments with persistent volume claims
 echo "Deleting deployments with persistent volume claims ..."
 kubectl $KCONTEXT get deployments --all-namespaces -o=jsonpath="{'set -x\n'}{range .items[?(@.spec.template.spec.volumes[*].persistentVolumeClaim.claimName)]}{'kubectl $KCONTEXT delete deployment '}{.metadata.name}{' -n '}{.metadata.namespace}{' --grace-period=0 --ignore-not-found=true\n'}{end}" | bash
@@ -40,15 +37,15 @@ kubectl $KCONTEXT get cronjobs --all-namespaces -o=jsonpath="{'set -x\n'}{range 
 # Delete all Jobs
 echo "Deleting all Jobs ..."
 kubectl $KCONTEXT get jobs --all-namespaces -o=jsonpath="{'set -x\n'}{range .items[*]}{'kubectl $KCONTEXT delete job '}{.metadata.name}{' -n '}{.metadata.namespace}{' --grace-period=0 --force\n'}{end}" | bash
+# Delete pods with persistent volume claims
+echo "Deleting pods with persistent volume claims ..."
+kubectl $KCONTEXT get pods --all-namespaces -o=jsonpath="{'set -x\n'}{range .items[?(@.spec.volumes[*].persistentVolumeClaim.claimName)]}{'kubectl $KCONTEXT delete pod '}{.metadata.name}{' -n '}{.metadata.namespace}{' --grace-period=0 --ignore-not-found=true\n'}{end}" | bash
 # Delete persistent volume claims
 echo "Delete persistent volume claims"
 kubectl $KCONTEXT get pvc --all-namespaces -o=jsonpath="{'set -x\n'}{range .items[*]}{'kubectl $KCONTEXT delete pvc '}{.metadata.name}{' -n '}{.metadata.namespace}{' --grace-period=0 --ignore-not-found=true --wait\n'}{end}" | bash
 # Delete Persistent Volumes
 echo "Deleting all Persistent Volumes..."
 kubectl $KCONTEXT get pv -o=jsonpath="{'set -x\n'}{range .items[*]}{'kubectl $KCONTEXT delete pv '}{.metadata.name}{'  --grace-period=0 --ignore-not-found=true --wait\n'}{end}" | bash
-# Delete workload pods
-echo "Deleting pods ..."
-kubectl $KCONTEXT get pods --all-namespaces -o=jsonpath="{'set -x\n'}{range .items[*]}{'kubectl $KCONTEXT delete pod '}{.metadata.name}{' -n '}{.metadata.namespace}{' --grace-period=0 --ignore-not-found=true\n'}{end}" | bash
 # Delete all deployments
 echo "Deleting all deployments ..."
 kubectl $KCONTEXT get deployments --all-namespaces -o=jsonpath="{'set -x\n'}{range .items[*]}{'kubectl $KCONTEXT delete deployment '}{.metadata.name}{' -n '}{.metadata.namespace}{' --grace-period=0 --ignore-not-found=true\n'}{end}" | bash
@@ -58,6 +55,9 @@ kubectl $KCONTEXT get daemonsets --all-namespaces -o=jsonpath="{'set -x\n'}{rang
 # Delete all statefulsets
 echo "Deleting all statefulsets ..."
 kubectl $KCONTEXT get statefulsets --all-namespaces -o=jsonpath="{'set -x\n'}{range .items[*]}{'kubectl $KCONTEXT delete statefulset '}{.metadata.name}{' -n '}{.metadata.namespace}{' --grace-period=0 --ignore-not-found=true\n'}{end}" | bash
+# Delete workload pods
+echo "Deleting pods ..."
+kubectl $KCONTEXT get pods --all-namespaces -o=jsonpath="{'set -x\n'}{range .items[*]}{'kubectl $KCONTEXT delete pod '}{.metadata.name}{' -n '}{.metadata.namespace}{' --grace-period=0 --ignore-not-found=true\n'}{end}" | bash
 # Delete all Ingress
 echo "Deleting all Ingress ..."
 kubectl $KCONTEXT get ingress --all-namespaces -o=jsonpath="{'set -x\n'}{range .items[*]}{'kubectl $KCONTEXT delete ingress '}{.metadata.name}{' -n '}{.metadata.namespace}{' --grace-period=0 --ignore-not-found=true\n'}{end}" | bash
