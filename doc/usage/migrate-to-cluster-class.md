@@ -5,6 +5,8 @@ From [#600](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull
 new clusters, additionally see k8s [blog](https://kubernetes.io/blog/2021/10/08/capi-clusterclass-and-managed-topologies/).
 This feature is also used e.g. in the SCS [cluster-stacks](https://github.com/SovereignCloudStack/cluster-stacks) repository.
 
+> Note: For now, ClusterClass is created per Cluster, which is not optimal and most likely it can be improved.
+
 Therefore, existing clusters must be migrated from 'old' cluster templates to 'new' cluster class based templates.
 Based on ClusterClass [proposal](https://github.com/kubernetes-sigs/cluster-api/blob/main/docs/proposals/20210526-cluster-class-and-managed-topologies.md#upgrade-strategy)
 of update strategy, we shouldn't be able to migrate, but in CAPI PR [#6292](https://github.com/kubernetes-sigs/cluster-api/pull/6292)
@@ -19,7 +21,7 @@ patches existing cluster resources. In the end, it patches the **Cluster** objec
 ## Migration
 
 ### Prerequisites
-- CAPI v1.5.2 due to [NamingStrategy](https://cluster-api.sigs.k8s.io/tasks/experimental-features/cluster-class/write-clusterclass#clusterclass-with-custom-naming-strategies) feature
+- CAPI >= v1.5.2 due to [NamingStrategy](https://cluster-api.sigs.k8s.io/tasks/experimental-features/cluster-class/write-clusterclass#clusterclass-with-custom-naming-strategies) feature
   - upgrade can be performed as stated in upgrade [guide](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/doc/Upgrade-Guide.md#updating-cluster-api-and-openstack-cluster-api-provider)
 
 ### Steps
