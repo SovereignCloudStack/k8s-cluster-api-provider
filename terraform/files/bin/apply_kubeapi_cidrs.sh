@@ -25,8 +25,8 @@ get_own_fip()
 # Ignore none, always add own FIP
 kustomize_cluster_cidrs()
 {
-	# Use default service account to extract cluster namespace
-	OPENSTACK_CLUSTER_NAMESPACE=$(kubectl get sa default -o jsonpath='{.metadata.namespace}')
+	# Namespace is the same as cluster name
+	OPENSTACK_CLUSTER_NAMESPACE=$(kubectl get ns $CLUSTER_NAME -o jsonpath='{.metadata.name}' 2>/dev/null)
 	KPATCH=~/${CLUSTER_NAME}/restrict-kubeapi-cidr.yaml
 	cat >$KPATCH <<EOT
 ---
@@ -34,7 +34,7 @@ apiVersion: infrastructure.cluster.x-k8s.io/v1alpha7
 kind: OpenStackCluster
 metadata:
   name: ${CLUSTER_NAME}
-  namespace: ${OPENSTACK_CLUSTER_NAMESPACE}
+  namespace: ${OPENSTACK_CLUSTER_NAMESPACE:-default}
 spec:
   allowAllInClusterTraffic: true
   apiServerLoadBalancer:
