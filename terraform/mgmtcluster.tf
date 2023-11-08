@@ -91,7 +91,8 @@ apt:
 package_update: true
 package_upgrade: true
 write_files:
-  - content: |
+  - path: /tmp/daemon.json
+    content: |
       {
         %{if var.http_proxy != ""}
         "proxies": {
@@ -103,15 +104,15 @@ write_files:
         "mtu": ${var.kind_mtu}
       }
     owner: root:root
-    path: /tmp/daemon.json
     permissions: '0644'
-  - content: |
+  - path: /etc/needrestart/conf.d/needrestart.conf
+    content: |
       $nrconf{kernelhints} = -1;
       $nrconf{restart} = 'a';
     owner: root:root
-    path: /etc/needrestart/conf.d/needrestart.conf
     permissions: '0644'
-  - content: |
+  - path: /etc/profile.d/proxy.sh
+    content: |
       PROXY="${var.http_proxy}"
       if [[ ! -z "$PROXY" ]]; then
         export HTTP_PROXY=$PROXY
@@ -122,10 +123,10 @@ write_files:
         export no_proxy=172.18.0.0/16,fc00:f853:ccd:e793::/64,10.96.0.0/16,10.244.0.0/16,kind-control-plane,.svc,.svc.cluster,.svc.cluster.local
       fi
     owner: root:root
-    path: /etc/profile.d/proxy.sh
     permissions: '0644'
   %{if var.http_proxy != ""}
-  - content: |
+  - path: /tmp/docker-proxy-config.json
+    content: |
       {
         "proxies": {
           "default": {
@@ -136,7 +137,6 @@ write_files:
         }
        }
     owner: root:root
-    path: /tmp/docker-proxy-config.json
     permissions: '0644'
     %{endif}
 
@@ -152,7 +152,7 @@ runcmd:
   - sysctl -w -p /etc/sysctl.d/90-conntrack_max.conf
   - mkdir /etc/docker
   - HOME=/home/${var.ssh_username} /tmp/get_mtu.sh
-  - cp /tmp/daemon.json /etc/docker/daemon.json
+  - mv /tmp/daemon.json /etc/docker/daemon.json
   - groupadd docker
   - usermod -aG docker ${var.ssh_username}
   - apt-get -y install --no-install-recommends --no-install-suggests docker.io yamllint qemu-utils git
