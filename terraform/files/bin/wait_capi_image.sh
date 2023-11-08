@@ -21,4 +21,3 @@ while test $ctr -lt 180; do
   sleep 10
 done
 if test $ctr -ge 180; then echo "TIMEOUT"; exit 2; fi
-

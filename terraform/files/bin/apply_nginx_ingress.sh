@@ -1,7 +1,16 @@
 #!/bin/bash
-export KUBECONFIG=~/.kube/config
+
+# imports
+. ~/bin/utils.inc
 . ~/bin/cccfg.inc
 . ~/$CLUSTER_NAME/harbor-settings
+
+# Switch to capi workload cluster
+if [ -z ${KCONTEXT} ]; then
+  setup_kubectl_context_workspace
+  set_workload_cluster_kubectl_namespace
+fi
+
 # Are we enabled? Has a version been set explicitly?
 DEPLOY_NGINX_INGRESS=$(yq eval '.DEPLOY_NGINX_INGRESS' $CCCFG)
 if test "$DEPLOY_NGINX_INGRESS" = "false" -a "$DEPLOY_HARBOR" = "true" -a -n "$HARBOR_DOMAIN_NAME"; then
@@ -36,5 +45,4 @@ else
 fi
 sed -i "s@set-real-ip-from: .*\$@set-real-ip-from: \"${NODE_CIDR}\"@" ~/$CLUSTER_NAME/deployed-manifests.d/nginx-ingress.yaml
 sed -i "s@proxy-real-ip-cidr: .*\$@proxy-real-ip-cidr: \"${NODE_CIDR}\"@" ~/$CLUSTER_NAME/deployed-manifests.d/nginx-ingress.yaml
-kubectl $KCONTEXT apply -f ~/$CLUSTER_NAME/deployed-manifests.d/nginx-ingress.yaml
-
+kubectl --context=$KCONTEXT apply -f ~/$CLUSTER_NAME/deployed-manifests.d/nginx-ingress.yaml
