@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Fill in OPENSTACK_CLOUD_YAML_B64, OPENSTACK_CLOUD_PROVIDER_CONF_B64,
 #  OPENSTACK_CLOUD_CACERT_B64 into clusterctl.yaml
-
+. /etc/profile.d/proxy.sh
 # yq installation done by bootstrap.sh
 #sudo snap install yq
 if test -z "$1"; then CLUSTER_NAME="cluster-defaults"; else CLUSTER_NAME="$1"; fi

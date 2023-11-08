@@ -1,4 +1,5 @@
 #!/bin/bash
+. /etc/profile.d/proxy.sh
 # This checks out
 if test -e capi-helm-charts; then
 	echo "Updating capi-helm-charts"
