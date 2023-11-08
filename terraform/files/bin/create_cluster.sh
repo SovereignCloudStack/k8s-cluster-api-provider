@@ -5,30 +5,10 @@
 
 STARTTIME=$(date +%s)
 
-wait_for_k8s_resource_matching() {
-  local SLEEP=0
-  until kubectl $2 get $1 -o=jsonpath='{.metadata.name}' >/dev/null 2>&1; do
-    echo "[${SLEEP}s] Waiting for $1"
-    sleep 10
-    let SLEEP+=10
-  done
-}
-
-wait_for_k8s_resources_matching() {
-  local SLEEP=0
-  until [ ! -z $(kubectl $3 get $2 --template '{{if len .items}}{{with index .items 0}}{{.metadata.name}}{{end}}{{end}}') ]; do
-    echo "[${SLEEP}s] Waiting for $1"
-    sleep 10
-    let SLEEP+=10
-  done
-}
-
-# variables
-. ~/.capi-settings
+# imports
+. ~/bin/utils.inc
 . ~/bin/cccfg.inc
 . ~/bin/openstack-kube-versions.inc
-
-export PREFIX CLUSTER_NAME
 
 # Ensure directory for cluster exists
 if test ! -d ~/$CLUSTER_NAME; then
@@ -64,7 +44,10 @@ fi
 
 CCCFG="$HOME/${CLUSTER_NAME}/clusterctl.yaml"
 fixup_k8s_version.sh $CCCFG || exit 1
-~/bin/mng_cluster_ns.inc
+
+# Switch to capi mgmt cluster
+setup_kubectl_context_workspace
+set_workload_cluster_kubectl_namespace
 
 # Add containerd registry host and cert files
 configure_containerd.sh $CLUSTERAPI_TEMPLATE $CLUSTER_NAME || exit 1
@@ -80,9 +63,6 @@ export OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)
 # Ensure image is there
 wait_capi_image.sh "$1" || exit 1
 
-# Switch to capi mgmt cluster
-export KUBECONFIG=$HOME/.kube/config
-~/bin/mng_cluster_ns.inc
 # get the needed clusterapi-variables
 echo "# show used variables for clustertemplate ${CLUSTERAPI_TEMPLATE}"
 
@@ -132,7 +112,6 @@ else
 fi
 
 KCCCFG="--config $CCCFG"
-#clusterctl $KCCCFG config cluster ${CLUSTER_NAME} --list-variables --from ${CLUSTERAPI_TEMPLATE}
 clusterctl $KCCCFG generate cluster "${CLUSTER_NAME}" --list-variables --from ${CLUSTERAPI_TEMPLATE} || exit 2
 
 # the needed variables are read from $HOME/.cluster-api/clusterctl.yaml
@@ -147,7 +126,7 @@ if test -e ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml; then
     sleep 6
   fi
 fi
-#clusterctl $KCCCFG config cluster ${CLUSTER_NAME} --from ${CLUSTERAPI_TEMPLATE} > rendered-${CLUSTERAPI_TEMPLATE}
+
 clusterctl $KCCCFG generate cluster "${CLUSTER_NAME}" --from ${CLUSTERAPI_TEMPLATE} >~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
 # Remove empty serverGroupID
 sed -i '/^ *serverGroupID: nonono$/d' ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml
@@ -179,29 +158,28 @@ kubectl wait --timeout=8m --for=condition=Ready machine -l cluster.x-k8s.io/cont
 kubectl get secrets "${CLUSTER_NAME}-kubeconfig" --output go-template='{{ .data.value | base64decode }}' >"${KUBECONFIG_WORKLOADCLUSTER}" || exit 5
 chmod 0600 "${KUBECONFIG_WORKLOADCLUSTER}"
 echo "INFO: kubeconfig for ${CLUSTER_NAME} in ${KUBECONFIG_WORKLOADCLUSTER}"
-export KUBECONFIG="$HOME/.kube/config:${KUBECONFIG_WORKLOADCLUSTER}"
-MERGED=$(mktemp merged.yaml.XXXXXX)
-kubectl config view --flatten >$MERGED
-mv $MERGED $HOME/.kube/config
-export KUBECONFIG=$HOME/.kube/config
+
+KUBECONFIG="${KUBECONFIG_ORIG}:${KUBECONFIG_WORKLOADCLUSTER}" kubectl config view --flatten >$KUBECONFIG
+cp $KUBECONFIG $KUBECONFIG_ORIG
+set_workload_cluster_kubectl_namespace
 
 # Waiting for api-server
-wait_for_k8s_resource_matching daemonset/kube-proxy "${KCONTEXT} -n kube-system"
+wait_for_k8s_resource_matching daemonset/kube-proxy "--context=${KCONTEXT} -n kube-system"
 
 # CNI
 echo "# Waiting for kube-proxy=Ready"
-kubectl $KCONTEXT -n kube-system wait --for=condition=ready --timeout=5m pods -l k8s-app=kube-proxy
+kubectl --context=$KCONTEXT -n kube-system wait --for=condition=ready --timeout=5m pods -l k8s-app=kube-proxy
 
 echo "# Deploy services (CNI, OCCM, CSI, Metrics, Cert-Manager, Flux2, Ingress)"
 MTU_VALUE=$(yq eval '.MTU_VALUE' $CCCFG)
 if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
   DEPLOY_GATEWAY_API=$(yq eval '.DEPLOY_GATEWAY_API == true' $CCCFG)
   if test "${DEPLOY_GATEWAY_API}" = "true"; then
-    KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.1/config/crd/standard/gateway.networking.k8s.io_gatewayclasses.yaml
-    KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.1/config/crd/standard/gateway.networking.k8s.io_gateways.yaml
-    KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.1/config/crd/standard/gateway.networking.k8s.io_httproutes.yaml
-    KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.1/config/crd/standard/gateway.networking.k8s.io_referencegrants.yaml
-    KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.1/config/crd/experimental/gateway.networking.k8s.io_tlsroutes.yaml
+    kubectl --context=$KCONTEXT apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.1/config/crd/standard/gateway.networking.k8s.io_gatewayclasses.yaml
+    kubectl --context=$KCONTEXT apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.1/config/crd/standard/gateway.networking.k8s.io_gateways.yaml
+    kubectl --context=$KCONTEXT apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.1/config/crd/standard/gateway.networking.k8s.io_httproutes.yaml
+    kubectl --context=$KCONTEXT apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.1/config/crd/standard/gateway.networking.k8s.io_referencegrants.yaml
+    kubectl --context=$KCONTEXT apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.1/config/crd/experimental/gateway.networking.k8s.io_tlsroutes.yaml
   fi
   # FIXME: Do we need to allow overriding MTU here as well?
   CILIUM_VERSION="v1.14.1"
@@ -222,7 +200,7 @@ else
     curl -L https://raw.githubusercontent.com/projectcalico/calico/$CALICO_VERSION/manifests/calico.yaml -o ~/kubernetes-manifests.d/calico-${CALICO_VERSION}.yaml
   fi
   sed "s/\(veth_mtu.\).*/\1 \"${MTU_VALUE}\"/g" ~/kubernetes-manifests.d/calico-${CALICO_VERSION}.yaml >~/$CLUSTER_NAME/deployed-manifests.d/calico.yaml
-  kubectl $KCONTEXT apply -f ~/$CLUSTER_NAME/deployed-manifests.d/calico.yaml
+  kubectl --context=$KCONTEXT apply -f ~/$CLUSTER_NAME/deployed-manifests.d/calico.yaml
 fi
 
 # OpenStack, Cinder
@@ -272,9 +250,8 @@ if test "$DEPLOY_NGINX_INGRESS" = "true" -o "${DEPLOY_NGINX_INGRESS:0:1}" = "v";
 fi
 
 echo "# Wait for control plane of ${CLUSTER_NAME}"
-~/bin/mng_cluster_ns.inc
 kubectl wait --timeout=20m cluster "${CLUSTER_NAME}" --for=condition=Ready || exit 10
-#kubectl config use-context "${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
+
 if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
   KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium status --wait
   echo "INFO: Use KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium connectivity test for testing CNI"
@@ -284,20 +261,20 @@ fi
 if test "$DEPLOY_HARBOR" = "true"; then
   deploy_harbor.sh "$CLUSTER_NAME" || exit $?
   echo "SUCCESS: Harbor deployed in cluster ${CLUSTER_NAME}"
-  echo "INFO: For admin password use kubectl $KCONTEXT get secret harbor-secrets -o jsonpath='{.data.values\.yaml}' | base64 -d | yq .harborAdminPassword"
+  echo "INFO: For admin password use kubectl --context=$KCONTEXT get secret harbor-secrets -o jsonpath='{.data.values\.yaml}' | base64 -d | yq .harborAdminPassword"
   echo "INFO: You can access it via k8s service 'harbor', e.g. http://harbor."
   echo "INFO: If you deployed Harbor with domain name and ingress"
-  echo "INFO: use kubectl $KCONTEXT -n ingress-nginx get svc ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress}'"
+  echo "INFO: use kubectl --context=$KCONTEXT -n ingress-nginx get svc ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress}'"
   echo "INFO: , take LoadBalancer IP address and create DNS record for Harbor so certificate can be issued."
   echo "INFO: Then you can access it at https://${HARBOR_DOMAIN_NAME:-domain_name}"
 fi
 
 # Output some information on the cluster ...
-kubectl $KCONTEXT get pods --all-namespaces
+kubectl --context=$KCONTEXT get pods --all-namespaces
 kubectl get openstackclusters
 clusterctl $KCCCFG describe cluster ${CLUSTER_NAME} --grouping=false
 # Hints
-echo "INFO: Use kubectl $KCONTEXT wait --for=condition=Ready --timeout=10m -n kube-system pods --all to wait for all cluster components to be ready"
-echo "INFO: Pass $KCONTEXT parameter to kubectl or use KUBECONFIG=$KUBECONFIG_WORKLOADCLUSTER to control the workload cluster"
+echo "INFO: Use kubectl --context=$KCONTEXT wait --for=condition=Ready --timeout=10m -n kube-system pods --all to wait for all cluster components to be ready"
+echo "INFO: Pass --context=$KCONTEXT parameter to kubectl or use KUBECONFIG=$KUBECONFIG_WORKLOADCLUSTER to control the workload cluster"
 echo "SUCCESS: Cluster ${CLUSTER_NAME} deployed in $(($(date +%s) - $STARTTIME))s"
 # eof

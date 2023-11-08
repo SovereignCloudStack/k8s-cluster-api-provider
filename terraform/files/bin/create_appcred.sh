@@ -3,19 +3,27 @@
 # Determine whether we need to create a per-cluster application credential
 # and add an appropriate config to the clouds.yaml section.
 # Call clusterctl_template.sh to update clusterctl.yaml
-# 
+#
 # (c) Kurt Garloff <garloff@osb-alliance.com>, 7/2022
 # SPDX-License-Identifier: Apache-2.0
-# 
-#Determine whether we need a new application credential
-export KUBECONFIG=$HOME/.kube/config
-~/bin/mng_cluster_ns.inc
+#
+
+# imports
+. ~/bin/utils.inc
+. ~/bin/cccfg.inc
+
+# Switch to capi workload cluster
+if [ -z ${KCONTEXT} ]; then
+  setup_kubectl_context_workspace
+  set_workload_cluster_kubectl_namespace
+fi
+
 # If the cluster exists already and we don't have a private appcred, leave it alone
 if kubectl get cluster $CLUSTER_NAME >/dev/null 2>&1 && ! grep '^OLD_OPENSTACK_CLOUD' ~/$CLUSTER_NAME/clusterctl.yaml >/dev/null 2>&1; then
 	echo "#Warn: Old style cluster, disable new appcred handling"
 	exit 0
 fi
-if kubectl get cluster $CLUSTER_NAME --namespace default >/dev/null 2>&1 && ! grep '^OLD_OPENSTACK_CLOUD' ~/$CLUSTER_NAME/clusterctl.yaml >/dev/null 2>&1; then
+if kubectl -n default get cluster $CLUSTER_NAME >/dev/null 2>&1 && ! grep '^OLD_OPENSTACK_CLOUD' ~/$CLUSTER_NAME/clusterctl.yaml >/dev/null 2>&1; then
 	echo "#Warn: Old style cluster, disable new appcred handling"
 	exit 0
 fi

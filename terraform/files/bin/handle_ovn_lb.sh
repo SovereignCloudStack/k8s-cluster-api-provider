@@ -7,6 +7,9 @@
 #
 # (c) Kurt Garloff <scs@garloff.de>, 02/2023
 # SPDX-License-Identifier: Apache-2.0
+
+# imports
+. ~/bin/utils.inc
 . ~/bin/cccfg.inc
 
 test_ovn_avail()
