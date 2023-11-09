@@ -29,6 +29,7 @@ Parameters controlling the Cluster-API management server (capi management server
 
 Parameters controlling both management server creation and cluster creation:
 
+
 | environment            | clusterctl.yaml                 | provenance | default                              | meaning                                                                                                                      |
 |------------------------|---------------------------------|------------|--------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
 | `cloud_provider`       | `OPENSTACK_CLOUD`               | capo       |                                      | `OS_CLOUD` name in clouds.yaml                                                                                               |
@@ -37,7 +38,7 @@ Parameters controlling both management server creation and cluster creation:
 | `availability_zone`    | `OPENSTACK_FAILURE_DOMAIN`      | capo       |                                      | Availability Zone(s) for the mgmt node / workload clusters                                                                   |
 | `kind_mtu`             | `MTU_VALUE`                     | SCS        | `0`                                  | MTU for the mgmt server; Calico is set 50 bytes smaller; 0 means autodetection                                               |
 | `restrict_mgmt_server` |                                 | SCS        | `["0.0.0.0/0"]`                      | Allows restricting access to the management server by the given list of CIDRs. Empty value (default) means public.           |
-
+|  http_proxy            |                                 | SCS        |                                      | Global setting for HTTP Proxy is set on the management host including all cluster-api components running in the bootstrap-cluster.  Specify with protocol: e.g "http://10.10.10.10:3128"
 
 ### Parameters clusters
 

@@ -100,6 +100,13 @@ variable "kind_mtu" {
   default     = 0
 }
 
+variable "http_proxy" {
+  description = "HTTP Proxy that is set on the mgmt host as well as on the worker and controlplane nodes of the created cluster."
+  type        = string
+  default     = ""
+}
+
+
 variable "worker_count" {
   description = "number of worker nodes in testcluster"
   type        = number

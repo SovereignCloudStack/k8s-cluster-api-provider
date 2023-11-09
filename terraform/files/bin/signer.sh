@@ -17,6 +17,8 @@
 # Note that a proper CSR handler (in CAPI) is the real solution for valid server
 # certificates. Consider this script a PoC.
 
+. /etc/profile.d/proxy.sh
+
 usage()
 {
 	echo "Usage: signer.sh CLUSTERNAME [OPTIONS]"

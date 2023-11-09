@@ -4,7 +4,7 @@
 # Reference: https://cluster-api-openstack.sigs.k8s.io/clusteropenstack/configuration.html#restrict-access-to-the-api-server
 # (c) Kurt Garloff, 03/2023
 # SPDX-License-Identifier: Apache-2.0
-
+. /etc/profile.d/proxy.sh
 # Test if passed list is empty
 empty_list()
 {
