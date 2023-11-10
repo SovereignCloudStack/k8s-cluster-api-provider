@@ -21,13 +21,14 @@ Parameters controlling the Cluster-API management server (capi management server
 | `kind_flavor`            |                 | SCS        | `SCS-2V-4`        | Flavor to be used for the k8s capi mgmt server                                                             |
 | `image`                  |                 | SCS        | `Ubuntu 22.04`    | Image for the capi mgmt server. Use `Ubuntu 22.04` or `Debian 12`. Check also the `ssh_username` parameter |
 | `ssh_username`           |                 | SCS        | `ubuntu`          | Name of the default user for the `image`                                                                   |
-| `clusterapi_version`     |                 | SCS        | `1.5.2` <!-- renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api -->          | Version of the cluster-API incl. `clusterctl`                                                              |
+| `clusterapi_version`     |                 | SCS        | `1.5.3` <!-- renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api -->          | Version of the cluster-API incl. `clusterctl`                                                              |
 | `capi_openstack_version` |                 | SCS        | `0.8.0` <!-- renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api-provider-openstack -->         | Version of the cluster-api-provider-openstack (needs to fit the CAPI version)                              |
 | `cilium_binaries`        |                 | SCS        | `v0.15.7;v0.12.0` | Versions of the cilium and hubble CLI in the vA.B.C;vX.Y.Z format                                          |
 
 ### Common parameters management server and clusters
 
 Parameters controlling both management server creation and cluster creation:
+
 
 | environment            | clusterctl.yaml                 | provenance | default                              | meaning                                                                                                                      |
 |------------------------|---------------------------------|------------|--------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
@@ -37,7 +38,7 @@ Parameters controlling both management server creation and cluster creation:
 | `availability_zone`    | `OPENSTACK_FAILURE_DOMAIN`      | capo       |                                      | Availability Zone(s) for the mgmt node / workload clusters                                                                   |
 | `kind_mtu`             | `MTU_VALUE`                     | SCS        | `0`                                  | MTU for the mgmt server; Calico is set 50 bytes smaller; 0 means autodetection                                               |
 | `restrict_mgmt_server` |                                 | SCS        | `["0.0.0.0/0"]`                      | Allows restricting access to the management server by the given list of CIDRs. Empty value (default) means public.           |
-
+|  http_proxy            |                                 | SCS        |                                      | Global setting for HTTP Proxy is set on the management host including all cluster-api components running in the bootstrap-cluster.  Specify with protocol: e.g "http://10.10.10.10:3128"
 
 ### Parameters clusters
 
@@ -49,7 +50,7 @@ Parameters controlling the cluster creation:
 | `pod_cidr`                       | `POD_CIDR`                                      | SCS        | `192.168.0.0/16`                                         | IPv4 address range (CIDR notation) for pods                                                                                                                                                                |
 | `service_cidr`                   | `SERVICE_CIDR`                                  | SCS        | `10.96.0.0/12`                                           | IPv4 address range (CIDR notation) for services                                                                                                                                                            |
 | `use_cilium`                     | `USE_CILIUM`                                    | SCS        | `true`                                                   | Use cilium as CNI instead of calico, it can be set to vX.Y.Z and `true` results in `v1.14.1`, also see `cilium_binaries`                                                                                   |
-| `calico_version`                 | `CALICO_VERSION`                                | SCS        | `v3.26.1` <!-- renovate: datasource=github-releases depName=projectcalico/calico -->                                                | Version of the Calico CNI provider (ignored if `use_cilium` is set)                                                                                                                                        |
+| `calico_version`                 | `CALICO_VERSION`                                | SCS        | `v3.26.3` <!-- renovate: datasource=github-releases depName=projectcalico/calico -->                                                | Version of the Calico CNI provider (ignored if `use_cilium` is set)                                                                                                                                        |
 | `kubernetes_version`             | `KUBERNETES_VERSION`                            | capo       | `v1.27.x`                                                | Kubernetes version deployed into workload cluster (`.x` means latest patch release)                                                                                                                        |
 | ``                               | `OPENSTACK_IMAGE_NAME`                          | capo       | `ubuntu-capi-image-${KUBERNETES_VERION}`                 | Image name for k8s controller and worker nodes. Ubuntu 22.04 image is used for k8s versions >= 1.27.3, 1.26.6, 1.25.11, Ubuntu 20.04 otherwise.                                                            |
 | `kube_image_raw`                 | `OPENSTACK_IMAGE_RAW`                           | SCS        | `true`                                                   | Register images in raw format (instead of qcow2), good for ceph COW                                                                                                                                        |

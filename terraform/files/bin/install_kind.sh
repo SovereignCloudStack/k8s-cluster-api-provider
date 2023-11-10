@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. /etc/profile.d/proxy.sh
 KIND_VERSION=0.20.0
 sudo wget -O /usr/local/bin/kind https://github.com/kubernetes-sigs/kind/releases/download/v${KIND_VERSION}/kind-linux-amd64
 sudo chmod +x /usr/local/bin/kind

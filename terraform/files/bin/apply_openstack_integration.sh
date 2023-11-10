@@ -1,9 +1,17 @@
 #!/bin/bash
-export KUBECONFIG=~/.kube/config
+
+# imports
+. ~/bin/utils.inc
 . ~/bin/cccfg.inc
 . ~/bin/openstack-kube-versions.inc
 
-kubectl $KCONTEXT create secret generic cloud-config --from-file="$HOME/$CLUSTER_NAME/"cloud.conf -n kube-system #|| exit 6
+# Switch to capi workload cluster
+if [ -z ${KCONTEXT} ]; then
+  setup_kubectl_context_workspace
+  set_workload_cluster_kubectl_namespace
+fi
+
+kubectl --context=$KCONTEXT create secret generic cloud-config --from-file="$HOME/$CLUSTER_NAME/"cloud.conf -n kube-system #|| exit 6
 
 cd ~/kubernetes-manifests.d
 # install external cloud-provider openstack
@@ -61,6 +69,5 @@ else
 	    -e "/^        \- \/bin\/openstack\-cloud\-controller\-manager/a\        - --cluster-name=${CLUSTER_NAME}" $OCCM > ~/${CLUSTER_NAME}/deployed-manifests.d/openstack-cloud-controller-manager.yaml
 fi
 cp -p $CCMR ~/${CLUSTER_NAME}/deployed-manifests.d/cloud-controller-manager-rbac.yaml
-kubectl $KCONTEXT apply -f ~/${CLUSTER_NAME}/deployed-manifests.d/cloud-controller-manager-rbac.yaml || exit 7
-kubectl $KCONTEXT apply -f ~/${CLUSTER_NAME}/deployed-manifests.d/openstack-cloud-controller-manager.yaml || exit 7
-
+kubectl --context=$KCONTEXT apply -f ~/${CLUSTER_NAME}/deployed-manifests.d/cloud-controller-manager-rbac.yaml || exit 7
+kubectl --context=$KCONTEXT apply -f ~/${CLUSTER_NAME}/deployed-manifests.d/openstack-cloud-controller-manager.yaml || exit 7

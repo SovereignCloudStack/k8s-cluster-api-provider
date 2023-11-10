@@ -46,6 +46,21 @@
         dest: "{{ project_dir }}"
         version: "{{ git_branch_name }}"
       when: zuul.change is defined  # execute when the e2e pipeline is initiated on a PR
+    - name: Extract Zuul config
+      ansible.builtin.set_fact:
+        zuul_config: "{{ zuul.change_message | regex_search('(?s)```ZUUL_CONFIG(.+?)```', '\\1', multiline=true) }}"
+      when: zuul.change_message is defined
+    - name: Trim Zuul config
+      ansible.builtin.set_fact:
+        zuul_config: "{{ zuul_config  | first | split('/n') | map('trim') | join('\n') }}"
+      when: zuul_config is defined and zuul_config is not none and zuul_config != ''
+    - name: Insert custom config into warnings  # noqa: ignore-errors
+      zuul_return:
+        data:
+          zuul:
+            warnings:
+              - "\n\n## Custom ENV config\n\n```\n{{ zuul_config }}\n```\n\n"
+      when: zuul_config is defined and zuul_config is not none and zuul_config != ''
     - name: Create environment file
       ansible.builtin.template:
         src: "templates/environment.tfvars.j2"
