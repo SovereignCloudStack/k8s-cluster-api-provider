@@ -3,6 +3,7 @@
 # Optional args: branch and patch
 # (c) Kurt Garloff <garloff@osb-alliance.com>, 3/2022
 # SPDX-License-Identifier: Apache-2.0
+. /etc/profile.d/proxy.sh
 cd
 getent hosts github.com || sleep 30
 #cd k8s-cluster-api-provider

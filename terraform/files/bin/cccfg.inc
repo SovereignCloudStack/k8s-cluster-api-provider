@@ -1,5 +1,7 @@
 # File to be included
 . ~/.capi-settings
+. /etc/profile.d/proxy.sh
+
 # All three lines needed to support both orders for these parameters
 if test "$1" == "--allow-preview-versions"; then export ALLOW_PREVIEW_VERSIONS=1; shift; fi
 if test "$1" == "--allow-preview-features"; then export ALLOW_PREVIEW_FEATURES=1; shift; fi
@@ -12,6 +14,5 @@ if test -e "$HOME/${CLUSTER_NAME}/clusterctl.yaml"; then
 else
 	CCCFG=$HOME/cluster-defaults/clusterctl.yaml
 fi
-KCONTEXT="--context=${CLUSTER_NAME}-admin@${CLUSTER_NAME}"
-export OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)
 
+export OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)

@@ -1,9 +1,17 @@
 #!/bin/bash
 # deploy_cindercsi.sh
-export KUBECONFIG=~/.kube/config
+
+# imports
+. ~/bin/utils.inc
 . ~/bin/cccfg.inc
 . ~/bin/openstack-kube-versions.inc
 . ~/$CLUSTER_NAME/harbor-settings
+
+# Switch to capi workload cluster
+if [ -z ${KCONTEXT} ]; then
+  setup_kubectl_context_workspace
+  set_workload_cluster_kubectl_namespace
+fi
 
 # apply cinder-csi
 KUBERNETES_VERSION=$(yq eval '.KUBERNETES_VERSION' $CCCFG)
@@ -71,7 +79,7 @@ if test -n "$CCSI_VERSION"; then
 else
   CCSI=cinder.yaml
 fi
-kubectl $KCONTEXT apply -f ~/$CLUSTER_NAME/deployed-manifests.d/cindercsi-snapshot.yaml || exit 8
+kubectl --context=$KCONTEXT apply -f ~/$CLUSTER_NAME/deployed-manifests.d/cindercsi-snapshot.yaml || exit 8
 CACERT=$(print-cloud.py | yq eval '.clouds."'"$OS_CLOUD"'".cacert // "null"' -)
 if test "$CACERT" != "null"; then
   CAMOUNT="/etc/ssl/certs" # see prepare_openstack.sh, CACERT is already injected in the k8s nodes
@@ -90,5 +98,5 @@ fi
 sed "/ *\- name: CLUSTER_NAME/{n
 s/value: .*\$/value: ${CLUSTER_NAME}/
 }" $CCSI > ~/$CLUSTER_NAME/deployed-manifests.d/cindercsi.yaml
-kubectl $KCONTEXT apply -f ~/${CLUSTER_NAME}/deployed-manifests.d/cindercsi.yaml || exit 8
+kubectl --context=$KCONTEXT apply -f ~/${CLUSTER_NAME}/deployed-manifests.d/cindercsi.yaml || exit 8
 

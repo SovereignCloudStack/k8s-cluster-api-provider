@@ -83,22 +83,63 @@ resource "openstack_compute_instance_v2" "mgmtcluster_server" {
 
 #cloud-config
 final_message: "The system is finally up, after $UPTIME seconds"
+%{if var.http_proxy != ""}
+apt:
+  http_proxy: "${var.http_proxy}"
+  https_proxy: "${var.http_proxy}"
+%{endif}
 package_update: true
 package_upgrade: true
 write_files:
-  - content: |
+  - path: /tmp/daemon.json
+    content: |
       {
+        %{if var.http_proxy != ""}
+        "proxies": {
+          "http-proxy": "${var.http_proxy}",
+          "https-proxy": "${var.http_proxy}",
+          "no-proxy": "127.0.0.0/8,172.18.0.0/16,fc00:f853:ccd:e793::/64,10.96.0.0/16,10.244.0.0/16,kind-control-plane,.svc,.svc.cluster,.svc.cluster.local"
+        },
+        %{endif}
         "mtu": ${var.kind_mtu}
       }
     owner: root:root
-    path: /tmp/daemon.json
     permissions: '0644'
-  - content: |
+  - path: /etc/needrestart/conf.d/needrestart.conf
+    content: |
       $nrconf{kernelhints} = -1;
       $nrconf{restart} = 'a';
     owner: root:root
-    path: /etc/needrestart/conf.d/needrestart.conf
     permissions: '0644'
+  - path: /etc/profile.d/proxy.sh
+    content: |
+      PROXY="${var.http_proxy}"
+      if [[ ! -z "$PROXY" ]]; then
+        export HTTP_PROXY=$PROXY
+        export HTTPS_PROXY=$PROXY
+        export http_proxy=$PROXY
+        export https_proxy=$PROXY
+        export NO_PROXY=172.18.0.0/16,fc00:f853:ccd:e793::/64,10.96.0.0/16,10.244.0.0/16,kind-control-plane,.svc,.svc.cluster,.svc.cluster.local
+        export no_proxy=172.18.0.0/16,fc00:f853:ccd:e793::/64,10.96.0.0/16,10.244.0.0/16,kind-control-plane,.svc,.svc.cluster,.svc.cluster.local
+      fi
+    owner: root:root
+    permissions: '0644'
+  %{if var.http_proxy != ""}
+  - path: /tmp/docker-proxy-config.json
+    content: |
+      {
+        "proxies": {
+          "default": {
+            "httpProxy": "${var.http_proxy}",
+            "httpsProxy": "${var.http_proxy}",
+            "noProxy": "127.0.0.0/8,172.18.0.0/16,fc00:f853:ccd:e793::/64,10.96.0.0/16,10.244.0.0/16,kind-control-plane,.svc,.svc.cluster,.svc.cluster.local"
+          }
+        }
+       }
+    owner: root:root
+    permissions: '0644'
+    %{endif}
+
 runcmd:
   # Note: Needrestart is part of the `apt-get upgrade` process from Ubuntu 22.04. By default, it is set to an
   #   "interactive" mode which causes the interruption of scripts. The interactive mode is applied when the new kernel
@@ -115,6 +156,12 @@ runcmd:
   - groupadd docker
   - usermod -aG docker ${var.ssh_username}
   - apt-get -y install --no-install-recommends --no-install-suggests docker.io yamllint qemu-utils git
+  # had to use this workaround due to ordering issues: https://bugs.launchpad.net/cloud-init/+bug/1486113
+  - test -f /tmp/docker-proxy-config.json && mkdir -p /home/${var.ssh_username}/.docker && cp /tmp/docker-proxy-config.json /home/${var.ssh_username}/.docker/config.json && chown -R ${var.ssh_username}:${var.ssh_username} /home/${var.ssh_username}/.docker
+  %{if var.http_proxy != ""}
+  - type snap && snap set system proxy.http="${var.http_proxy}"
+  - type snap && snap set system proxy.https="${var.http_proxy}"
+  %{endif}
 EOF
 
 }

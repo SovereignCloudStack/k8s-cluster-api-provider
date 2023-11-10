@@ -3,10 +3,9 @@
 # so we can talk to the nodes (ssh login, ...) -- for debugging only
 # (c) Kurt Garloff <garloff@osb-alliance.com>, 1/2022
 # SPDX-License-Identifier: Apache-2.0
-export KUBECONFIG=~/.kube/config
+
 . ~/.capi-settings
 . ~/bin/cccfg.inc
-#
 
 OLDNICLIST=($(ls /sys/class/net | sort))
 findnewnic()

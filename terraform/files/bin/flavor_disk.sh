@@ -24,6 +24,8 @@
 # (c) Kurt Garloff <scs@garloff.de>, 6/2023
 # SPDX-License-Identifier: Apache-2.0
 
+. /etc/profile.d/proxy.sh
+
 usage()
 {
 	echo "Usage: flavor_disk.sh FLAVOR [IMAGE]"
