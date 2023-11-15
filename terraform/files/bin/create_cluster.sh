@@ -51,8 +51,13 @@ set_workload_cluster_kubectl_namespace
 
 # Add containerd registry host and cert files
 configure_containerd.sh $CLUSTERAPI_TEMPLATE $CLUSTER_NAME || exit 1
+
 # configure proxy settings for containerd on worker and controlplane nodes
 configure_containerd_proxy.sh $CLUSTERAPI_TEMPLATE || exit 1
+
+# configure proxy settings in /etc/profile.d/proxy.sh
+configure_proxy.sh $CLUSTERAPI_TEMPLATE || exit 1
+
 # Handle wanted OVN loadbalancer
 handle_ovn_lb.sh "$CLUSTER_NAME" || exit 1
 # Determine whether we need a new application credential
