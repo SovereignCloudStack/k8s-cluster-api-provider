@@ -15,7 +15,7 @@ cilium_binaries      = "<v0.aa.bb;v0.xx.yy>"      # defaults to "v0.15.7;v0.12.0
 # Settings for testcluster
 kubernetes_version   = "<v1.XX.XX>"		  # defaults to "v1.27.x"
 kube_image_raw       = "<boolean>"      # defaults to "true"
-calico_version       = "<v3.xx.y>"	# defaults to "v3.26.1"
+calico_version       = "<v3.xx.y>"	# defaults to "v3.26.4"
 controller_flavor    = "<flavor>"       # defaults to SCS-2V-4-20s (use etcd tweaks if you only have SCS-2V-4-20 in multi-controller setups)
 worker_flavor        = "<flavor>"       # defaults to SCS-2V-4-20s  (larger helps)
 controller_count     = <number>         # defaults to 1 (0 skips testcluster creation)
