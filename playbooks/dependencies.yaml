@@ -7,7 +7,7 @@
     kubectl_version: "1.28.1"
     openstackclient_version: "6.2.0"
     octaviaclient_version: "3.4.0"
-    opentofu_version: "1.6.0-alpha4"
+    opentofu_version: "1.6.0-alpha5"
     install_dir: "{{ ansible_user_dir }}/.local/bin"
   environment:
     PATH: "{{ install_dir }}:{{ ansible_env.PATH }}"
