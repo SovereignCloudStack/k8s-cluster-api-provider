@@ -39,6 +39,7 @@ Parameters controlling both management server creation and cluster creation:
 | `kind_mtu`             | `MTU_VALUE`                     | SCS        | `0`                                  | MTU for the mgmt server; Calico is set 50 bytes smaller; 0 means autodetection                                               |
 | `restrict_mgmt_server` |                                 | SCS        | `["0.0.0.0/0"]`                      | Allows restricting access to the management server by the given list of CIDRs. Empty value (default) means public.           |
 |  http_proxy            |                                 | SCS        |                                      | Global setting for HTTP Proxy is set on the management host including all cluster-api components running in the bootstrap-cluster.  Specify with protocol: e.g "http://10.10.10.10:3128"
+|  no_proxy            |                                 | SCS        |                                      | Global setting for HTTP Proxy exception list. If `http_proxy` is not set this setting has no effect. If `http_proxy` is set, the default value for the `NO_PROXY` environment variable on all affected components is set to `.svc,.svc.cluster,.svc.cluster.local,127.0.0.0/8,169.254.169.254/32,fd00:ec2::254/128,${var.node_cidr},${var.pod_cidr},${var.service_cidr}`. The content of `no_proxy` is appended to this list. This setting has no effect on apt and snap commands, the way `http_proxy` is set for apt and snap does not allow the configuration of proxy exceptions.
 
 ### Parameters clusters
 
