@@ -14,7 +14,7 @@
 #     [Service]
 #     Environment="HTTP_PROXY=<$HTTP_PROXY from /etc/profile.d/proxy.sh>"
 #     Environment="HTTPS_PROXY=<$HTTP_PROXY from /etc/profile.d/proxy.sh>"
-#     Environment="NO_PROXY=127.0.0.0/8,172.18.0.0/16,fc00:f853:ccd:e793::/64,10.96.0.0/16,10.244.0.0/16,kind-control-plane,.svc,.svc.cluster,.svc.cluster.local"
+#     Environment="NO_PROXY=<$NO_PROXY from /etc/profile.d/proxy.sh>"
 #   ```
 # - Injects temporary YAML file into $1 (cluster-template.yaml) file (using `yq` in place edit).
 #   Temporary file is injected to the `KubeadmControlPlaneTemplate.spec.template.spec.kubeadmConfigSpec.files` that specifies extra files to be
@@ -40,7 +40,7 @@ export CLUSTER_TEMPLATE_SNIPPET=clustertemplate_snippet
 echo "[Service]" > $SYSTEMD_CONFIG_CONTENT
 echo "Environment=\"HTTP_PROXY=$HTTP_PROXY\"" >> $SYSTEMD_CONFIG_CONTENT
 echo "Environment=\"HTTPS_PROXY=$HTTP_PROXY\"" >> $SYSTEMD_CONFIG_CONTENT
-echo "Environment=\"NO_PROXY=127.0.0.0/8,172.18.0.0/16,fc00:f853:ccd:e793::/64,10.96.0.0/16,10.244.0.0/16,kind-control-plane,.svc,.svc.cluster,.svc.cluster.local\"" >> $SYSTEMD_CONFIG_CONTENT
+echo "Environment=\"NO_PROXY=$NO_PROXY\"" >> $SYSTEMD_CONFIG_CONTENT
 
 
 yq --null-input '
