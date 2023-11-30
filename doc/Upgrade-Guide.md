@@ -10,8 +10,9 @@ state: Draft (v0.7)
 This document explains the steps to upgrade the SCS Kubernetes cluster-API
 based cluster management solution as follows:
 - from the R2 (2022-03) to the R3 (2022-09) state
-- from the R3 (2022-09) to the R4 state
-- from the R4 (2023-09) to the R5 state
+- from the R3 (2022-09) to the R4 (2023-03) state
+- from the R4 (2023-03) to the R5 (2022-09) state
+
 The document explains how the management cluster and the workload clusters can be
 upgraded without disruption. It is highly recommended to do a step-by-step upgrade
 across major releases i.e. upgrade from R2 to R3 and then to R4 in the case of
@@ -23,11 +24,11 @@ take, and it is advisable that cluster operators get some experience with
 this kind of cluster management before applying this to customer clusters
 that carry important workloads.
 
-Note that while the detailed steps are tested and targeted to a R2 -> R3 move,
+Note that while the detailed steps are tested and targeted to an R2 -> R3 move,
 R3 -> R4 move or R4 -> R5 move, many of the steps are a generic approach that will apply also for other
 upgrades, so expect a lot of similar steps when moving beyond R5.
 
-Upgrades from cluster management prior to R2 is difficult; many changes before
+Upgrades from cluster management prior to R2 are difficult; many changes before
 R2 assumed that you would redeploy the management cluster. Redeploying the
 management cluster can of course always be done, but it's typically disruptive
 to your workload clusters, unless you move your cluster management state into
@@ -35,10 +36,10 @@ a new management cluster with `clusterctl move`.
 
 ## Management host (cluster) vs. Workload clusters
 
-When you initially deployed the SCS k8s-cluster-api-provider, you create a
+When you initially deployed the SCS k8s-cluster-api-provider, you created a
 VM with a [kind](https://kind.sigs.k8s.io/) cluster inside and a number of
 templates, scripts and binaries that are then used to do the cluster management.
-This is your management host (or more precisely you single-host management
+This is your management host (or more precisely your single-host management
 cluster). Currently, all cluster management including upgrading etc. is done
 by connecting to this host via ssh and performing commands there. (You don't
 need root privileges to do cluster management there, the normal ubuntu user
@@ -134,8 +135,11 @@ You can now apply the upgrade by executing the following command:
 clusterctl upgrade apply --contract v1beta1
 ```
 
-You can then upgrade the components. You can do them one-by-one or simply do
-`clusterctl upgrade apply --contract v1beta1`
+You can then upgrade the components. You can do them one-by-one, e.g.:
+```bash
+clusterctl upgrade apply --infrastructure capo-system/openstack:v0.7.3 --core capi-system/cluster-api:v1.5.1 -b capi-kubeadm-bootstrap-system/kubeadm:v1.5.1 -c capi-kubeadm-control-plane-system/kubeadm:v1.5.1
+```
+Or simply do `clusterctl upgrade apply --contract v1beta1`.
 
 #### New templates
 
@@ -357,7 +361,7 @@ Follow the below steps if you want to migrate an existing cluster from R4 to R5:
    and are not directly mentioned in the cluster configuration files, but they are hardcoded
    in R5 scripts (e.g. ingress nginx controller, metrics server). Hence, read carefully the
    R5 release notes too. Also see that Kubernetes version was not updated, and it is still v1.25.6.
-6. Update an existing cluster (expect Kubernetes version)
+6. Update an existing cluster (except Kubernetes version)
    ```bash
    create_cluster.sh <CLUSTER_NAME>
    ```
@@ -380,7 +384,7 @@ Follow the below steps if you want to migrate an existing cluster from R4 to R5:
 10. Bump Kubernetes version to R5 v1.27.5 and increase the generation counter for node and control plane nodes
    ```bash
    sed -i 's/^KUBERNETES_VERSION: v1.26.8/KUBERNETES_VERSION: v1.27.5/' <CLUSTER_NAME>/clusterctl.yaml
-   sed -i 's/^OPENSTACK_IMAGE_NAME: ubuntu-capi-image-v1.26.8 /OPENSTACK_IMAGE_NAME: ubuntu-capi-image-v1.27.5/' <CLUSTER_NAME>/clusterctl.yaml
+   sed -i 's/^OPENSTACK_IMAGE_NAME: ubuntu-capi-image-v1.26.8/OPENSTACK_IMAGE_NAME: ubuntu-capi-image-v1.27.5/' <CLUSTER_NAME>/clusterctl.yaml
    sed -r 's/(^CONTROL_PLANE_MACHINE_GEN: genc)([0-9][0-9])/printf "\1%02d" $((\2+1))/ge' -i <CLUSTER_NAME>/clusterctl.yaml
    sed -r 's/(^WORKER_MACHINE_GEN: genw)([0-9][0-9])/printf "\1%02d" $((\2+1))/ge' -i <CLUSTER_NAME>/clusterctl.yaml
    ```
@@ -395,7 +399,7 @@ OCCM, CNI (calico/cilium), CSI
 
 ### New versions for optional components
 
-nginx, metrics (nothing to do), cert-manager, flux
+nginx, metrics server, cert-manager, flux
 
 ### etcd leader changes
 
