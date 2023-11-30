@@ -25,6 +25,8 @@ Parameters controlling the Cluster-API management server (capi management server
 | `capi_openstack_version` |                 | SCS        | `0.8.0` <!-- renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api-provider-openstack -->         | Version of the cluster-api-provider-openstack (needs to fit the CAPI version)                              |
 | `cilium_binaries`        |                 | SCS        | `v0.15.7;v0.12.0` | Versions of the cilium and hubble CLI in the vA.B.C;vX.Y.Z format                                          |
 | `restrict_mgmt_server` |                                 | SCS        | `["0.0.0.0/0"]`                      | Allows restricting access to the management server by the given list of CIDRs. Empty value (default) means public.           |
+| `mgmt_cidr`              |                 | SCS        | `10.0.0.0/24` | IPv4 address range (CIDR notation) for management cluster                                          |
+| `mgmt_ip_range`          |                 | SCS        | `{start:"10.0.0.11", end:"10.0.0.254"}` | IP range from defined `mgmt_cidr` variable for management cluster. It is recommended to reserve the first 10 IPs.                                          |
 
 ### Common parameters management server and clusters
 
