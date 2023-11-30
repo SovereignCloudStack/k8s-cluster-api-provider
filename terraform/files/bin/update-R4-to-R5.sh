@@ -46,8 +46,7 @@ cp -p cluster-template.yaml cluster-template.yaml.backup
 cp -p clusterctl.yaml clusterctl.yaml.backup
 
 # Update cluster-template.yaml
-# TODO: Update `update-cluster-template.diff` file when R5 release will be stabilized
-if grep -q "SERVICE_CIDR\|POD_CIDR\|# Defragment & backup & trim script for SCS k8s-cluster-api-provider etcd cluster.\|# Allow to configure registry hosts in containerd" cluster-template.yaml; then
+if grep -q "SERVICE_CIDR\|POD_CIDR\|# Defragment & backup & trim script for SCS k8s-cluster-api-provider etcd cluster.\|# Allow to configure registry hosts in containerd\|tweak-kubeapi-memlimit" cluster-template.yaml; then
   echo "cluster-template.yaml already updated"
 else
   # The default template file `cluster-defaults/cluster-template.yaml` of version R4 still references the old `k8s.gcr.io` container registry.
