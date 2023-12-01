@@ -1,0 +1,12 @@
+---
+- name: Run mqtt-matrix bridge test
+  hosts: all
+  tasks:
+   - name: Print a test message
+     ansible.builtin.debug:
+       msg: "Hello from zuul!"
+   - name: Force a failure >:-)
+     ansible.builtin.command: /bin/false
+   - name: Never print this
+     ansible.builtin.debug:
+       msg: "I never execute, due to the above task failing, :-("
