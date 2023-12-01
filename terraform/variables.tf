@@ -106,6 +106,12 @@ variable "http_proxy" {
   default     = ""
 }
 
+variable "no_proxy" {
+  description = "HTTP Proxy exception list."
+  type        = string
+  default     = ""
+}
+
 
 variable "worker_count" {
   description = "number of worker nodes in testcluster"
