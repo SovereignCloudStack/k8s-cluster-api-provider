@@ -327,3 +327,21 @@ variable "harbor_config" {
   EOF
   default     = {}
 }
+
+variable "mgmt_cidr" {
+  description = "network address (CIDR) for management cluster"
+  type        = string
+  default     = "10.0.0.0/24"
+}
+
+variable "mgmt_ip_range" {
+  description = "IP range from defined `mgmt_cidr` variable for management cluster. It is recommended to reserve the first 10 IPs."
+  type = object({
+    start = string
+    end   = string
+  })
+  default = {
+    start = "10.0.0.11"
+    end   = "10.0.0.254"
+  }
+}

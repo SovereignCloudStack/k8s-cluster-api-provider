@@ -60,12 +60,12 @@ resource "openstack_networking_subnet_v2" "subnet_mgmt" {
   name            = "${var.prefix}-subnet"
   network_id      = openstack_networking_network_v2.network_mgmt.id
   ip_version      = 4
-  cidr            = "10.0.0.0/24"
+  cidr            = var.mgmt_cidr
   dns_nameservers = var.dns_nameservers
 
   allocation_pool {
-    start = "10.0.0.11"
-    end   = "10.0.0.254"
+    start = var.mgmt_ip_range.start
+    end   = var.mgmt_ip_range.end
   }
 }
 
