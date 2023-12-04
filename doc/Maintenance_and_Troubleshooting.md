@@ -7,13 +7,13 @@ state: Draft (v0.3)
 
 # Maintenance and Troubleshooting Guide for SCS k8s-cluster-api-provider
 
-## Client Certificates in Kubernetes expire after one year.
+## Client Certificates in Kubernetes expire after one year
 
 What does a provider need to do in order to **NOT** run into a certificate issue?
 
 1. Update the cluster at least once a year to rotate certificates automatically
     -  [Automatic certificate renewal for cluster upgrades](https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/#automatic-certificate-renewal)
-    - > kubeadm renews all the certificates during control plane 
+    - > kubeadm renews all the certificates during control plane
         [upgrade](https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/).
         This feature is designed for addressing the simplest use cases; if you don't have specific
         requirements on certificate renewal and perform Kubernetes version upgrades regularly
@@ -28,15 +28,15 @@ What does a provider need to do in order to **NOT** run into a certificate issue
 
 Another problem is that the CA might expire as well (normally after 10 years)
 - `kubeadm` does not have any tooling for this at the time of writing
-- There is documentation for 
+- There is documentation for
   [Manual Rotation of CA Certifcates](https://kubernetes.io/docs/tasks/tls/manual-rotation-of-ca-certificates/)
 - On the management node, there is a `signer.sh` that can be used to sign server certificates
   after checking that they belong to the server.
 
 ## Failed cluster deployment debugging
 
-NOTE: The following `kubectl` and `clusterctl` commands should be executed against 
-the management Kubernetes cluster API. Keep in mind that these tools and the 
+NOTE: The following `kubectl` and `clusterctl` commands should be executed against
+the management Kubernetes cluster API. Keep in mind that these tools and the
 `kubeconfig` to access the management Kubernetes cluster are available in the management
 host, hence it is convenient to execute the following commands from the management host.
 
@@ -60,11 +60,11 @@ true
 ```
 
 Note that you can instead execute `kubectl get cluster <CLUSTER_NAME> -ojsonpath='{ .status.phase }'`
-and `kubectl get openstackcluster <CLUSTER_NAME> -ojsonpath='{ .status.ready }'` 
+and `kubectl get openstackcluster <CLUSTER_NAME> -ojsonpath='{ .status.ready }'`
 if you don't have `yq` at hand.
 
 A handy command for cluster health investigation is `clusterctl describe cluster <CLUSTER_NAME>`.
-This prints infrastructure/control plane/workers readiness status and other relevant 
+This prints infrastructure/control plane/workers readiness status and other relevant
 information like a failure reason. The healthy cluster output is similar to this:
 ```bash
 $ clusterctl describe cluster <CLUSTER_NAME>
@@ -85,7 +85,7 @@ To find out in which condition the deployment status is, you can use the followi
 ```bash
 kubectl logs -n capo-system -l control-plane=capo-controller-manager -c manager
 ```
-Successful cluster creation will log `Reconciled Machine create successfully` for 
+Successful cluster creation will log `Reconciled Machine create successfully` for
 successfully created nodes.
 
 ```bash
@@ -98,7 +98,7 @@ troubleshooting guides or check whether you hit some known bug already reported 
 [capi](https://github.com/kubernetes-sigs/cluster-api/issues?q=is%3Aissue+is%3Aopen+label%3Akind%2Fbug)
 or [capo](https://github.com/kubernetes-sigs/cluster-api-provider-openstack/issues?q=is%3Aissue+is%3Aopen+label%3Akind%2Fbug) projects.
 
-You can also check the OpenStack layer. A cluster deployment should result in a 
+You can also check the OpenStack layer. A cluster deployment should result in a
 router,a network, a subnet, a loadbalancer (in front of kubeapi) and a number of servers (VMs)
 for the control-plane and worker nodes. Have you run out of quota?
 

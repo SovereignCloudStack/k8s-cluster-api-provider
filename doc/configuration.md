@@ -24,11 +24,13 @@ Parameters controlling the Cluster-API management server (capi management server
 | `clusterapi_version`     |                 | SCS        | `1.5.3` <!-- renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api -->          | Version of the cluster-API incl. `clusterctl`                                                              |
 | `capi_openstack_version` |                 | SCS        | `0.8.0` <!-- renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api-provider-openstack -->         | Version of the cluster-api-provider-openstack (needs to fit the CAPI version)                              |
 | `cilium_binaries`        |                 | SCS        | `v0.15.7;v0.12.0` | Versions of the cilium and hubble CLI in the vA.B.C;vX.Y.Z format                                          |
+| `restrict_mgmt_server` |                                 | SCS        | `["0.0.0.0/0"]`                      | Allows restricting access to the management server by the given list of CIDRs. Empty value (default) means public.           |
+| `mgmt_cidr`              |                 | SCS        | `10.0.0.0/24` | IPv4 address range (CIDR notation) for management cluster                                          |
+| `mgmt_ip_range`          |                 | SCS        | `{start:"10.0.0.11", end:"10.0.0.254"}` | IP range from defined `mgmt_cidr` variable for management cluster. It is recommended to reserve the first 10 IPs.                                          |
 
 ### Common parameters management server and clusters
 
 Parameters controlling both management server creation and cluster creation:
-
 
 | environment            | clusterctl.yaml                 | provenance | default                              | meaning                                                                                                                      |
 |------------------------|---------------------------------|------------|--------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
@@ -37,9 +39,8 @@ Parameters controlling both management server creation and cluster creation:
 | `dns_nameservers`      | `OPENSTACK_DNS_NAMESERVERS`     | capo       | `[ "5.1.66.255", "185.150.99.255" ]` | Array of nameservers for capi mgmt server and for cluster nodes, replace the FF MUC defaults with local servers if available |
 | `availability_zone`    | `OPENSTACK_FAILURE_DOMAIN`      | capo       |                                      | Availability Zone(s) for the mgmt node / workload clusters                                                                   |
 | `kind_mtu`             | `MTU_VALUE`                     | SCS        | `0`                                  | MTU for the mgmt server; Calico is set 50 bytes smaller; 0 means autodetection                                               |
-| `restrict_mgmt_server` |                                 | SCS        | `["0.0.0.0/0"]`                      | Allows restricting access to the management server by the given list of CIDRs. Empty value (default) means public.           |
-|  http_proxy            |                                 | SCS        |                                      | Global setting for HTTP Proxy is set on the management host including all cluster-api components running in the bootstrap-cluster.  Specify with protocol: e.g "http://10.10.10.10:3128"
-|  no_proxy            |                                 | SCS        |                                      | Global setting for HTTP Proxy exception list. If `http_proxy` is not set this setting has no effect. If `http_proxy` is set, the default value for the `NO_PROXY` environment variable on all affected components is set to `.svc,.svc.cluster,.svc.cluster.local,127.0.0.0/8,169.254.169.254/32,fd00:ec2::254/128,${var.node_cidr},${var.pod_cidr},${var.service_cidr}`. The content of `no_proxy` is appended to this list. This setting has no effect on apt and snap commands, the way `http_proxy` is set for apt and snap does not allow the configuration of proxy exceptions.
+|  `http_proxy`            |                                 | SCS        |                                      | Global setting for HTTP Proxy is set on the management host including all cluster-api components running in the bootstrap-cluster.  Specify with protocol: e.g `http://10.10.10.10:3128`                            |
+|  `no_proxy`            |                                 | SCS        |                                      | Global setting for HTTP Proxy exception list. If `http_proxy` is not set this setting has no effect. If `http_proxy` is set, the default value for the `NO_PROXY` environment variable on all affected components is set to `.svc,.svc.cluster,.svc.cluster.local,127.0.0.0/8,169.254.169.254/32,fd00:ec2::254/128,${var.node_cidr},${var.pod_cidr},${var.service_cidr}`. The content of `no_proxy` is appended to this list. This setting has no effect on apt and snap commands, the way `http_proxy` is set for apt and snap does not allow the configuration of proxy exceptions.                                                  |
 
 ### Parameters clusters
 
