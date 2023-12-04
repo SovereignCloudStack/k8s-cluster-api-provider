@@ -6,9 +6,13 @@
 # (c) Roman Hros, 10/2023
 # SPDX-License-Identifier: Apache-2.0
 
+# imports
+. ~/bin/utils.inc
 . ~/bin/cccfg.inc
-export KUBECONFIG=$HOME/.kube/config
-~/bin/mng_cluster_ns.inc
+
+# Switch to capi mgmt cluster
+setup_kubectl_context_workspace
+set_workload_cluster_kubectl_namespace false
 
 # https://cluster-api.sigs.k8s.io/tasks/experimental-features/experimental-features#enabling-experimental-features-on-existing-management-clusters
 export KUBE_EDITOR="sed -i 's/ClusterTopology=false/ClusterTopology=true/'"
