@@ -3,13 +3,12 @@ export KUBECONFIG=~/.kube/config
 . ~/bin/cccfg.inc
 . ~/$CLUSTER_NAME/harbor-settings
 # Are we enabled? Has a version been set explicitly?
-KUBERNETES_VERSION=$(yq eval '.KUBERNETES_VERSION' $CCCFG)
 DEPLOY_NGINX_INGRESS=$(yq eval '.DEPLOY_NGINX_INGRESS' $CCCFG)
 if test "$DEPLOY_NGINX_INGRESS" = "false" -a "$DEPLOY_HARBOR" = "true" -a -n "$HARBOR_DOMAIN_NAME"; then
   DEPLOY_NGINX_INGRESS="true"
 fi
 if test "$DEPLOY_NGINX_INGRESS" = "true"; then
-	if test "${KUBERNETES_VERSION:0:4}" = "v1.1"; then NGINX_VERSION="v1.0.2"; else NGINX_VERSION="v1.6.4"; fi
+	NGINX_VERSION="v1.8.1"
 elif test "$DEPLOY_NGINX_INGRESS" = "false"; then
 	echo "nginx ingress disabled" 1>&2; exit 1
 else

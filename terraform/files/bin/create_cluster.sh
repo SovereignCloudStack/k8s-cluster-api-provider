@@ -7,6 +7,7 @@ STARTTIME=$(date +%s)
 # variables
 . ~/.capi-settings
 . ~/bin/cccfg.inc
+. ~/bin/openstack-kube-versions.inc
 
 export PREFIX CLUSTER_NAME
 
@@ -34,6 +35,10 @@ if test ! -d ~/$CLUSTER_NAME/containerd/; then
 fi
 # Harbor settings
 if test ! -s ~/$CLUSTER_NAME/harbor-settings; then
+  # Ensure harbor-settings file exists
+  if test ! -e ~/cluster-defaults/harbor-settings; then
+    touch ~/cluster-defaults/harbor-settings
+  fi
   cp -p ~/cluster-defaults/harbor-settings ~/$CLUSTER_NAME/
 fi
 . ~/$CLUSTER_NAME/harbor-settings
@@ -100,7 +105,12 @@ fi
 # Check that the flavors exist and allocate volumes if needed
 fixup_flavor_volumes.sh "$CCCFG" "${CLUSTERAPI_TEMPLATE}" || exit 2
 
-cp -p "$CCCFG" $HOME/.cluster-api/clusterctl.yaml
+if test "$(dotversion "$(clusterctl version -o short)")" -ge 10500; then
+  cp -p "$CCCFG" $HOME/.config/cluster-api/clusterctl.yaml
+else
+  cp -p "$CCCFG" $HOME/.cluster-api/clusterctl.yaml
+fi
+
 KCCCFG="--config $CCCFG"
 #clusterctl $KCCCFG config cluster ${CLUSTER_NAME} --list-variables --from ${CLUSTERAPI_TEMPLATE}
 clusterctl $KCCCFG generate cluster "${CLUSTER_NAME}" --list-variables --from ${CLUSTERAPI_TEMPLATE} || exit 2
@@ -167,16 +177,26 @@ do
 done
 
 # CNI
+SLEEP=0
+until kubectl $KCONTEXT -n kube-system get daemonset/kube-proxy -o=jsonpath='{.metadata.name}' >/dev/null 2>&1; do
+  echo "[$SLEEP] waiting for kube-proxy"
+  sleep 10
+  let SLEEP+=10
+done
+
+echo "waiting for kube-proxy to become ready"
+kubectl $KCONTEXT -n kube-system wait --for=condition=ready --timeout=5m pods -l k8s-app=kube-proxy
+
 echo "# Deploy services (CNI, OCCM, CSI, Metrics, Cert-Manager, Flux2, Ingress)"
 MTU_VALUE=$(yq eval '.MTU_VALUE' $CCCFG)
 if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
   # FIXME: Do we need to allow overriding MTU here as well?
-  CILIUM_VERSION="v1.13.3"
+  CILIUM_VERSION="v1.14.1"
   if test "${USE_CILIUM:0:1}" = "v"; then
     CILIUM_VERSION="${USE_CILIUM}"
   fi
   KUBECONFIG=${KUBECONFIG_WORKLOADCLUSTER} cilium install --version $CILIUM_VERSION \
-    --helm-set kubeProxyReplacement=disabled \
+    --helm-set kubeProxyReplacement=false \
     --helm-set cni.chainingMode=portmap \
     --helm-set sessionAffinity=true
   touch ~/$CLUSTER_NAME/deployed-manifests.d/.cilium

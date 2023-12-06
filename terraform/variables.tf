@@ -54,13 +54,13 @@ variable "ssh_username" {
 variable "calico_version" {
   description = "desired version of calico"
   type        = string
-  default     = "v3.25.1"
+  default     = "v3.26.1"
 }
 
 variable "clusterapi_version" {
   description = "desired version of cluster-api"
   type        = string
-  default     = "1.3.8"
+  default     = "1.5.1"
 }
 
 variable "capi_openstack_version" {
@@ -72,7 +72,7 @@ variable "capi_openstack_version" {
 variable "kubernetes_version" {
   description = "desired kubernetes version for the workload cluster"
   type        = string
-  default     = "v1.25.x"
+  default     = "v1.27.x"
 }
 
 variable "kube_image_raw" {
@@ -168,7 +168,7 @@ variable "use_cilium" {
 variable "cilium_binaries" {
   description = "cilium and hubble CLI versions in the vA.B.C;vX.Y.Z format"
   type        = string
-  default     = "v0.13.2;v0.11.6"
+  default     = "v0.15.7;v0.12.0"
 }
 
 variable "etcd_unsafe_fs" {

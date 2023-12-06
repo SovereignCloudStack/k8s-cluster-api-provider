@@ -16,8 +16,12 @@ data "openstack_networking_network_v2" "extnet" {
 
 # - management cluster -
 resource "openstack_networking_floatingip_v2" "mgmtcluster_floatingip" {
-  pool       = var.external != "" ? var.external : data.openstack_networking_network_v2.extnet.name
-  depends_on = [openstack_networking_router_interface_v2.router_interface]
+  pool        = var.external != "" ? var.external : data.openstack_networking_network_v2.extnet.name
+  depends_on  = [openstack_networking_router_interface_v2.router_interface]
+  description = "Floating IP for the ${var.prefix} management cluster node"
+  tags = [
+    "${var.prefix}-mgmtcluster", "k8s-cluster-api-mgmtcluster"
+  ]
 }
 
 resource "openstack_networking_port_v2" "mgmtcluster_port" {
@@ -45,6 +49,13 @@ data "openstack_images_image_ids_v2" "images" {
   sort = "updated_at:desc"
 }
 
+resource "openstack_blockstorage_volume_v3" "mgmtcluster_volume" {
+  size        = 30
+  name        = "${var.prefix}-mgmtcluster"
+  image_id    = data.openstack_images_image_ids_v2.images.ids[0]
+  description = "Volume for the ${var.prefix} management cluster node"
+}
+
 resource "openstack_compute_instance_v2" "mgmtcluster_server" {
   name              = "${var.prefix}-mgmtcluster"
   flavor_name       = var.kind_flavor
@@ -54,12 +65,16 @@ resource "openstack_compute_instance_v2" "mgmtcluster_server" {
 
   network { port = openstack_networking_port_v2.mgmtcluster_port.id }
   block_device {
-    uuid                  = data.openstack_images_image_ids_v2.images.ids[0]
-    source_type           = "image"
-    volume_size           = 30
+    uuid                  = openstack_blockstorage_volume_v3.mgmtcluster_volume.id
+    source_type           = "volume"
     boot_index            = 0
     destination_type      = "volume"
     delete_on_termination = true
+  }
+
+  lifecycle {
+    # Prevents Terraform from trying to destroy the instance when it was created before update with labeling its volume
+    ignore_changes = [block_device]
   }
 
   user_data = <<-EOF
@@ -80,7 +95,7 @@ write_files:
       $nrconf{kernelhints} = -1;
       $nrconf{restart} = 'a';
     owner: root:root
-    path: /tmp/needrestart.conf
+    path: /etc/needrestart/conf.d/needrestart.conf
     permissions: '0644'
 runcmd:
   # Note: Needrestart is part of the `apt-get upgrade` process from Ubuntu 22.04. By default, it is set to an
@@ -88,7 +103,6 @@ runcmd:
   #   version is available after the upgrade process and when upgraded services need to restart. A custom configuration
   #   file overrides mentioned settings and ensures that kernel hints are printed only to stderr and services are
   #   restarted automatically if needed.
-  - mv /tmp/needrestart.conf /etc/needrestart/conf.d/ || echo "Needrestart is not installed. Skipped."
   - echo nf_conntrack > /etc/modules-load.d/90-nf_conntrack.conf
   - modprobe nf_conntrack
   - echo net.netfilter.nf_conntrack_max=131072 > /etc/sysctl.d/90-conntrack_max.conf
@@ -98,7 +112,7 @@ runcmd:
   - mv /tmp/daemon.json /etc/docker/daemon.json
   - groupadd docker
   - usermod -aG docker ${var.ssh_username}
-  - apt -y install docker.io yamllint qemu-utils
+  - apt -y install --no-install-recommends --no-install-suggests docker.io yamllint qemu-utils git
 EOF
 
 }
