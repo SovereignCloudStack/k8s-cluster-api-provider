@@ -27,7 +27,7 @@ jobs:
       - name: Setup OpenTofu
         uses: opentofu/setup-opentofu@v1
         with:
-          tofu_version: 1.6.0-beta1  # renovate: datasource=github-releases depName=opentofu/opentofu
+          tofu_version: 1.6.0-beta2  # renovate: datasource=github-releases depName=opentofu/opentofu
       - name: Tofu init
         run: tofu init
         working-directory: ./terraform
