@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -619,7 +620,7 @@ metadata:
   name: cso-cluster-stack-variables
   namespace: cso-system
 stringData:
-  git-org-name: sovereigncloudstack 
+  git-org-name: sovereigncloudstack
   git-provider: github
   git-repo-name: cluster-stacks-playground
   git-access-token: ""
