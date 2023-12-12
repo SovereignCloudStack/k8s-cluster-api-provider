@@ -70,6 +70,12 @@ setting the ``CONSOLE`` variable. The default is ``capi-mgmtcluster``.
 This will open openstack console of the management server in the browser using XDG-open. You can specify the console you
 want to open by setting the ``CONSOLE`` variable. The default is ``capi-mgmtcluster``.
 
+### make deploy-cso
+
+``make deploy-cso``
+
+This will deploy the [cluster-stack-operator](https://github.com/SovereignCloudStack/cluster-stack-operator). The preconfigured repo to look for cluster-stacks is https://github.com/SovereignCloudStack/cluster-stacks-playground/. 
+
 ## Teardown
 
 > Note that ``clean`` and ``fullclean`` leave the ``ubuntu-capi-image-$KUBERNETES_VERSION`` image registered,

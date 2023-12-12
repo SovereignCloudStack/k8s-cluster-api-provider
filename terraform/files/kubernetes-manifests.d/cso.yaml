@@ -1,0 +1,722 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    cluster.x-k8s.io/provider: infrastructure-cluster-stack-operator
+    control-plane: cso-controller-manager
+  name: cso-system
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.12.0
+  labels:
+    cluster.x-k8s.io/provider: infrastructure-cluster-stack-operator
+    cluster.x-k8s.io/v1beta1: v1beta1
+  name: clusterstackreleases.clusterstack.x-k8s.io
+spec:
+  group: clusterstack.x-k8s.io
+  names:
+    kind: ClusterStackRelease
+    listKind: ClusterStackReleaseList
+    plural: clusterstackreleases
+    singular: clusterstackrelease
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.kubernetesVersion
+      name: K8s Version
+      type: string
+    - jsonPath: .status.ready
+      name: Ready
+      type: boolean
+    - description: Time duration since creation of ClusterStackRelease
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - jsonPath: .status.conditions[?(@.type=='Ready')].reason
+      name: Reason
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Ready')].message
+      name: Message
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ClusterStackRelease is the Schema for the clusterstackreleases
+          API.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ClusterStackReleaseSpec defines the desired state of ClusterStackRelease.
+            properties:
+              providerRef:
+                description: ProviderRef specifies the reference to the ProviderClusterStackRelease
+                  object. It has to be set only if the object exists, i.e. if the
+                  noProvider mode is turned off.
+                properties:
+                  apiVersion:
+                    description: API version of the referent.
+                    type: string
+                  fieldPath:
+                    description: 'If referring to a piece of an object instead of
+                      an entire object, this string should contain a valid JSON/Go
+                      field access statement, such as desiredState.manifest.containers[2].
+                      For example, if the object reference is to a container within
+                      a pod, this would take on a value like: "spec.containers{name}"
+                      (where "name" refers to the name of the container that triggered
+                      the event) or if no container name is specified "spec.containers[2]"
+                      (container with index 2 in this pod). This syntax is chosen
+                      only to have some well-defined way of referencing a part of
+                      an object. TODO: this design is not final and this field is
+                      subject to change in the future.'
+                    type: string
+                  kind:
+                    description: 'Kind of the referent. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+                    type: string
+                  name:
+                    description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names'
+                    type: string
+                  namespace:
+                    description: 'Namespace of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/'
+                    type: string
+                  resourceVersion:
+                    description: 'Specific resourceVersion to which this reference
+                      is made, if any. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency'
+                    type: string
+                  uid:
+                    description: 'UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids'
+                    type: string
+                type: object
+                x-kubernetes-map-type: atomic
+            type: object
+          status:
+            description: ClusterStackReleaseStatus defines the observed state of ClusterStackRelease.
+            properties:
+              conditions:
+                description: Conditions defines current service state of the ClusterAddon.
+                items:
+                  description: Condition defines an observation of a Cluster API resource
+                    operational state.
+                  properties:
+                    lastTransitionTime:
+                      description: Last time the condition transitioned from one status
+                        to another. This should be when the underlying condition changed.
+                        If that is not known, then using the time when the API field
+                        changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: A human readable message indicating details about
+                        the transition. This field may be empty.
+                      type: string
+                    reason:
+                      description: The reason for the condition's last transition
+                        in CamelCase. The specific API may choose whether or not this
+                        field is considered a guaranteed API. This field may not be
+                        empty.
+                      type: string
+                    severity:
+                      description: Severity provides an explicit classification of
+                        Reason code, so the users or machines can immediately understand
+                        the current situation and act accordingly. The Severity field
+                        MUST be set only when Status=False.
+                      type: string
+                    status:
+                      description: Status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: Type of condition in CamelCase or in foo.example.com/CamelCase.
+                        Many .condition.type values are consistent across resources
+                        like Available, but because arbitrary conditions can be useful
+                        (see .node.status.conditions), the ability to deconflict is
+                        important.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - status
+                  - type
+                  type: object
+                type: array
+              kubernetesVersion:
+                description: KubernetesVersion is the Kubernetes version incl. patch
+                  version, e.g. 1.26.6. The controller fetches the version from the
+                  release assets of the cluster stack.
+                type: string
+              ready:
+                default: false
+                type: boolean
+              resources:
+                description: Resources specifies the status of the resources that
+                  this object administrates.
+                items:
+                  description: Resource defines the status of a resource.
+                  properties:
+                    error:
+                      description: Error specifies the error of the last time this
+                        object has been applied.
+                      type: string
+                    group:
+                      description: Group specifies the group of the object.
+                      type: string
+                    kind:
+                      description: Kind specifies the kind of the object.
+                      type: string
+                    name:
+                      description: Name specifies the name of the object.
+                      type: string
+                    namespace:
+                      description: Namespace specifies the namespace of the object.
+                      type: string
+                    status:
+                      description: Status specifies the status of the object being
+                        applied.
+                      type: string
+                    version:
+                      description: Version specifies the version of the object.
+                      type: string
+                  type: object
+                type: array
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.12.0
+  labels:
+    cluster.x-k8s.io/provider: infrastructure-cluster-stack-operator
+    cluster.x-k8s.io/v1beta1: v1beta1
+  name: clusterstacks.clusterstack.x-k8s.io
+spec:
+  group: clusterstack.x-k8s.io
+  names:
+    kind: ClusterStack
+    listKind: ClusterStackList
+    plural: clusterstacks
+    singular: clusterstack
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.provider
+      name: Provider
+      type: string
+    - jsonPath: .spec.name
+      name: ClusterStack
+      type: string
+    - jsonPath: .spec.kubernetesVersion
+      name: K8s
+      type: string
+    - jsonPath: .spec.channel
+      name: Channel
+      type: string
+    - jsonPath: .spec.autoSubscribe
+      name: Autosubscribe
+      type: string
+    - jsonPath: .status.usableVersions
+      name: Usable
+      type: string
+    - jsonPath: .status.latestRelease
+      name: Latest
+      type: string
+    - description: Time duration since creation of ClusterStack
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - jsonPath: .status.conditions[?(@.type=='Ready')].reason
+      name: Reason
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Ready')].message
+      name: Message
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ClusterStack is the Schema for the clusterstacks API.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ClusterStackSpec defines the desired state of ClusterStack.
+            properties:
+              autoSubscribe:
+                default: true
+                description: AutoSubscribe is a feature where the operator checks
+                  automatically if there are new versions of this cluster stack available.
+                type: boolean
+              channel:
+                default: stable
+                description: Channel specifies the release channel of the cluster
+                  stack. Defaults to 'stable'.
+                type: string
+              kubernetesVersion:
+                description: KubernetesVersion is the Kubernetes version in the format
+                  '<majorVersion>.<minorVersion>', e.g. 1.26.
+                pattern: ^\d\.\d+$
+                type: string
+              name:
+                description: Name is the name of the cluster stack.
+                minLength: 1
+                type: string
+              noProvider:
+                default: false
+                description: NoProvider indicates if set on true that there is no
+                  provider-specific implementation and operator.
+                type: boolean
+              provider:
+                description: Provider is the name of the cluster stack provider.
+                minLength: 1
+                type: string
+              providerRef:
+                description: ProviderRef has to reference the ProviderClusterStackReleaseTemplate
+                  that contains all provider-specific information.
+                properties:
+                  apiVersion:
+                    description: API version of the referent.
+                    type: string
+                  fieldPath:
+                    description: 'If referring to a piece of an object instead of
+                      an entire object, this string should contain a valid JSON/Go
+                      field access statement, such as desiredState.manifest.containers[2].
+                      For example, if the object reference is to a container within
+                      a pod, this would take on a value like: "spec.containers{name}"
+                      (where "name" refers to the name of the container that triggered
+                      the event) or if no container name is specified "spec.containers[2]"
+                      (container with index 2 in this pod). This syntax is chosen
+                      only to have some well-defined way of referencing a part of
+                      an object. TODO: this design is not final and this field is
+                      subject to change in the future.'
+                    type: string
+                  kind:
+                    description: 'Kind of the referent. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+                    type: string
+                  name:
+                    description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names'
+                    type: string
+                  namespace:
+                    description: 'Namespace of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/'
+                    type: string
+                  resourceVersion:
+                    description: 'Specific resourceVersion to which this reference
+                      is made, if any. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency'
+                    type: string
+                  uid:
+                    description: 'UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids'
+                    type: string
+                type: object
+                x-kubernetes-map-type: atomic
+              versions:
+                description: Versions is a list of version of the cluster stack that
+                  should be available in the management cluster. A version has to
+                  have the format 'v<versionNumber>', e.g. v1 for stable channel or,
+                  v1-alpha.1 for alpha channel. The versions have to correspond to
+                  the channel property.
+                items:
+                  type: string
+                type: array
+            required:
+            - kubernetesVersion
+            - name
+            - provider
+            type: object
+          status:
+            description: ClusterStackStatus defines the observed state of ClusterStack.
+            properties:
+              conditions:
+                description: Conditions provide observations of the operational state
+                  of a Cluster API resource.
+                items:
+                  description: Condition defines an observation of a Cluster API resource
+                    operational state.
+                  properties:
+                    lastTransitionTime:
+                      description: Last time the condition transitioned from one status
+                        to another. This should be when the underlying condition changed.
+                        If that is not known, then using the time when the API field
+                        changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: A human readable message indicating details about
+                        the transition. This field may be empty.
+                      type: string
+                    reason:
+                      description: The reason for the condition's last transition
+                        in CamelCase. The specific API may choose whether or not this
+                        field is considered a guaranteed API. This field may not be
+                        empty.
+                      type: string
+                    severity:
+                      description: Severity provides an explicit classification of
+                        Reason code, so the users or machines can immediately understand
+                        the current situation and act accordingly. The Severity field
+                        MUST be set only when Status=False.
+                      type: string
+                    status:
+                      description: Status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: Type of condition in CamelCase or in foo.example.com/CamelCase.
+                        Many .condition.type values are consistent across resources
+                        like Available, but because arbitrary conditions can be useful
+                        (see .node.status.conditions), the ability to deconflict is
+                        important.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - status
+                  - type
+                  type: object
+                type: array
+              latestRelease:
+                type: string
+              summary:
+                items:
+                  description: ClusterStackReleaseSummary gives the summary of the
+                    status of a ClusterStackRelease object.
+                  properties:
+                    message:
+                      type: string
+                    name:
+                      type: string
+                    phase:
+                      description: ClusterStackReleasePhase is the phase of a ClusterStackRelease
+                        object.
+                      type: string
+                    ready:
+                      type: boolean
+                  required:
+                  - name
+                  - phase
+                  - ready
+                  type: object
+                type: array
+              usableVersions:
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    cluster.x-k8s.io/provider: infrastructure-cluster-stack-operator
+  name: cso-controller-manager
+  namespace: cso-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    cluster.x-k8s.io/provider: infrastructure-cluster-stack-operator
+  name: cso-leader-election-role
+  namespace: cso-system
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    cluster.x-k8s.io/provider: infrastructure-cluster-stack-operator
+  name: cso-manager-role
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - bootstrap.cluster.x-k8s.io
+  - cluster.x-k8s.io
+  - controlplane.cluster.x-k8s.io
+  - infrastructure.cluster.x-k8s.io
+  resources:
+  - '*'
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - clusterstack.x-k8s.io
+  resources:
+  - clusterstackreleases
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - clusterstack.x-k8s.io
+  resources:
+  - clusterstackreleases/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - clusterstack.x-k8s.io
+  resources:
+  - clusterstackreleases/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - clusterstack.x-k8s.io
+  resources:
+  - clusterstacks
+  verbs:
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - clusterstack.x-k8s.io
+  resources:
+  - clusterstacks/finalizers
+  verbs:
+  - delete
+  - update
+- apiGroups:
+  - clusterstack.x-k8s.io
+  resources:
+  - clusterstacks/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - infrastructure.clusterstack.x-k8s.io
+  resources:
+  - '*'
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    cluster.x-k8s.io/provider: infrastructure-cluster-stack-operator
+  name: cso-leader-election-rolebinding
+  namespace: cso-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: cso-leader-election-role
+subjects:
+- kind: ServiceAccount
+  name: cso-controller-manager
+  namespace: cso-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    cluster.x-k8s.io/provider: infrastructure-cluster-stack-operator
+  name: cso-manager-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cso-manager-role
+subjects:
+- kind: ServiceAccount
+  name: cso-controller-manager
+  namespace: cso-system
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    cluster.x-k8s.io/provider: infrastructure-cluster-stack-operator
+  name: cso-cluster-stack-variables
+  namespace: cso-system
+stringData:
+  git-org-name: sovereigncloudstack 
+  git-provider: github
+  git-repo-name: cluster-stacks-playground
+  git-access-token: ""
+type: Opaque
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    cluster.x-k8s.io/provider: infrastructure-cluster-stack-operator
+    control-plane: cso-controller-manager
+  name: cso-controller-manager
+  namespace: cso-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      cluster.x-k8s.io/provider: infrastructure-cluster-stack-operator
+      control-plane: cso-controller-manager
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: manager
+      labels:
+        cluster.x-k8s.io/provider: infrastructure-cluster-stack-operator
+        control-plane: cso-controller-manager
+    spec:
+      containers:
+      - args:
+        - --leader-elect=true
+        command:
+        - /manager
+        env:
+        - name: GIT_PROVIDER
+          valueFrom:
+            secretKeyRef:
+              key: git-provider
+              name: cso-cluster-stack-variables
+        - name: GIT_ORG_NAME
+          valueFrom:
+            secretKeyRef:
+              key: git-org-name
+              name: cso-cluster-stack-variables
+        - name: GIT_REPOSITORY_NAME
+          valueFrom:
+            secretKeyRef:
+              key: git-repo-name
+              name: cso-cluster-stack-variables
+        - name: GIT_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: git-access-token
+              name: cso-cluster-stack-variables
+        image: ghcr.io/sovereigncloudstack/cso:v0.1.0-alpha.1
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: healthz
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: manager
+        ports:
+        - containerPort: 9440
+          name: healthz
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /readyz
+            port: healthz
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: 250m
+            memory: 250Mi
+          requests:
+            cpu: 200m
+            memory: 250Mi
+      serviceAccountName: cso-controller-manager
+      terminationGracePeriodSeconds: 10
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/control-plane
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  labels:
+    cluster.x-k8s.io/provider: infrastructure-cluster-stack-operator
+  name: cso-selfsigned-issuer
+  namespace: cso-system
+spec:
+  selfSigned: {}
