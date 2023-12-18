@@ -8,7 +8,7 @@ via [cluster-api](https://cluster-api.sigs.k8s.io/)(CAPI).
 - make
 - kubectl
 - terraform
-- yq v2 or v4 (see note below)
+- yq
 - python3-openstackclient, python3-octaviaclient
 
 ## Prepare the environment
@@ -16,7 +16,7 @@ via [cluster-api](https://cluster-api.sigs.k8s.io/)(CAPI).
 You need access to an OpenStack project.
 Copy the default environment and adjust the options according to your cloud.
 
-```
+```bash
 cp terraform/environments/environment-{default,<YOURCLOUD>}.tfvars
 ```
 
@@ -31,11 +31,11 @@ the `environment-<YOURCLOUD>.tfvars`, then you only have to specify the `ENVIRON
 
 ## Create a test cluster
 
-```
+```bash
 # Set the ENVIRONMENT to the name specified in the name of the file
 # `cloud_provider` option has to be set in the environment file
 # to the name of the cloud in the clouds.yaml
-export ENVIRONMENT=<YOURCLOUD>`
+export ENVIRONMENT=<YOURCLOUD>
 
 # Create your environment. This includes a management node as virtual machine
 # in your OpenStack environment as well as a Kubernetes testcluster.
@@ -50,7 +50,7 @@ kubectl --kubeconfig testcluster.yaml.<YOURCLOUD> get nodes
 
 ## Teardown
 
-```
+```bash
 make clean
 ```
 

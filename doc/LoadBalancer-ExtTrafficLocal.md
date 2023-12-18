@@ -29,8 +29,8 @@ Since SCS R2, the deployed nginx-ingress deployment is patched to carry a servic
 annotation (a behavior specifically needed by OpenStack) that enables the health-monitor for the LB in
 front of the ingress. This results in traffic to flow.
 
-This covers the nginx ingress controller that is deployed by setting`
- DEPLOY_NGINX_INGRESS: true` with the `create_cluster.sh` or `apply_nginx_ingress.sh`.
+This covers the nginx ingress controller that is deployed by setting
+`DEPLOY_NGINX_INGRESS: true` with the `create_cluster.sh` or `apply_nginx_ingress.sh`.
 That the ingress we call the "managed ingress".
 
 For the ingress service to see the client IPs, more is needed. The Octavia LB

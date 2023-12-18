@@ -1,16 +1,16 @@
 # Continuous integration
 
-Project k8s-cluster-api-provider uses [SCS Zuul](https://zuul.scs.community) CI platform to 
+Project k8s-cluster-api-provider uses [SCS Zuul](https://zuul.scs.community) CI platform to
 drive its continuous integration tests. The project is registered under the [SCS tenant](https://zuul.scs.community/t/SCS/projects)
-and therefore is able to use a set of pre-defined pipelines, jobs, and ansible roles that 
+and therefore is able to use a set of pre-defined pipelines, jobs, and ansible roles that
 SCS Zuul instance defines and imports. If you want to explore currently available SCS pipelines,
 visit the [SCS zuul-config](https://github.com/SovereignCloudStack/zuul-config) project.
 If you want to see the full list of jobs that are available, visit the [SCS Zuul UI](https://zuul.scs.community/t/SCS/jobs).
-And if you are looking for some handy ansible role that SCS Zuul imports, visit they [source](https://opendev.org/zuul/zuul-jobs/src/branch/master/roles). 
+And if you are looking for some handy ansible role that SCS Zuul imports, visit they [source](https://opendev.org/zuul/zuul-jobs/src/branch/master/roles).
 
 Refer to SCS [Zuul users guide](https://github.com/SovereignCloudStack/docs/pull/54) and/or
 [Zuul docs](https://zuul-ci.org/docs/) for further details on how to define and use Zuul
-CI/CD pipelines and jobs. 
+CI/CD pipelines and jobs.
 
 Note (for geeks): If you are interested in Zuul CI platform and want to deploy your own development instance of it,
 then read the official [quick-start](https://zuul-ci.org/docs/zuul/latest/tutorials/quick-start.html) manual
@@ -20,11 +20,11 @@ of Zuul CI platform with a GitHub organization.
 ## Configuration
 
 SCS Zuul automatically recognizes `.zuul.yaml` configuration file that is located in the
-k8s-cluster-api-provider's root. This file informs Zuul about the project's [default-branch](https://zuul-ci.org/docs/zuul/latest/config/project.html#attr-project.default-branch) and 
+k8s-cluster-api-provider's root. This file informs Zuul about the project's [default-branch](https://zuul-ci.org/docs/zuul/latest/config/project.html#attr-project.default-branch) and
 preferred [merge-mode](https://zuul-ci.org/docs/zuul/latest/config/project.html#attr-project.merge-mode).
 It also references [SCS Zuul pipelines](https://github.com/matofederorg/zuul-config) and
 their jobs used by the k8s-cluster-api-provider project. Then, jobs link Ansible playbooks that contain
-tasks for actual CI testing. 
+tasks for actual CI testing.
 
 See relevant CI configuration files:
 ```text
@@ -150,7 +150,7 @@ Additionally, the PR is labeled appropriately based on the overall e2e test resu
 #### Why do we use PR `label` as an e2e pipeline trigger instead of e.g. PR `comment`?
 
 We consider PR labels to be a more secure pipeline trigger compared to, for example, PR comments.
-PR labels can only be applied by developers with [triage](https://docs.github.com/en/organizations/managing-user-access-to-your-organizations-repositories/managing-repository-roles/repository-roles-for-an-organization#permissions-for-each-role) repository access or higher. 
+PR labels can only be applied by developers with [triage](https://docs.github.com/en/organizations/managing-user-access-to-your-organizations-repositories/managing-repository-roles/repository-roles-for-an-organization#permissions-for-each-role) repository access or higher.
 In contrast, PR comments can be added by anyone with a GitHub account.
 
 Members of the SCS GitHub organization are automatically granted 'write' access to SCS repositories.
@@ -158,7 +158,7 @@ Consequently, the PR label mechanism ensures that only SCS organization members 
 
 #### How do we ensure that any PR update invalidates a previous successful e2e test?
  
-In fact, two mechanisms ensure the invalidation of a previously successful test when a PR is updated. 
+In fact, two mechanisms ensure the invalidation of a previously successful test when a PR is updated.
 
 Firstly, the pipelines `unlabel-on-update-<e2e-test-name>` remove the `successful-<e2e-test-name>` label
 from the PR when it's updated after a successful e2e test has finished.
