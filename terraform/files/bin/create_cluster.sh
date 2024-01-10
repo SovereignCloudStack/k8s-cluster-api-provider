@@ -161,10 +161,12 @@ echo "# apply configuration and deploy cluster ${CLUSTER_NAME}"
 yq eval-all '[.] | sort_by(.kind) | reverse | .[] | splitDoc' ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config.yaml > ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config-sorted.yaml
 
 # This script applies 8 resources, secret, cluster and 6 resources for the cluster class.
-# Our aim is that the 6 resources can and will be templated by helm
+# Our aim is that the 6 resources can and will be templated by helm.
+# Currently we do this manually by doing helm template,
+# but in the future we are planning to have the clusterstack operator execute helm install 
 # We have to extract the secret and cluster resource and apply those by kubectl apply
 
-helm template clusterclass ~/files/template/helmcharts/cluster-class/ -f values.yaml > clusterclass-helm.yaml
+helm template clusterclass ~/k8s-cluster-api-provider/terraform/files/template/helmcharts/cluster-class/ -f ~/values.yaml > ~/k8s-cluster-api-provider/terraform/clusterclass-helm.yaml
 kubectl apply -f ~/${CLUSTER_NAME}/${CLUSTER_NAME}-config-sorted.yaml || exit 3
 
 # Waiting for Cluster=Ready

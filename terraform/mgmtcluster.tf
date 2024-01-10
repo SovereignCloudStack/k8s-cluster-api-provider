@@ -344,6 +344,26 @@ resource "terraform_data" "mgmtcluster_bootstrap_files" {
     })
     destination = "/home/${var.ssh_username}/cluster-defaults/clusterctl.yaml"
   }
+  
+ provisioner "file" {
+    content = templatefile("files/template/clouds.yaml.tmpl", {
+      appcredid      = openstack_identity_application_credential_v3.appcred.id,
+      appcredsecret  = openstack_identity_application_credential_v3.appcred.secret,
+      cloud_provider = var.cloud_provider,
+      clouds         = local.clouds,
+      cacert         = contains(keys(local.clouds), "cacert") ? "/home/${var.ssh_username}/cluster-defaults/${var.cloud_provider}-cacert" : "null"
+    })
+    destination = "/home/${var.ssh_username}/.config/openstack/clouds.yaml"
+  }
+
+  provisioner "file" {
+    content = templatefile("files/template/cloud.conf.tmpl", {
+      clouds        = local.clouds,
+      appcredid     = openstack_identity_application_credential_v3.appcred.id,
+      appcredsecret = openstack_identity_application_credential_v3.appcred.secret
+    })
+    destination = "/home/${var.ssh_username}/cluster-defaults/cloud.conf"
+  }
 
   provisioner "file" {
     content = yamlencode({
