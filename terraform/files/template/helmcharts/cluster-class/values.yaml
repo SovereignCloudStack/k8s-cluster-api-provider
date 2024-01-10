@@ -1,0 +1,31 @@
+# mirrored from variables.tf
+external_id: ebfe5546-f09f-4f42-ab54-094e457d42e
+dns_nameservers: 
+  - 62.138.222.111 
+  - 62.138.222.222
+controller_flavor: SCS-2V:4:20
+worker_flavor: SCS-2V:4:20
+prefix: test
+testcluster_name: testcluster
+node_cidr: 10.8.0.0/20
+etcd_unsafe_fs: false
+http_proxy: ""
+no_proxy: ""
+containerd_registry_files: 
+  hosts: ["files/containerd/docker.io"]
+  certs: []
+
+
+# newly introduced:
+etcd_defrag: true
+tweak_kubeapi_memlimit: true
+worker_machine_gen: genw01
+control_plane_machine_gen: genc01
+
+
+# TBD, currently needed:
+images:
+  controlPlane:
+    - name: ubuntu-capi-image-v1.27.5
+  worker:
+    - name: ubuntu-capi-image-v1.27.5

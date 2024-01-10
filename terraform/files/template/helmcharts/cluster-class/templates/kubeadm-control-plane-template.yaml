@@ -1,0 +1,139 @@
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: KubeadmControlPlaneTemplate
+metadata:
+  name: {{ .Values.testcluster_name }}-control-plane-{{ .Values.control_plane_worker_machine_gen }}
+  namespace: {{ .Values.testcluster_name }}
+spec:
+  template:
+    spec:
+      kubeadmConfigSpec:
+        clusterConfiguration:
+          apiServer:
+            extraArgs:
+              cloud-provider: external
+          controllerManager:
+            extraArgs:
+              cloud-provider: external
+          dns:
+            imageRepository: registry.k8s.io/coredns
+          etcd:
+            local:
+              dataDir: /var/lib/etcd
+              extraArgs:
+                auto-compaction-mode: periodic
+                auto-compaction-retention: 8h
+                election-timeout: "2500"
+                heartbeat-interval: "250"
+                snapshot-count: "6400"
+          imageRepository: registry.k8s.io
+        initConfiguration:
+          nodeRegistration:
+            kubeletExtraArgs:
+              cloud-provider: external
+              provider-id: openstack:///'{{"{{"}}instance_id{{"}}"}}'
+            name: '{{"{{"}}local_hostname{{"}}"}}'
+        joinConfiguration:
+          nodeRegistration:
+            kubeletExtraArgs:
+              cloud-provider: external
+              provider-id: openstack:///'{{"{{"}}instance_id{{"}}"}}'
+            name: '{{"{{"}}local_hostname{{"}}"}}'
+        files:
+{{- if .Values.http_proxy }}
+          - content: |
+              [Service]
+              Environment={{ .Values.http_proxy }}
+              Environment={{ .Values.http_proxy }}
+              Environment={{ .Values.no_proxy }}
+            path: "/etc/systemd/system/containerd.service.d/http-proxy.conf"
+            owner: "root:root" 
+            permissions: "0644"
+{{- end }}
+          {{- range $.Values.containerd_registry_files.hosts }}
+          - content: |
+{{ $.Files.Get .| indent 14 }} 
+            owner: root:root
+            path: /etc/containerd/certs.d/{{ base . }}/hosts.toml
+            permissions: "0644"
+          {{- end }}
+          {{- range $.Values.containerd_registry_files.certs }}
+          - content: |
+{{ $.Files.Get .| indent 14 }} 
+            owner: root:root
+            path: /etc/containerd/certs/{{ base . }}
+            permissions: "0644"
+          {{- end }}
+          - content: |
+              PROXY={{ .Values.http_proxy }}
+              if [[ ! -z "$PROXY" ]]; then
+                export HTTP_PROXY=$PROXY
+                export HTTPS_PROXY=$PROXY
+                export http_proxy=$PROXY
+                export https_proxy=$PROXY
+                export NO_PROXY=".svc,.svc.cluster,.svc.cluster.local,127.0.0.0/8,169.254.169.254/32,fd00:ec2::254/128,10.8.0.0/20,192.168.0.0/16,10.96.0.0/12,"
+                export no_proxy=".svc,.svc.cluster,.svc.cluster.local,127.0.0.0/8,169.254.169.254/32,fd00:ec2::254/128,10.8.0.0/20,192.168.0.0/16,10.96.0.0/12,"
+              fi
+            owner: root:root
+            path: /etc/profile.d/proxy.sh
+            permissions: "0644"
+          {{- if .Values.etcd_defrag }}
+          - content: |
+{{ .Files.Get "files/etcd-defrag.sh" | indent 14 }} 
+            owner: root:root
+            path: /root/etcd-defrag.sh
+            permissions: "0755"
+          - content: |
+{{ .Files.Get "files/etcd-defrag.service" | indent 14 }} 
+            owner: root:root
+            path: /etc/systemd/system/etcd-defrag.service
+            permissions: "0644"
+          - content: |
+{{ .Files.Get "files/etcd-defrag.timer" | indent 14 }} 
+            owner: root:root
+            path: /etc/systemd/system/etcd-defrag.timer
+            permissions: "0644"
+          {{- end }}
+          {{- if .Values.tweak_kubeapi_memlimit }}
+          - path: /root/tweak-kubeapi-memlimit.sh
+            owner: root:root
+            permissions: "0755"
+            content: |
+{{ .Files.Get "files/tweak-kubeapi-memlimit.sh" | indent 14 }} 
+          {{- end }}
+        postKubeadmCommands:
+          {{- if .Values.etcd_unsafe_fs }}
+          - mount -o remount,barrier=0,commit=20 /
+          - sed -i 's@errors=remount-ro@errors=remount-ro,barrier=0,commit=20@' /etc/fstab
+          {{- end }}
+          {{- if .Values.tweak_kubeapi_memlimit }}
+          - /root/tweak-kubeapi-memlimit.sh
+          - sync; systemctl restart kubelet    # We should no longer need this
+          {{- end }}
+          - while test -z "$EPID"; do sleep 5; EPID=`pgrep etcd`; done; renice -10 $EPID; ionice -c2 -n0 -p $EPID
+          {{- if .Values.etcd_defrag }}
+          - systemctl enable etcd-defrag.service
+          - systemctl enable --now etcd-defrag.timer
+          {{- end }}
+        preKubeadmCommands:
+          - . /etc/profile.d/proxy.sh; DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https curl
+          - . /etc/profile.d/proxy.sh; curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+          - echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
+          - . /etc/profile.d/proxy.sh; apt-get update -y
+          - TRIMMED_KUBERNETES_VERSION=$(echo ${KUBERNETES_VERSION} | sed 's/\./\./g' | sed 's/^v//')
+          - RESOLVED_KUBERNETES_VERSION=$(apt-cache policy kubelet | sed 's/\*\*\*//' | awk -v VERSION=$${TRIMMED_KUBERNETES_VERSION} '$1~ VERSION { print $1 }' | head -n1)
+          - . /etc/profile.d/proxy.sh; apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips containerd kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
+          # Allow to configure registry hosts in containerd
+          - |
+            cat <<EOT >> /etc/containerd/config.toml
+              [plugins."io.containerd.grpc.v1.cri".registry]
+                config_path = "/etc/containerd/certs.d"
+            EOT
+          - systemctl daemon-reload
+          - systemctl restart containerd.service
+          {{- if .Values.etcd_defrag }}
+          - ETCDCTL_VERSION=v3.5.9
+          - . /etc/profile.d/proxy.sh; curl -L https://github.com/coreos/etcd/releases/download/$${ETCDCTL_VERSION}/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz -o /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz
+          - tar xzvf /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz -C /tmp/
+          - sudo cp /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64/etcdctl /usr/local/bin/
+          - rm -rf /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64 /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz
+          {{- end }}

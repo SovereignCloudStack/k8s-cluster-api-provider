@@ -1,0 +1,11 @@
+apiVersion: v2
+description: |
+  This chart installs and configures:
+  * Openstack Ferrol Cluster Class
+maintainers:
+  - name: dNation
+    email: cloud@dNation.cloud
+    url: https://dnation.cloud
+name: openstack-ferrol-1-27-cluster-class
+type: application
+version: "v1"

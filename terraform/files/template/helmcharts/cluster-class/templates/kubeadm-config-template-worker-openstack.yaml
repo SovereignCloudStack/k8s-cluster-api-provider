@@ -1,0 +1,53 @@
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+kind: KubeadmConfigTemplate
+metadata:
+  name: {{ .Values.prefix }}-{{ .Values.testcluster_name }}-md-0-{{ .Values.worker_machine_gen }}
+  namespace: {{ .Values.testcluster_name }}
+spec:
+  template:
+    spec:
+      files:
+        - content: |
+            PROXY={{ .Values.http_proxy }}
+            if [[ ! -z "$PROXY" ]]; then
+              export HTTP_PROXY=$PROXY
+              export HTTPS_PROXY=$PROXY
+              export http_proxy=$PROXY
+              export https_proxy=$PROXY
+              export NO_PROXY=".svc,.svc.cluster,.svc.cluster.local,127.0.0.0/8,169.254.169.254/32,fd00:ec2::254/128,10.8.0.0/20,192.168.0.0/16,10.96.0.0/12,"
+              export no_proxy=".svc,.svc.cluster,.svc.cluster.local,127.0.0.0/8,169.254.169.254/32,fd00:ec2::254/128,10.8.0.0/20,192.168.0.0/16,10.96.0.0/12,"
+            fi
+          owner: root:root
+          path: /etc/profile.d/proxy.sh
+          permissions: "0644"
+{{- if .Values.http_proxy }}
+     - content: |
+         [Service]
+         Environment={{ .Values.http_proxy }}
+         Environment={{ .Values.http_proxy }}
+         Environment={{ .Values.no_proxy }}
+       path: "/etc/systemd/system/containerd.service.d/http-proxy.conf"
+       owner: "root:root" 
+       permissions: "0644"
+{{- end }}
+      joinConfiguration:
+        nodeRegistration:
+          kubeletExtraArgs:
+            cloud-provider: external
+            provider-id: openstack:///'{{"{{"}}instance_id{{"}}"}}'
+          name: '{{"{{"}}local_hostname{{"}}"}}'
+      preKubeadmCommands:
+        - . /etc/profile.d/proxy.sh; DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https curl
+        - . /etc/profile.d/proxy.sh; curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+        - echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
+        - . /etc/profile.d/proxy.sh; apt-get update -y
+        - TRIMMED_KUBERNETES_VERSION=$(echo v1.27.5 | sed 's/\./\./g' | sed 's/^v//')
+        - RESOLVED_KUBERNETES_VERSION=$(apt-cache policy kubelet | sed 's/\*\*\*//' | awk -v VERSION=${TRIMMED_KUBERNETES_VERSION} '$1~ VERSION { print $1 }' | head -n1)
+        - . /etc/profile.d/proxy.sh; apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips containerd kubelet=${RESOLVED_KUBERNETES_VERSION} kubeadm=${RESOLVED_KUBERNETES_VERSION} kubectl=${RESOLVED_KUBERNETES_VERSION}
+        - |
+          cat <<EOT >> /etc/containerd/config.toml
+            [plugins."io.containerd.grpc.v1.cri".registry]
+              config_path = "/etc/containerd/certs.d"
+          EOT
+        - systemctl daemon-reload
+        - systemctl restart containerd.service

@@ -1,0 +1,16 @@
+[Unit]
+Description=Run etcdctl defrag
+Documentation=https://etcd.io/docs/v3.5/op-guide/maintenance/#defragmentation
+After=network.target
+
+[Service]
+Type=oneshot
+#Environment="LOG_DIR=/var/log"
+#Environment="ETCDCTL_API=3"
+ExecStart=/root/etcd-defrag.sh
+Nice=19
+IOSchedulingClass=idle
+IOSchedulingPriority=7
+
+[Install]
+WantedBy=timers.target

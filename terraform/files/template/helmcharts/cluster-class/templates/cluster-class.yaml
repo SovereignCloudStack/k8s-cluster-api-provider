@@ -1,0 +1,39 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: ClusterClass
+metadata:
+  name: {{ .Values.testcluster_name }}
+  namespace: {{ .Values.testcluster_name }}
+spec:
+  controlPlane:
+    ref:
+      apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+      kind: KubeadmControlPlaneTemplate
+      name: {{ .Values.testcluster_name }}-control-plane-{{ .Values.control_plane_machine_gen }}
+    namingStrategy:
+      template: '{{"{{"}}.cluster.name{{"}}"}}-control-plane'
+    machineInfrastructure:
+      ref:
+        kind: OpenStackMachineTemplate
+        apiVersion: infrastructure.cluster.x-k8s.io/v1alpha7
+        name: {{ .Values.prefix }}-{{ .Values.testcluster_name }}-control-plane-{{ .Values.control_plane_machine_gen }}
+  infrastructure:
+    ref:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1alpha7
+      kind: OpenStackClusterTemplate
+      name: {{ .Values.testcluster_name }}
+  workers:
+    machineDeployments:
+    - class: {{ .Values.prefix }}-{{ .Values.testcluster_name }}-md-0-no1
+      namingStrategy:
+        template: '{{"{{"}}.machineDeployment.topologyName{{"}}"}}'
+      template:
+        bootstrap:
+          ref:
+            apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+            kind: KubeadmConfigTemplate
+            name: {{ .Values.prefix }}-{{ .Values.testcluster_name }}-md-0-{{ .Values.worker_machine_gen }}
+        infrastructure:
+          ref:
+            apiVersion: infrastructure.cluster.x-k8s.io/v1alpha7
+            kind: OpenStackMachineTemplate
+            name: {{ .Values.prefix }}-{{ .Values.testcluster_name }}-md-0-{{ .Values.worker_machine_gen }}

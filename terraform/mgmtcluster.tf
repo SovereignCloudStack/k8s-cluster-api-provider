@@ -346,23 +346,20 @@ resource "terraform_data" "mgmtcluster_bootstrap_files" {
   }
 
   provisioner "file" {
-    content = templatefile("files/template/clouds.yaml.tmpl", {
-      appcredid      = openstack_identity_application_credential_v3.appcred.id,
-      appcredsecret  = openstack_identity_application_credential_v3.appcred.secret,
-      cloud_provider = var.cloud_provider,
-      clouds         = local.clouds,
-      cacert         = contains(keys(local.clouds), "cacert") ? "/home/${var.ssh_username}/cluster-defaults/${var.cloud_provider}-cacert" : "null"
+    content = yamlencode({
+      external_id:var.external_id,
+      dns_nameservers:var.dns_nameservers,
+      controller_flavor:var.controller_flavor,
+      worker_flavor:var.worker_flavor,
+      prefix:var.prefix,
+      testcluster_name:var.testcluster_name,
+      node_cidr:var.node_cidr,
+      etcd_unsafe_fs:var.etcd_unsafe_fs,
+      http_proxy:var.http_proxy,
+      no_proxy:var.no_proxy,
+      containerd_registry_files:var.containerd_registry_files
     })
-    destination = "/home/${var.ssh_username}/.config/openstack/clouds.yaml"
-  }
-
-  provisioner "file" {
-    content = templatefile("files/template/cloud.conf.tmpl", {
-      clouds        = local.clouds,
-      appcredid     = openstack_identity_application_credential_v3.appcred.id,
-      appcredsecret = openstack_identity_application_credential_v3.appcred.secret
-    })
-    destination = "/home/${var.ssh_username}/cluster-defaults/cloud.conf"
+    destination = "/home/${var.ssh_username}/values.yaml"
   }
 
   provisioner "file" {

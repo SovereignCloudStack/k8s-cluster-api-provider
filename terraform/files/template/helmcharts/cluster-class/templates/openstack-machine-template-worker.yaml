@@ -1,0 +1,21 @@
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha7
+kind: OpenStackMachineTemplate
+metadata:
+  name: {{ .Values.prefix }}-{{ .Values.testcluster_name }}-md-0-{{ .Values.worker_machine_gen}}
+  namespace: {{ .Values.testcluster_name }}
+spec:
+  template:
+    spec:
+      cloudName: {{ .Values.prefix }}-{{ .Values.testcluster_name }}
+      flavor: {{ .Values.worker_flavor }}
+      identityRef:
+        kind: Secret
+        name: {{ .Values.testcluster_name }}-cloud-config
+      image: ubuntu-capi-image-v1.27.5
+      securityGroups:
+        - name: {{ .Values.prefix }}-allow-ssh
+        - name: {{ .Values.prefix }}-allow-icmp
+        - name: {{ .Values.prefix }}-{{ .Values.testcluster_name }}-cilium
+      # serverGroupID left blank for now
+      sshKeyName: {{ .Values.prefix }}-keypair
+
