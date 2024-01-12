@@ -231,4 +231,9 @@ k9s: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	ssh -t -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS \
 	"KUBECONFIG=/home/$(USERNAME)/.kube/config:/home/$(USERNAME)/$(TESTCLUSTER)/$(TESTCLUSTER).yaml k9s --all-namespaces"
 
-PHONY: clean attach detach ssh dry-run list deploy watch openstack create log console login k9s mycloud gitchk
+deploy-cso: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
+	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
+	ssh -t -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS \
+	"KUBECONFIG=/home/$(USERNAME)/.kube/config kubectl apply -f /home/$(USERNAME)/kubernetes-manifests.d/cso.yaml --context kind-kind"
+
+PHONY: clean attach detach ssh dry-run list deploy watch openstack create log console login k9s mycloud gitchk deploy-cso
