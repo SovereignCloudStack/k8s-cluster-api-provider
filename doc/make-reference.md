@@ -80,13 +80,13 @@ want to open by setting the ``CONSOLE`` variable. The default is ``capi-mgmtclus
 ### Make clean
 
 ``make clean`` does ssh to the capi management server to clean up the created clusters prior
-to terraform cleaning up the resources it has created. This is sometimes insufficient to clean up
+to opentofu cleaning up the resources it has created. This is sometimes insufficient to clean up
 unfortunately, some error in the deployment may result in resources left around.
 
 ### Make fullclean
 
 ``make fullclean`` uses a custom script `cleanup/cleanup.sh` (using the openstack CLI) to clean up
-everything while trying to not hit any resources not created by the CAPI or terraform for
+everything while trying to not hit any resources not created by the CAPI or opentofu for
 clusters from this management host.
 It is the recommended way for doing cleanups if ``make clean`` fails. Watch out for leftover
 floating IP addresses and persistent volumes, as these can not be easily traced back to the
@@ -99,7 +99,7 @@ case we don't need the force options.
 
 You can purge the whole project via ``make purge``. Be careful with that command as it will purge
 *all resources in the OpenStack project* even those that have not been created through this
-Terraform script or the Cluster API.
+OpenTofu script or the Cluster API.
 It requires the [``ospurge``](https://opendev.org/x/ospurge) tool.
 Install it with ``python3 -m pip install git+https://git.openstack.org/openstack/ospurge``.
 
@@ -139,13 +139,13 @@ This will run tests of the configuration on testcluster using sonobuoy of the st
 
 This will run tests of the configuration on testcluster using sonobuoy of the CSI.
 
-## Terraform commands
+## OpenTofu commands
 
 ### make init
 
 ``make init``
 
-This will initialize terraform. It will download the required providers and modules.
+This will initialize opentofu. It will download the required providers and modules.
 It will also select or create a new workspace for you. The workspace name is the same as the
 ``ENVIROMENT`` variable.
 
@@ -153,38 +153,38 @@ It will also select or create a new workspace for you. The workspace name is the
 
 ``make attach RESOURCE=<resource-id> PARAMS=...``
 
-This will attach a resource to the terraform state. This is useful if you have created a resource outside of terraform
-and want to manage it with terraform.
+This will attach a resource to the opentofu state. This is useful if you have created a resource outside of opentofu
+and want to manage it with opentofu.
 
 ### make detach
 
 ``make detach RESOURCE=<resource-id> PARAMS=...``
 
-This will detach a resource from the terraform state. This is useful if you have changed a resource outside of terraform
-or you no longer want to manage it with terraform.
+This will detach a resource from the opentofu state. This is useful if you have changed a resource outside of opentofu
+or you no longer want to manage it with opentofu.
 
 ### make state-push
 
 ``make state-push``
 
-This will push the terraform state to specified storage if set. This is useful if you don't want to store the state
+This will push the opentofu state to specified storage if set. This is useful if you don't want to store the state
 locally.
 
 ### make dry-run
 
 ``make dry-run``
 
-This will run a dry-run of the terraform apply command. This is useful if you want to see what terraform will do before
+This will run a dry-run of the opentofu apply command. This is useful if you want to see what opentofu will do before
 actually doing it.
 
 ### make show
 
 ``make show``
 
-This will show the terraform state. This is useful if you want to see what terraform is managing.
+This will show the opentofu state. This is useful if you want to see what opentofu is managing.
 
 ### make list
 
 ``make list``
 
-This will list all the resources managed by terraform. This is useful if you want to see what terraform is managing.
+This will list all the resources managed by opentofu. This is useful if you want to see what opentofu is managing.

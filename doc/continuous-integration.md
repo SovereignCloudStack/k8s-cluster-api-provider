@@ -80,7 +80,7 @@ This section describes Zuul jobs defined within the k8s-cluster-api-provider pro
     availability in Zuul worker node. Parent job also defines a Zuul semaphore `semaphore-openstack-access`,
     that ensures that only one `openstack-access-base` job (or its children) can run at a time
   - See a high level `k8s-cluster-api-provider-e2e-conformance` job steps:
-    - Pre-run playbook `dependencies.yaml` installs project prerequisites, e.g. terraform, yq, etc. 
+    - Pre-run playbook `dependencies.yaml` installs project prerequisites, e.g. opentofu, yq, etc.
     - Main playbook `e2e.yaml` spawns a k8s cluster, runs sonobuoy conformance test, and cleans created infrastructure, all by k8s-cluster-api-provider scripts
     - Cleanup-run playbook `cleanup.yaml` runs `ospurge`, cleanup created application credentials and keypair to ensure that multiple e2e runs do not interfere
 
@@ -90,7 +90,7 @@ This section describes Zuul jobs defined within the k8s-cluster-api-provider pro
     availability in Zuul worker node. Parent job also defines a Zuul semaphore `semaphore-openstack-access`,
     that ensures that only one `openstack-access-base` job (or its children) can run at a time
   - See a high level `k8s-cluster-api-provider-e2e-quick` job steps:
-    - Pre-run playbook `dependencies.yaml` installs project prerequisites, e.g. terraform, yq, etc. 
+    - Pre-run playbook `dependencies.yaml` installs project prerequisites, e.g. opentofu, yq, etc.
     - Main playbook `e2e.yaml` spawns a k8s cluster, runs sonobuoy quick test, and cleans created infrastructure, all by k8s-cluster-api-provider scripts
     - Cleanup-run playbook `cleanup.yaml` runs `ospurge`, cleanup created application credentials and keypair to ensure that multiple e2e runs do not interfere
 

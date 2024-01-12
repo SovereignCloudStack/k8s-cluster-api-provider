@@ -75,7 +75,7 @@ resource "openstack_compute_instance_v2" "mgmtcluster_server" {
   }
 
   lifecycle {
-    # Prevents Terraform from trying to destroy the instance when it was created before update with labeling its volume
+    # Prevents OpenTofu from trying to destroy the instance when it was created before update with labeling its volume
     ignore_changes = [block_device]
   }
 

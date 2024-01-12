@@ -1,18 +1,18 @@
 ---
-name: Check terraform syntax
+name: Check opentofu syntax
 
 "on":
   push:
     paths:
       - 'terraform/**'
-      - '.github/workflows/check-terraform-syntax.yml'
+      - '.github/workflows/check-opentofu-syntax.yml'
   pull_request:
     paths:
       - 'terraform/**'
-      - '.github/workflows/check-terraform.yml'
+      - '.github/workflows/check-opentofu-syntax.yml'
 
 jobs:
-  check-terraform-syntax:
+  check-opentofu-syntax:
     runs-on: ubuntu-latest
 
     steps:
