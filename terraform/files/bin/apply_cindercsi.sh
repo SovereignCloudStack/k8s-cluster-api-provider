@@ -34,32 +34,29 @@ else
 fi
 echo "# Install Cinder CSI persistent storage support $CCSI_VERSION to $CLUSTER_NAME"
 
-if test -n "$SNAP_VERSION"; then
-  # deploy snapshot CRDs
-  for name in snapshot.storage.k8s.io_volumesnapshotcontents.yaml snapshot.storage.k8s.io_volumesnapshotclasses.yaml snapshot.storage.k8s.io_volumesnapshots.yaml; do
-    NAME=${name%.yaml}-$SNAP_VERSION.yaml
-    if ! test -s $NAME; then
-	curl -L https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/$SNAP_VERSION/client/config/crd/$name -o $NAME
-	echo -e "\n---" >> $NAME
-    fi
-  done
-  # FIXME: Should we ignore non-working snapshots?
-  cat snapshot.storage.k8s.io_volumesnapshot* > cindercsi-snapshot-$SNAP_VERSION.yaml
+SNAP_VERSION="master"
+# deploy snapshot CRDs
+for name in snapshot.storage.k8s.io_volumesnapshotcontents.yaml snapshot.storage.k8s.io_volumesnapshotclasses.yaml snapshot.storage.k8s.io_volumesnapshots.yaml; do
+  NAME=${name%.yaml}-$SNAP_VERSION.yaml
+  if ! test -s $NAME; then
+    curl -L https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/$SNAP_VERSION/client/config/crd/$name -o $NAME
+    echo -e "\n---" >> $NAME
+  fi
+done
+# FIXME: Should we ignore non-working snapshots?
+cat snapshot.storage.k8s.io_volumesnapshot* > cindercsi-snapshot-$SNAP_VERSION.yaml
 
-  # deploy snapshot controller
-  for name in rbac-snapshot-controller.yaml setup-snapshot-controller.yaml; do
-    NAME=${name%.yaml}-$SNAP_VERSION.yaml
-    if ! test -s $NAME; then
-      curl -L https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/$SNAP_VERSION/deploy/kubernetes/snapshot-controller/$name -o $NAME
-      echo -e "\n---" >> $NAME
-    fi
-    cat $NAME >> cindercsi-snapshot-$SNAP_VERSION.yaml
-  done
+# deploy snapshot controller
+for name in rbac-snapshot-controller.yaml setup-snapshot-controller.yaml; do
+  NAME=${name%.yaml}-$SNAP_VERSION.yaml
+  if ! test -s $NAME; then
+    curl -L https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/$SNAP_VERSION/deploy/kubernetes/snapshot-controller/$name -o $NAME
+    echo -e "\n---" >> $NAME
+  fi
+  cat $NAME >> cindercsi-snapshot-$SNAP_VERSION.yaml
+done
 
-  cp -p cindercsi-snapshot-$SNAP_VERSION.yaml ~/${CLUSTER_NAME}/deployed-manifests.d/cindercsi-snapshot.yaml
-else
-  cp -p external-snapshot-crds.yaml ~/$CLUSTER_NAME/deployed-manifests.d/cindercsi-snapshot.yaml
-fi
+cp -p cindercsi-snapshot-$SNAP_VERSION.yaml ~/${CLUSTER_NAME}/deployed-manifests.d/cindercsi-snapshot.yaml
 
 if test -n "$CCSI_VERSION"; then
   # Now get cinder
