@@ -154,7 +154,7 @@ on the cluster unless you have changed its configuration by tweaking
 The other template file that changed -- however, some terraform logic is used to
 prefill it with values. So you can't copy it from git.
 
-#####  R2 to R3
+##### R2 to R3
 
 For going from R2 to R3, there is just one real change that you want
 to apply: Add the variables `CONTROL_PLANE_MACHINE_GEN: genc01` and
@@ -225,7 +225,6 @@ This two R5 features are out of scope this script when it is applied on the exis
 configuration files as this features require advanced action such as CNI migration
 and step-by-step Kubernetes upgrade of +2 minor releases.
 
-
 If you want to update `cluster-defaults` configuration files from R4 to R5, just use script as follows:
 ```bash
 update-R4-to-R5.sh cluster-defaults
@@ -235,7 +234,6 @@ The above action updates a cluster-defaults configuration file, which is almost 
 to updating an existing cluster configuration file described above. The distinction lies
 in the fact that both the Kubernetes version and the default CNI are also updated, specifically
 to Kubernetes version v1.27.5 and Cilium as a default CNI.
-
 
 If you are curious: In R2, doing rolling upgrades of k8s versions required
 edits in `cluster-template.yaml` -- this is no longer the case in R3, R4 and R5.

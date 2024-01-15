@@ -21,7 +21,7 @@ yq --null-input '
   .contentFrom = {"secret": {"key": "cacert", "name": "${CLUSTER_NAME}-cloud-config"}}
   ' > file_tmp
 
-yq 'select(.kind == "KubeadmControlPlane").spec.kubeadmConfigSpec.files += [load("file_tmp")]' -i "$1"
+yq 'select(.kind == "KubeadmControlPlaneTemplate").spec.template.spec.kubeadmConfigSpec.files += [load("file_tmp")]' -i "$1"
 yq 'select(.kind == "KubeadmConfigTemplate").spec.template.spec.files += [load("file_tmp")]' -i "$1"
 
 rm file_tmp

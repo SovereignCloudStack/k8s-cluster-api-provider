@@ -98,7 +98,7 @@ write_files:
         "proxies": {
           "http-proxy": "${var.http_proxy}",
           "https-proxy": "${var.http_proxy}",
-          "no-proxy": "127.0.0.0/8,172.18.0.0/16,fc00:f853:ccd:e793::/64,10.96.0.0/16,10.244.0.0/16,kind-control-plane,.svc,.svc.cluster,.svc.cluster.local"
+          "no-proxy": ".svc,.svc.cluster,.svc.cluster.local,127.0.0.0/8,169.254.169.254/32,fd00:ec2::254/128,${var.node_cidr},${var.pod_cidr},${var.service_cidr},${var.no_proxy}"
         },
         %{endif}
         "mtu": ${var.kind_mtu}
@@ -119,8 +119,8 @@ write_files:
         export HTTPS_PROXY=$PROXY
         export http_proxy=$PROXY
         export https_proxy=$PROXY
-        export NO_PROXY=172.18.0.0/16,fc00:f853:ccd:e793::/64,10.96.0.0/16,10.244.0.0/16,kind-control-plane,.svc,.svc.cluster,.svc.cluster.local
-        export no_proxy=172.18.0.0/16,fc00:f853:ccd:e793::/64,10.96.0.0/16,10.244.0.0/16,kind-control-plane,.svc,.svc.cluster,.svc.cluster.local
+        export NO_PROXY=".svc,.svc.cluster,.svc.cluster.local,127.0.0.0/8,169.254.169.254/32,fd00:ec2::254/128,${var.node_cidr},${var.pod_cidr},${var.service_cidr},${var.no_proxy}"
+        export no_proxy=".svc,.svc.cluster,.svc.cluster.local,127.0.0.0/8,169.254.169.254/32,fd00:ec2::254/128,${var.node_cidr},${var.pod_cidr},${var.service_cidr},${var.no_proxy}"
       fi
     owner: root:root
     permissions: '0644'
@@ -132,7 +132,7 @@ write_files:
           "default": {
             "httpProxy": "${var.http_proxy}",
             "httpsProxy": "${var.http_proxy}",
-            "noProxy": "127.0.0.0/8,172.18.0.0/16,fc00:f853:ccd:e793::/64,10.96.0.0/16,10.244.0.0/16,kind-control-plane,.svc,.svc.cluster,.svc.cluster.local"
+            "noProxy": ".svc,.svc.cluster,.svc.cluster.local,127.0.0.0/8,169.254.169.254/32,fd00:ec2::254/128,${var.node_cidr},${var.pod_cidr},${var.service_cidr},${var.no_proxy}"
           }
         }
        }

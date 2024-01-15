@@ -12,10 +12,12 @@ clusterapi_version   = "<1.x.y>"		  # defaults to "1.5.1"
 capi_openstack_version = "<0.x.y>"		  # defaults to "0.8.0"
 image                = "<glance_image>"		  # defaults to "Ubuntu 22.04"
 cilium_binaries      = "<v0.aa.bb;v0.xx.yy>"      # defaults to "v0.15.7;v0.12.0"
+mgmt_cidr            = "<CIDR>"         # defaults to "10.0.0.0/24"
+mgmt_ip_range        = {"start": "<start of the IP range>", "end": "<end of the IP range>"} # defaults to '{"start": "10.0.0.11", "end": "10.0.0.254"}'
 # Settings for testcluster
 kubernetes_version   = "<v1.XX.XX>"		  # defaults to "v1.27.x"
 kube_image_raw       = "<boolean>"      # defaults to "true"
-calico_version       = "<v3.xx.y>"	# defaults to "v3.26.1"
+calico_version       = "<v3.xx.y>"	# defaults to "v3.26.4"
 controller_flavor    = "<flavor>"       # defaults to SCS-2V-4-20s (use etcd tweaks if you only have SCS-2V-4-20 in multi-controller setups)
 worker_flavor        = "<flavor>"       # defaults to SCS-2V-4-20s  (larger helps)
 controller_count     = <number>         # defaults to 1 (0 skips testcluster creation)
