@@ -209,7 +209,7 @@ while read LB FIP; do
 		if test -z "$DEBUG"; then $OPENSTACK floating ip delete $FID; fi
 	fi
 done < <(echo "$LBS")
-SRV=$(resourcelist server "$CAPIPRE-$CLUSTER\|$CLUSTER-control-plane")
+SRV=$(resourcelist server "$CAPIPRE-$CLUSTER\|$CLUSTER-")
 SRVVOL=$(server_vols $SRV)
 if test -n "$DEBUG"; then echo "### Attached volumes to "${SRV}": $SRVVOL"; fi
 #cleanup server $CAPIPRE-$CLUSTER
@@ -219,7 +219,7 @@ if test -n "$NOCASCADE"; then
 else
 	cleanup_list loadbalancer 1 "--cascade" "$LBS"
 fi
-cleanup port "$CAPIPRE-$CLUSTER\|$CLUSTER-control-plane"
+cleanup port "$CAPIPRE-$CLUSTER\|$CLUSTER-"
 RTR=$(resourcelist router "$CAPIPRE2ALL")
 SUBNETS=$(resourcelist subnet "$CAPIPRE2ALL")
 if test -n "$RTR" -a -n "$SUBNETS"; then
@@ -245,7 +245,7 @@ cleanup_list volume "" "" "$SRVVOL"
 #cleanup "image" ubuntu-capi-image
 cleanup "server group" "$CAPIPRE-$CLUSTER"
 # Normally, the volumes should be all gone, but if there's one left, take care of it
-cleanup volume "$CAPIPRE-$CLUSTER\|$CLUSTER-control-plane"
+cleanup volume "$CAPIPRE-$CLUSTER\|$CLUSTER-"
 cleanup "application credential" "$CAPIPRE-$CLUSTER-appcred"
 cleanup container "$CAPIPRE-$CLUSTER-harbor-registry"
 
