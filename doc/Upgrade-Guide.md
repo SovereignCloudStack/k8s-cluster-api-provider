@@ -341,11 +341,11 @@ If you decide to migrate your existing Kubernetes cluster from R4 to R5 be aware
 
 Follow the below steps if you want to migrate an existing cluster from R4 to R5:
 1. Access your management node
-2. Checkout R5 tag
+2. Checkout R5 branch
    ```bash
    cd k8s-cluster-api-provider
    git pull
-   git checkout tags/v6.0.0
+   git checkout maintained/v6.x
    ```
 3. Backup an existing cluster configuration files (recommended)
    ```bash
