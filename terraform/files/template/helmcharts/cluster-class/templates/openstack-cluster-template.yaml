@@ -6,12 +6,16 @@ metadata:
 spec:
   template:
     spec:
+      allowAllInClusterTraffic: true
       cloudName: {{ .Values.prefix }}-{{ .Values.testcluster_name }}
       identityRef:
         name: {{ .Values.testcluster_name }}-cloud-config
         kind: Secret
       apiServerLoadBalancer:
         enabled: true
+{{- if .Values.restrict_kubeapi }}
+        allowedCidrs: {{ .Values.restrict_kubeapi}}
+{{- end }}
       managedSecurityGroups: true
       nodeCidr: {{ .Values.node_cidr }}
       dnsNameservers: {{ .Values.dns_nameservers }}
