@@ -5,7 +5,7 @@
 . /etc/profile.d/proxy.sh
 
 # install k9s
-K9S_VERSION=v0.31.5 # renovate: datasource=github-releases depName=derailed/k9s
+K9S_VERSION=v0.31.6 # renovate: datasource=github-releases depName=derailed/k9s
 echo "# install k9s $K9S_VERSION"
 ARCH=$(uname -m | sed 's/x86_64/amd64/')
 # TODO: Check signature
