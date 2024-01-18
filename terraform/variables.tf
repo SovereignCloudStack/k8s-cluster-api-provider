@@ -73,7 +73,7 @@ variable "clusterapi_version" {
 variable "capi_openstack_version" {
   description = "desired version of the OpenStack cluster-api provider"
   type        = string
-  default     = "0.8.0" # renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api-provider-openstack
+  default     = "0.9.0" # renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api-provider-openstack
 }
 
 variable "kubernetes_version" {
