@@ -1,5 +1,5 @@
 diff --git a/terraform/files/template/cluster-template.yaml b/terraform/files/template/cluster-template.yaml
-index 43560bc..469b829 100644
+index 43560bc..c0b6f82 100644
 --- a/terraform/files/template/cluster-template.yaml
 +++ b/terraform/files/template/cluster-template.yaml
 @@ -7,10 +7,12 @@ metadata:
@@ -101,9 +101,9 @@ index 43560bc..469b829 100644
 +              echo "Warning: forced defragmentation on non leader!"
 +            else
 +              echo "Exit on non leader (use --force-nonleader optional argument if you want to force defragmentation on non leader)"
-               exit 0
++              exit 0
 +            fi
-           fi
++          fi
 +
 +          # Check health of all etcd members
 +          while read MEMBER; do
@@ -130,9 +130,9 @@ index 43560bc..469b829 100644
 +              echo "Warning: forced defragmentation on single member etcd!"
 +            else
 +              echo "Exit on single member etcd (use --force-single optional argument if you want to force defragmentation on single member etcd)"
-+              exit 0
+               exit 0
 +            fi
-+          fi
+           fi
 +
 +          # Skip step-by-step defragmentation if the defragmentation on single member etcd is forced
 +          if test -z "$FORCE_SINGLE"; then
@@ -171,7 +171,7 @@ index 43560bc..469b829 100644
            chmod 0600 /root/etcd-backup
            xz -f /root/etcd-backup
            fstrim -v /var/lib/etcd
-@@ -127,7 +227,6 @@ spec:
+@@ -127,12 +227,22 @@ spec:
 
            [Timer]
            OnCalendar=*-*-* 02:30:00
@@ -179,7 +179,23 @@ index 43560bc..469b829 100644
 
            [Install]
            WantedBy=timers.target
-@@ -144,12 +243,25 @@ spec:
++      - path: /root/tweak-kubeapi-memlimit.sh
++        owner: root:root
++        permissions: "0755"
++        content: |
++          #!/bin/bash
++          grep '^      limits:' /etc/kubernetes/manifests/kube-apiserver.yaml >/dev/null 2>&1 && exit 0
++          MEM=$(free -m | grep '^Mem:' | awk '{print $2;}')
++          CPU=$(grep '^processor' /proc/cpuinfo | wc -l)
++          sed -i "/^ *requests:/i\      limits:\n        memory: $((10+3*$MEM/4))M\n        cpu: $((750*$CPU))m" /etc/kubernetes/manifests/kube-apiserver.yaml
++          sed -i "/^ *requests:/a\        memory: 512M" /etc/kubernetes/manifests/kube-apiserver.yaml
+     postKubeadmCommands:
+       - if test "${ETCD_UNSAFE_FS}" = "true"; then mount -o remount,barrier=0,commit=20 /; sed -i 's@errors=remount-ro@errors=remount-ro,barrier=0,commit=20@' /etc/fstab; fi
++      - /root/tweak-kubeapi-memlimit.sh
+       - sync; systemctl restart kubelet    # We should no longer need this
+       - while test -z "$EPID"; do sleep 5; EPID=`pgrep etcd`; done; renice -10 $EPID; ionice -c2 -n0 -p $EPID
+       - systemctl enable etcd-defrag.service
+@@ -144,12 +254,25 @@ spec:
        - apt-get update -y
        - TRIMMED_KUBERNETES_VERSION=$(echo ${KUBERNETES_VERSION} | sed 's/\./\./g' | sed 's/^v//')
        - RESOLVED_KUBERNETES_VERSION=$(apt-cache policy kubelet | sed 's/\*\*\*//' | awk -v VERSION=$${TRIMMED_KUBERNETES_VERSION} '$1~ VERSION { print $1 }' | head -n1)
@@ -194,7 +210,7 @@ index 43560bc..469b829 100644
        - systemctl daemon-reload
 +      - systemctl restart containerd.service
 +      # Install etcdctl
-+      - ETCDCTL_VERSION=v3.5.7
++      - ETCDCTL_VERSION=v3.5.9
 +      - curl -L https://github.com/coreos/etcd/releases/download/$${ETCDCTL_VERSION}/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz -o /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz
 +      - tar xzvf /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz -C /tmp/
 +      - sudo cp /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64/etcdctl /usr/local/bin/
@@ -207,7 +223,7 @@ index 43560bc..469b829 100644
  apiVersion: infrastructure.cluster.x-k8s.io/v1alpha6
  kind: OpenStackMachineTemplate
  metadata:
-@@ -191,11 +303,11 @@ spec:
+@@ -191,11 +314,11 @@ spec:
            kind: KubeadmConfigTemplate
        infrastructureRef:
          name: "${PREFIX}-${CLUSTER_NAME}-md-0-${WORKER_MACHINE_GEN}"
@@ -221,7 +237,7 @@ index 43560bc..469b829 100644
  apiVersion: infrastructure.cluster.x-k8s.io/v1alpha6
  kind: OpenStackMachineTemplate
  metadata:
-@@ -236,7 +348,14 @@ spec:
+@@ -236,7 +359,14 @@ spec:
          - TRIMMED_KUBERNETES_VERSION=$(echo ${KUBERNETES_VERSION} | sed 's/\./\./g' | sed 's/^v//')
          - RESOLVED_KUBERNETES_VERSION=$(apt-cache policy kubelet | sed 's/\*\*\*//' | awk -v VERSION=$${TRIMMED_KUBERNETES_VERSION} '$1~ VERSION { print $1 }' | head -n1)
          - apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips containerd kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
