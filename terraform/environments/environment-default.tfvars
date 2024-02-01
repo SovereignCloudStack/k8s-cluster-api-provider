@@ -11,7 +11,7 @@ ssh_username         = "<username_for_ssh>"	  # defaults to "ubuntu"
 clusterapi_version   = "<1.x.y>"		  # defaults to "1.5.1"
 capi_openstack_version = "<0.x.y>"		  # defaults to "0.8.0"
 image                = "<glance_image>"		  # defaults to "Ubuntu 22.04"
-cilium_binaries      = "<v0.aa.bb;v0.xx.yy>"      # defaults to "v0.15.7;v0.12.0"
+cilium_binaries      = "<v0.aa.bb;v0.xx.yy>"      # defaults to "v0.15.21;v0.13.0"
 mgmt_cidr            = "<CIDR>"         # defaults to "10.0.0.0/24"
 mgmt_ip_range        = {"start": "<start of the IP range>", "end": "<end of the IP range>"} # defaults to '{"start": "10.0.0.11", "end": "10.0.0.254"}'
 # Settings for testcluster
