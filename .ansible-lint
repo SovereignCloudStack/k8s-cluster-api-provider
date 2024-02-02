@@ -5,6 +5,5 @@ skip_list:
 # Roles and modules imported from https://opendev.org/zuul/zuul-jobs
 mock_roles:
   - ensure-pip
-  - ensure-terraform
 mock_modules:
   - zuul_return

@@ -2,7 +2,7 @@
 # used for cluster-api-nodes
 resource "openstack_compute_secgroup_v2" "security_group_ssh" {
   name        = "${var.prefix}-allow-ssh"
-  description = "security group for ssh 22/tcp (managed by terraform)"
+  description = "security group for ssh 22/tcp (managed by opentofu)"
 
   rule {
     cidr        = "0.0.0.0/0"
@@ -29,7 +29,7 @@ resource "openstack_compute_secgroup_v2" "security_group_icmp" {
 #
 resource "openstack_compute_secgroup_v2" "security_group_mgmt" {
   name        = "${var.prefix}-mgmt"
-  description = "security group for mgmtcluster (managed by terraform)"
+  description = "security group for mgmtcluster (managed by opentofu)"
 
   dynamic "rule" {
     for_each = var.restrict_mgmt_server
@@ -75,7 +75,7 @@ data "openstack_networking_network_v2" "external" {
 
 resource "openstack_networking_router_v2" "router_mgmt" {
   name                    = "${var.prefix}-rtr"
-  description             = "router for mgmtcluster (managed by terraform)"
+  description             = "router for mgmtcluster (managed by opentofu)"
   external_network_id     = data.openstack_networking_network_v2.external.id
   availability_zone_hints = [var.availability_zone] # comment this out if your cloud does not have network AZs
 }
