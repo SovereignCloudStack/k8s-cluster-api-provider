@@ -56,6 +56,7 @@ use_ovn()
 	set_cfg_octavia "lb-provider" "ovn"
 	set_cfg_octavia "lb-method" "SOURCE_IP_PORT"
 	set_cfg_octavia "create-monitor" "true"
+	return 0
 }
 
 disable_ovn()
