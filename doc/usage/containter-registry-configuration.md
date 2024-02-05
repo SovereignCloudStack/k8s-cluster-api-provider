@@ -18,7 +18,7 @@ This feature could be useful in various uses cases, e.g.:
 SCS KaaS reference implementation allows users to pass container registry host config
 files to configure containerd. Containerd configuration is applied cluster wide as it
 is CRI used in SCS KaaS clusters. Additional registry host config files for containerd
-could be passed through the `containerd_registry_files` terraform variable. This variable
+could be passed through the `containerd_registry_files` opentofu variable. This variable
 expects an object with two attributes:
 
 - `hosts` attribute defines additional registry host config files for containerd.
@@ -33,11 +33,11 @@ The default value of the `containerd_registry_files` variable instructs containe
 container registry, see related
 issue [#417](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/417).
 The host config file used as a default is
-defined [here](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/1b6ef9d4c64c94bc77144a072e0309d484de54be/terraform/files/containerd/docker.io).  
+defined [here](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/terraform/files/containerd/docker.io).
 This should prevent issues with pull rate limiting from DockerHub public container registry,
 e.g. [#414](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/414).
 
-The above default value could be overridden using any techniques that Terraform allows, e.g.
+The above default value could be overridden using any techniques that OpenTofu allows, e.g.
 via environment variable:
 
 ```bash
@@ -80,7 +80,7 @@ upgrade existing environments (workload clusters) with stable releases which are
 tested.
 
 This tutorial instructs (advanced) users what needs to be done on the cluster management
-instance without re-deploying it via Terraform. Patches described in this tutorial
+instance without re-deploying it via OpenTofu. Patches described in this tutorial
 modify existing environment with changes that have been developed within "containerd registry"-related PRs:
 - PR#432
 - PR#447

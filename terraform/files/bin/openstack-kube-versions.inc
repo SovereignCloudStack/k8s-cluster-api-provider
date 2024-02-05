@@ -3,13 +3,13 @@
 # (c) Kurt Garloff <kurt@garloff.de>, 3/2022
 # SPDX-License-Identifier: Apache-2.0
 # Images from https://swift.services.a.regiocloud.tech/swift/v1/AUTH_b182637428444b9aa302bb8d5a5a418c/openstack-k8s-capi-images
-k8s_versions=("v1.18.20" "v1.19.16" "v1.20.15" "v1.21.14" "v1.22.17" "v1.23.16" "v1.24.15" "v1.25.15" "v1.26.11" "v1.27.8" "v1.28.4" "v1.29.1")
+k8s_versions=("v1.21.14" "v1.22.17" "v1.23.16" "v1.24.15" "v1.25.15" "v1.26.11" "v1.27.8" "v1.28.4" "v1.29.1")
 # OCCM, CCM-RBAC, Cinder CSI, Cinder-Snapshot (TODO: Manila CSI)
-occm_versions=(""         ""       "v1.21.1"   "v1.21.1"  "v1.22.2"  "v1.23.4"  "v1.24.6" "v1.25.6" "v1.26.4" "v1.27.3" "v1.28.1" "v1.29.0")
-#ccmr_versions=(""         ""        ""         ""         "v1.22.2"  "v1.23.4"  "v1.24.6" "v1.25.6" "v1.26.4" "v1.27.3" "v1.28.1" "v1.29.0")
-ccmr_versions=(""         ""        "v1.22.2"  "v1.22.2"  "v1.22.2"  "v1.23.4"  "v1.24.6" "v1.25.6" "v1.26.4" "v1.27.3" "v1.28.1" "v1.29.0")
-ccsi_versions=(""         ""        "v1.20.5"  "v1.21.1"  "v1.22.2"  "v1.23.4"  "v1.24.6" "v1.25.6" "v1.26.4" "v1.27.3" "v1.28.1" "v1.29.0")
-min_snapshot_master="v1.21.0"
+occm_versions=("v1.21.1"  "v1.22.2"  "v1.23.4"  "v1.24.6" "v1.25.6" "v1.26.4" "v1.27.3" "v1.28.1" "v1.29.0")
+#ccmr_versions=(""         "v1.22.2"  "v1.23.4"  "v1.24.6" "v1.25.6" "v1.26.4" "v1.27.3" "v1.28.1" "v1.29.0")
+ccmr_versions=("v1.22.2"  "v1.22.2"  "v1.23.4"  "v1.24.6" "v1.25.6" "v1.26.4" "v1.27.3" "v1.28.1" "v1.29.0")
+ccsi_versions=("v1.21.1"  "v1.22.2"  "v1.23.4"  "v1.24.6" "v1.25.6" "v1.26.4" "v1.27.3" "v1.28.1" "v1.29.0")
+
 # Versions that require a --allow-preview-versions flag
 techprev_versions=("v1.28" "v2")
 
@@ -83,8 +83,6 @@ find_openstack_versions()
 	NUMV=${#k8s_versions[*]}
 	k8min=$(dotversion ${k8s_versions[0]%.*})
 	k8max=$(dotversion ${k8s_versions[$((NUMV-1))]%.*})
-	snapmaster=$(dotversion $min_snapshot_master)
-	if test $k8vers -lt $snapmaster; then SNAP_VERSION=""; else SNAP_VERSION="master"; fi
 	#echo "$k8vers $k8min $k8max"
 	if test $k8vers -lt $k8min; then setversions 0; return 0; fi
 	if test $k8vers -gt $((k8max+99)); then setversions $((NUMV-1)); return 0; fi

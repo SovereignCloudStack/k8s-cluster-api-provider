@@ -12,12 +12,12 @@ Linux/MacOS/WSL laptop.
 Requirements for the deployment host:
 
 - You need to have installed:
-    - Terraform (<https://learn.hashicorp.com/tutorials/terraform/install-cli>).
+    - OpenTofu (<https://opentofu.org/docs/intro/install/>).
     - `yq` (python3-yq or yq snap)
     - GNU make
     - openstack (python3-openstackclient) and plugin for octavia (python3-octaviaclient) Via pip or your distribution.
       *Needed only in case you want to clean the management server or interact with openstack directly.*
-- You must have credentials to access the cloud. Terraform will look for `clouds.yaml` and optionally `secure.yaml` in
+- You must have credentials to access the cloud. OpenTofu will look for `clouds.yaml` and optionally `secure.yaml` in
   the current working directory (`terraform`), in `~/.config/openstack/` or `/etc/openstack` (in this order), just like
   the [openstack client](https://docs.openstack.org/python-openstackclient/latest/configuration/index.html#clouds-yaml).
 - The API endpoints of the OpenStack cloud should have a certificate signed by a trusted CA. (Self-signed or custom CAs
