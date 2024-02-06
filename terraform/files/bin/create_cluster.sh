@@ -61,7 +61,7 @@ configure_proxy.sh $CLUSTERAPI_TEMPLATE || exit 1
 # Handle wanted OVN loadbalancer
 handle_ovn_lb.sh "$CLUSTER_NAME" || exit 1
 # Determine whether we need a new application credential
-create_appcred.sh || exit 1
+create_appcred.sh "$CLUSTER_NAME" || exit 1
 # Update OS_CLOUD
 #export OS_CLOUD=$PREFIX-$CLUSTER_NAME
 export OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)
