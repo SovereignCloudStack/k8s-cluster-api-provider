@@ -7,17 +7,18 @@
     kubectl_version: "1.28.1"
     openstackclient_version: "6.2.0"
     octaviaclient_version: "3.4.0"
-    tf_version: "1.4.6"
+    opentofu_version: "1.6.0"
     install_dir: "{{ ansible_user_dir }}/.local/bin"
   environment:
     PATH: "{{ install_dir }}:{{ ansible_env.PATH }}"
   roles:
   - role: ensure-pip  # https://zuul-ci.org/docs/zuul-jobs/latest/python-roles.html#role-ensure-pip
-  - role: ensure-terraform  # https://zuul-ci.org/docs/zuul-jobs/latest/hashicorp-roles.html#role-ensure-terraform
-    vars:
-      terraform_version: "{{ tf_version }}"
-      terraform_install_dir: "{{ install_dir }}"
   tasks:
+  - name: Make sure installation directory exists
+    ansible.builtin.file:
+      path: "{{ install_dir }}"
+      state: directory
+      mode: 0755
   - name: Install jq
     ansible.builtin.get_url:
       url: "https://github.com/jqlang/jq/releases/download/jq-{{ jq_version }}/jq-linux64"
@@ -44,6 +45,46 @@
       extra_args: --user
   - name: Install ip command
     ansible.builtin.package:
-      name:
-        - iproute2
+      name: iproute2
     become: true
+  - name: Install OpenTofu
+    # TODO: write separate role ensure-opentofu, see https://opendev.org/zuul/zuul-jobs/src/branch/master/roles/ensure-terraform
+    block:
+      - name: Install unzip
+        ansible.builtin.package:
+          name: unzip
+        become: true
+      - name: Create temp directory
+        ansible.builtin.tempfile:
+          state: directory
+        register: tofu_install_tempdir
+      - name: Download OpenTofu archive
+        ansible.builtin.get_url:
+          url: "https://github.com/opentofu/opentofu/releases/download/v{{ opentofu_version }}/tofu_{{ opentofu_version }}_linux_amd64.zip"
+          dest: "{{ tofu_install_tempdir.path }}/opentofu.zip"
+          mode: 0644
+      # TODO: checksum
+      - name: Create OpenTofu package directory
+        ansible.builtin.file:
+          path: "{{ tofu_install_tempdir.path }}/opentofu"
+          state: directory
+          mode: 0755
+      - name: Unarchive OpenTofu
+        ansible.builtin.unarchive:
+          src: "{{ tofu_install_tempdir.path }}/opentofu.zip"
+          dest: "{{ tofu_install_tempdir.path }}/opentofu"
+          remote_src: true
+      - name: Install OpenTofu
+        ansible.builtin.copy:
+          src: "{{ tofu_install_tempdir.path }}/opentofu/tofu"
+          dest: "{{ install_dir }}/tofu"
+          mode: "+x"
+          remote_src: true
+      - name: Remove temp directory
+        ansible.builtin.file:
+          path: "{{ tofu_install_tempdir }}"
+          state: absent
+      - name: Output OpenTofu version
+        ansible.builtin.command: "tofu version"
+        register: tofu_version
+        changed_when: tofu_version.rc != 0

@@ -28,7 +28,7 @@ Here the file `ca-bundle.pem` contains custom root CA and potentially intermedia
 Steps of what happens with the custom cacert in k8s-cluster-api-provider:
 1. `cacert` setting is provided inside clouds.yaml
 2. Cacert file referenced by `cacert` key (1.) is copied to the management server
-   directory `~/cluster-defaults/${cloud_provider}-cacert` by Terraform
+   directory `~/cluster-defaults/${cloud_provider}-cacert` by OpenTofu
 3. During the management server bootstrap process cacert is injected to
    the *~/cluster-defaults/cluster-template.yaml* to *KubeadmControlPlane* and *KubeadmConfigTemplate* files
    as file with cacert content from already defined secret *${CLUSTER_NAME}-cloud-config* and will be later
