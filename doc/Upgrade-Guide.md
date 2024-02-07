@@ -155,7 +155,7 @@ on the cluster unless you have changed its configuration by tweaking
 `cluster-template.yaml` (which you almost never do!) or `clusterctl.yaml`
 (which you do often).
 
-The other template file that changed -- however, some terraform logic is used to
+The other template file that changed -- however, some opentofu logic is used to
 prefill it with values. So you can't copy it from git.
 
 ##### R2 to R3

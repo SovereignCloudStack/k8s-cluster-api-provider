@@ -72,9 +72,7 @@ OPENSTACK_DNS_NAMESERVERS: "[ %{ for dnsip in dns_nameservers ~} ${dnsip}, %{ en
 
 OPENSTACK_SSH_KEY_NAME: ${prefix}-keypair
 
-OPENSTACK_CONTROL_PLANE_IP: 127.0.0.1
-
-# Use anti-affinity server groups (not working yet)
+# Use anti-affinity server groups
 OPENSTACK_ANTI_AFFINITY: ${anti_affinity}
 OPENSTACK_SRVGRP_CONTROLLER: nonono
 OPENSTACK_SRVGRP_WORKER: nonono

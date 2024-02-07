@@ -1,6 +1,6 @@
 # Application Credentials
 
-The terraform creates an [application credential](https://docs.openstack.org/keystone/wallaby/user/application_credentials.html) that it passes into the created VM. This one is then used to authenticate the cluster API provider against the OpenStack API to allow it to create resources needed for the k8s cluster.
+OpenTofu creates an [application credential](https://docs.openstack.org/keystone/wallaby/user/application_credentials.html) that it passes into the created VM. This one is then used to authenticate the cluster API provider against the OpenStack API to allow it to create resources needed for the k8s cluster.
 
 The AppCredential has a few advantages:
 

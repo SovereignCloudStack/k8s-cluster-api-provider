@@ -7,7 +7,7 @@ via [cluster-api](https://cluster-api.sigs.k8s.io/)(CAPI).
 
 - make
 - kubectl
-- terraform
+- opentofu
 - yq
 - python3-openstackclient, python3-octaviaclient
 

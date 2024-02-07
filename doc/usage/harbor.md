@@ -4,7 +4,7 @@ Project [k8s-harbor](https://github.com/SovereignCloudStack/k8s-harbor) is used 
 container registry deployment https://registry.scs.community/.
 
 With this project, it is possible to deploy Harbor in a similar way into the workload cluster.
-If you want to deploy Harbor, set terraform variable `deploy_harbor = true`. It will deploy
+If you want to deploy Harbor, set opentofu variable `deploy_harbor = true`. It will deploy
 Harbor with [default options](#default-deployment). The recommended approach is to
 set up also [persistence](#persistence) and [ingress with tls](#ingress-and-tls).
 
