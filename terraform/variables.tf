@@ -206,7 +206,7 @@ variable "use_cilium" {
 variable "cilium_binaries" {
   description = "cilium and hubble CLI versions in the vA.B.C;vX.Y.Z format"
   type        = string
-  default     = "v0.15.7;v0.12.0"
+  default     = "v0.15.21;v0.13.0"
 }
 
 variable "etcd_unsafe_fs" {
