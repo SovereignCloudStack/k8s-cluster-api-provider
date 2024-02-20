@@ -56,7 +56,7 @@ configure_containerd.sh $CLUSTERAPI_TEMPLATE $CLUSTER_NAME || exit 1
 configure_containerd_proxy.sh $CLUSTERAPI_TEMPLATE || exit 1
 
 # Configure template so that controlplane and worker nodes use use the configured proxy
-configure_proxy.sh $CLUSTERAPI_TEMPLATE || exit 1
+configure_proxy.sh $CLUSTERAPI_TEMPLATE $CCCFG || exit 1
 
 # Handle wanted OVN loadbalancer
 handle_ovn_lb.sh "$CLUSTER_NAME" || exit 1
