@@ -1,7 +1,7 @@
 #!/bin/bash
 # Download and deploy helm
 . /etc/profile.d/proxy.sh
-HELMVER=3.12.3
+HELMVER=3.14.1
 OS=linux; ARCH=$(uname -m | sed 's/x86_64/amd64/')
 curl -LO https://get.helm.sh/helm-v${HELMVER}-$OS-$ARCH.tar.gz
 tar xvzf helm-v${HELMVER}-$OS-$ARCH.tar.gz
