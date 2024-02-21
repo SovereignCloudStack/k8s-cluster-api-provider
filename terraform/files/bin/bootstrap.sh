@@ -17,7 +17,7 @@ else
   ARCH=`uname -m`
   if test "$ARCH" = "x86_64"; then ARCH=amd64; fi
   # FIXME: CHECK SIGNATURE
-  curl -LO https://github.com/mikefarah/yq/releases/download/v4.35.1/yq_linux_$ARCH
+  curl -LO https://github.com/mikefarah/yq/releases/download/v4.40.7/yq_linux_$ARCH
   chmod +x yq_linux_$ARCH
   sudo mv yq_linux_$ARCH /usr/local/bin/yq
 fi
@@ -40,14 +40,14 @@ if type snap >/dev/null 2>&1; then
 else
   sudo apt-get install --no-install-recommends --no-install-suggests -y apt-transport-https ca-certificates curl gnupg2
   # FIXME: CHECK SIGNATURE
-  KUBECTLVER=v1.27
+  KUBECTLVER=v1.28
   curl -fsSL https://pkgs.k8s.io/core:/stable:/$KUBECTLVER/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
   #sudo mkdir -m 755 /etc/apt/keyrings
   echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/$KUBECTLVER/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
   sudo apt-get update
   sudo apt-get install -y kubectl
   # FIXME: CHECK SIGNATURE
-  KUSTVER=v5.1.1
+  KUSTVER=v5.3.0
   curl -L https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/$KUSTVER/kustomize_${KUSTVER}_linux_amd64.tar.gz | tar xvz
   #chmod +x kustomize
   sudo mv kustomize /usr/local/bin/
