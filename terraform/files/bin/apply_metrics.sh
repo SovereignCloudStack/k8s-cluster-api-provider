@@ -11,7 +11,7 @@ if [ -z ${KCONTEXT} ]; then
   set_workload_cluster_kubectl_namespace
 fi
 
-METRICS_VERSION=v0.6.4
+METRICS_VERSION=v0.7.0
 
 echo "Deploy metrics server to $CLUSTER_NAME"
 # Metrics server
