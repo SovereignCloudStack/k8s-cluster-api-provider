@@ -8,7 +8,7 @@ external_id          = "<external_network_ID>"    # defaults to "" using auto-de
 dns_nameservers      = [ "DNS_IP1", "DNS_IP2" ]	  # defaults to [ "5.1.66.255", "185.150.99.255" ] (FF MUC)
 kind_flavor          = "<flavor>"                 # defaults to SCS-2V-4  (larger does not hurt)
 ssh_username         = "<username_for_ssh>"	  # defaults to "ubuntu"
-clusterapi_version   = "<1.x.y>"		  # defaults to `1.6.1` <!-- renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api -->
+clusterapi_version   = "<1.x.y>"		  # defaults to `1.6.2` <!-- renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api -->
 capi_openstack_version = "<0.x.y>"		  # defaults to `0.9.0` <!-- renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api-provider-openstack -->
 image                = "<glance_image>"		  # defaults to "Ubuntu 22.04"
 cilium_binaries      = "<v0.aa.bb;v0.xx.yy>"      # defaults to "v0.15.21;v0.13.0"
