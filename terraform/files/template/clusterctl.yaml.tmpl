@@ -53,6 +53,9 @@ OPENSTACK_FAILURE_DOMAIN: ${availability_zone}
 
 ETCD_UNSAFE_FS: ${etcd_unsafe_fs}
 
+# configure_proxy.sh sets it to ". /etc/profile.d/proxy.sh; "
+PROXY_CMD: ""
+
 # CIDRs
 NODE_CIDR: ${node_cidr}
 SERVICE_CIDR: ${service_cidr}
