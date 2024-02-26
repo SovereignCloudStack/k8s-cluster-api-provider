@@ -15,8 +15,3 @@ subdirectory and is most conveniently accessible via the docusaurus rendering
 on <https://docs.scs.community/docs/category/k8s-cluster-api-provider>.
 
 Please also consider reading the project specific release notes here.
-
-<!-- Remove this soon! -->
-Until the rendering is fully proofread, the [old README.md](OLD_README.md)
-remains accessible.
-

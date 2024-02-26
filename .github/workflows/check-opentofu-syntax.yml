@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: create config
         run: cp clouds.yaml.sample clouds.yaml
         working-directory: ./terraform
@@ -27,7 +27,7 @@ jobs:
       - name: Setup OpenTofu
         uses: opentofu/setup-opentofu@v1
         with:
-          tofu_version: 1.6.0  # renovate: datasource=github-releases depName=opentofu/opentofu
+          tofu_version: 1.6.1
       - name: Tofu init
         run: tofu init
         working-directory: ./terraform

@@ -21,7 +21,7 @@ mkdir -p ~/$CLUSTER_NAME/deployed-manifests.d/harbor
 cd ~/$CLUSTER_NAME/deployed-manifests.d/harbor
 
 # download scripts
-TAG=v5.1.1
+TAG=v6.1.1
 RAW_TAG_URL="https://raw.githubusercontent.com/SovereignCloudStack/k8s-harbor/$TAG"
 if test ! -s ~/bin/harbor-secrets.bash; then
   curl -L "$RAW_TAG_URL/base/harbor-secrets.bash" -o ~/bin/harbor-secrets.bash || exit 2

@@ -61,7 +61,7 @@ configure_proxy.sh $CLUSTERAPI_TEMPLATE || exit 1
 # Handle wanted OVN loadbalancer
 handle_ovn_lb.sh "$CLUSTER_NAME" || exit 1
 # Determine whether we need a new application credential
-create_appcred.sh || exit 1
+create_appcred.sh "$CLUSTER_NAME" || exit 1
 # Update OS_CLOUD
 #export OS_CLOUD=$PREFIX-$CLUSTER_NAME
 export OS_CLOUD=$(yq eval '.OPENSTACK_CLOUD' $CCCFG)
@@ -184,14 +184,15 @@ MTU_VALUE=$(yq eval '.MTU_VALUE' $CCCFG)
 if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
   DEPLOY_GATEWAY_API=$(yq eval '.DEPLOY_GATEWAY_API == true' $CCCFG)
   if test "${DEPLOY_GATEWAY_API}" = "true"; then
-    kubectl --context=$KCONTEXT apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.1/config/crd/standard/gateway.networking.k8s.io_gatewayclasses.yaml
-    kubectl --context=$KCONTEXT apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.1/config/crd/standard/gateway.networking.k8s.io_gateways.yaml
-    kubectl --context=$KCONTEXT apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.1/config/crd/standard/gateway.networking.k8s.io_httproutes.yaml
-    kubectl --context=$KCONTEXT apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.1/config/crd/standard/gateway.networking.k8s.io_referencegrants.yaml
-    kubectl --context=$KCONTEXT apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.1/config/crd/experimental/gateway.networking.k8s.io_tlsroutes.yaml
+    kubectl --context=$KCONTEXT apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.0.0/config/crd/standard/gateway.networking.k8s.io_gatewayclasses.yaml
+    kubectl --context=$KCONTEXT apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.0.0/config/crd/standard/gateway.networking.k8s.io_gateways.yaml
+    kubectl --context=$KCONTEXT apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.0.0/config/crd/standard/gateway.networking.k8s.io_httproutes.yaml
+    kubectl --context=$KCONTEXT apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.0.0/config/crd/standard/gateway.networking.k8s.io_referencegrants.yaml
+    kubectl --context=$KCONTEXT apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.0.0/config/crd/experimental/gateway.networking.k8s.io_grpcroutes.yaml
+    kubectl --context=$KCONTEXT apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.0.0/config/crd/experimental/gateway.networking.k8s.io_tlsroutes.yaml
   fi
   # FIXME: Do we need to allow overriding MTU here as well?
-  CILIUM_VERSION="v1.14.1"
+  CILIUM_VERSION="v1.15.1"
   if test "${USE_CILIUM:0:1}" = "v"; then
     CILIUM_VERSION="${USE_CILIUM}"
   fi
