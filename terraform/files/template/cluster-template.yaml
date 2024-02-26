@@ -288,13 +288,13 @@ spec:
           - systemctl enable etcd-defrag.service
           - systemctl enable --now etcd-defrag.timer
         preKubeadmCommands:
-          - . /etc/profile.d/proxy.sh; DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https curl
-          - . /etc/profile.d/proxy.sh; curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+          - ${PROXY_CMD}DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https curl
+          - ${PROXY_CMD}curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
           - echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
-          - . /etc/profile.d/proxy.sh; apt-get update -y
+          - ${PROXY_CMD}apt-get update -y
           - TRIMMED_KUBERNETES_VERSION=$(echo ${KUBERNETES_VERSION} | sed 's/\./\./g' | sed 's/^v//')
           - RESOLVED_KUBERNETES_VERSION=$(apt-cache policy kubelet | sed 's/\*\*\*//' | awk -v VERSION=$${TRIMMED_KUBERNETES_VERSION} '$1~ VERSION { print $1 }' | head -n1)
-          - . /etc/profile.d/proxy.sh; apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips containerd kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
+          - ${PROXY_CMD}apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips containerd kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
           # Allow to configure registry hosts in containerd
           - |
             cat <<EOT >> /etc/containerd/config.toml
@@ -305,7 +305,7 @@ spec:
           - systemctl restart containerd.service
           # Install etcdctl
           - ETCDCTL_VERSION=v3.5.10
-          - . /etc/profile.d/proxy.sh; curl -L https://github.com/coreos/etcd/releases/download/$${ETCDCTL_VERSION}/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz -o /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz
+          - ${PROXY_CMD}curl -L https://github.com/coreos/etcd/releases/download/$${ETCDCTL_VERSION}/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz -o /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz
           - tar xzvf /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz -C /tmp/
           - sudo cp /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64/etcdctl /usr/local/bin/
           - rm -rf /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64 /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz
@@ -367,13 +367,13 @@ spec:
             cloud-provider: external
             provider-id: openstack:///'{{ instance_id }}'
       preKubeadmCommands:
-        - . /etc/profile.d/proxy.sh; DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https curl
-        - . /etc/profile.d/proxy.sh; curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+        - ${PROXY_CMD}DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https curl
+        - ${PROXY_CMD}curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
         - echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
-        - . /etc/profile.d/proxy.sh; apt-get update -y
+        - ${PROXY_CMD}apt-get update -y
         - TRIMMED_KUBERNETES_VERSION=$(echo ${KUBERNETES_VERSION} | sed 's/\./\./g' | sed 's/^v//')
         - RESOLVED_KUBERNETES_VERSION=$(apt-cache policy kubelet | sed 's/\*\*\*//' | awk -v VERSION=$${TRIMMED_KUBERNETES_VERSION} '$1~ VERSION { print $1 }' | head -n1)
-        - . /etc/profile.d/proxy.sh; apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips containerd kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
+        - ${PROXY_CMD}apt-get install -y ca-certificates socat jq ebtables apt-transport-https cloud-utils prips containerd kubelet=$${RESOLVED_KUBERNETES_VERSION} kubeadm=$${RESOLVED_KUBERNETES_VERSION} kubectl=$${RESOLVED_KUBERNETES_VERSION}
         # Allow to configure registry hosts in containerd
         - |
           cat <<EOT >> /etc/containerd/config.toml
