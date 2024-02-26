@@ -67,25 +67,15 @@ see the client IPs. This has been validated (and can even be monitored by openst
 on SCS clouds that use OVN.
 
 A health-monitor is still needed to ensure that only active members receive requests.
-There are unfortunately two problems with the health-monitoring on the OVN provider:
-* The health-monitor does correctly detect members that are not responding and stops
-  routing traffic from the VIP towards the inactive member. Unfortunately the
-  traffic that comes in from the floating IP associated with the VIP is not treated
-  the same, but is still distributed to the inactive members, resulting in a good
-  fraction of the requests to go unanswered. This is tracked in bug
-  https://bugs.launchpad.net/neutron/+bug/1956035
-* The OCCM always tries to create an HTTP health-monitor. The OVN provider however
-  does not yet support HTTP health-monitors, only TCP. We'll have to wait for (and
-  possibly help with) HTTP health-monitors to be implemented upstream.
+Health monitors for the ovn provider are only supported on OpenStack Wallaby and later.
+See also occm [docs](https://github.com/kubernetes/cloud-provider-openstack/blob/master/docs/openstack-cloud-controller-manager/using-openstack-cloud-controller-manager.md).
 
-Due to the HTTP health-monitor not being supported, the created loadbalancer is not
-considered functional, so the reconciliation loop creates another loadbalancer until
-your project runs into quota limits (on the loadbalancer or on ports).
-So for now, the feature `use_ovn_lb_provider` should not be enabled.
+OVN LoadBalancer can be enabled by setting `use_ovn_lb_provider = "true"` or `use_ovn_lb_provider = "auto"`.
 
 Note that the `use_ovn_lb_provider` does not affect the LB in front of the kube API.
 That one is created by capo and requires other settings. Also note that it would
-not yet support the CIDR filtering with `restrict_kubeapi` setting.
+not yet support the [CIDR filtering](https://docs.openstack.org/octavia/latest/user/feature-classification/index.html#operation_allowed_cidr)
+with `restrict_kubeapi` setting.
 
 # Disabled health-monitor by default
 
