@@ -15,7 +15,7 @@ cilium_binaries      = "<v0.aa.bb;v0.xx.yy>"      # defaults to "v0.15.23;v0.13.
 mgmt_cidr            = "<CIDR>"         # defaults to "10.0.0.0/24"
 mgmt_ip_range        = {"start": "<start of the IP range>", "end": "<end of the IP range>"} # defaults to '{"start": "10.0.0.11", "end": "10.0.0.254"}'
 # Settings for testcluster
-kubernetes_version   = "<v1.XX.XX>"		  # defaults to "v1.27.x"
+kubernetes_version   = "<v1.XX.XX>"		  # defaults to "v1.28.x"
 kube_image_raw       = "<boolean>"      # defaults to "true"
 calico_version       = "<v3.xx.y>"	# defaults to `v3.27.2` <!-- renovate: datasource=github-releases depName=projectcalico/calico -->
 controller_flavor    = "<flavor>"       # defaults to SCS-2V-4-20s (use etcd tweaks if you only have SCS-2V-4-20 in multi-controller setups)
