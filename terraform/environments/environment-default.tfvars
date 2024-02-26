@@ -8,16 +8,16 @@ external_id          = "<external_network_ID>"    # defaults to "" using auto-de
 dns_nameservers      = [ "DNS_IP1", "DNS_IP2" ]	  # defaults to [ "5.1.66.255", "185.150.99.255" ] (FF MUC)
 kind_flavor          = "<flavor>"                 # defaults to SCS-2V-4  (larger does not hurt)
 ssh_username         = "<username_for_ssh>"	  # defaults to "ubuntu"
-clusterapi_version   = "<1.x.y>"		  # defaults to "1.5.1"
-capi_openstack_version = "<0.x.y>"		  # defaults to "0.8.0"
+clusterapi_version   = "<1.x.y>"		  # defaults to `1.6.2` <!-- renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api -->
+capi_openstack_version = "<0.x.y>"		  # defaults to `0.9.0` <!-- renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api-provider-openstack -->
 image                = "<glance_image>"		  # defaults to "Ubuntu 22.04"
-cilium_binaries      = "<v0.aa.bb;v0.xx.yy>"      # defaults to "v0.15.21;v0.13.0"
+cilium_binaries      = "<v0.aa.bb;v0.xx.yy>"      # defaults to "v0.15.23;v0.13.0"
 mgmt_cidr            = "<CIDR>"         # defaults to "10.0.0.0/24"
 mgmt_ip_range        = {"start": "<start of the IP range>", "end": "<end of the IP range>"} # defaults to '{"start": "10.0.0.11", "end": "10.0.0.254"}'
 # Settings for testcluster
 kubernetes_version   = "<v1.XX.XX>"		  # defaults to "v1.27.x"
 kube_image_raw       = "<boolean>"      # defaults to "true"
-calico_version       = "<v3.xx.y>"	# defaults to "v3.26.4"
+calico_version       = "<v3.xx.y>"	# defaults to `v3.27.2` <!-- renovate: datasource=github-releases depName=projectcalico/calico -->
 controller_flavor    = "<flavor>"       # defaults to SCS-2V-4-20s (use etcd tweaks if you only have SCS-2V-4-20 in multi-controller setups)
 worker_flavor        = "<flavor>"       # defaults to SCS-2V-4-20s  (larger helps)
 controller_count     = <number>         # defaults to 1 (0 skips testcluster creation)
@@ -28,7 +28,7 @@ service_cidr         = "<CIDR>"         # defaults to "10.96.0.0/12"
 pod_cidr             = "<CIDR>"         # defaults to "192.168.0.0/16"
 anti_affinity        = "<boolean>"      # defaults to "true"
 use_cilium           = "version/true/false"       # defaults to "true", can also be set to "vx.y.z", also see cilium_binaries
-use_ovn_lb_provider  = "auto/true/false"	  # use OVN LB if available (auto) or force (true) or never (false), not yet recommended
+use_ovn_lb_provider  = "auto/true/false"	  # use OVN LB if available (auto) or force (true) or never (false)
 deploy_nginx_ingress = "version/true/false"       # defaults to "true", you can also set vX.Y.Z if you want
 deploy_gateway_api   = "true/false"               # defaults to "false"
 deploy_cert_manager  = "version/true/false"       # defaults to "false", you can also set to vX.Y.Z if you want

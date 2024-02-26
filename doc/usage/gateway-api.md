@@ -9,5 +9,5 @@ kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.14/samp
 ```
 and this example Gateway and HTTP-Route
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/cilium/cilium/1.15.0/examples/kubernetes/gateway/basic-http.yaml
+kubectl apply -f https://raw.githubusercontent.com/cilium/cilium/1.15.1/examples/kubernetes/gateway/basic-http.yaml
 ```

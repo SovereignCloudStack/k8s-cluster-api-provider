@@ -192,7 +192,7 @@ if test "$USE_CILIUM" = "true" -o "${USE_CILIUM:0:1}" = "v"; then
     kubectl --context=$KCONTEXT apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.0.0/config/crd/experimental/gateway.networking.k8s.io_tlsroutes.yaml
   fi
   # FIXME: Do we need to allow overriding MTU here as well?
-  CILIUM_VERSION="v1.15.0"
+  CILIUM_VERSION="v1.15.1"
   if test "${USE_CILIUM:0:1}" = "v"; then
     CILIUM_VERSION="${USE_CILIUM}"
   fi
