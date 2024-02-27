@@ -304,7 +304,7 @@ spec:
           - systemctl daemon-reload
           - systemctl restart containerd.service
           # Install etcdctl
-          - ETCDCTL_VERSION=v3.5.9
+          - ETCDCTL_VERSION=v3.5.10
           - ${PROXY_CMD}curl -L https://github.com/coreos/etcd/releases/download/$${ETCDCTL_VERSION}/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz -o /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz
           - tar xzvf /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64.tar.gz -C /tmp/
           - sudo cp /tmp/etcd-$${ETCDCTL_VERSION}-linux-amd64/etcdctl /usr/local/bin/
