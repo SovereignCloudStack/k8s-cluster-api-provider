@@ -1,0 +1,44 @@
+---
+- name: Download, install, configure, and execute SCS KaaS compliance check
+  vars:
+    check_dir: "{{ ansible_user_dir }}/scs-compliance"
+    python_venv_dir: "{{ ansible_user_dir }}/scs-compliance/venv"
+  block:
+  - name: Check if `kubeconfig_path` variable is defined
+    ansible.builtin.fail:
+      msg: "kubeconfig_path is not defined or empty"
+    when: kubeconfig_path is not defined or kubeconfig_path == ''
+  - name: Ensure check directory
+    ansible.builtin.file:
+      path: "{{ check_dir }}"
+      state: directory
+      mode: 0755
+  - name: Get SCS KaaS compliance check assets
+    ansible.builtin.git:
+      repo: https://github.com/SovereignCloudStack/standards.git
+      dest: "{{ check_dir }}"
+      single_branch: true
+      version: main
+  - name: Install virtualenv
+    ansible.builtin.package:
+      name: virtualenv
+    become: true
+  - name: Install check requirements
+    ansible.builtin.pip:
+      requirements: "{{ check_dir }}/Tests/requirements.txt"
+      virtualenv: "{{ python_venv_dir }}"
+  - name: Execute k8s-node-distribution check
+    ansible.builtin.shell:
+      cmd:
+        ". {{ python_venv_dir }}/bin/activate &&
+         python3 {{ check_dir }}/Tests/scs-compliance-check.py {{ check_dir }}/Tests/scs-compatible-kaas.yaml kaas  -s KaaS_V1 -a kubeconfig={{ kubeconfig_path }}"
+    changed_when: false
+    register: scs_compliance_results
+  - name: Parse SCS KaaS compliance results
+    ansible.builtin.set_fact:
+      scs_compliance_results_parsed: "{{ scs_compliance_results.stdout }}"
+    when: scs_compliance_results is defined
+  - name: Print check_results to the STDOUT
+    ansible.builtin.debug:
+      msg: "{{ scs_compliance_results_parsed.stdout }}"
+    when: scs_compliance_results_parsed is defined

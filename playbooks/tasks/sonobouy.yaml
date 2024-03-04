@@ -1,0 +1,11 @@
+---
+- name: Execute sonobouy check mode {{ sonobouy.mode }}
+  ansible.builtin.command: "make check-{{ sonobouy.mode }}"
+  register: sonobouy_results
+  args:
+    chdir: "{{ project_tf_dir }}"
+  changed_when: true
+- name: Parse sonobouy results
+  ansible.builtin.set_fact:
+    sonobouy_results_parsed: "{{ sonobouy_results.stdout | regex_search('=== Collecting results ===[\\S\\s]*') }}"
+  when: sonobouy_results is defined
