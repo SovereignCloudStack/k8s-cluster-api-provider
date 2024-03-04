@@ -2,7 +2,7 @@
 
 ## Supported k8s versions
 
-As of R5, our tests cover 1.24.latest ... 1.27.latest.
+As of R6, our tests cover 1.25.latest ... 1.28.latest.
 All of them pass the sonobuoy CNCF conformance tests.
 
 ## Overview over the parameters in clusterctl.yaml and environment-XXX.tfvars
