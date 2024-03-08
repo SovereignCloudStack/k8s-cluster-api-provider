@@ -61,13 +61,14 @@ There is also a `no_proxy` setting for configuring exceptions,
 
 ### OVN LB
 
-From R4, LoadBalancer in front of ingress-nginx can be configured to use the OVN provider
-instead of the default Amphora provider. But, it was only a tech preview feature and not recommended.
+Starting from R4, it's possible to configure the LoadBalancer in front of ingress-nginx to
+utilize the OVN provider instead of the default Amphora provider.
+However, it's important to note that this capability was introduced as a tech preview feature
+and was not recommended for production use.
 In R6 [#687](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/687),
 after all upstream issues were resolved, we removed the tech preview flag and carefully tested it with success.
 OVN LoadBalancer can be enabled by setting `use_ovn_lb_provider = "true"` or `use_ovn_lb_provider = "auto"`.
-In the future [#706](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/issues/706), it will be
-enabled by default.
+In the upcoming release, we expect it will be the default configuration.
 
 ### Renovate
 
@@ -82,8 +83,8 @@ More will come in the future, see [#577](https://github.com/SovereignCloudStack/
 ### Restrict access to the management server
 
 From [#599](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/599),
-ssh port 22 of the management server can be restricted with a list of cidrs.
-By default, there is no restriction `restrict_mgmt_server = ["0.0.0.0/0"]`
+it's now possible to restrict port 22 SSH access to the management server using a whitelist of CIDRs.
+By default, there are no restrictions, as indicated by `restrict_mgmt_server = ["0.0.0.0/0"]`.
 
 ### Configurable network cidr fot the management server
 
@@ -93,7 +94,7 @@ User can now specify it, e.g. `mgmt_cidr = "10.0.0.0/24"` and `mgmt_ip_range = {
 ### Parallel execution of scripts
 
 Have you ever thought about whether it is possible to delete one cluster and create another at the same time?
-It is now possible thanks to [#583](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/583)
+It is now possible thanks to [#583](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/pull/583).
 
 ## Minor improvements
 
