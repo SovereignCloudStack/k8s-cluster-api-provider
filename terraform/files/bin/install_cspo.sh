@@ -105,7 +105,7 @@ d
 }" csp-helper-chart/templates/_helpers.tpl
 helm upgrade -i csp-helper csp-helper-chart -f clouds.yaml >/dev/null
 # Store an example cluster-stack
-cat > clusterstack-alpha-1-28-v3.yaml <<EOT
+cat > clusterstack-alpha-1-28-v3-$CLUSTER.yaml <<EOT
 apiVersion: clusterstack.x-k8s.io/v1alpha1
 kind: ClusterStack
 metadata:
@@ -136,7 +136,7 @@ spec:
         kind: Secret
         name: openstack
 EOT
-cat >clusterresourceset-secret.yaml <<EOT
+cat >clusterresourceset-secret-$CLUSTER.yaml <<EOT
 apiVersion: addons.cluster.x-k8s.io/v1beta1
 kind: ClusterResourceSet
 metadata:
@@ -151,7 +151,7 @@ spec:
    - name: openstack-workload-cluster-secret
      kind: Secret
 EOT
-cat >cluster-alpha-1-28-v3.yaml <<EOT
+cat >cluster-alpha-1-28-v3-$CLUSTER.yaml <<EOT
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
 metadata:
@@ -187,8 +187,8 @@ spec:
           name: capi-openstack-alpha-1-28
           replicas: 3
 EOT
-#echo "Apply clusterstack-alpha-1-28-v3.yaml clusterresourceset-secret.yaml cluster-alpha-1-28-v3.yaml to create a workload cluster.
-echo "kubectl apply -f $NAME/clusterstack-alpha-1-28-v3.yaml"
-echo "kubectl apply -f $NAME/clusterresourceset-secret.yaml"
+echo "# Perform these to create a workload cluster ..."
+echo "kubectl apply -f $NAME/clusterstack-alpha-1-28-v3-$CLUSTER.yaml"
+echo "kubectl apply -f $NAME/clusterresourceset-secret-$CLUSTER.yaml"
 # FIXME: Wait needed?
-echo "kubectl apply -f $NAME/cluster-alpha-1-28-v3.yaml"
+echo "kubectl apply -f $NAME/cluster-alpha-1-28-v3-$CLUSTER.yaml"
