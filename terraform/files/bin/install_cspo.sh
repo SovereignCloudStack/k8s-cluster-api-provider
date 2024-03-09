@@ -180,9 +180,9 @@ spec:
   topology:
     variables:
       - name: controller_flavor
-        value: "SCS-2V-4-50"
+        value: "SCS-2V-4-20"
       - name: worker_flavor
-        value: "SCS-2V-4-50"
+        value: "SCS-2V-8-20"
       - name: external_id
         value: "$EXTID"
     class: openstack-alpha-1-28-v3
