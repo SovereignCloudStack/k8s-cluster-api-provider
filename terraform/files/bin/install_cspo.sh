@@ -11,14 +11,15 @@
 # SPDX-License-Identifier: ASL-2.0
 NAME=${1:-cspo}
 CLUSTER=${2:-cluster}
-cd 
+cd
+. ~/.capi-settings
 if test -e ~/.bash_aliases; then . ~/.bash_aliases; fi
 # Check out repos
 test_or_update()
 {
 	if test -d $1; then
 		cd $1
-		git update
+		git pull
 		cd
 	else
 		git clone https://github.com/SovereignCloudStack/$1
@@ -29,7 +30,7 @@ test_or_update cluster-stack-provider-openstack
 # envsubst helper (please always call with full path, as there is a name conflict)
 ENVSUBST=/usr/local/bin/envsubst
 if test ! -x $ENVSUBST; then
-	sudo apt-get install golang-go
+	sudo apt-get -y install golang-go
 	mkdir -p ~/tmp
 	GOBIN=~/tmp go install github.com/drone/envsubst/v2/cmd/envsubst@latest
 	sudo mv ~/tmp/envsubst $ENVSUBST
@@ -95,7 +96,14 @@ EOT
 	unset APPCRED_SECRET NEWCRED
 fi
 # Create secret from clouds.yaml
-helm upgrade -i csp-helper https://github.com/SovereignCloudStack/cluster-stacks/releases/download/openstack-alpha-1-28-v3/csp-helper-chart.tgz -f clouds.yaml
+curl -sSLO https://github.com/SovereignCloudStack/cluster-stacks/releases/download/openstack-alpha-1-28-v3/csp-helper-chart.tgz
+tar xvzf csp-helper-chart.tgz
+# Replace namespace
+sed -i "/^{{\\- if include \"isAppCredential\" \\. \\-}}/{n
+i$CLUSTER
+d
+}" csp-helper-chart/templates/_helpers.tpl
+helm upgrade -i csp-helper csp-helper-chart -f clouds.yaml >/dev/null
 # Store an example cluster-stack
 cat > clusterstack-alpha-1-28-v3.yaml <<EOT
 apiVersion: clusterstack.x-k8s.io/v1alpha1
