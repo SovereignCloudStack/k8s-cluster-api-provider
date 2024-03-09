@@ -102,7 +102,7 @@ EOT
 fi
 # Create secret from clouds.yaml
 curl -sSLO https://github.com/SovereignCloudStack/cluster-stacks/releases/download/openstack-alpha-1-28-v3/csp-helper-chart.tgz
-tar xvzf csp-helper-chart.tgz
+tar xzf csp-helper-chart.tgz
 # Replace namespace
 sed -i "/^{{\\- if include \"isAppCredential\" \\. \\-}}/{n
 i$CLUSTER
