@@ -101,9 +101,9 @@ EOT
 	# And remove secret from env
 	unset APPCRED_SECRET NEWCRED
 fi
+# export OS_CLOUD=openstack
 # Create secret from clouds.yaml
-curl -sSLO https://github.com/SovereignCloudStack/cluster-stacks/releases/download/openstack-alpha-1-28-v3/csp-helper-chart.tgz
-tar xzf csp-helper-chart.tgz
+curl -sSL https://github.com/SovereignCloudStack/cluster-stacks/releases/download/openstack-alpha-1-28-v3/csp-helper-chart.tgz | tar xv
 # Replace namespace
 sed -i "/^{{\\- if include \"isAppCredential\" \\. \\-}}/{n
 i$CLUSTER
@@ -187,7 +187,7 @@ spec:
     class: openstack-alpha-1-28-v3
     controlPlane:
       replicas: 1
-    version: v1.28.7
+    version: v1.28.6
     workers:
       machineDeployments:
         - class: capi-openstack-alpha-1-28
