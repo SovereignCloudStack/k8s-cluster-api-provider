@@ -25,6 +25,7 @@ test_or_update()
 		git clone https://github.com/SovereignCloudStack/$1
 	fi
 }	
+test_or_update cluster-stacks
 test_or_update cluster-stack-operator
 test_or_update cluster-stack-provider-openstack
 # envsubst helper (please always call with full path, as there is a name conflict)
@@ -105,6 +106,8 @@ d
 }" csp-helper-chart/templates/_helpers.tpl
 helm upgrade -i csp-helper csp-helper-chart -f clouds.yaml >/dev/null
 # Store an example cluster-stack
+# Note: These should preferably be taken from the checked out repos.
+# Currently, we use the content from https://input.scs.community/_HeOTRCRSu2Uf2SfMSoOkQ?both#
 cat > clusterstack-alpha-1-28-v3-$CLUSTER.yaml <<EOT
 apiVersion: clusterstack.x-k8s.io/v1alpha1
 kind: ClusterStack
@@ -179,7 +182,7 @@ spec:
     class: openstack-alpha-1-28-v3
     controlPlane:
       replicas: 1
-    version: v1.28.11
+    version: v1.28.7
     workers:
       machineDeployments:
         - class: capi-openstack-alpha-1-28
