@@ -37,6 +37,10 @@ if test ! -x $ENVSUBST; then
 	sudo mv ~/tmp/envsubst $ENVSUBST
 fi
 # Deploy CSO and CSPO
+if test -z "$GIT_PROVIDER_B64"; then
+	echo "Please add GIT_[PROVIDER|ORG_NAME_REPOSITORY_NAME|ACCESS_TOKEN]_B64 to ~/.bash_aliases, see bootstrap.sh" 1>&2
+	exit 1
+fi
 if test -z "$GIT_ACCESS_TOKEN_B64"; then
 	echo "Please set GIT_ACCESS_TOKEN_B64 in your ~/.bash_aliases" 1>&2
 	exit 1
