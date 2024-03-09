@@ -57,7 +57,6 @@ curl -sSLO https://github.com/sovereignCloudStack/cluster-stack-provider-opensta
 $ENVSUBST < cso-infrastructure-components.yaml | kubectl apply -f -
 $ENVSUBST < cspo-infrastructure-components.yaml | kubectl apply -f -
 # Prepare for cluster templates
-# kubectl create ns $CLUSTER	# Not needed, helm csp-helper does it
 # Create clouds.yaml (with app credential)
 if test ! -r clouds.yaml; then
 	#APPCREDS=$(openstack application credential list -f value -c ID -c Name -c "Project ID")
@@ -109,7 +108,9 @@ sed -i "/^{{\\- if include \"isAppCredential\" \\. \\-}}/{n
 i$CLUSTER
 d
 }" csp-helper-chart/templates/_helpers.tpl
-helm upgrade -i csp-helper csp-helper-chart -f clouds.yaml >/dev/null
+# kubectl create ns $CLUSTER	# Not needed, helm csp-helper does it
+rm -f csp-helper-chart/templates/namespace.yaml
+helm upgrade --create-namespace -n $CLUSTER -i csp-helper csp-helper-chart -f clouds.yaml >/dev/null
 # Store an example cluster-stack
 # Note: These should preferably be taken from the checked out repos.
 # Currently, we use the content from https://input.scs.community/_HeOTRCRSu2Uf2SfMSoOkQ?both#
@@ -195,8 +196,11 @@ spec:
           name: capi-openstack-alpha-1-28
           replicas: 3
 EOT
-echo "# Perform these to create a workload cluster ..."
-echo "kubectl apply -f $NAME/clusterstack-alpha-1-28-v3-$CLUSTER.yaml"
-echo "kubectl apply -f $NAME/clusterresourceset-secret-$CLUSTER.yaml"
-# FIXME: Wait needed?
-echo "kubectl apply -f $NAME/cluster-alpha-1-28-v3-$CLUSTER.yaml"
+kubectl apply -f clusterresourceset-secret-$CLUSTER.yaml
+echo "# Perform these to create a workload cluster (after editing as desired) ..."
+echo "kubectl apply -f ~/$NAME/clusterstack-alpha-1-28-v3-$CLUSTER.yaml"
+echo "kubectl apply -f ~/$NAME/cluster-alpha-1-28-v3-$CLUSTER.yaml"
+# FIXME: Code from create_cluster.sh would help here ...
+echo "# Wait for cluster to be ready ..."
+echo "clusterctl -n $CLUSTER get kubeconfig cs-$CLUSTER > ~/$NAME/cs-$CLUSTER.yaml"
+
