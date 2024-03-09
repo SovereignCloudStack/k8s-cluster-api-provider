@@ -56,7 +56,7 @@ curl -sSLO https://github.com/sovereignCloudStack/cluster-stack-provider-opensta
 $ENVSUBST < cso-infrastructure-components.yaml | kubectl apply -f -
 $ENVSUBST < cspo-infrastructure-components.yaml | kubectl apply -f -
 # Prepare for cluster templates
-kubectl create ns $CLUSTER
+# kubectl create ns $CLUSTER	# Not needed, helm csp-helper does it
 # Create clouds.yaml (with app credential)
 if test ! -r clouds.yaml; then
 	#APPCREDS=$(openstack application credential list -f value -c ID -c Name -c "Project ID")
