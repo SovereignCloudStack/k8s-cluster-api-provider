@@ -88,6 +88,7 @@ create: init
 		echo "Management cluster with prefix $(PREFIX) already exists. This is not supported due to unexpected side-effects." && exit 1; \
 	else \
 		touch .deploy.$(ENVIRONMENT); \
+		unset SSH_AUTH_SOCK; \
 		tofu apply -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" -var "git_reference=$(GITREFERENCE)" -var "git_repo=$(GITREPO)"; \
 	fi
 
@@ -96,6 +97,7 @@ show: init
 
 clean: init
 	@if test -e ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); then source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
+	unset SSH_AUTH_SOCK; \
 	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "timeout 320 ~/bin/cleanup.sh || true"; fi
 	tofu destroy -auto-approve -var-file="environments/environment-$(ENVIRONMENT).tfvars" $(PARAMS)
 	@tofu workspace select default
@@ -140,12 +142,14 @@ list: init
 
 ssh: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
+	unset SSH_AUTH_SOCK; \
 	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS
 
 login: ssh
 
 get-kubeconfig: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
+	unset SSH_AUTH_SOCK; \
 	scp -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS:.kube/config .kubeconfig.$(ENVIRONMENT); \
 	scp -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS:$(TESTCLUSTER)/$(TESTCLUSTER).yaml $(TESTCLUSTER).yaml.$(ENVIRONMENT); \
 	scp -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS:$(TESTCLUSTER)/clusterctl.yaml clusterctl.$(TESTCLUSTER).yaml.$(ENVIRONMENT); \
@@ -155,6 +159,7 @@ get-kubeconfig: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVI
 
 deploy: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
+	unset SSH_AUTH_SOCK; \
 	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "~/bin/deploy_cluster_api.sh"
 
 log: .deploy.$(ENVIRONMENT)
@@ -178,6 +183,7 @@ console: .deploy.$(ENVIRONMENT)
 
 check: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
+	unset SSH_AUTH_SOCK; \
 	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "~/bin/sonobuoy.sh $(TESTCLUSTER) $(SONOMODE)"
 
 # Pass SONOMODE="--mode quick" for a quick check
@@ -204,6 +210,7 @@ watch: .deploy.id_rsa.$(ENVIRONMENT) .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT)
 	  YELLOW=$$(echo -e "\e[0;33m"); \
 	  NORM=$$(echo -e "\e[0;0m"); \
 	fi; \
+	unset SSH_AUTH_SOCK; \
 	while true; do \
 		LEN=$$(ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS "sudo wc -l /var/log/cloud-init-output.log 2>/dev/null"); \
 		LEN=$${LEN%% *}; \
@@ -228,11 +235,13 @@ openstack: init
 
 k9s: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
+	unset SSH_AUTH_SOCK; \
 	ssh -t -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS \
 	"KUBECONFIG=/home/$(USERNAME)/.kube/config:/home/$(USERNAME)/$(TESTCLUSTER)/$(TESTCLUSTER).yaml k9s --all-namespaces"
 
 deploy-cso: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
+	unset SSH_AUTH_SOCK; \
 	ssh -t -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS \
 	"KUBECONFIG=/home/$(USERNAME)/.kube/config kubectl apply -f /home/$(USERNAME)/kubernetes-manifests.d/cso.yaml --context kind-kind"
 
