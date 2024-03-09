@@ -46,6 +46,7 @@ if test -z "$GIT_ACCESS_TOKEN_B64"; then
 	exit 1
 fi
 # CSO manifests
+EXTID=$(openstack network list --external -f value -c ID | head -n1)
 mkdir -p $NAME
 cd $NAME
 CSO_VERSION=$(curl https://api.github.com/repos/SovereignCloudStack/cluster-stack-operator/releases/latest -s | jq .name -r)
@@ -182,7 +183,7 @@ spec:
       - name: worker_flavor
         value: "SCS-2V-4-50"
       - name: external_id
-        value: "ebfe5546-f09f-4f42-ab54-094e457d42ec" # gx-scs
+        value: "$EXTID"
     class: openstack-alpha-1-28-v3
     controlPlane:
       replicas: 1
