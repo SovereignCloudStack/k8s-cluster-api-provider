@@ -111,12 +111,17 @@
     - name: Import sonobouy tasks
       ansible.builtin.import_tasks: tasks/sonobouy.yaml
       when: sonobouy.enabled
+    - name: Import scs_compliance pre-tasks
+      ansible.builtin.import_tasks: tasks/label_nodes.yaml
+      vars:
+        os_cloud: "{{ cloud_provider }}"
+        kubeconfig_path: "{{ project_tf_dir }}/{{ testcluster_name }}.yaml.{{ cloud_provider }}"
+      when: scs_compliance.enabled
     - name: Import scs_compliance tasks
       ansible.builtin.import_tasks: tasks/scs_compliance.yaml
       vars:
         kubeconfig_path: "{{ project_tf_dir }}/{{ testcluster_name }}.yaml.{{ cloud_provider }}"
       when: scs_compliance.enabled
-
     always:
     - name: Insert sonobouy results to the warning message that will be appended to the comment zuul leaves on the PR  # noqa: ignore-errors
       zuul_return:

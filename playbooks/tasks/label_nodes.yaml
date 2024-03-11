@@ -1,0 +1,59 @@
+---
+- name: Label k8s nodes based on OpenStack host IDs
+  vars:
+    openstackclient_version: "6.5.0"
+    jq_version: "1.7.1"
+    kubectl_version: "1.28.7"
+    install_dir: "{{ ansible_user_dir }}/.local/bin"
+  block:
+  - name: Check if `os_cloud` variable is defined
+    ansible.builtin.fail:
+      msg: "os_cloud is not defined or empty"
+    when: os_cloud is not defined or os_cloud == ''
+  - name: Check if `kubeconfig_path` variable is defined
+    ansible.builtin.fail:
+      msg: "kubeconfig_path is not defined or empty"
+    when: kubeconfig_path is not defined or kubeconfig_path == ''
+  - name: Install jq
+    ansible.builtin.get_url:
+      url: "https://github.com/jqlang/jq/releases/download/jq-{{ jq_version }}/jq-linux64"
+      dest: "{{ install_dir }}/jq"
+      mode: "+x"
+      # TODO: use `checksum` attr here to verify the digest of the destination file, if available
+  - name: Install kubectl
+    ansible.builtin.get_url:
+      url: "https://dl.k8s.io/release/v{{ kubectl_version }}/bin/linux/amd64/kubectl"
+      dest: "{{ install_dir }}/kubectl"
+      mode: "+x"
+      # TODO: use `checksum` attr here to verify the digest of the destination file, if available
+  - name: Install openstack cli
+    ansible.builtin.pip:
+      name:
+      - "python-openstackclient=={{ openstackclient_version }}"
+      extra_args: --user
+  - name: Get list of OpenStack server details
+    ansible.builtin.shell:
+      cmd: |
+        set -o pipefail
+        openstack server list -f json | jq -r '.[].ID' | while read id; do openstack server show $id -f json; done | jq -s '.'
+      executable: /bin/bash
+    register: openstack_server_list
+    changed_when: false
+    environment:
+      OS_CLOUD: "{{ os_cloud }}"
+  - name: Populate openstack_hosts dict with hostname=host_id pairs
+    ansible.builtin.set_fact:
+      openstack_hosts: "{{ openstack_hosts | default({}) | combine({item.name: item.hostId}) }}"
+    with_items: "{{ openstack_server_list.stdout | from_json }}"
+  - name: Get a list of nodes
+    ansible.builtin.command: kubectl get nodes -o json
+    register: kubernetes_node_list
+    changed_when: false
+    environment:
+      KUBECONFIG: "{{ kubeconfig_path }}"
+  - name: Add node label
+    ansible.builtin.command: "kubectl label nodes {{ item.metadata.name }} topology.scs.openstack.org/host-id={{ openstack_hosts[item.metadata.name] }}"
+    with_items: "{{ (kubernetes_node_list.stdout | from_json)['items'] }}"
+    changed_when: false
+    environment:
+      KUBECONFIG: "{{ kubeconfig_path }}"
