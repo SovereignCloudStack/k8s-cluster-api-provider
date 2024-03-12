@@ -32,4 +32,9 @@ patches existing cluster resources. In the end, it patches the **Cluster** objec
    cp ~/k8s-cluster-api-provider/terraform/files/template/cluster-template.yaml ~/<CLUSTER_NAME>/cluster-template.yaml
    cp ~/k8s-cluster-api-provider/terraform/files/template/cluster-template.yaml ~/cluster-defaults/cluster-template.yaml
    ```
-4. Next run of `create_cluster.sh <CLUSTER_NAME>` should be idempotent
+4. Add the newly introduced generation counter for the OpenStackClusterTemplate to the settings in `clusterctl.yaml`
+   ```bash
+   echo "OPENSTACK_CLUSTER_GEN: geno01" >> ~/<CLUSTER_NAME>/clusterctl.yaml
+   echo "OPENSTACK_CLUSTER_GEN: geno01" >> ~/cluster-defaults/clusterctl.yaml
+   ```
+5. Next run of `create_cluster.sh <CLUSTER_NAME>` should be idempotent

@@ -33,7 +33,7 @@ kustomize_cluster_cidrs()
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha7
 kind: OpenStackClusterTemplate
 metadata:
-  name: ${CLUSTER_NAME}
+  name: ${CLUSTER_NAME}-${OPENSTACK_CLUSTER_GEN}
   namespace: ${OPENSTACK_CLUSTER_NAMESPACE:-default}
 spec:
   template:
@@ -63,4 +63,5 @@ if test -z "$2"; then echo "ERROR: Need clusterctl.yaml cluster-template args" 1
 RESTRICT_KUBEAPI=$(yq eval .RESTRICT_KUBEAPI $1)
 if empty_list "$RESTRICT_KUBEAPI"; then exit 0; fi
 get_own_fip
+OPENSTACK_CLUSTER_GEN=$(yq eval '.OPENSTACK_CLUSTER_GEN' $1)
 kustomize_cluster_cidrs "$RESTRICT_KUBEAPI" "$2"
