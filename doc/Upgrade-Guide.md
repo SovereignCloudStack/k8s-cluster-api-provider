@@ -462,10 +462,11 @@ Follow the below steps if you want to migrate an existing cluster from R5 to R6:
    ```bash
    migrate-to-cluster-class.sh <CLUSTER_NAME>
    ```
-8. Increase the generation counter for worker and control plane nodes
+8. Increase the generation counter for worker nodes, control plane nodes and OpenStack cluster
    ```bash
    sed -r 's/(^CONTROL_PLANE_MACHINE_GEN: genc)([0-9][0-9])/printf "\1%02d" $((\2+1))/ge' -i <CLUSTER_NAME>/clusterctl.yaml
    sed -r 's/(^WORKER_MACHINE_GEN: genw)([0-9][0-9])/printf "\1%02d" $((\2+1))/ge' -i <CLUSTER_NAME>/clusterctl.yaml
+   sed -r 's/(^OPENSTACK_CLUSTER_GEN: geno)([0-9][0-9])/printf "\1%02d" $((\2+1))/ge' -i <CLUSTER_NAME>/clusterctl.yaml
    ```
 9. Update an existing cluster to the R6
    ```bash
