@@ -40,7 +40,7 @@
     ansible.builtin.shell:
       cmd:
         ". {{ python_venv_dir }}/bin/activate &&
-         python3 {{ check_dir }}/Tests/scs-compliance-check.py {{ check_dir }}/Tests/scs-compatible-kaas.yaml kaas  -v -s KaaS_V1 -a kubeconfig={{ kubeconfig_path }}"
+         python3 {{ check_dir }}/Tests/scs-compliance-check.py {{ check_dir }}/Tests/scs-compatible-kaas.yaml  -v -s KaaS_V1 -a kubeconfig={{ kubeconfig_path }}"
     changed_when: false
     register: scs_compliance_results
   - name: Parse SCS KaaS compliance results
