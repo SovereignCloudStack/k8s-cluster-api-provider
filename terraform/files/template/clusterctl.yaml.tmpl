@@ -73,6 +73,9 @@ OPENSTACK_EXTERNAL_NETWORK_ID: ${external_id}
 
 OPENSTACK_DNS_NAMESERVERS: "[ %{ for dnsip in dns_nameservers ~} ${dnsip}, %{ endfor ~} ]"
 
+# Increase generation counter when changing restrict_kubeapi or other OC settings
+OPENSTACK_CLUSTER_GEN: geno01
+
 OPENSTACK_SSH_KEY_NAME: ${prefix}-keypair
 
 # Use anti-affinity server groups

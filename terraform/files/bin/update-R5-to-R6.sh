@@ -27,6 +27,7 @@ restore() {
   echo "Updating failed ($1)" 1>&2
   cp -p clusterctl.yaml.backup clusterctl.yaml
   cp -p cluster-template.yaml.backup cluster-template.yaml
+  kubectl --context kind-kind patch ValidatingWebhookConfiguration/capo-validating-webhook-configuration --type='json' -p='[{"op": "replace", "path": "/webhooks/0/rules/0/operations", "value":["CREATE", "UPDATE"]}]'
   exit "$1"
 }
 
@@ -52,7 +53,7 @@ if test ! -e /etc/profile.d/proxy.sh; then
 fi
 
 # Update clusterctl.yaml
-if grep -q "PROXY_CMD" clusterctl.yaml || ! grep -q "OPENSTACK_CONTROL_PLANE_IP" clusterctl.yaml; then
+if grep -q "PROXY_CMD\|OPENSTACK_CLUSTER_GEN" clusterctl.yaml || ! grep -q "OPENSTACK_CONTROL_PLANE_IP" clusterctl.yaml; then
   echo "Variables in clusterctl.yaml already updated"
 else
   echo "Patching variables in clusterctl.yaml"
@@ -69,11 +70,19 @@ else
   sed -i 's/^# Use anti-affinity server groups (not working yet)/# Use anti-affinity server groups/' clusterctl.yaml || restore 7
   # PR#694 Do not alter clusterclass templates when there is no proxy setting
   sed -i '/^ETCD_UNSAFE_FS/a # configure_proxy.sh sets it to ". /etc/profile.d/proxy.sh; "\nPROXY_CMD: ""' clusterctl.yaml || restore 8
-  if test "$CLUSTER_NAME" = "cluster-defaults"; then # Fix external_id for the new clusters
-    # PR#584 Add option to specify external net via ID
-    OPENSTACK_EXTERNAL_NETWORK=$(yq eval '.OPENSTACK_EXTERNAL_NETWORK_ID' clusterctl.yaml) || restore 9
-    OPENSTACK_EXTERNAL_NETWORK_ID=$(openstack network show "$OPENSTACK_EXTERNAL_NETWORK" -f value -c id) || restore 10
-    sed -i "s/^OPENSTACK_EXTERNAL_NETWORK_ID: $OPENSTACK_EXTERNAL_NETWORK/OPENSTACK_EXTERNAL_NETWORK_ID: $OPENSTACK_EXTERNAL_NETWORK_ID/" clusterctl.yaml || restore 11
+  # PR#718 Add generation counter for the OpenStackClusterTemplate
+  sed -i '/^OPENSTACK_DNS_NAMESERVERS/a # Increase generation counter when changing restrict_kubeapi or other OC settings\nOPENSTACK_CLUSTER_GEN: geno01' clusterctl.yaml || restore 9
+
+  # PR#584 Add option to specify external net via ID
+  OPENSTACK_EXTERNAL_NETWORK=$(yq eval '.OPENSTACK_EXTERNAL_NETWORK_ID' clusterctl.yaml) || restore 10
+  OPENSTACK_EXTERNAL_NETWORK_ID=$(openstack network show "$OPENSTACK_EXTERNAL_NETWORK" -f value -c id) || restore 11
+  if test "$OPENSTACK_EXTERNAL_NETWORK" != "$OPENSTACK_EXTERNAL_NETWORK_ID"; then # Fix external_id
+    sed -i "s/^OPENSTACK_EXTERNAL_NETWORK_ID: $OPENSTACK_EXTERNAL_NETWORK/OPENSTACK_EXTERNAL_NETWORK_ID: $OPENSTACK_EXTERNAL_NETWORK_ID/" clusterctl.yaml || restore 12
+    if test "$CLUSTER_NAME" != "cluster-defaults"; then # Hack CAPO validation and fix spec.externalNetworkId of OpenStackCluster
+      kubectl --context kind-kind patch ValidatingWebhookConfiguration/capo-validating-webhook-configuration --type='json' -p='[{"op": "replace", "path": "/webhooks/0/rules/0/operations", "value":["CREATE"]}]' || restore 13
+      kubectl --context kind-kind patch OpenStackCluster/"$CLUSTER_NAME" --type='json' -p='[{"op": "replace", "path": "/spec/externalNetworkId", "value":"'"$OPENSTACK_EXTERNAL_NETWORK_ID"'"}]' || restore 14
+      kubectl --context kind-kind patch ValidatingWebhookConfiguration/capo-validating-webhook-configuration --type='json' -p='[{"op": "replace", "path": "/webhooks/0/rules/0/operations", "value":["CREATE", "UPDATE"]}]' || restore 15
+    fi
   fi
 fi
 
@@ -106,7 +115,7 @@ else
   if [[ ! $REPLY =~ ^[Yy] ]]; then
     exit 1
   fi
-  cp ~/k8s-cluster-api-provider/terraform/files/template/cluster-template.yaml cluster-template.yaml || restore 14
+  cp ~/k8s-cluster-api-provider/terraform/files/template/cluster-template.yaml cluster-template.yaml || restore 16
 fi
 
 echo "Update of cluster-template.yaml file from R5 to R6 version has been successfully finished"
