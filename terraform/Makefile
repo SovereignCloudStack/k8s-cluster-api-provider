@@ -243,6 +243,11 @@ deploy-cso: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONM
 	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
 	unset SSH_AUTH_SOCK; \
 	ssh -t -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS \
-	"KUBECONFIG=/home/$(USERNAME)/.kube/config kubectl apply -f /home/$(USERNAME)/kubernetes-manifests.d/cso.yaml --context kind-kind"
+	"GIT_ACCESS_TOKEN=$(GIT_ACCESS_TOKEN) envsubst '\$${GIT_ACCESS_TOKEN}' < /home/$(USERNAME)/kubernetes-manifests.d/cso.yaml | KUBECONFIG=/home/$(USERNAME)/.kube/config kubectl --context kind-kind apply -f -"
 
-PHONY: clean attach detach ssh dry-run list deploy watch openstack create log console login k9s mycloud gitchk deploy-cso
+deploy-cspo: .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
+	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
+	ssh -t -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS \
+	"GIT_ACCESS_TOKEN=$(GIT_ACCESS_TOKEN) envsubst '\$${GIT_ACCESS_TOKEN}' < /home/$(USERNAME)/kubernetes-manifests.d/cspo.yaml | KUBECONFIG=/home/$(USERNAME)/.kube/config kubectl --context kind-kind apply -f -"
+
+PHONY: clean attach detach ssh dry-run list deploy watch openstack create log console login k9s mycloud gitchk deploy-cso deploy-cspo

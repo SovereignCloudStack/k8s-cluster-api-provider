@@ -37,8 +37,9 @@ yq --null-input '
 # create openstack cluster template
 OPENSTACK_CLUSTER=$(kubectl get OpenStackCluster/$CLUSTER_NAME -o yaml)
 OPENSTACK_CLUSTER_API_VERSION=$(echo "$OPENSTACK_CLUSTER" | yq .apiVersion)
+OPENSTACK_CLUSTER_GEN=$(yq eval '.OPENSTACK_CLUSTER_GEN // "geno01"' $CCCFG)
 SPEC=$(echo "$OPENSTACK_CLUSTER" | yq '.spec | del(.controlPlaneEndpoint)') \
-NAME=$CLUSTER_NAME \
+NAME=$CLUSTER_NAME-$OPENSTACK_CLUSTER_GEN \
 API_VERSION=$OPENSTACK_CLUSTER_API_VERSION \
 yq --null-input '
   .apiVersion = env(API_VERSION) |
@@ -71,7 +72,7 @@ spec:
     ref:
       apiVersion: ${OPENSTACK_CLUSTER_API_VERSION}
       kind: OpenStackClusterTemplate
-      name: ${CLUSTER_NAME}
+      name: ${CLUSTER_NAME}-${OPENSTACK_CLUSTER_GEN}
   workers:
     machineDeployments:
     - class: "${PREFIX}-${CLUSTER_NAME}-md-0-no1"
