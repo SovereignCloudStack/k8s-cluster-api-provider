@@ -1,6 +1,11 @@
 ---
 - name: Label k8s nodes based on OpenStack host IDs
   vars:
+    # Note (@mfeder): The following label key serves as a temporary label until upstream
+    #  proposes and implements an alternative label key/solution for indicating a physical machine
+    #  within the Kubernetes cluster.
+    #  refer to: https://github.com/SovereignCloudStack/issues/issues/540
+    label_key: "topology.scs.community/host-id"
     openstackclient_version: "6.5.0"
     jq_version: "1.7.1"
     kubectl_version: "1.28.7"
@@ -52,7 +57,7 @@
     environment:
       KUBECONFIG: "{{ kubeconfig_path }}"
   - name: Add node label
-    ansible.builtin.command: "kubectl label nodes {{ item.metadata.name }} topology.scs.openstack.org/host-id={{ openstack_hosts[item.metadata.name] }}"
+    ansible.builtin.command: "kubectl label nodes {{ item.metadata.name }} {{ label_key }}={{ openstack_hosts[item.metadata.name] }}"
     with_items: "{{ (kubernetes_node_list.stdout | from_json)['items'] }}"
     changed_when: false
     environment:
