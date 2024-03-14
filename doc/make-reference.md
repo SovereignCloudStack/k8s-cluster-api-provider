@@ -74,7 +74,15 @@ want to open by setting the ``CONSOLE`` variable. The default is ``capi-mgmtclus
 
 ``make deploy-cso``
 
-This will deploy the [cluster-stack-operator](https://github.com/SovereignCloudStack/cluster-stack-operator). The preconfigured repo to look for cluster-stacks is https://github.com/SovereignCloudStack/cluster-stacks-playground/. 
+This will deploy the [cluster-stack-operator](https://github.com/SovereignCloudStack/cluster-stack-operator). The preconfigured repo to look for cluster-stacks is https://github.com/SovereignCloudStack/cluster-stacks/.
+`GIT_ACCESS_TOKEN` can be specified.
+
+### make deploy-cspo
+
+``make deploy-cspo``
+
+This will deploy the [cluster-stack-provider-openstack](https://github.com/SovereignCloudStack/cluster-stack-provider-openstack). The preconfigured repo to look for cluster-stacks is https://github.com/SovereignCloudStack/cluster-stacks/.
+`GIT_ACCESS_TOKEN` can be specified.
 
 ## Teardown
 
