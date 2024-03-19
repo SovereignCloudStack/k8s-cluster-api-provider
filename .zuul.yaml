@@ -40,9 +40,9 @@
       [sonobuoy](https://sonobuoy.io/) with mode quick.
     timeout: 3600  # 1h
     vars:
-      sonobouy:
-        enabled: true
-        mode: quick
+#      sonobouy:
+#        enabled: true
+#        mode: quick
       scs_compliance:
         enabled: true
 

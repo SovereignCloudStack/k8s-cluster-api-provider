@@ -471,6 +471,9 @@ Follow the below steps if you want to migrate an existing cluster from R5 to R6:
    ```bash
    create_cluster.sh <CLUSTER_NAME>
    ```
+   > Note: You will probably experience a double rollout of nodes because
+   > the k8s version and templates are changed concurrently here.
+   > See <https://cluster-api.sigs.k8s.io/tasks/experimental-features/cluster-class/operate-cluster#effects-of-concurrent-changes>
 10. Upgrade cilium (for clusters with `USE_CILIUM: true`)
     ```bash
     KUBECONFIG=<CLUSTER_NAME>/<CLUSTER_NAME>.yaml bash -c 'helm get values cilium -n kube-system -o yaml | cilium upgrade --version v1.15.1 -f -'
