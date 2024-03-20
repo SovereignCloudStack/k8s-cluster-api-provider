@@ -38,7 +38,3 @@
     ansible.builtin.set_fact:
       scs_compliance_results_parsed: "{{ scs_compliance_results.stdout }}"
     when: scs_compliance_results is defined
-  - name: Print check_results to the STDOUT
-    ansible.builtin.debug:
-      msg: "{{ scs_compliance_results_parsed.stdout }}"
-    when: scs_compliance_results_parsed is defined

@@ -22,8 +22,9 @@
     parent: k8s-cluster-api-provider-e2e-abstract
     description: |
       Run e2e tests of k8s-cluster-api-provider project using
-      [sonobuoy](https://sonobuoy.io/) with mode conformance meaning
-      it will test if the Kubernetes cluster is conformant to the CNCF.
+      [sonobuoy](https://sonobuoy.io/) with mode conformance and
+      SCS compliance checks meaning it will test if the Kubernetes
+      cluster is conformant to the CNCF and to the SCS.
     timeout: 10800  # 3h
     vars:
       sonobouy:
@@ -37,12 +38,13 @@
     parent: k8s-cluster-api-provider-e2e-abstract
     description: |
       Run e2e tests of k8s-cluster-api-provider project using
-      [sonobuoy](https://sonobuoy.io/) with mode quick.
+      [sonobuoy](https://sonobuoy.io/) with mode quick and
+      SCS compliance checks.
     timeout: 3600  # 1h
     vars:
-#      sonobouy:
-#        enabled: true
-#        mode: quick
+      sonobouy:
+        enabled: true
+        mode: quick
       scs_compliance:
         enabled: true
 
