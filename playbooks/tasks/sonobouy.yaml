@@ -1,11 +1,23 @@
 ---
 - name: Execute sonobouy check mode {{ sonobouy.mode }}
-  ansible.builtin.command: "make check-{{ sonobouy.mode }}"
-  register: sonobouy_results
-  args:
-    chdir: "{{ project_tf_dir }}"
-  changed_when: true
-- name: Parse sonobouy results
-  ansible.builtin.set_fact:
-    sonobouy_results_parsed: "{{ sonobouy_results.stdout | regex_search('=== Collecting results ===[\\S\\s]*') }}"
-  when: sonobouy_results is defined
+  block:
+  - name: Execute sonobouy
+    ansible.builtin.command: "make check-{{ sonobouy.mode }}"
+    register: sonobouy_results
+    args:
+      chdir: "{{ project_tf_dir }}"
+    changed_when: true
+  always:
+  - name: Parse sonobouy results  # noqa: ignore-errors
+    ansible.builtin.set_fact:
+      sonobouy_results_parsed: "{{ sonobouy_results.stdout | regex_search('=== Collecting results ===[\\S\\s]*') }}"
+    when: sonobouy_results is defined
+    ignore_errors: true
+  - name: Insert sonobouy results to the warning message that will be appended to the comment zuul leaves on the PR  # noqa: ignore-errors
+    zuul_return:
+      data:
+        zuul:
+          warnings:
+            - "<details>\n  <summary><b>Sonobouy results</b></summary>\n{{ sonobouy_results_parsed }}\n</details>"
+    when: sonobouy_results_parsed is defined and sonobouy_results_parsed | length > 0
+    ignore_errors: true

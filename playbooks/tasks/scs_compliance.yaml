@@ -34,7 +34,17 @@
          python3 {{ check_dir }}/Tests/scs-compliance-check.py {{ check_dir }}/Tests/scs-compatible-kaas.yaml -v -s KaaS_V1 -a kubeconfig={{ kubeconfig_path }}"
     changed_when: false
     register: scs_compliance_results
-  - name: Parse SCS KaaS compliance results
+  always:
+  - name: Parse SCS KaaS compliance results  # noqa: ignore-errors
     ansible.builtin.set_fact:
       scs_compliance_results_parsed: "{{ scs_compliance_results.stdout }}"
     when: scs_compliance_results is defined
+    ignore_errors: true
+  - name: Insert SCS compliance results to the warning message that will be appended to the comment zuul leaves on the PR  # noqa: ignore-errors
+    zuul_return:
+      data:
+        zuul:
+          warnings:
+            - "<details>\n  <summary><b>SCS Compliance results</b></summary>\n{{ scs_compliance_results_parsed }}\n</details>"
+    when: scs_compliance_results_parsed is defined and scs_compliance_results_parsed | length > 0
+    ignore_errors: true
