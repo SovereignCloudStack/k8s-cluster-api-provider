@@ -17,9 +17,11 @@
     pr_or_main: "{{ 'pr' + zuul.change if zuul.change is defined else 'main' }}"
     prefix: "{{ (pr_or_main + '-' + zuul.build) | truncate(12, True, '') }}"
     testcluster_name: "{{ (pr_or_main + '-' + zuul.build) | truncate(12, True, '') }}"
-  environment:
-    ENVIRONMENT: "{{ cloud_provider }}"
-    PATH: "{{ ansible_user_dir }}/.local/bin:{{ ansible_env.PATH }}"
+    env_variables:
+      ENVIRONMENT: "{{ cloud_provider }}"
+      PATH: "{{ ansible_user_dir }}/.local/bin:{{ ansible_env.PATH }}"
+    env_variables_merged: "{{ env_variables | combine(extra_env | default({}) ) }}"
+  environment: "{{ env_variables_merged }}"
   tasks:
   - name: Prepare environment
     block:
@@ -87,7 +89,7 @@
       become: true
       when: mtu.stdout != "1500"
       changed_when: mtu.stdout != "1500"
-  - name: Create k8s cluster and execute sonobouy check
+  - name: Create k8s cluster and execute checks
     block:
     - name: Create k8s cluster
       ansible.builtin.command: "make create GITREFERENCE={{ git_branch_name }} GITREPO={{ git_repository_url }}"
@@ -106,26 +108,21 @@
       environment:
         KUBECONFIG: "{{ testcluster_name }}.yaml.{{ cloud_provider }}"
       changed_when: true
-    - name: Execute sonobouy check mode {{ sonobouy_mode }}
-      ansible.builtin.command: "make check-{{ sonobouy_mode }}"
-      register: sonobouy_results
-      args:
-        chdir: "{{ project_tf_dir }}"
-      changed_when: true
+    - name: Import sonobouy tasks
+      ansible.builtin.import_tasks: tasks/sonobouy.yaml
+      when: sonobouy.enabled
+    - name: Import scs_compliance pre-tasks
+      ansible.builtin.import_tasks: tasks/label_nodes.yaml
+      vars:
+        os_cloud: "{{ cloud_provider }}"
+        kubeconfig_path: "{{ project_tf_dir }}/{{ testcluster_name }}.yaml.{{ cloud_provider }}"
+      when: scs_compliance.enabled
+    - name: Import scs_compliance tasks
+      ansible.builtin.import_tasks: tasks/scs_compliance.yaml
+      vars:
+        kubeconfig_path: "{{ project_tf_dir }}/{{ testcluster_name }}.yaml.{{ cloud_provider }}"
+      when: scs_compliance.enabled
     always:
-    - name: Parse sonobouy results  # noqa: ignore-errors
-      ansible.builtin.set_fact:
-        sonobouy_results_parsed: "{{ sonobouy_results.stdout | regex_search('=== Collecting results ===[\\S\\s]*') }}"
-      when: sonobouy_results is defined
-      ignore_errors: true  # ignore when this task failed as it is nice to have, and we should ensure that fullclean is reached
-    - name: Insert parsed sonobouy results to the warning message that will be appended to the comment zuul leaves on the PR  # noqa: ignore-errors
-      zuul_return:
-        data:
-          zuul:
-            warnings:
-              - "<details>\n  <summary><b>Sonobouy results</b></summary>\n{{ sonobouy_results_parsed }}\n</details>"
-      when: sonobouy_results_parsed is defined and sonobouy_results_parsed | length > 0
-      ignore_errors: true  # ignore when this task failed as it is nice to have, and we should ensure that fullclean is reached
     - name: Cleanup - fullclean
       ansible.builtin.command: "make fullclean"
       args:

@@ -11,27 +11,53 @@
     cleanup-run: playbooks/cleanup.yaml  # executed also when the job is canceled
     vars:
       wait_for_cluster: 600  # 10min
+      extra_env: {}
+      sonobouy:
+        enabled: false
+      scs_compliance:
+        enabled: false
 
 - job:
     name: k8s-cluster-api-provider-e2e-conformance
     parent: k8s-cluster-api-provider-e2e-abstract
     description: |
       Run e2e tests of k8s-cluster-api-provider project using
-      [sonobuoy](https://sonobuoy.io/) with mode conformance meaning
-      it will test if the Kubernetes cluster is conformant to the CNCF.
+      [sonobuoy](https://sonobuoy.io/) with mode conformance and
+      SCS compliance checks meaning it will test if the Kubernetes
+      cluster is conformant to the CNCF and to the SCS.
     timeout: 10800  # 3h
     vars:
-      sonobouy_mode: conformance
+      sonobouy:
+        enabled: true
+        mode: conformance
+      scs_compliance:
+        enabled: true
 
 - job:
     name: k8s-cluster-api-provider-e2e-quick
     parent: k8s-cluster-api-provider-e2e-abstract
     description: |
       Run e2e tests of k8s-cluster-api-provider project using
-      [sonobuoy](https://sonobuoy.io/) with mode quick.
+      [sonobuoy](https://sonobuoy.io/) with mode quick and
+      SCS compliance checks.
     timeout: 3600  # 1h
     vars:
-      sonobouy_mode: quick
+      sonobouy:
+        enabled: true
+        mode: quick
+      scs_compliance:
+        enabled: true
+
+- job:
+    name: k8s-cluster-api-provider-scs-compliance-1.27
+    parent: k8s-cluster-api-provider-e2e-abstract
+    description: |
+      Run SCS compliance KaaS tests.
+    vars:
+      extra_env:
+        TF_VAR_kubernetes_version: 1.27.x
+      scs_compliance:
+        enabled: true
 
 - project:
     name: SovereignCloudStack/k8s-cluster-api-provider
