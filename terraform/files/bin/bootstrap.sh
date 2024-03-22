@@ -74,12 +74,22 @@ source ~/.kube-ps1/kube-ps1.sh
 PS1="\${PS1%\\\\\$ } \\\$(kube_ps1) [\\\$?]\\\$ "
 # We may do git commits and nano feels unusual ...
 export VISUAL=/usr/bin/vim
+
+# clusterctl beta features
+export CLUSTER_TOPOLOGY=true
+export EXP_CLUSTER_RESOURCE_SET=true
+
+# CSO settings
+export GIT_PROVIDER_B64=$(echo -n "github" | base64 -w0)
+export GIT_ORG_NAME_B64=$(echo -n "SovereignCloudStack" | base64 -w0)
+export GIT_REPOSITORY_NAME_B64=$(echo -n "cluster-stacks" | base64 -w0)
+# export GIT_ACCESS_TOKEN_B64=\$(echo -n "\$GIT_ACCESS_TOKEN" | base64 -w0)
 # eof
 EOF
 
 # openstack completion
 openstack complete > ~/.bash_openstack 2>/dev/null
-echo -e "#openstack completion\nsource ~/.bash_openstack" >> ~/.bash_aliases
+echo -e "#openstack complete\nsource ~/.bash_openstack" >> ~/.bash_aliases
 
 # set inputrc set tab once
 cat <<EOF > .inputrc
