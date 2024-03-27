@@ -12,7 +12,7 @@ Linux/MacOS/WSL laptop.
 Requirements for the deployment host:
 
 - You need to have installed:
-    - OpenTofu (<https://opentofu.org/docs/intro/install/>).
+    - OpenTofu [https://opentofu.org/docs/intro/install/](https://opentofu.org/docs/intro/install/)
     - `yq` (python3-yq or yq snap)
     - GNU make
     - openstack (python3-openstackclient) and plugin for octavia (python3-octaviaclient) Via pip or your distribution.
