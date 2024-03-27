@@ -108,7 +108,7 @@ in the management scripts, they ensure to continue to support older templates.
 #### Updating cluster-API and openstack cluster-API provider
 
 To get the latest version of cluster-API, you can download a new clusterctl
-binary from <https://github.com/kubernetes-sigs/cluster-api/releases>,
+binary from [https://github.com/kubernetes-sigs/cluster-api/releases](https://github.com/kubernetes-sigs/cluster-api/releases),
 make it executable `chmod +x clusterctl` and install it to `/usr/local/bin/`,
 possibly saving the old binary by renaming it. `clusterctl version` should now
 display the current version number (v1.6.2 at the time of this writing).
