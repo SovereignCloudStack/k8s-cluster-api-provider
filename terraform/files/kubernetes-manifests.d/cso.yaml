@@ -906,7 +906,7 @@ spec:
             secretKeyRef:
               key: git-access-token
               name: cso-cluster-stack-variables
-        image: ghcr.io/sovereigncloudstack/cso:v0.1.0-alpha.3
+        image: ghcr.io/sovereigncloudstack/cso:v0.1.0-alpha.5
         imagePullPolicy: Always
         livenessProbe:
           failureThreshold: 3

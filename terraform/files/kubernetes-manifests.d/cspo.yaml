@@ -743,7 +743,7 @@ spec:
             secretKeyRef:
               key: git-access-token
               name: cspo-cluster-stack-variables
-        image: ghcr.io/sovereigncloudstack/cspo:v0.1.0-alpha.2
+        image: ghcr.io/sovereigncloudstack/cspo:v0.1.0-alpha.3
         livenessProbe:
           httpGet:
             path: /healthz
