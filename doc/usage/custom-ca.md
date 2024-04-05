@@ -31,7 +31,7 @@ Steps of what happens with the custom cacert in k8s-cluster-api-provider:
    directory `~/cluster-defaults/${cloud_provider}-cacert` by OpenTofu
 3. During the management server bootstrap process cacert is injected to
    the *~/cluster-defaults/cluster-template.yaml* to *KubeadmControlPlane* and *KubeadmConfigTemplate* files
-   as file with cacert content from already defined secret *${CLUSTER_NAME}-cloud-config* and will be later
+   as file with cacert content from already defined secret `${CLUSTER_NAME}-cloud-config` and will be later
    templated and copied to the workload cluster (control plane and worker nodes) provisioned by CAPO, e.g.:
    ```yaml
    files:
@@ -49,7 +49,7 @@ Steps of what happens with the custom cacert in k8s-cluster-api-provider:
    inside *~/$CLUSTER_NAME/clusterctl.yaml*, so it can be used during
    the workload cluster templating
 6. Later, when the workload cluster templates are applied to the management cluster,
-   secret *${CLUSTER_NAME}-cloud-config* with base64 encoded cacert is created and used by CAPO
+   secret `${CLUSTER_NAME}-cloud-config` with base64 encoded cacert is created and used by CAPO
 7. CAPO will create workload cluster (thanks to steps 5. and 6.) and cacert is
    transferred to the control plane and worker nodes (thanks to steps 3. and 4.)
 8. OCCM and CCSI pods mount cacert via hostPath volume
@@ -60,7 +60,7 @@ Steps of what happens with the custom cacert in k8s-cluster-api-provider:
 When the custom CA expires or otherwise changes it needs to be rotated.
 CAPO uses the custom CA certificate in the management cluster for creating the infrastructure
 for the workload clusters and in the workload clusters by OCCM and CCSI for e.g. creating load balancers or volumes.
-In both cases, cacert is provided via secret *${CLUSTER_NAME}-cloud-config* and needs to be updated.
+In both cases, cacert is provided via secret `${CLUSTER_NAME}-cloud-config` and needs to be updated.
 
 There are 3 steps in this rotation process:
 1. Replace/append custom CA certificate in `~/cluster-defaults/${cloud_provider}-cacert`
