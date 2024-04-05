@@ -344,7 +344,7 @@ The old way: Editing cluster-template.yaml. Or better use the
 
 Edit `~/<CLUSTER_NAME>/clusterctl.yaml` and put the wanted version into the
 fields `KUBERNETES_VERSION` and `OPENSTACK_IMAGE_NAME`. The node image will
-be downloaded from <https://minio.services.osism.tech/openstack-k8s-capi-images>
+be downloaded from [https://minio.services.osism.tech/openstack-k8s-capi-images](https://minio.services.osism.tech/openstack-k8s-capi-images)
 and registered if needed. (If you have updated the k8s-cluster-api-provider repo,
 you can use a version v1.NN.x, where you fill in NN with the wanted k8s version,
 but leave a literal `.x` which will get translated to the newest tested version.)
