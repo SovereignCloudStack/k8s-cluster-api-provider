@@ -1,5 +1,8 @@
 # k8s-cluster-api-provider repository
 
+> This repository as SCS reference implementation KaaS v1 is deprecated from release R6.
+> It is recommended to evaluate the new reference implementation KaaS v2 - [Cluster Stacks](https://github.com/SovereignCloudStack/cluster-stacks).
+> Existing R6 clusters can also be migrated, see [Migration to KaaS v2](doc/usage/migrate-to-kaas-v2.md).
 
 | Version | CNCF Conformance Check                                                                                                                                    |
 |---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
