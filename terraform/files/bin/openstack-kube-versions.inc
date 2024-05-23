@@ -3,7 +3,7 @@
 # (c) Kurt Garloff <kurt@garloff.de>, 3/2022
 # SPDX-License-Identifier: Apache-2.0
 # Images from https://swift.services.a.regiocloud.tech/swift/v1/AUTH_b182637428444b9aa302bb8d5a5a418c/openstack-k8s-capi-images
-k8s_versions=("v1.21.14" "v1.22.17" "v1.23.16" "v1.24.15" "v1.25.15" "v1.26.14" "v1.27.12" "v1.28.8" "v1.29.3")
+k8s_versions=("v1.21.14" "v1.22.17" "v1.23.16" "v1.24.15" "v1.25.15" "v1.26.14" "v1.27.12" "v1.28.10" "v1.29.3")
 # OCCM, CCM-RBAC, Cinder CSI, Cinder-Snapshot (TODO: Manila CSI)
 occm_versions=("v1.21.1"  "v1.22.2"  "v1.23.4"  "v1.24.6" "v1.25.6" "v1.26.4" "v1.27.3" "v1.28.2" "v1.29.0")
 #ccmr_versions=(""         "v1.22.2"  "v1.23.4"  "v1.24.6" "v1.25.6" "v1.26.4" "v1.27.3" "v1.28.2" "v1.29.0")
