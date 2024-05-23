@@ -34,7 +34,7 @@ first, when you are on release < R6).
      make deploy-cso GIT_ACCESS_TOKEN=<github-access-token>
      make deploy-cspo GIT_ACCESS_TOKEN=<github-access-token>
      ```
-3. Export *${PREFIX}* and *${CLUSTER_NAME}*:
+3. Export `${PREFIX}` and `${CLUSTER_NAME}`:
    ```bash
    . ~/bin/cccfg.inc
    ```
