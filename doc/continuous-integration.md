@@ -27,6 +27,7 @@ their jobs used by the k8s-cluster-api-provider project. Then, jobs link Ansible
 tasks for actual CI testing.
 
 See relevant CI configuration files:
+
 ```text
 ├── .zuul.yaml
 ├── playbooks
@@ -78,7 +79,7 @@ This section describes Zuul jobs defined within the k8s-cluster-api-provider pro
   - It runs a sonobuoy conformance test against Kubernetes cluster spawned by k8s-cluster-api-provider scripts
   - This job is a child job of `openstack-access-base` that ensures OpenStack credentials
     availability in Zuul worker node. Parent job also defines a Zuul semaphore `semaphore-openstack-access`,
-    that ensures that only one `openstack-access-base` job (or its children) can run at a time
+    that ensures that a maximum of three `openstack-access-base` jobs (or their children) can run at a time
   - See a high level `k8s-cluster-api-provider-e2e-conformance` job steps:
     - Pre-run playbook `dependencies.yaml` installs project prerequisites, e.g. opentofu, yq, etc.
     - Main playbook `e2e.yaml` spawns a k8s cluster, runs sonobuoy conformance test, and cleans created infrastructure, all by k8s-cluster-api-provider scripts
@@ -88,7 +89,7 @@ This section describes Zuul jobs defined within the k8s-cluster-api-provider pro
   - It runs a sonobuoy quick test against Kubernetes cluster spawned by k8s-cluster-api-provider scripts
   - This job is a child job of `openstack-access-base` that ensures OpenStack credentials
     availability in Zuul worker node. Parent job also defines a Zuul semaphore `semaphore-openstack-access`,
-    that ensures that only one `openstack-access-base` job (or its children) can run at a time
+    that ensures that a maximum of three `openstack-access-base` jobs (or their children) can run at a time
   - See a high level `k8s-cluster-api-provider-e2e-quick` job steps:
     - Pre-run playbook `dependencies.yaml` installs project prerequisites, e.g. opentofu, yq, etc.
     - Main playbook `e2e.yaml` spawns a k8s cluster, runs sonobuoy quick test, and cleans created infrastructure, all by k8s-cluster-api-provider scripts
@@ -96,7 +97,7 @@ This section describes Zuul jobs defined within the k8s-cluster-api-provider pro
 
 ### Secrets
 
-The parent job `openstack-access-base`, from which e2e jobs inherit, defines secret variable `openstack-application-credential`. 
+The parent job `openstack-access-base`, from which e2e jobs inherit, defines secret variable `openstack-application-credential`.
 This secret is stored directly in the [SCS/zuul-config repository](https://github.com/SovereignCloudStack/zuul-config/blob/main/zuul.d/secrets.yaml) in an encrypted form.
 It contains OpenStack application credentials to access the OpenStack project dedicated for CI testing.
 
@@ -106,11 +107,13 @@ So only SCS Zuul instance is able to decrypt it (read the [docs](https://zuul-ci
 If you want to re-generate the mentioned secret or add another one using SCS/zuul-config repository RSA key, follow the below instructions:
 
 - Install zuul-client
+
 ```bash
 pip install zuul-client
 ```
 
 - Encrypt "super-secret" string by the SCS/zuul-config repository public key from SCS Zuul
+
 ```bash
 echo -n "super-secret" | \
   zuul-client --zuul-url https://zuul.scs.community encrypt \
@@ -125,6 +128,7 @@ the `environment.tfvars` file in the repository. For example, you may want to ch
 system image without altering the default image used by the project.
 
 To do so, you can in the body of the PR add the following text:
+
 ```text
     ```ZUUL_CONFIG
     image = "Ubuntu 20.04"
@@ -138,6 +142,7 @@ To do so, you can in the body of the PR add the following text:
 A developer initiates a PR as usual. If a reviewer deems that the PR requires e2e testing,
 they can apply a specific label to the PR.
 Currently, the following labels could be applied:
+
 - `e2e-test` (for comprehensive e2e testing, including k8s cluster creation, execution of sonobuoy conformance tests, and cluster deletion)
 - `e2e-quick-test` (for expedited e2e testing, involving k8s cluster creation, quick sonobuoy tests, and cluster deletion)
 
@@ -157,7 +162,7 @@ Members of the SCS GitHub organization are automatically granted 'write' access 
 Consequently, the PR label mechanism ensures that only SCS organization members can trigger e2e pipelines.
 
 #### How do we ensure that any PR update invalidates a previous successful e2e test?
- 
+
 In fact, two mechanisms ensure the invalidation of a previously successful test when a PR is updated.
 
 Firstly, the pipelines `unlabel-on-update-<e2e-test-name>` remove the `successful-<e2e-test-name>` label
