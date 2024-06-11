@@ -9,6 +9,7 @@ sudo patch -p2 -N -d /usr/lib/python3/dist-packages/keystoneauth1 < /tmp/fix-key
 
 # convenience
 echo "export OS_CLOUD=\"$OS_CLOUD\"" >> $HOME/.bash_aliases
+echo "export CLIFF_FIT_WIDTH=1" >> $HOME/.bash_aliases
 
 # Determine project ID and inject into cloud.conf
 PROJECTID=$(openstack application credential show "${PREFIX}-appcred" -f value -c project_id)
