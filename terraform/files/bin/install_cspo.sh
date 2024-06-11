@@ -100,21 +100,23 @@ EOT
 	# And remove secret from env
 	unset APPCRED_SECRET NEWCRED
 fi
+chmod 0640 clouds.yaml
 # export OS_CLOUD=openstack
 # Create secret from clouds.yaml
-curl -sSL https://github.com/SovereignCloudStack/cluster-stacks/releases/download/openstack-alpha-1-28-v3/csp-helper-chart.tgz | tar xv
+#curl -sSL https://github.com/SovereignCloudStack/cluster-stacks/releases/download/openstack-alpha-1-28-v3/csp-helper-chart.tgz | tar xv
+#rm -f openstack-csp-helper/templates/namespace.yaml
+curl -sSL https://github.com/SovereignCloudStack/openstack-csp-helper/releases/download/latest/openstack-csp-helper.tgz | tar xv
 # Replace namespace
 sed -i "/^{{\\- if include \"isAppCredential\" \\. \\-}}/{n
 i$CLUSTER
 d
-}" csp-helper-chart/templates/_helpers.tpl
+}" openstack-csp-helper/templates/_helpers.tpl
 # kubectl create ns $CLUSTER	# Not needed, helm csp-helper does it
-rm -f csp-helper-chart/templates/namespace.yaml
-helm upgrade --create-namespace -n $CLUSTER -i csp-helper csp-helper-chart -f clouds.yaml >/dev/null
+helm upgrade --create-namespace -n $CLUSTER -i $CLUSTER-credentials openstack-csp-helper -f clouds.yaml >/dev/null
 # Store an example cluster-stack
 # Note: These should preferably be taken from the checked out repos.
 # Currently, we use the content from https://input.scs.community/_HeOTRCRSu2Uf2SfMSoOkQ?both#
-cat > clusterstack-alpha-1-28-v3-$CLUSTER.yaml <<EOT
+cat > clusterstack-alpha-1-29-v3-$CLUSTER.yaml <<EOT
 apiVersion: clusterstack.x-k8s.io/v1alpha1
 kind: ClusterStack
 metadata:
@@ -123,7 +125,7 @@ metadata:
 spec:
   provider: openstack
   name: alpha
-  kubernetesVersion: "1.28"
+  kubernetesVersion: "1.29"
   channel: stable
   autoSubscribe: false
   providerRef:
@@ -145,6 +147,7 @@ spec:
         kind: Secret
         name: openstack
 EOT
+# No longer needed (part of openstack-csp-helper now)
 cat >clusterresourceset-secret-$CLUSTER.yaml <<EOT
 apiVersion: addons.cluster.x-k8s.io/v1beta1
 kind: ClusterResourceSet
@@ -160,7 +163,7 @@ spec:
    - name: openstack-workload-cluster-secret
      kind: Secret
 EOT
-cat >cluster-alpha-1-28-v3-$CLUSTER.yaml <<EOT
+cat >cluster-alpha-1-29-v3-$CLUSTER.yaml <<EOT
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
 metadata:
@@ -180,26 +183,26 @@ spec:
   topology:
     variables:
       - name: controller_flavor
-        value: "SCS-2V-4-20"
+        value: "SCS-2V-4-20s"
       - name: worker_flavor
-        value: "SCS-2V-8-20"
+        value: "SCS-2V-8-50"
       - name: external_id
         value: "$EXTID"
-    class: openstack-alpha-1-28-v3
+    class: openstack-alpha-1-29-v3
     controlPlane:
       replicas: 1
-    version: v1.28.6
+    version: v1.29.3
     workers:
       machineDeployments:
-        - class: capi-openstack-alpha-1-28
+        - class: openstack-alpha-1-29-v3
           failureDomain: nova
-          name: capi-openstack-alpha-1-28
+          name: openstack-alpha-1-29-v3
           replicas: 3
 EOT
-kubectl apply -f clusterresourceset-secret-$CLUSTER.yaml
+#kubectl apply -f clusterresourceset-secret-$CLUSTER.yaml
 echo "# Perform these to create a workload cluster (after editing as desired) ..."
-echo "kubectl apply -f ~/$NAME/clusterstack-alpha-1-28-v3-$CLUSTER.yaml"
-echo "kubectl apply -f ~/$NAME/cluster-alpha-1-28-v3-$CLUSTER.yaml"
+echo "kubectl apply -f ~/$NAME/clusterstack-alpha-1-29-v3-$CLUSTER.yaml"
+echo "kubectl apply -f ~/$NAME/cluster-alpha-1-29-v3-$CLUSTER.yaml"
 # FIXME: Code from create_cluster.sh would help here ...
 echo "# Wait for cluster to be ready ..."
 echo "clusterctl -n $CLUSTER get kubeconfig cs-$CLUSTER > ~/$NAME/cs-$CLUSTER.yaml"
