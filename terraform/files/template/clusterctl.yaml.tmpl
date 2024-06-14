@@ -37,6 +37,10 @@ DEPLOY_FLUX: ${deploy_flux}
 # deploy metrics service
 DEPLOY_METRICS: ${deploy_metrics}
 
+# OpenStack instance additional metadata
+OPENSTACK_CONTROL_PLANE_MACHINE_METADATA: "{ %{ for metadata_key, metadata_value in controller_metadata ~} ${metadata_key}: '${metadata_value}', %{ endfor ~} }"
+OPENSTACK_NODE_MACHINE_METADATA: "{ %{ for metadata_key, metadata_value in worker_metadata ~} ${metadata_key}: '${metadata_value}', %{ endfor ~} }"
+
 # OpenStack flavors and machine count
 OPENSTACK_CONTROL_PLANE_MACHINE_FLAVOR: ${controller_flavor}
 CONTROL_PLANE_MACHINE_COUNT: ${controller_count}

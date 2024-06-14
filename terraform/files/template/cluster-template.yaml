@@ -320,6 +320,7 @@ spec:
   template:
     spec:
       flavor: ${OPENSTACK_CONTROL_PLANE_MACHINE_FLAVOR}
+      serverMetadata: ${OPENSTACK_CONTROL_PLANE_MACHINE_METADATA}
       serverGroupID: ${OPENSTACK_SRVGRP_CONTROLLER}
       image: ${OPENSTACK_IMAGE_NAME}
       sshKeyName: ${OPENSTACK_SSH_KEY_NAME}
@@ -345,6 +346,7 @@ spec:
         name: ${CLUSTER_NAME}-cloud-config
         kind: Secret
       flavor: ${OPENSTACK_NODE_MACHINE_FLAVOR}
+      serverMetadata: ${OPENSTACK_NODE_MACHINE_METADATA}
       serverGroupID: ${OPENSTACK_SRVGRP_WORKER}
       image: ${OPENSTACK_IMAGE_NAME}
       sshKeyName: ${OPENSTACK_SSH_KEY_NAME}

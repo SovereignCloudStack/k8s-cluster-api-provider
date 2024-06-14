@@ -33,6 +33,18 @@ variable "worker_flavor" {
   default     = "SCS-2V-4-20s"
 }
 
+variable "controller_metadata" {
+  description = "additional metadata for instances running the k8s management nodes"
+  type        = map(string)
+  default     = {}
+}
+
+variable "worker_metadata" {
+  description = "additional metadata for instances running the k8s worker nodes"
+  type        = map(string)
+  default     = {}
+}
+
 variable "availability_zone" {
   description = "availability zone for openstack resources"
   type        = string
