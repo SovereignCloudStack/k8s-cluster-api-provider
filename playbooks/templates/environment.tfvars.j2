@@ -6,8 +6,12 @@ availability_zone = "nova"
 external          = "ext01"
 dns_nameservers   = ["62.138.222.111", "62.138.222.222"]
 kind_flavor       = "SCS-2V:4"
-controller_flavor = "SCS-2V:4:20"
+controller_flavor = "SCS-2V-4-20s"
 worker_flavor     = "SCS-2V:4:20"
+
+controller_metadata = {
+  ps_restart_after_maint = "true"
+}
 
 controller_count  = 3
 worker_count      = 3
