@@ -13,6 +13,9 @@ controller_metadata = {
   ps_restart_after_maint = "true"
 }
 
+# FIXME: Remove when CI runs on gx-scs2 environment(3+ physical machines for local ssd flavors)
+anti_affinity = false
+
 controller_count  = 3
 worker_count      = 3
 
