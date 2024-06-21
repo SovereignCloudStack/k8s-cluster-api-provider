@@ -91,7 +91,10 @@ if test "$CONTROL_PLANE_MACHINE_COUNT" -gt 0 && grep '^ *OPENSTACK_ANTI_AFFINITY
   SRVGRP_CONTROLLER=$(echo "$SRVGRP" | grep "${PREFIX}-${CLUSTER_NAME}-controller" | sed 's/^\([0-9a-f\-]*\) .*$/\1/')
   SRVGRP_WORKER=$(echo "$SRVGRP" | grep "${PREFIX}-${CLUSTER_NAME}-worker" | sed 's/^\([0-9a-f\-]*\) .*$/\1/')
   if test -z "$SRVGRP_CONTROLLER"; then
-    SRVGRP_CONTROLLER=$(openstack --os-compute-api-version 2.15 server group create --policy anti-affinity -f value -c id ${PREFIX}-${CLUSTER_NAME}-controller)
+    ANTI_AFFINITY_POLICY_CONTROLLER=anti-affinity
+    SOFT_ANTI_AFFINITY_CONTROLLER=$(yq eval '.OPENSTACK_SOFT_ANTI_AFFINITY_CONTROLLER' $CCCFG)
+    if test "$SOFT_ANTI_AFFINITY_CONTROLLER" = "true"; then ANTI_AFFINITY_POLICY_CONTROLLER=soft-anti-affinity; fi
+    SRVGRP_CONTROLLER=$(openstack --os-compute-api-version 2.15 server group create --policy ${ANTI_AFFINITY_POLICY_CONTROLLER} -f value -c id ${PREFIX}-${CLUSTER_NAME}-controller)
     SRVGRP_WORKER=$(openstack --os-compute-api-version 2.15 server group create --policy soft-anti-affinity -f value -c id ${PREFIX}-${CLUSTER_NAME}-worker)
   fi
   echo "Adding server groups $SRVGRP_CONTROLLER and $SRVGRP_WORKER to $CCCFG"

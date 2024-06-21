@@ -27,6 +27,7 @@ node_cidr            = "<CIDR>"         # defaults to "10.8.0.0/20"
 service_cidr         = "<CIDR>"         # defaults to "10.96.0.0/12"
 pod_cidr             = "<CIDR>"         # defaults to "192.168.0.0/16"
 anti_affinity        = "<boolean>"      # defaults to "true"
+soft_anti_affinity_controller = "<boolean>"       # defaults to "false"
 use_cilium           = "version/true/false"       # defaults to "true", can also be set to "vx.y.z", also see cilium_binaries
 use_ovn_lb_provider  = "auto/true/false"	  # use OVN LB if available (auto) or force (true) or never (false)
 deploy_nginx_ingress = "version/true/false"       # defaults to "true", you can also set vX.Y.Z if you want

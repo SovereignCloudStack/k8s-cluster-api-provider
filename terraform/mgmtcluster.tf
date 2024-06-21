@@ -313,6 +313,7 @@ resource "terraform_data" "mgmtcluster_bootstrap_files" {
   provisioner "file" {
     content = templatefile("files/template/clusterctl.yaml.tmpl", {
       anti_affinity                  = var.anti_affinity,
+      soft_anti_affinity_controller  = var.soft_anti_affinity_controller,
       availability_zone              = var.availability_zone,
       capo_instance_create_timeout   = var.capo_instance_create_timeout,
       cloud_provider                 = var.cloud_provider,

@@ -203,6 +203,12 @@ variable "anti_affinity" {
   default     = true
 }
 
+variable "soft_anti_affinity_controller" {
+  description = "allow the use of soft-anti-affinity for the control plane"
+  type        = bool
+  default     = false
+}
+
 variable "dns_nameservers" {
   description = "array of nameservers to be set for subnets, prefer local DNS servers if available"
   type        = list(string)
