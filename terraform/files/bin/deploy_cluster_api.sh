@@ -31,6 +31,9 @@ clusterctl version --output yaml
 #MTU=`yq eval '.MTU_VALUE' ~/cluster-defaults/clusterctl.yaml`
 # Fix up nameserver list (trailing comma -- cosmetic)
 sed '/OPENSTACK_DNS_NAMESERVERS:/s@, \]"@ ]"@' -i ~/cluster-defaults/clusterctl.yaml
+# Fix metadata dicts (trailing comma -- cosmetic)
+sed '/OPENSTACK_CONTROL_PLANE_MACHINE_METADATA:/s@, }"@ }"@' -i ~/cluster-defaults/clusterctl.yaml
+sed '/OPENSTACK_NODE_MACHINE_METADATA:/s@, }"@ }"@' -i ~/cluster-defaults/clusterctl.yaml
 
 # cp clusterctl.yaml to the right place
 if test "$(dotversion "$(clusterctl version -o short)")" -ge 10500; then

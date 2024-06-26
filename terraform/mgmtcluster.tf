@@ -313,11 +313,13 @@ resource "terraform_data" "mgmtcluster_bootstrap_files" {
   provisioner "file" {
     content = templatefile("files/template/clusterctl.yaml.tmpl", {
       anti_affinity                  = var.anti_affinity,
+      soft_anti_affinity_controller  = var.soft_anti_affinity_controller,
       availability_zone              = var.availability_zone,
       capo_instance_create_timeout   = var.capo_instance_create_timeout,
       cloud_provider                 = var.cloud_provider,
       controller_count               = var.controller_count,
       controller_flavor              = var.controller_flavor,
+      controller_metadata            = var.controller_metadata,
       deploy_cert_manager            = var.deploy_cert_manager,
       deploy_cindercsi               = var.deploy_cindercsi,
       deploy_flux                    = var.deploy_flux,
@@ -340,7 +342,8 @@ resource "terraform_data" "mgmtcluster_bootstrap_files" {
       calico_version                 = var.calico_version,
       use_ovn_lb_provider            = var.use_ovn_lb_provider,
       worker_count                   = var.worker_count,
-      worker_flavor                  = var.worker_flavor
+      worker_flavor                  = var.worker_flavor,
+      worker_metadata                = var.worker_metadata
     })
     destination = "/home/${var.ssh_username}/cluster-defaults/clusterctl.yaml"
   }

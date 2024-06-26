@@ -27,6 +27,7 @@ node_cidr            = "<CIDR>"         # defaults to "10.8.0.0/20"
 service_cidr         = "<CIDR>"         # defaults to "10.96.0.0/12"
 pod_cidr             = "<CIDR>"         # defaults to "192.168.0.0/16"
 anti_affinity        = "<boolean>"      # defaults to "true"
+soft_anti_affinity_controller = "<boolean>"       # defaults to "false"
 use_cilium           = "version/true/false"       # defaults to "true", can also be set to "vx.y.z", also see cilium_binaries
 use_ovn_lb_provider  = "auto/true/false"	  # use OVN LB if available (auto) or force (true) or never (false)
 deploy_nginx_ingress = "version/true/false"       # defaults to "true", you can also set vX.Y.Z if you want
@@ -39,6 +40,8 @@ deploy_cindercsi     = "<version>"      # defaults to "true", dito
 etcd_unsafe_fs       = "<boolean>"      # defaults to "false", dangerous
 testcluster_name     = "NAME"           # defaults to "testcluster"
 restrict_kubeapi     = [ "IP/20", "IP/22" ]	# defaults to empty (fully open), use [ "none" ] for exclusive internal access
+controller_metadata  = { metadata_key = "metadata_value" } # defaults to empty dict (no additional metadata)
+worker_metadata      = { metadata_key = "metadata_value" } # defaults to empty dict (no additional metadata)
 containerd_registry_files = {"hosts":["<list of registry host config files>"], "certs":["<list of custom cert files>"]} # defaults to '{"hosts":["./files/containerd/docker.io"], "certs":[]}'
 deploy_harbor        = "<boolean>"      # defaults to "false", "true" deploys Harbor and forces deployment of flux and potentially other services (`cert_manager`, `nginx_ingress` and `cindercsi`), see `doc/usage/harbor.md`
 harbor_config        = {"domain_name":"<name>", "issuer_email":"<email>", "persistence":"<boolean>", "database_size":"size", "redis_size":"size", "trivy_size":"size"} # for defaults see ../variables.tf

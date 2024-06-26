@@ -33,6 +33,18 @@ variable "worker_flavor" {
   default     = "SCS-2V-4-20s"
 }
 
+variable "controller_metadata" {
+  description = "additional metadata for instances running the k8s management nodes"
+  type        = map(string)
+  default     = {}
+}
+
+variable "worker_metadata" {
+  description = "additional metadata for instances running the k8s worker nodes"
+  type        = map(string)
+  default     = {}
+}
+
 variable "availability_zone" {
   description = "availability zone for openstack resources"
   type        = string
@@ -189,6 +201,12 @@ variable "anti_affinity" {
   description = "use anti-affinity (soft for workers) to avoid k8s nodes on the same host"
   type        = bool
   default     = true
+}
+
+variable "soft_anti_affinity_controller" {
+  description = "allow the use of soft-anti-affinity for the control plane"
+  type        = bool
+  default     = false
 }
 
 variable "dns_nameservers" {

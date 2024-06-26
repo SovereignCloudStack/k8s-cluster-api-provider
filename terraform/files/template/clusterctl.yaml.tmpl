@@ -37,6 +37,10 @@ DEPLOY_FLUX: ${deploy_flux}
 # deploy metrics service
 DEPLOY_METRICS: ${deploy_metrics}
 
+# OpenStack instance additional metadata
+OPENSTACK_CONTROL_PLANE_MACHINE_METADATA: "{ %{ for metadata_key, metadata_value in controller_metadata ~} ${metadata_key}: '${metadata_value}', %{ endfor ~} }"
+OPENSTACK_NODE_MACHINE_METADATA: "{ %{ for metadata_key, metadata_value in worker_metadata ~} ${metadata_key}: '${metadata_value}', %{ endfor ~} }"
+
 # OpenStack flavors and machine count
 OPENSTACK_CONTROL_PLANE_MACHINE_FLAVOR: ${controller_flavor}
 CONTROL_PLANE_MACHINE_COUNT: ${controller_count}
@@ -80,6 +84,7 @@ OPENSTACK_SSH_KEY_NAME: ${prefix}-keypair
 
 # Use anti-affinity server groups
 OPENSTACK_ANTI_AFFINITY: ${anti_affinity}
+OPENSTACK_SOFT_ANTI_AFFINITY_CONTROLLER: ${soft_anti_affinity_controller}
 OPENSTACK_SRVGRP_CONTROLLER: nonono
 OPENSTACK_SRVGRP_WORKER: nonono
 
