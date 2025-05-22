@@ -9,7 +9,7 @@ dns_nameservers      = [ "DNS_IP1", "DNS_IP2" ]	  # defaults to [ "5.1.66.255", 
 kind_flavor          = "<flavor>"                 # defaults to SCS-2V-4  (larger does not hurt)
 ssh_username         = "<username_for_ssh>"	  # defaults to "ubuntu"
 clusterapi_version   = "<1.x.y>"		  # defaults to `1.6.3` <!-- renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api -->
-capi_openstack_version = "<0.x.y>"		  # defaults to `0.9.0` <!-- renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api-provider-openstack -->
+capi_openstack_version = "<0.x.y>"		  # defaults to `0.12.3` <!-- renovate: datasource=github-releases depName=kubernetes-sigs/cluster-api-provider-openstack -->
 image                = "<glance_image>"		  # defaults to "Ubuntu 22.04"
 cilium_binaries      = "<v0.aa.bb;v0.xx.yy>"      # defaults to "v0.15.23;v0.13.0"
 mgmt_cidr            = "<CIDR>"         # defaults to "10.0.0.0/24"
