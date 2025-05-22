@@ -42,7 +42,12 @@ first, when you are on release < R6).
    ```bash
    kubectl patch secret -n ${CLUSTER_NAME} ${CLUSTER_NAME}-cloud-config -p '{"stringData":{"cloudName":"'"${PREFIX}-${CLUSTER_NAME}"'"}}'
    ```
-5. Create Cluster Stack:
+5. Upgrade CAPI/CAPO:
+   ```bash
+   export CLUSTER_TOPOLOGY=true
+   clusterctl upgrade apply --infrastructure capo-system/openstack:v0.10.4 --core capi-system/cluster-api:v1.8.1 -b capi-kubeadm-bootstrap-system/kubeadm:v1.8.1 -c capi-kubeadm-control-plane-system/kubeadm:v1.8.1
+   ```
+6. Create Cluster Stack:
    ```bash
    kubectl -n ${CLUSTER_NAME} apply -f - <<EOF
    apiVersion: clusterstack.x-k8s.io/v1alpha1
@@ -60,7 +65,7 @@ first, when you are on release < R6).
        kind: OpenStackClusterStackReleaseTemplate
        name: cspotemplate
      versions:
-     - v1
+     - v2
    ---
    apiVersion: infrastructure.clusterstack.x-k8s.io/v1alpha1
    kind: OpenStackClusterStackReleaseTemplate
@@ -76,10 +81,15 @@ first, when you are on release < R6).
    ```
    ```bash
    $ kubectl -n ${CLUSTER_NAME} get clusterstack
-   NAME   PROVIDER    CLUSTERSTACK   K8S    CHANNEL   AUTOSUBSCRIBE   USABLE   LATEST                            AGE   REASON   MESSAGE
-   scs    openstack   scs            1.28   stable    false           v1       openstack-scs-1-28-v1 | v1.28.7   15m
+   NAME   PROVIDER    CLUSTERSTACK   K8S    CHANNEL   AUTOSUBSCRIBE   USABLE   LATEST                             AGE   REASON   MESSAGE
+   scs    openstack   scs            1.28   stable    false           v2       openstack-scs-1-28-v2 | v1.28.11   15m
    ```
-6. Migrate Cluster to KaaS v2:
+7. Hack CAPO validation for updating the OpenStackCluster (remove UPDATE operation from ValidatingWebhookConfiguration):
+   ```bash
+   kubectl patch ValidatingWebhookConfiguration/capo-validating-webhook-configuration --type='json' -p='[{"op": "replace", "path": "/webhooks/0/rules/0/operations", "value":["CREATE"]}]'
+   ```
+8. Migrate Cluster to KaaS v2:
+   > Note: If you are using flavors with a disk, remove `controller_root_disk` and `worker_root_disk` variables
    ```bash
    cat << "EOF" | clusterctl generate yaml --config ~/${CLUSTER_NAME}/clusterctl.yaml | kubectl -n ${CLUSTER_NAME} apply -f -
    apiVersion: cluster.x-k8s.io/v1beta1
@@ -121,27 +131,39 @@ first, when you are on release < R6).
          value: ${OPENSTACK_SRVGRP_WORKER}
        - name: ssh_key
          value: ${OPENSTACK_SSH_KEY_NAME}
-       class: openstack-scs-1-28-v1
+       class: openstack-scs-1-28-v2
        version: ${KUBERNETES_VERSION}
        controlPlane:
          replicas: ${CONTROL_PLANE_MACHINE_COUNT}
        workers:
          machineDeployments:
-         - class: openstack-scs-1-28-v1-md-0-no1
+         - class: default-worker
            name: "${PREFIX}-${CLUSTER_NAME}-md-0-no1"
            replicas: ${WORKER_MACHINE_COUNT}
            failureDomain: ${OPENSTACK_FAILURE_DOMAIN}
    EOF
    ```
-   > Note: If you are using flavors with a disk, comment `controller_root_disk` and `worker_root_disk` variables
-7. Fix metrics-server Cluster Addon:
+9. Add back CAPO validation for updating the OpenStackCluster (add UPDATE operation to ValidatingWebhookConfiguration):
    ```bash
-   $ kubectl -n ${CLUSTER_NAME} get clusteraddon
-   NAME                        CLUSTER       READY   AGE   REASON                 MESSAGE
-   cluster-addon-testcluster   testcluster   false   20m   FailedToApplyObjects   failed to successfully apply everything
-   $ KUBECONFIG=~/${CLUSTER_NAME}/${CLUSTER_NAME}.yaml kubectl delete deployment -n kube-system metrics-server
-   deployment.apps "metrics-server" deleted
-   $ kubectl -n ${CLUSTER_NAME} get clusteraddon
-   NAME                        CLUSTER       READY   AGE   REASON   MESSAGE
-   cluster-addon-testcluster   testcluster   true    25m
+   kubectl patch ValidatingWebhookConfiguration/capo-validating-webhook-configuration --type='json' -p='[{"op": "replace", "path": "/webhooks/0/rules/0/operations", "value":["CREATE", "UPDATE"]}]'
    ```
+10. Fix Cluster Addons:
+    ```bash
+    $ kubectl -n ${CLUSTER_NAME} get clusteraddon
+    NAME                        CLUSTER       READY   AGE   REASON                 MESSAGE
+    cluster-addon-testcluster   testcluster   false   20m   FailedToApplyObjects   failed to successfully apply everything
+    # cannot update due to label selector changes - we can only delete old ones
+    $ KUBECONFIG=~/${CLUSTER_NAME}/${CLUSTER_NAME}.yaml kubectl delete deployment -n kube-system metrics-server
+    deployment.apps "metrics-server" deleted
+    $ KUBECONFIG=~/${CLUSTER_NAME}/${CLUSTER_NAME}.yaml kubectl delete daemonset -n kube-system openstack-cloud-controller-manager
+    daemonset.apps "openstack-cloud-controller-manager" deleted
+    $ kubectl -n ${CLUSTER_NAME} get clusteraddon
+    NAME                        CLUSTER       READY   AGE   REASON   MESSAGE
+    cluster-addon-testcluster   testcluster   true    25m
+    # names of csi-cinder-controller/nodeplugin changed to openstack-cinder-csi-controller/nodeplugin
+    # now we have duplicates which should be deleted
+    $ KUBECONFIG=~/${CLUSTER_NAME}/${CLUSTER_NAME}.yaml kubectl delete deployment -n kube-system csi-cinder-controllerplugin
+    deployment.apps "csi-cinder-controllerplugin" deleted
+    $ KUBECONFIG=~/${CLUSTER_NAME}/${CLUSTER_NAME}.yaml kubectl delete daemonset -n kube-system csi-cinder-nodeplugin
+    daemonset.apps "csi-cinder-nodeplugin" deleted
+    ```

@@ -16,7 +16,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.13.0
+    controller-gen.kubebuilder.io/version: v0.14.0
   name: openstackclusterstackreleases.infrastructure.clusterstack.x-k8s.io
 spec:
   group: infrastructure.clusterstack.x-k8s.io
@@ -50,14 +50,19 @@ spec:
           API.
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
             type: string
           metadata:
             type: object
@@ -73,14 +78,16 @@ spec:
                   reconciling this cluster
                 properties:
                   kind:
-                    description: Kind of the identity. Must be supported by the infrastructure
+                    description: |-
+                      Kind of the identity. Must be supported by the infrastructure
                       provider and may be either cluster or namespace-scoped.
                     minLength: 1
                     type: string
                   name:
-                    description: Name of the infrastructure identity to be used. Must
-                      be either a cluster-scoped resource, or namespaced-scoped resource
-                      the same namespace as the resource(s) being provisioned.
+                    description: |-
+                      Name of the infrastructure identity to be used.
+                      Must be either a cluster-scoped resource, or namespaced-scoped
+                      resource the same namespace as the resource(s) being provisioned.
                     type: string
                 required:
                 - kind
@@ -98,37 +105,37 @@ spec:
                     operational state.
                   properties:
                     lastTransitionTime:
-                      description: Last time the condition transitioned from one status
-                        to another. This should be when the underlying condition changed.
-                        If that is not known, then using the time when the API field
-                        changed is acceptable.
+                      description: |-
+                        Last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed. If that is not known, then using the time when
+                        the API field changed is acceptable.
                       format: date-time
                       type: string
                     message:
-                      description: A human readable message indicating details about
-                        the transition. This field may be empty.
+                      description: |-
+                        A human readable message indicating details about the transition.
+                        This field may be empty.
                       type: string
                     reason:
-                      description: The reason for the condition's last transition
-                        in CamelCase. The specific API may choose whether or not this
-                        field is considered a guaranteed API. This field may not be
-                        empty.
+                      description: |-
+                        The reason for the condition's last transition in CamelCase.
+                        The specific API may choose whether or not this field is considered a guaranteed API.
+                        This field may not be empty.
                       type: string
                     severity:
-                      description: Severity provides an explicit classification of
-                        Reason code, so the users or machines can immediately understand
-                        the current situation and act accordingly. The Severity field
-                        MUST be set only when Status=False.
+                      description: |-
+                        Severity provides an explicit classification of Reason code, so the users or machines can immediately
+                        understand the current situation and act accordingly.
+                        The Severity field MUST be set only when Status=False.
                       type: string
                     status:
                       description: Status of the condition, one of True, False, Unknown.
                       type: string
                     type:
-                      description: Type of condition in CamelCase or in foo.example.com/CamelCase.
-                        Many .condition.type values are consistent across resources
-                        like Available, but because arbitrary conditions can be useful
-                        (see .node.status.conditions), the ability to deconflict is
-                        important.
+                      description: |-
+                        Type of condition in CamelCase or in foo.example.com/CamelCase.
+                        Many .condition.type values are consistent across resources like Available, but because arbitrary conditions
+                        can be useful (see .node.status.conditions), the ability to deconflict is important.
                       type: string
                   required:
                   - lastTransitionTime
@@ -150,7 +157,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.13.0
+    controller-gen.kubebuilder.io/version: v0.14.0
   name: openstackclusterstackreleasetemplates.infrastructure.clusterstack.x-k8s.io
 spec:
   group: infrastructure.clusterstack.x-k8s.io
@@ -170,14 +177,19 @@ spec:
           API.
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
             type: string
           metadata:
             type: object
@@ -202,16 +214,16 @@ spec:
                           used when reconciling this cluster
                         properties:
                           kind:
-                            description: Kind of the identity. Must be supported by
-                              the infrastructure provider and may be either cluster
-                              or namespace-scoped.
+                            description: |-
+                              Kind of the identity. Must be supported by the infrastructure
+                              provider and may be either cluster or namespace-scoped.
                             minLength: 1
                             type: string
                           name:
-                            description: Name of the infrastructure identity to be
-                              used. Must be either a cluster-scoped resource, or namespaced-scoped
-                              resource the same namespace as the resource(s) being
-                              provisioned.
+                            description: |-
+                              Name of the infrastructure identity to be used.
+                              Must be either a cluster-scoped resource, or namespaced-scoped
+                              resource the same namespace as the resource(s) being provisioned.
                             type: string
                         required:
                         - kind
@@ -238,7 +250,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.13.0
+    controller-gen.kubebuilder.io/version: v0.14.0
   name: openstacknodeimagereleases.infrastructure.clusterstack.x-k8s.io
 spec:
   group: infrastructure.clusterstack.x-k8s.io
@@ -272,14 +284,19 @@ spec:
           API.
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
             type: string
           metadata:
             type: object
@@ -292,14 +309,16 @@ spec:
                   reconciling this cluster
                 properties:
                   kind:
-                    description: Kind of the identity. Must be supported by the infrastructure
+                    description: |-
+                      Kind of the identity. Must be supported by the infrastructure
                       provider and may be either cluster or namespace-scoped.
                     minLength: 1
                     type: string
                   name:
-                    description: Name of the infrastructure identity to be used. Must
-                      be either a cluster-scoped resource, or namespaced-scoped resource
-                      the same namespace as the resource(s) being provisioned.
+                    description: |-
+                      Name of the infrastructure identity to be used.
+                      Must be either a cluster-scoped resource, or namespaced-scoped
+                      resource the same namespace as the resource(s) being provisioned.
                     type: string
                 required:
                 - kind
@@ -312,11 +331,13 @@ spec:
                     description: CreateOpts represents options used to create an image.
                     properties:
                       container_format:
-                        description: ContainerFormat is the format of the container.
-                          Valid values are ami, ari, aki, bare, and ovf.
+                        description: |-
+                          ContainerFormat is the format of the
+                          container. Valid values are ami, ari, aki, bare, and ovf.
                         type: string
                       disk_format:
-                        description: DiskFormat is the format of the disk. If set,
+                        description: |-
+                          DiskFormat is the format of the disk. If set,
                           valid values are ami, ari, aki, vhd, vmdk, raw, qcow2, vdi,
                           and iso.
                         type: string
@@ -324,12 +345,14 @@ spec:
                         description: Id is the the image ID.
                         type: string
                       min_disk:
-                        description: MinDisk is the amount of disk space in GB that
-                          is required to boot the image.
+                        description: |-
+                          MinDisk is the amount of disk space in
+                          GB that is required to boot the image.
                         type: integer
                       min_ram:
-                        description: MinRAM is the amount of RAM in MB that is required
-                          to boot the image.
+                        description: |-
+                          MinRAM is the amount of RAM in MB that
+                          is required to boot the image.
                         type: integer
                       name:
                         description: Name is the name of the new image.
@@ -373,37 +396,37 @@ spec:
                     operational state.
                   properties:
                     lastTransitionTime:
-                      description: Last time the condition transitioned from one status
-                        to another. This should be when the underlying condition changed.
-                        If that is not known, then using the time when the API field
-                        changed is acceptable.
+                      description: |-
+                        Last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed. If that is not known, then using the time when
+                        the API field changed is acceptable.
                       format: date-time
                       type: string
                     message:
-                      description: A human readable message indicating details about
-                        the transition. This field may be empty.
+                      description: |-
+                        A human readable message indicating details about the transition.
+                        This field may be empty.
                       type: string
                     reason:
-                      description: The reason for the condition's last transition
-                        in CamelCase. The specific API may choose whether or not this
-                        field is considered a guaranteed API. This field may not be
-                        empty.
+                      description: |-
+                        The reason for the condition's last transition in CamelCase.
+                        The specific API may choose whether or not this field is considered a guaranteed API.
+                        This field may not be empty.
                       type: string
                     severity:
-                      description: Severity provides an explicit classification of
-                        Reason code, so the users or machines can immediately understand
-                        the current situation and act accordingly. The Severity field
-                        MUST be set only when Status=False.
+                      description: |-
+                        Severity provides an explicit classification of Reason code, so the users or machines can immediately
+                        understand the current situation and act accordingly.
+                        The Severity field MUST be set only when Status=False.
                       type: string
                     status:
                       description: Status of the condition, one of True, False, Unknown.
                       type: string
                     type:
-                      description: Type of condition in CamelCase or in foo.example.com/CamelCase.
-                        Many .condition.type values are consistent across resources
-                        like Available, but because arbitrary conditions can be useful
-                        (see .node.status.conditions), the ability to deconflict is
-                        important.
+                      description: |-
+                        Type of condition in CamelCase or in foo.example.com/CamelCase.
+                        Many .condition.type values are consistent across resources like Available, but because arbitrary conditions
+                        can be useful (see .node.status.conditions), the ability to deconflict is important.
                       type: string
                   required:
                   - lastTransitionTime
@@ -743,7 +766,7 @@ spec:
             secretKeyRef:
               key: git-access-token
               name: cspo-cluster-stack-variables
-        image: ghcr.io/sovereigncloudstack/cspo:v0.1.0-alpha.3
+        image: ghcr.io/sovereigncloudstack/cspo:v0.1.0-alpha.4
         livenessProbe:
           httpGet:
             path: /healthz
