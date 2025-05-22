@@ -91,12 +91,12 @@ into the `k8s-cluster-api-provider` directory. Note that the checked out
 branch will be the one that has been used when creating the management host,
 and you might want to change branches from `maintained/v3.x` to `maintained/v4.x`
 in case of R2 to R3 upgrade, `maintained/v5.x` for R3 to R4 upgrade, `maintained/v6.x`
-for R4 to R5 upgrade or `maintained/v7.x` for R5 to R6 upgrade.
+for R4 to R5 upgrade or the tag `v7.0.0` for R5 to R6 upgrade.
 Use `git branch -rl` to see available branches in the k8s-cluster-api-provider
 repository.
 
-You can update the scripts and templates by checking out the relevant branch
-`main`, `maintained/v4.x`, `maintained/v5.x`, `maintained/v6.x` or `maintained/v7.x`
+You can update the scripts and templates by checking out the relevant branch/tag
+`main`, `maintained/v4.x`, `maintained/v5.x`, `maintained/v6.x` or `v7.0.0`
 and using a `git pull` to ensure the latest content is retrieved.
 Once you do that, the cluster-management scripts will be up-to-date.
 (The `~/bin` directory in your search `PATH` is symlinked to the check-ed out scripts.)
@@ -140,11 +140,9 @@ You can then upgrade the components:
 
 1. `export CLUSTER_TOPOLOGY=true` - this is needed from R5 to R6 upgrade due to ClusterClass feature #600
 2. Upgrade components
-   - You can do them one-by-one, e.g.:
-     ```bash
-     clusterctl upgrade apply --infrastructure capo-system/openstack:v0.9.0 --core capi-system/cluster-api:v1.6.2 -b capi-kubeadm-bootstrap-system/kubeadm:v1.6.2 -c capi-kubeadm-control-plane-system/kubeadm:v1.6.2
-     ```
-   - Or simply do `clusterctl upgrade apply --contract v1beta1`
+   ```bash
+   clusterctl upgrade apply --infrastructure capo-system/openstack:v0.9.0 --core capi-system/cluster-api:v1.6.2 -b capi-kubeadm-bootstrap-system/kubeadm:v1.6.2 -c capi-kubeadm-control-plane-system/kubeadm:v1.6.2
+   ```
 
 #### New templates
 
@@ -220,7 +218,13 @@ You can use script `update-R4-to-R5.sh` to update the cluster's `cluster-templat
 R4 to R5. This script could update an existing Kubernetes cluster configuration files
 as well as `cluster-defaults` files that could be used for spawning new R5 clusters.
 
-If you want to update an existing cluster configuration files from R4 to R5, just use script as follows:
+> Note: If you didn't change `cluster-template.yaml` or `clusterctl.yaml` before, the script should work
+> without any problems. If you customized these files (e.g. when you are upgrading from the main branch, instead of maintained/v5.x),
+> you should review the [script](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/terraform/files/bin/update-R4-to-R5.sh)
+> and apply necessary changes manually. E.g. use `git diff ~/${CLUSTER_NAME}/cluster-template.yaml ~/k8s-cluster-api-provider/terraform/files/template/cluster-template.yaml`,
+> revisit changes between releases and your customizations and apply them.
+
+If you want to update an existing cluster configuration files from R4 to R5, just use script as follows (backup recommended):
 ```bash
 update-R4-to-R5.sh <CLUSTER_NAME>
 ```
@@ -251,7 +255,13 @@ You can use script `update-R5-to-R6.sh` to update the cluster's `cluster-templat
 R5 to R6. This script could update an existing Kubernetes cluster configuration files
 as well as `cluster-defaults` files that could be used for spawning new R6 clusters.
 
-If you want to update an existing cluster configuration files from R5 to R6, just use script as follows:
+> Note: If you didn't change `cluster-template.yaml` or `clusterctl.yaml` before, the script should work
+> without any problems. If you customized these files (e.g. when you are upgrading from the main branch, instead of maintained/v6.x),
+> you should review the [script](https://github.com/SovereignCloudStack/k8s-cluster-api-provider/blob/main/terraform/files/bin/update-R5-to-R6.sh)
+> and apply necessary changes manually. E.g. use `git diff ~/${CLUSTER_NAME}/cluster-template.yaml ~/k8s-cluster-api-provider/terraform/files/template/cluster-template.yaml`,
+> revisit changes between releases and your customizations and apply them.
+
+If you want to update an existing cluster configuration files from R5 to R6, just use script as follows (backup recommended):
 ```bash
 update-R5-to-R6.sh <CLUSTER_NAME>
 ```
@@ -371,54 +381,55 @@ If you decide to migrate your existing Kubernetes cluster from R4 to R5 be aware
 
 Follow the below steps if you want to migrate an existing cluster from R4 to R5:
 1. Access your management node
-2. Checkout R5 branch
+2. Make sure there are no changes waiting to be applied (`create_cluster.sh <CLUSTER_NAME>`)
+3. Checkout R5 branch
    ```bash
    cd k8s-cluster-api-provider
    git pull
    git checkout maintained/v6.x
    ```
-3. Backup an existing cluster configuration files (recommended)
+4. Backup an existing cluster configuration files (recommended)
    ```bash
    cd ..
    cp -R <CLUSTER_NAME> <CLUSTER_NAME>-backup
    ```
-4. Update an existing cluster configuration files from R4 to R5
+5. Update an existing cluster configuration files from R4 to R5, see [related](#r4-to-r5) section for details before
    ```bash
    update-R4-to-R5.sh <CLUSTER_NAME>
    ```
-5. Validate updated cluster configuration files. You will find that e.g. Calico version
+6. Validate updated cluster configuration files. You will find that e.g. Calico version
    has been bumped from v3.25.0 to v3.26.1. Note that some software versions are not configurable
    and are not directly mentioned in the cluster configuration files, but they are hardcoded
    in R5 scripts (e.g. ingress nginx controller, metrics server). Hence, read carefully the
    R5 release notes too. Also see that Kubernetes version was not updated, and it is still v1.25.6.
-6. Update an existing cluster (except Kubernetes version)
+7. Update an existing cluster (except Kubernetes version)
    ```bash
    create_cluster.sh <CLUSTER_NAME>
    ```
-7. Update cluster-API and openstack cluster-API provider, see [related](#updating-cluster-api-and-openstack-cluster-api-provider) section for details
+8. Update cluster-API and openstack cluster-API provider, see [related](#updating-cluster-api-and-openstack-cluster-api-provider) section for details
    ```bash
    clusterctl upgrade plan
-   clusterctl upgrade apply --contract v1beta1
+   clusterctl upgrade apply --infrastructure capo-system/openstack:v0.7.3 --core capi-system/cluster-api:v1.5.1 -b capi-kubeadm-bootstrap-system/kubeadm:v1.5.1 -c capi-kubeadm-control-plane-system/kubeadm:v1.5.1
    ```
-8. Bump Kubernetes version +1 minor release (to v1.26.8) and increase the generation counter for node and control plane nodes
+9. Bump Kubernetes version +1 minor release (to v1.26.8) and increase the generation counter for node and control plane nodes
    ```bash
    sed -i 's/^KUBERNETES_VERSION: v1.25.6/KUBERNETES_VERSION: v1.26.8/' <CLUSTER_NAME>/clusterctl.yaml
    sed -i 's/^OPENSTACK_IMAGE_NAME: ubuntu-capi-image-v1.25.6/OPENSTACK_IMAGE_NAME: ubuntu-capi-image-v1.26.8/' <CLUSTER_NAME>/clusterctl.yaml
    sed -r 's/(^CONTROL_PLANE_MACHINE_GEN: genc)([0-9][0-9])/printf "\1%02d" $((\2+1))/ge' -i <CLUSTER_NAME>/clusterctl.yaml
    sed -r 's/(^WORKER_MACHINE_GEN: genw)([0-9][0-9])/printf "\1%02d" $((\2+1))/ge' -i <CLUSTER_NAME>/clusterctl.yaml
    ```
-9. Update an existing cluster Kubernetes version to v1.26.8
-   ```bash
-   create_cluster.sh <CLUSTER_NAME>
-   ```
-10. Bump Kubernetes version to R5 v1.27.5 and increase the generation counter for node and control plane nodes
+10. Update an existing cluster Kubernetes version to v1.26.8
+    ```bash
+    create_cluster.sh <CLUSTER_NAME>
+    ```
+11. Bump Kubernetes version to R5 v1.27.5 and increase the generation counter for node and control plane nodes
    ```bash
    sed -i 's/^KUBERNETES_VERSION: v1.26.8/KUBERNETES_VERSION: v1.27.5/' <CLUSTER_NAME>/clusterctl.yaml
    sed -i 's/^OPENSTACK_IMAGE_NAME: ubuntu-capi-image-v1.26.8/OPENSTACK_IMAGE_NAME: ubuntu-capi-image-v1.27.5/' <CLUSTER_NAME>/clusterctl.yaml
    sed -r 's/(^CONTROL_PLANE_MACHINE_GEN: genc)([0-9][0-9])/printf "\1%02d" $((\2+1))/ge' -i <CLUSTER_NAME>/clusterctl.yaml
    sed -r 's/(^WORKER_MACHINE_GEN: genw)([0-9][0-9])/printf "\1%02d" $((\2+1))/ge' -i <CLUSTER_NAME>/clusterctl.yaml
    ```
-11. Update an existing cluster to the R5 Kubernetes version v1.27.5
+12. Update an existing cluster to the R5 Kubernetes version v1.27.5
     ```bash
     create_cluster.sh <CLUSTER_NAME>
     ```
@@ -432,49 +443,50 @@ If you decide to migrate your existing Kubernetes cluster from R5 to R6 be aware
 
 Follow the below steps if you want to migrate an existing cluster from R5 to R6:
 1. Access your management node
-2. Checkout R6 branch
+2. Make sure there are no changes waiting to be applied (`create_cluster.sh <CLUSTER_NAME>`)
+3. Checkout R6 release
    ```bash
    cd k8s-cluster-api-provider
    git pull
-   git checkout maintained/v7.x
+   git checkout v7.0.0
    ```
-3. Backup an existing cluster configuration files (recommended)
+4. Backup an existing cluster configuration files (recommended)
    ```bash
    cd ..
    cp -R <CLUSTER_NAME> <CLUSTER_NAME>-backup
    ```
-4. Update an existing cluster configuration files from R5 to R6
+5. Update an existing cluster configuration files from R5 to R6, see [related](#r5-to-r6) section for details before
    ```bash
    update-R5-to-R6.sh <CLUSTER_NAME>
    ```
-5. Validate updated cluster configuration files. You will find that e.g. Calico version
+6. Validate updated cluster configuration files. You will find that e.g. Calico version
    has been bumped from v3.26.1 to v3.27.2 or Kubernetes version bumped from v1.27.5 to v1.28.7.
    Note that some software versions are not configurable and are not directly mentioned in the
    cluster configuration files, but they are hardcoded in R6 scripts (e.g. ingress nginx controller,
    metrics server, cilium). Hence, read carefully the R6 release notes too.
-6. Update cluster-API and openstack cluster-API provider, see [related](#updating-cluster-api-and-openstack-cluster-api-provider) section for details
+7. Update cluster-API and openstack cluster-API provider, see [related](#updating-cluster-api-and-openstack-cluster-api-provider) section for details
    ```bash
    clusterctl upgrade plan
    export CLUSTER_TOPOLOGY=true
-   clusterctl upgrade apply --contract v1beta1
+   clusterctl upgrade apply --infrastructure capo-system/openstack:v0.9.0 --core capi-system/cluster-api:v1.6.2 -b capi-kubeadm-bootstrap-system/kubeadm:v1.6.2 -c capi-kubeadm-control-plane-system/kubeadm:v1.6.2
    ```
-7. Migrate to ClusterClass
+8. Migrate to ClusterClass
    ```bash
    migrate-to-cluster-class.sh <CLUSTER_NAME>
    ```
-8. Increase the generation counter for worker and control plane nodes
+9. Increase the generation counter for worker and control plane nodes
    ```bash
    sed -r 's/(^CONTROL_PLANE_MACHINE_GEN: genc)([0-9][0-9])/printf "\1%02d" $((\2+1))/ge' -i <CLUSTER_NAME>/clusterctl.yaml
    sed -r 's/(^WORKER_MACHINE_GEN: genw)([0-9][0-9])/printf "\1%02d" $((\2+1))/ge' -i <CLUSTER_NAME>/clusterctl.yaml
    ```
-9. Update an existing cluster to the R6
-   ```bash
-   create_cluster.sh <CLUSTER_NAME>
-   ```
-   > Note: You will probably experience a double rollout of nodes because
-   > the k8s version and templates are changed concurrently here.
-   > See [https://cluster-api.sigs.k8s.io/tasks/experimental-features/cluster-class/operate-cluster#effects-of-concurrent-changes](https://cluster-api.sigs.k8s.io/tasks/experimental-features/cluster-class/operate-cluster#effects-of-concurrent-changes)
-10. Upgrade cilium (for clusters with `USE_CILIUM: true`)
+10. Update an existing cluster to the R6
+    ```bash
+    create_cluster.sh <CLUSTER_NAME>
+    ```
+    > Note: You will probably experience a double rollout of nodes because
+    > the k8s version and templates are changed concurrently here.
+    > See [https://cluster-api.sigs.k8s.io/tasks/experimental-features/cluster-class/operate-cluster#effects-of-concurrent-changes](https://cluster-api.sigs.k8s.io/tasks/experimental-features/cluster-class/operate-cluster#effects-of-concurrent-changes)
+11. Upgrade cilium (for clusters with `USE_CILIUM: true`)
     ```bash
     KUBECONFIG=<CLUSTER_NAME>/<CLUSTER_NAME>.yaml bash -c 'helm get values cilium -n kube-system -o yaml | cilium upgrade --version v1.15.1 -f -'
     ```
