@@ -17,7 +17,7 @@ mgmt_ip_range        = {"start": "<start of the IP range>", "end": "<end of the 
 # Settings for testcluster
 kubernetes_version   = "<v1.XX.XX>"		  # defaults to "v1.28.x"
 kube_image_raw       = "<boolean>"      # defaults to "true"
-calico_version       = "<v3.xx.y>"	# defaults to `v3.27.3` <!-- renovate: datasource=github-releases depName=projectcalico/calico -->
+calico_version       = "<v3.xx.y>"	# defaults to `v3.30.1` <!-- renovate: datasource=github-releases depName=projectcalico/calico -->
 controller_flavor    = "<flavor>"       # defaults to SCS-2V-4-20s (use etcd tweaks if you only have SCS-2V-4-20 in multi-controller setups)
 worker_flavor        = "<flavor>"       # defaults to SCS-2V-4-20s  (larger helps)
 controller_count     = <number>         # defaults to 1 (0 skips testcluster creation)
