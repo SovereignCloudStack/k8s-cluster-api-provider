@@ -73,7 +73,7 @@ variable "ssh_username" {
 variable "calico_version" {
   description = "desired version of calico"
   type        = string
-  default     = "v3.27.3" # renovate: datasource=github-releases depName=projectcalico/calico
+  default     = "v3.30.1" # renovate: datasource=github-releases depName=projectcalico/calico
 }
 
 variable "clusterapi_version" {
